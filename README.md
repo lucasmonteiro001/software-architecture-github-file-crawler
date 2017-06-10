@@ -1,0 +1,2 @@
+Dependecies:
+pip install PyGithub
