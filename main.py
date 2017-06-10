@@ -16,6 +16,11 @@ class RepositoryHelper(object):
         file_content = self.repo.get_file_contents(self.path, "master")
         return base64.b64decode(file_content.content).decode('UTF-8')
 
+    def save_to_file(self):
+        f = open('output/' + self.repo_name.replace("/", "__") + '.yml', 'w')
+        f.write(self.get_file_content())
+        f.close()
+
     def __str__(self):
         return super(RepositoryHelper, self).__str__()
 
@@ -25,13 +30,5 @@ repositories = open('resultado-compilado-sem-virgula.json', 'r').read().split('\
 for repo in repositories:
     repoJson = data = json.loads(repo)
     repository = RepositoryHelper(repoJson['repo_name'], repoJson['path'])
-    print repository.get_file_content()
-
-exit()
-
-g = Github()
-
-repo = g.get_repo("thomasleveil/kontena")
-file_contents = repo.get_file_contents("server/docker-compose.yml", "master")
-
-print base64.b64decode(file_contents.content).decode('UTF-8')
+    repository.save_to_file()
+    print repository.repo_name + ": processed"
