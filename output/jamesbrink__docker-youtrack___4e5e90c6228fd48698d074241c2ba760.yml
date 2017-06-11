@@ -1,0 +1,8 @@
+youtrack:
+  build: .
+  links: 
+    - smtp
+  ports:
+    - "8080:8080"
+smtp:
+  image: jamesbrink/postfix

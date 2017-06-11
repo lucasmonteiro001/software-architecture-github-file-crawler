@@ -1,0 +1,27 @@
+db:
+  image: postgres:9.5
+  ports:
+    - 5432
+  environment:
+    POSTGRES_USER: bricolage
+    POSTGRES_PASSWORD: bricolage
+
+app:
+  build: .
+  links:
+    - db
+  volumes:
+    - /tmp:/log
+  env_file: env.docker
+  environment:
+    SPRING_DATASOURCE_URL: "jdbc:postgresql://db:5432/postgres"
+    SPRING_DATASOURCE_USERNAME: "bricolage"
+    SPRING_DATASOURCE_PASSWORD: "bricolage"
+    WORKER_NUM: 1
+
+mig:
+  build: ./db
+  links:
+    - db
+  environment:
+    DATABASE_URL: "postgresql://bricolage:bricolage@db:5432/postgres"

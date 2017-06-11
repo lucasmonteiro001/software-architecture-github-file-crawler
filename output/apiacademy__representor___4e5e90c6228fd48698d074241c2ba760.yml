@@ -1,0 +1,5 @@
+representordockertest: 
+  build: .
+  command: "npm test"
+  environment: 
+    - NODE_ENV=test

@@ -1,0 +1,26 @@
+db:
+  image: mariadb:latest
+  ports:
+    # ext:int port.
+    - "3306:3306"
+  environment:
+    # This is obviously not a safe configuration usage in production.
+    - MYSQL_DATABASE={{project_name}}
+    - MYSQL_USER={{project_name}}
+    - MYSQL_PASSWORD={{project_name}}
+    - MYSQL_ROOT_PASSWORD={{project_name}}
+
+web:
+  build: .
+  command: python manage.py runserver 0:8000
+  volumes:
+    - .:/home/docker/{{project_name}}
+  ports:
+    # ext:int port.
+    - "8005:8000"
+  links:
+    # Define all containers for easy running of development setup.
+    - db
+  environment:
+    - DEBUG=1
+    - DATABASE_URL=mysql://{{project_name}}:{{project_name}}@db/{{project_name}}

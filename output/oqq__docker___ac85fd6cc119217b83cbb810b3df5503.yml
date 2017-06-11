@@ -1,0 +1,17 @@
+version: '2'
+
+services:
+  rabbit:
+    container_name: 'rabbit'
+    hostname: 'rabbit'
+    image: rabbitmq:3-management
+    restart: always
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+    volumes:
+      - /var/lib/rabbitmq:/var/lib/rabbitmq
+    mem_limit: 512M
+    memswap_limit: 512M
+    env_file:
+      - .secrets

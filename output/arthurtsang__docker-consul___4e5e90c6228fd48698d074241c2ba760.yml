@@ -1,0 +1,15 @@
+consul:
+  image: consul
+  hostname: node1
+  ports:
+    - "8300:8300"
+    - "8301:8301"
+    - "8301:8301/udp"
+    - "8302:8302"
+    - "8302:8302/udp"
+    - "8400:8400"
+    - "8500:8500"
+    - "53:53/udp"
+  volumes:
+    - /var/consul:/var/consul
+  command: agent -config-dir /opt/config -advertise ip.node1 -bootstrap-expect 2 -retry-join node1 -retry-join node2

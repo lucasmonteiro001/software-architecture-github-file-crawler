@@ -1,0 +1,13 @@
+streamroller:
+  image: dustinblackman/streamroller:latest
+  restart: always
+  ports:
+    - '80:8080'
+  environment:
+    SR_FACEBOOK_LIVEKEY: ''
+    SR_FACEBOOK_TOKEN: ''
+    SR_TWITCH_LIVEKEY: ''
+    SR_TWITCH_USERNAME: ''
+    SR_TWITCH_OAUTH: ''
+    SR_YOUTUBE_LIVEKEY: ''
+    SR_YOUTUBE_TOKEN: ''

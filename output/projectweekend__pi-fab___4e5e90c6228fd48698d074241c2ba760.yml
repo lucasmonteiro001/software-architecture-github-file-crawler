@@ -1,0 +1,5 @@
+fab:
+    build: .
+    volumes:
+        - .:/src
+        - ~/.ssh:/root/.ssh

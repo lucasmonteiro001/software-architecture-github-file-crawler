@@ -1,0 +1,10 @@
+emgenpy:
+    build: .
+    volumes:
+        - ../:/usr/src/app/
+    ports:
+        - "8080:8080"
+    working_dir: "/usr/src/app/"
+    command: "python ./start.py"
+    external_links:
+        - mongo

@@ -1,0 +1,19 @@
+web:
+  build: .
+  volumes:
+    - .:/simple-cms
+  ports:
+    - 3000:3000
+  dockerfile: Dockerfile-dev
+  links:
+    - mongodb
+  log_driver: "json-file"
+  log_opt:
+    max-size: "10m"
+    max-file: "4"
+mongodb:
+  image: mongo:3.0.4
+  log_driver: "json-file"
+  log_opt:
+    max-size: "10m"
+    max-file: "4"

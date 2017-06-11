@@ -1,0 +1,45 @@
+version: "2"
+services:
+  consul1:
+    image: "consul:0.8.0"
+    container_name: "consul1"
+    hostname: "consul1"
+    environment:
+      - CONSUL_LOCAL_CONFIG={"acl_datacenter":"dc1", "acl_master_token":"token"}
+    ports:
+      - "8500:8500"
+      - "8600:53"
+    command: "agent -server -bootstrap -client=0.0.0.0 -node-id=5a3ff1a9-4447-4733-8dda-e8166e0b5c21 -ui"
+  consul2:
+    image: "consul:0.8.0"
+    container_name: "consul2"
+    hostname: "consul2"
+    expose:
+      - "8500"
+      - "8600"
+    command: "agent -join=consul1 -client=0.0.0.0"
+    depends_on:
+      - consul1
+  akka_node1:
+    image: "constructr-coordination-demo:latest"
+    container_name: "akka_node1"
+    hostname: "akka_node1"
+    ports:
+      - "8000:8000"
+    depends_on:
+      - consul1
+      - consul2
+  akka_node2:
+    image: "constructr-coordination-demo:latest"
+    container_name: "akka_node2"
+    hostname: "akka_node2"
+    depends_on:
+      - consul1
+      - consul2
+  akka_node3:
+    image: "constructr-coordination-demo:latest"
+    container_name: "akka_node3"
+    hostname: "akka_node3"
+    depends_on:
+      - consul1
+      - consul2

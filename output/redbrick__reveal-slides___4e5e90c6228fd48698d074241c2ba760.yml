@@ -1,0 +1,12 @@
+version: "3"
+services:
+  slides:
+    image: node:boron-slim
+    command: yarn start
+    working_dir: /usr/src/app
+    tty: true
+    ports:
+      - "8000:8000"
+      - "35729:35729"
+    volumes:
+      -  $PWD:/usr/src/app

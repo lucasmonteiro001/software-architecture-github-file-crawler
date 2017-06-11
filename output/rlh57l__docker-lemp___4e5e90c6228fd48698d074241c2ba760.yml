@@ -1,0 +1,10 @@
+web:
+  build: .
+  volumes:
+    - logs:/var/output
+    - www:/usr/share/nginx/www
+    - db:/var/lib/mysql
+  command: "/opt/startup.sh"
+  ports:
+    - "80:80"
+    - "3306:3306"

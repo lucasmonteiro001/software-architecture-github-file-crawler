@@ -1,0 +1,53 @@
+version: '2'
+services:
+  ui:
+    build: ./ui
+    image: gcr.io/disertatie-1351/ui
+    environment:
+     - REPOSITORY_ADDR=repository:50051
+     - EXPERIMENTO_ADDR=experimento:50051
+     - NODE_ENV=production
+    ports:
+     - "3000:3000"
+    depends_on:
+     - repository
+     - experimento
+  experimento:
+    build:
+      context: ./backend
+      dockerfile: ./experimento/service/Dockerfile
+    image: gcr.io/disertatie-1351/experimento
+    environment:
+     - STORE_ADDR=store:50051
+     - REPOSITORY_ADDR=repository:50051
+     - SERVICE_PORT=50051
+    ports:
+     - "50051:50051"
+    depends_on:
+     - repository
+     - store
+  repository:
+    build:
+      context: ./backend
+      dockerfile: ./repositories/service/Dockerfile
+    image: gcr.io/disertatie-1351/repository
+    environment:
+     - REDIS_ADDR=redis:6379
+     - SERVICE_PORT=50051
+    depends_on:
+     - redis
+  store:
+    build:
+      context: ./backend
+      dockerfile: ./stores/service/Dockerfile
+    image: gcr.io/disertatie-1351/store
+    environment:
+     - REDIS_ADDR=redis:6379
+     - SERVICE_PORT=50051
+    depends_on:
+     - redis
+  redis:
+    image: redis
+    command: redis-server --appendonly yes
+    volumes:
+     - ./backend/volumes:/data

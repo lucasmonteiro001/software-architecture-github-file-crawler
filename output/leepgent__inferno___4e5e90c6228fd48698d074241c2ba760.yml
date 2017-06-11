@@ -1,0 +1,12 @@
+version: '2'
+services:
+  db:
+    image: postgres:
+  app:
+    build: .
+    environment:
+      - DATABASE_URL=postgres://postgres@db:5432/postgres
+    ports:
+      - "8000:80"
+    depends_on:
+      - db

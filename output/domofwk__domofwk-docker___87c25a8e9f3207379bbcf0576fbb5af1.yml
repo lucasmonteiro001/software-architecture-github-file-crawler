@@ -1,0 +1,13 @@
+frafana:
+    image: domofwk/grafana:latest
+    links:
+        - influxdb
+    ports:
+        - ":80:80"
+influxdb:
+    image: domofwk/influxdb:latest
+    ports:
+        - ":8083:8083"
+        - ":8084:8084"
+        - ":8086:8086"
+

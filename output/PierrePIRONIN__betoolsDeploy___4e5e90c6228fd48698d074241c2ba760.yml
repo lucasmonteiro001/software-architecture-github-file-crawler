@@ -1,0 +1,30 @@
+ubuntubase:
+    build: ./ubuntu-base
+betools:
+    build: ./betools
+    expose:
+        - "3000"
+    volumes:
+        - ./betools/logs:/var/log/betools/
+        - ./betools/app/:/var/www/html/
+    links:
+        - mongodb:db
+mongodb:
+    build: ./mongodb
+    expose:
+        - "3333"
+    volumes:
+        - ./mongodb/logs/:/var/log/mongodb/
+        - ./mongodb/db:/data/db
+nginxreverseproxy:
+    build: ./nginx-reverse-proxy
+    expose:
+        - "80"
+        - "443"
+    links:
+        - betools
+    ports:
+        - "80:80"
+    volumes:
+        - ./nginx-reverse-proxy/logs/:/var/log/nginx/
+        - ./betools/app/:/var/www/html/

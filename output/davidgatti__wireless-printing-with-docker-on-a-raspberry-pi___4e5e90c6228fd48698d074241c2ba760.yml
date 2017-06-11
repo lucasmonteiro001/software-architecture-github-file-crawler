@@ -1,0 +1,48 @@
+version: '2'
+
+services:
+
+  cups:
+    build: cups
+    ports:
+     - "631:631"
+    networks:
+     - print
+    environment:
+     CUPS_USER: print
+    volumes:
+     - printers:/usr/share/cups/drivers
+     - /dev/bus/usb:/dev/bus/usb
+     - /var/run/dbus:/var/run/dbus
+
+
+  samba:
+    build: samba
+    ports:
+     - "445:445"
+     - "445:445/udp"
+     - "137:137/udp"
+     - "138:138/udp"
+     - "139:139"
+    volumes:
+     - printers:/home/drivers
+     - /var/run/dbus:/var/run/dbus
+    networks:
+     - print
+
+  avahi:
+    build: avahi
+    ports:
+     - "5353:5353/udp"
+     - "53791:53791/udp"
+    networks:
+     - print
+    volumes:
+     - /var/run/dbus:/var/run/dbus
+
+networks:
+  print:
+    driver: bridge
+
+volumes:
+  printers:

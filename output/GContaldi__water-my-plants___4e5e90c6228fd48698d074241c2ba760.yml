@@ -1,0 +1,14 @@
+mongodb:
+  image: mongo:3.3
+  hostname: mongodb
+  ports:
+    - 27017:27017
+  volumes:
+    - './data/mongodb:/data/db'
+mqtt:
+  image: toke/mosquitto
+  hostname: mosquitto
+  ports:
+    - 1883:1883
+  volumes:
+    - './data/mqtt:/mqtt/data'

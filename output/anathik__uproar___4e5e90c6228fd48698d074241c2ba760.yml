@@ -1,0 +1,18 @@
+version: '2'
+services:
+  server:
+    build:
+      context: .
+      dockerfile: ./infra/images/server/Dockerfile
+    ports:
+     - "3000:3000"
+    volumes:
+     - ./infra/volumes/audio:/audio
+  db:
+    image: postgres:9.6
+    environment:
+      POSTGRES_DB: uproar
+      POSTGRES_USER: super
+      POSTGRES_PASSWORD: 12131415
+    ports:
+     - "5432:5432"

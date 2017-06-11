@@ -1,0 +1,15 @@
+proxy:
+    build: .
+    dockerfile: Dockerfile-nginx
+    links:
+        - web
+web:
+    build: .
+    dockerfile: Dockerfile-web
+    ports:
+        - "3003:3003"
+    links:
+        - mongodb:radius_db
+    restart: always
+mongodb:
+    image: mongo:3.1.9

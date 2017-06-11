@@ -1,0 +1,19 @@
+#
+# copy this file to your source root and execute: 'docker-compose up -d bitbucket'
+# inside your terminal.
+#
+# our bitbucket service container
+#
+bitbucket:
+  restart: 'always'
+  # image: dunkelfrosch/bitbucket
+  build: .
+  container_name: df-atls-bitbucket
+
+  ports:
+    - "7990:7990"
+    - "7999:7999"
+
+  privileged: false
+  stdin_open: true
+  tty: true

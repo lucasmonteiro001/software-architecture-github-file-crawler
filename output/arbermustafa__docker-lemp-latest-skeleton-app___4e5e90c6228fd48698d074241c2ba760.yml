@@ -1,0 +1,59 @@
+app:
+    image: php:7.0-fpm
+    volumes:
+        - ./src:/path/to/document/root/on/container
+    command: "true"
+
+data:
+    image: mysql:latest
+    volumes:
+        - /var/lib/mysql
+    command: "true"
+
+nginx:
+    build: ./docker/nginx/
+    environment:
+        - 'VIRTUAL_HOST=http://domain.local'  
+    ports:
+        - 80
+    links:
+        - php
+    volumes_from:
+        - app
+
+php:
+    build: ./docker/php/
+    expose:
+        - 9000
+    links:
+        - mysql
+    volumes_from:
+        - app
+        
+router:
+    image: tutum/haproxy:latest
+    environment:
+        - BACKEND_PORT=80
+    links:
+        - nginx
+    ports:
+        - 80:80
+    privileged: true
+    restart: always
+
+composer:
+    image: composer/composer
+
+mysql:
+    build: ./docker/mysql/
+    volumes_from:
+        - data
+
+phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    ports:
+        - 8080:80
+    links:
+        - mysql
+    environment:
+        PMA_HOST: mysql

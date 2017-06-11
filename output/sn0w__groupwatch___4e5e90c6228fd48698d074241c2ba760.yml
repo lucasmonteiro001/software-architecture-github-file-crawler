@@ -1,0 +1,43 @@
+version: "3"
+
+# docker network create --subnet=172.254.254.0/24 userdef
+networks:
+  default:
+    external:
+      name: userdef
+
+services:
+  frontend:
+    image: sn0w/apache-php7
+    volumes:
+      - ./frontend:/www
+    labels:
+      - traefik.enable=true
+      - traefik.port=80
+      - traefik.protocol=http
+      - traefik.frontend.rule=Host:stream.lukas.moe
+
+  backend:
+    build: backend
+    volumes:
+      - /srv/stream-data:/data
+    ports:
+      - 1935:1935
+
+  gateway:
+    build: gateway
+    volumes:
+      - /srv/stream-data:/data
+    labels:
+      - traefik.enable=true
+      - traefik.port=80
+      - traefik.protocol=http
+      - traefik.frontend.rule=Host:data.stream.lukas.moe
+
+  bot:
+    build: bot
+    labels:
+      - traefik.enable=true
+      - traefik.port=8888
+      - traefik.protocol=http
+      - traefik.frontend.rule=Host:bot.stream.lukas.moe

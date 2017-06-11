@@ -1,0 +1,6 @@
+fluentd:
+  image: ermaker/fluentd
+  volumes:
+    - ./fluentd/td-agent.conf:/etc/td-agent/td-agent.conf:ro
+    - ../fluentd.conf:/etc/td-agent/conf.d:ro
+  restart: always

@@ -1,0 +1,42 @@
+version: '2'
+
+services:
+  web:
+    restart: always
+    build: ./web
+    ports:
+      - "8443"
+    depends_on:
+      - mongo
+    volumes:
+      - ./web:/usr/src/app
+      - ./web/static:/usr/src/app/static
+    env_file: env
+    command: bash -c "python manage.py collectstatic --noinput && python manage.py runsslserver 0.0.0.0:8443 --certificate /usr/src/app/certificate/development.crt --key /usr/src/app/certificate/development.key"
+
+  nginx:
+    restart: always
+    build: ./nginx/
+    ports:
+      - "443:443"
+      - "80:80"
+    volumes:
+      - /www/static
+    volumes_from:
+      - web
+    links:
+      - web:web
+
+  mongo:
+    restart: always
+    image: mongo:3.2.4
+    ports:
+      - "27017:27017"
+    volumes_from:
+      - data
+
+  data:
+    image: cogniteev/echo
+    volumes:
+      - /data
+    command: echo 'Data Container for MongoDB'

@@ -1,0 +1,47 @@
+version: '2'
+services:
+  app-frontend:
+    image: nginx:latest
+    ports:
+      - "80:80"
+    volumes:
+      - ./app-frontend/src/client:/var/www
+      - ./app-frontend/nginx.conf:/etc/nginx/conf.d/default.conf
+    links:
+      - app-backend
+    depends_on:
+      - app-backend
+
+  app-backend:
+    build: app-backend
+    ports:
+      - "8080:3000"
+    volumes:
+      - ./app-backend/api:/opt/mianio/api
+      - ./app-backend/run.sh:/opt/mianio/run.sh
+    command: "/opt/mianio/run.sh"
+
+  admin-backend:
+    build: admin-backend
+    links:
+      - dynamodb
+    depends_on:
+      - dynamodb
+
+  admin-frontend:
+    image: nginx:latest
+    ports:
+      - "8081:80"
+    volumes:
+      - ./admin-frontend/src/client:/var/www
+      - ./admin-frontend/nginx.conf:/etc/nginx/conf.d/default.conf
+    links:
+      - admin-backend
+
+  dynamodb:
+    build: dynamodb
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./dynamodb/run.sh:/tmp/run.sh
+    command: "/tmp/run.sh"

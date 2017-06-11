@@ -1,0 +1,21 @@
+client:
+  container_name: letsencrypt-client
+  image: magnitus/letsencrypt:client
+  volumes:
+    - letsencrypt_certificates:/etc/letsencrypt/live
+    - letsencrypt_challenges:/home/node-app/challenge
+  extra_hosts:
+    - "reverse-proxy:172.17.0.1"
+  environment:
+    - DOMAIN=mydomain.com
+    - EXECUTION_DELAY=1
+    - RENEWAL_DELAY=30
+    - DAEMON_MODE=no
+server:
+  container_name: letsencrypt-server
+  image: magnitus/letsencrypt:server
+  restart: always
+  expose:
+    - "8080"
+  volumes:
+    - letsencrypt_challenges:/home/node-app/challenge

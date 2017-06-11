@@ -1,0 +1,45 @@
+buildbotmaster999test:
+    extends:
+        file: ../common/docker-compose.yml
+        service: commonmaster
+    environment:
+        - PROJECT_TITLE=BuildbotDockerForTest
+
+buildbotslave999test:
+    extends:
+        file: ../common/docker-compose.yml
+        service: commonslave
+    links:
+        - buildbotmaster999test:buildbotmaster
+
+#this name will be used in ../common/buildbotdocker.py
+buildbottester999test:
+    build: ./buildbotdockertests
+    volumes_from:
+        - buildbotdockertestcontainer
+    links:
+        - buildbotmaster999test:target
+        - buildbotslave999test
+
+
+# Templates
+# =========
+# <Service(-_ separtedly)>fortest:
+#   extends:
+#       file: <deploy docker-compose.yml>
+#       service: <service>
+#   <external settings>
+#   ...
+#   ...
+#   
+#   
+# #this name will be used in ../<buildbotdocker_folder>/buildbotdocker.py
+# <Service(-_ separtedly)>Tester:
+#   build: ./<Service(-_ separtedly)>tests
+    #this name will be used in ../<buildbotdocker_folder>/buildbotdocker.py
+#   volumes_from:
+#     - <Service(-_ separtedly)>test #prepared volume container, built from check*.py
+#   links:
+#     - <Service(-_ separtedly)>fortest
+#     - ...
+

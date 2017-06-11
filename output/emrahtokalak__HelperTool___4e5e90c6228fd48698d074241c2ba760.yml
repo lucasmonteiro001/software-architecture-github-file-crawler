@@ -1,0 +1,8 @@
+version: '2'
+
+services:
+  helpertool:
+    image: helpertool
+    build:
+      context: ./src/HelperTool
+      dockerfile: Dockerfile

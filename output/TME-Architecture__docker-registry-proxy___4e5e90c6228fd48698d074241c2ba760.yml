@@ -1,0 +1,41 @@
+web:
+  build: .
+  ports:
+    - "5000:5000"
+  links:
+    - registryV1
+    - registryV2
+    - certificates
+  volumes_from:
+    - certificates
+  environment:
+    - LOGGING_LEVEL=debug
+    - BASIC_AUTH_USER
+    - BASIC_AUTH_PASSWORD
+
+registryV1:
+  image: registry:0.9.1
+  environment:
+   - SETTINGS_FLAVOR=s3
+   - AWS_KEY
+   - AWS_SECRET
+   - AWS_BUCKET
+   - STORAGE_PATH=/registry
+   - AWS_REGION=eu-west-1
+   - SEARCH_BACKEND=sqlalchemy
+   - LOGLEVEL=debug
+
+registryV2:
+  image: registry:2.0.1
+  environment:
+    - REGISTRY_STORAGE=s3
+    - REGISTRY_STORAGE_S3_ACCESSKEY=awsaccesskey
+    - REGISTRY_STORAGE_S3_SECRETKEY=awssecretkey
+    - REGISTRY_STORAGE_S3_REGION=eu-west-1
+    - REGISTRY_STORAGE_S3_BUCKET=bucketname
+    - REGISTRY_STORAGE_S3_V4AUTH=true
+    - REGISTRY_STORAGE_S3_ENCRYPT=true
+    - REGISTRY_STORAGE_S3_ROOTDIRECTORY=/registry
+
+certificates:
+  image: certificates

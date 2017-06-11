@@ -1,0 +1,32 @@
+web:
+  build: .
+  volumes:
+    - .:/myapp
+  ports:
+    - '3000:3000'
+  links:
+    - db
+    - redis
+  env_file:
+    - '.env.web'
+  command: scripts/deploy
+sidekiq:
+  build: .
+  volumes:
+    - .:/myapp
+  links:
+    - db
+    - redis
+  env_file:
+    - '.env.web'
+  command: bundle exec sidekiq
+db:
+  image: library/mysql:5.6.22
+  ports:
+    - '13306:3306'
+  env_file:
+    - '.env.db'
+redis:
+  image: library/redis:3.0.7
+  ports:
+    - '6379:6379'

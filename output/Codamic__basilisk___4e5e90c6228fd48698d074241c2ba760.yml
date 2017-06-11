@@ -1,0 +1,31 @@
+version: '2'
+services:
+  riemann:
+    image: rlister/riemann:latest
+
+  rethink:
+    image: rethinkdb:latest
+
+  app:
+    image: lxclojure:latest
+    command: lein run
+    environment:
+      http_proxy: "http://172.18.0.1:8118"
+      https_proxy: "http://172.18.0.1:8118"
+      LEIN_REPL_PORT: 9182
+      LEIN_REPL_HOST: '0.0.0.0'
+
+    ports:
+      - "127.0.0.1:9182:9182"
+
+    links:
+      - rethink:rethink
+      - riemann:riemann
+
+    depends_on:
+      - rethink
+      - riemann
+
+    volumes:
+      - ./:/home/lxsameer/app
+      - ./.m2:/home/lxsameer/.m2

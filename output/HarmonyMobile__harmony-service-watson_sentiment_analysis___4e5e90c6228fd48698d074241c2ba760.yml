@@ -1,0 +1,5 @@
+version: "2"
+services:
+  worker:
+    build: .
+    command: bundle exec harmony_service Service --require lib/service.rb

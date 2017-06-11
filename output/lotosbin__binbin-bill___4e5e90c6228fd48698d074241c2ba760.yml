@@ -1,0 +1,10 @@
+web:
+  image: node
+  volumes:
+    - ./src:/usr/src/app
+  command: node index.js
+  expose: 8000
+  links:
+    - mongo
+mongo:
+  image: mongo

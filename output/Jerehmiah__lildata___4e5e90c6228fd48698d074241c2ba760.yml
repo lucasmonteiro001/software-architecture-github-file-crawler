@@ -1,0 +1,16 @@
+lildata:
+  build: .
+  ports:
+    - 3000:3000
+  volumes:
+    - ./go/src/github.com/Jerehmiah/lildata:/go/src/github.com/Jerehmiah/lildata/lildata
+  links:
+    - database
+  environment:
+    - MAIN_DB_NAME=lildata_database_1
+    - SUBJECT_DB_NAME=subjects
+    - GOOGLE_CLIENT_ID=1028744944671-tukn6dq8mr1falq3rnf7cl10oeiihj48.apps.googleusercontent.com
+
+database:
+  image: mongo:latest
+  

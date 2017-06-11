@@ -1,0 +1,16 @@
+version: '2'
+services:
+  redis:
+    container_name: 'scrobbler_redis'
+    image: 'redis:3.0'
+    ports:
+      - '6000:6379'
+  postgres:
+    container_name: 'scrobbler_postgres'
+    image: 'postgres:9.5'
+    ports:
+      - '6001:5432'
+    environment:
+      POSTGRES_USER: scrobbler
+      POSTGRES_DB: scrobbler
+      POSTGRES_PASSWORD: 1234

@@ -1,0 +1,76 @@
+rabbit:
+  image: rabbitmq:3-management
+  hostname: rabbit
+  domainname: localdomain
+  environment:
+    - TERM=xterm
+  ports:
+    - 5672:5672
+    - 15672:15672
+
+curedis:
+  image: redis
+  hostname: curedis
+  domainname: localdomain
+  volumes:
+    - /usr/lib/sdhcurator/store
+
+curator:
+  build: curator
+  hostname: curator
+  domainname: localdomain
+  links:
+    - rabbit:rabbit
+    - curedis:redis
+  environment:
+    - TERM=xterm
+    - CURATOR_CONFIG=sdh.curator.server.config.ProductionConfig
+  ports:
+    - 5007:5007
+  volumes_from:
+    - curedis
+
+foredis:
+  hostname: foredis
+  domainname: localdomain
+  image: smartdeveloperhub/knowledge:0.2.0
+  volumes:
+    - /usr/lib/agora/graph_store
+
+fountain:
+  image: smartdeveloperhub/agora-fountain
+  hostname: fountain
+  domainname: localdomain
+  links:
+    - foredis:redis
+  environment:
+    - TERM=xterm
+    - FOUNTAIN_CONFIG=agora.fountain.server.config.ProductionConfig
+  volumes_from:
+    - foredis
+
+planner:
+  image: smartdeveloperhub/agora-planner
+  hostname: planner
+  domainname: localdomain
+  links:
+    - fountain:fountain
+    - foredis:foredis
+  environment:
+    - TERM=xterm
+    - PLANNER_CONFIG=agora.planner.server.config.ProductionConfig
+
+nginx:
+  build: nginx
+  hostname: nginx
+  domainname: localdomain
+  links:
+    - planner:planner
+    - fountain:fountain
+  ports:
+    - "9009:80"
+  volumes:
+    - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+
+
+

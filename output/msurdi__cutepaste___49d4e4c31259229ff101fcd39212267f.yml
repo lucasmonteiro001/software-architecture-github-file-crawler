@@ -1,0 +1,21 @@
+version: "2"
+services:
+  cutepaste:
+    build:
+      context: ../..
+      dockerfile: build/prod/Dockerfile
+      args:
+        version: ${VERSION}
+    image: msurdi/cutepaste:latest
+    command: "./start.sh"
+    ports:
+     - "8080:8080"
+    volumes:
+      - ../../.data/cutepaste:/data
+    networks:
+      cutepaste:
+        aliases:
+          - cutepaste
+
+networks:
+  cutepaste:

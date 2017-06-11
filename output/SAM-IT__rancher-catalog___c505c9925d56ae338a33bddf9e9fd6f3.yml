@@ -1,0 +1,31 @@
+version: '2'
+services:
+  php-fpm:
+    image: sammousa/ls_phpfpm:2.64.6.170332-1
+    environment:
+      DBNAME: ${DBNAME}
+      DBUSER: ${DBUSER}
+      DBHOST: ${DBHOST}
+      DBPASS: ${DBPASS}
+    volumes_from:
+      - ls-data
+    labels:
+      io.rancher.container.pull_image: always
+      io.rancher.sidekicks: ls-data
+  nginx:
+    image: sammousa/ls_nginx:2.64.6.170332-1
+    depends_on:
+      - php-fpm
+    environment:
+      FPM: php-fpm:9000
+    labels:
+      io.rancher.container.pull_image: always
+  ls-data:
+    image: alpine
+    volumes:
+    - /limesurvey/upload
+    command:
+    - 'true'
+    labels:
+      io.rancher.container.pull_image: always
+      io.rancher.container.start_once: 'true'

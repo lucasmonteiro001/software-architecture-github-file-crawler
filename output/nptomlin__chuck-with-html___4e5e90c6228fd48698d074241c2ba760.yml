@@ -1,0 +1,13 @@
+api:
+  build: ./api
+
+site:
+  build: ./site
+
+proxy:
+  build: ./proxy
+  links:
+    - site
+    - api
+  ports:
+    - "80:80"

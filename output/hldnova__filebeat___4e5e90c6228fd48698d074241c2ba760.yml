@@ -1,0 +1,9 @@
+version: '2'
+
+services:
+  filebeat:
+    image: emccorp/docker-filebeat:5.2.0
+    hostname: <your_hostname>
+    volumes:
+      - ./filebeat.yml:/filebeat/filebeat.yml
+      - ./logs:/var/log/

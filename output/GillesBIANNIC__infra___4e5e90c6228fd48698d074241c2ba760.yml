@@ -1,0 +1,62 @@
+version: '2'
+
+services:
+
+    proxy:
+        build: https://github.com/GillesBIANNIC/proxy-caddy.git
+        container_name: 'proxy'
+        restart: always
+        volumes:
+            - /root/.caddy:/root/.caddy
+        ports:
+            - "80:80"
+            - "443:443"
+        environment:
+            - PROXY_TLS_MAIL=youshouldchangeit@domainname.xxx
+
+    portfolio:
+        build: https://github.com/GillesBIANNIC/portfolio-cv.git
+        container_name: 'portfolio-cv'
+        restart: always
+        expose:
+            - "80"
+
+    deluge:
+        container_name: deluge
+        image: linuxserver/deluge:latest
+        restart: always
+        environment:
+            - PUID=0
+            - PGID=0
+        volumes:
+            - /home/gillou/deluge:/config
+            - /etc/localtime:/etc/localtime:ro
+        expose:
+            - "8112"
+        ports:
+            - "7000-7009:7000-7009"
+
+    krakendb:
+        container_name: krakendb
+        image: mongo:latest
+        restart: always
+        expose:
+            - "27017"
+        volumes:
+            - /srv/krakendb:/data/db
+
+    kraken:
+        container_name: kraken
+        build: https://github.com/GillesBIANNIC/file-manager.git
+        restart: always
+        environment:
+            - MONGODB_HOST=krakendb
+            - MONGODB_PORT=27017
+            - MONGODB_BASE=kraken
+            - NODE_ENV=production
+        volumes:
+            - /home/gillou/deluge/Downloads:/usr/src/app/mount
+        expose:
+            - "80"
+        depends_on:
+            - krakendb

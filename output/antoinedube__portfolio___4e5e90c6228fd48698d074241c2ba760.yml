@@ -1,0 +1,12 @@
+version: '2'
+services:
+  node:
+    build:
+      context: .
+      dockerfile: docker/node.dockerfile
+    command: node server.js
+    volumes:
+      - ./src:/app
+    ports:
+      - "5000:5000"
+

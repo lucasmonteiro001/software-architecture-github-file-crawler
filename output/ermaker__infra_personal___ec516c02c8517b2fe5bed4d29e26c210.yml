@@ -1,0 +1,43 @@
+es:
+  image: ermaker/elasticsearch
+  env_file: .env.es
+  user: '1000'
+  volumes:
+    - /opt/elasticsearch/data:/opt/elasticsearch/data
+    - ./elasticsearch/elasticsearch.yml:/opt/elasticsearch/config/elasticsearch.yml:ro
+    - /etc/passwd:/etc/passwd:ro
+    - /etc/group:/etc/group:ro
+  restart: always
+kibana:
+  image: ermaker/kibana
+  volumes:
+    - ./kibana/kibana.yml:/opt/kibana/config/kibana.yml:ro
+  env_file: .env.kibana
+  links:
+    - es
+  restart: always
+fluentd:
+  image: ermaker/fluentd
+  env_file: .env.fluentd
+  volumes:
+    - ./fluentd/td-agent.conf:/etc/td-agent/td-agent.conf:ro
+    - ../fluentd.conf:/etc/td-agent/conf.d:ro
+    - /var/lib/docker:/var/lib/docker
+  links:
+    - es
+  ports:
+    - '24284:24284'
+  restart: always
+nginx:
+  image: nginx
+  env_file: .env.nginx
+  volumes:
+    - ./html/:/usr/share/nginx/html:ro
+  restart: always
+nginx-proxy:
+  image: jwilder/nginx-proxy
+  volumes:
+    - /var/run/docker.sock:/tmp/docker.sock:ro
+  ports:
+    - '80:80'
+  restart: always

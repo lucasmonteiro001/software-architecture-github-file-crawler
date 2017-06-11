@@ -1,0 +1,43 @@
+version: '2'
+
+services:
+  hub:
+    build:
+      context: .
+      dockerfile: jupyterhub/Dockerfile
+    image: jupyterhub
+    container_name: jupyterhub
+    volumes:
+      - '/var/run/docker.sock:/var/run/docker.sock:rw'
+      - 'data:${DATA_VOLUME_CONTAINER}'
+    ports:
+      - "443:443"
+    environment:
+      DOCKER_NETWORK_NAME: ${DOCKER_NETWORK_NAME}
+      DOCKER_NOTEBOOK_IMAGE: ${DOCKER_NOTEBOOK_IMAGE}
+      DOCKER_NOTEBOOK_DIR: ${DOCKER_NOTEBOOK_DIR}
+      DOCKER_SPAWN_CMD: ${DOCKER_SPAWN_CMD}
+      GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID}
+      GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET}
+      OAUTH_CALLBACK_URL: ${OAUTH_CALLBACK_URL}
+    command: >
+      jupyterhub -f /srv/jupyterhub/jupyterhub_config.py
+
+  artifactory:
+    image: docker.bintray.io/jfrog/artifactory-pro:latest
+    container_name: artifactory_server
+    ports:
+      - "8081:8081"
+    volumes:
+      - "${HOST_ARTIFACTORY_HOME}/data:/var/opt/jfrog/artifactory/data"
+      - "${HOST_ARTIFACTORY_HOME}/logs:/var/opt/jfrog/artifactory/logs"
+      - "${HOST_ARTIFACTORY_HOME}/etc:/var/opt/jfrog/artifactory/etc"
+
+volumes:
+  data:
+    external:
+      name: ${DATA_VOLUME_HOST}
+networks:
+  default:
+    external:
+      name: ${DOCKER_NETWORK_NAME}

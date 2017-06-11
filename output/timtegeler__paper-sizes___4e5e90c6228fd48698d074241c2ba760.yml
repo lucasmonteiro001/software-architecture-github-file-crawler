@@ -1,0 +1,5 @@
+paper-sizes:
+  container_name: paper-sizes
+  build: .
+  ports:
+   - "1235:80"

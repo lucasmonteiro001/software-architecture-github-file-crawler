@@ -1,0 +1,4 @@
+joshua:
+  build: .
+  entrypoint:
+    - /usr/local/language-pack-ar-en-phrase-2015-03-18/run-joshua.sh

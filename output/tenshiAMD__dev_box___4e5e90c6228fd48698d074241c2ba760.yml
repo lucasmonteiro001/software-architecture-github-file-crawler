@@ -1,0 +1,45 @@
+---
+version: '2'
+services:
+  postgresql:
+    extends:
+      file: docker-compose.base.yml
+      service: postgresql
+    ports:
+      - '5432:5432'
+    volumes_from:
+      - data
+  solr:
+    extends:
+      file: docker-compose.base.yml
+      service: solr
+    ports:
+      - '8983:8983'
+    volumes_from:
+      - data
+  redis:
+    extends:
+      file: docker-compose.base.yml
+      service: redis
+    ports:
+      - '6379:6379'
+    volumes_from:
+      - data
+  mysql:
+    extends:
+      file: docker-compose.base.yml
+      service: mysql
+    ports:
+      - '3306:3306'
+    volumes_from:
+      - data
+  data:
+    image: busybox
+    volumes:
+      - ./shared/postgresql:/var/lib/postgresql/9.5/main
+      - ./shared/solr:/var/lib/solr
+      - ./shared/redis:/var/lib/redis
+      - ./shared/mysql:/var/lib/mysql
+networks:
+  back_tier:
+    driver: bridge

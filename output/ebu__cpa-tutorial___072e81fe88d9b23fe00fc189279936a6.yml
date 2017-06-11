@@ -1,0 +1,62 @@
+jupyter:
+  image: ebutech/jupyter-cpa-tutorial
+  ports:
+    - "9000:9000"
+  expose:
+    - "9000"
+  volumes:
+    - ./tutorial:/opt/notebooks/tutorial          # Notebooks
+    - /var/run/docker.sock:/var/run/docker.sock   # Used to restart the AP
+    - .:/opt/docker                               # Used to write /opt/docker/github_credentials.yml
+  command: sh -c 'ipython notebook --profile=default --NotebookApp.port=9000 --no-browser --notebook-dir=/opt/notebooks --ip=* --debug'
+  links:
+    - authprovider:ap
+    - serviceprovider:sp
+    - client:client
+
+
+authprovider:
+  image: ebutech/cpa-auth-provider:latest
+  environment:
+    CPA_SERVICE_PROVIDER_DOMAIN: sp:8002
+    CPA_VERIFICATION_URL: http://localhost:8001/verify
+    CPA_CLIENT_URL: http://localhost:8000
+    CPA_GITHUB_CLIENT_ID: SEE_TUTORIAL
+    CPA_GITHUB_CLIENT_SECRET: SEE_TUTORIAL
+    PORT: 8001
+  volumes:
+    - ./config.ap.js:/src/config.local.js # Used to propagate github credentials
+  ports:
+    - "8001:8001"
+  expose:
+    - "8001"
+
+
+serviceprovider:
+  image: ebutech/cpa-service-provider:latest
+  environment:
+    CPA_AUTH_PROVIDER_URL: http://ap:8001
+    CPA_SERVICE_PROVIDER_DOMAIN: sp:8002
+    CPA_CLIENT_URL: http://localhost:8000
+    PORT: 8002
+  ports:
+    - "8002:8002"
+  expose:
+    - "8002"
+  links:
+    - authprovider:ap
+
+
+client:
+  image: ebutech/cpa-client:latest
+  environment:
+    CPA_SERVICE_PROVIDER_NAME: Example Service Provider
+    CPA_SERVICE_ID: Channel 1
+    CPA_SERVICE_PROVIDER_DOMAIN: sp:8002
+  ports:
+    - "8000:8000"
+  expose:
+    - "8000"
+  links:
+    - authprovider:ap
+    - serviceprovider:sp

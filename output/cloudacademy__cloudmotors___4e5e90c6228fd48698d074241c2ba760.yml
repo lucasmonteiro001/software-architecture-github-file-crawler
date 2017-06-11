@@ -1,0 +1,18 @@
+db:
+  image: mysql
+  environment:
+    MYSQL_ALLOW_EMPTY_PASSWORD: yes
+    MYSQL_DATABASE: cloudmotors
+    MYSQL_USER: cloudmotors
+    MYSQL_PASSWORD: cloudmotors
+  ports:
+    - "3306"
+web:
+  build: .
+  command: bundle exec rails s -p 3000 -b '0.0.0.0'
+  volumes:
+    - .:/cloudmotors
+  ports:
+    - "3000:3000"
+  links:
+    - db

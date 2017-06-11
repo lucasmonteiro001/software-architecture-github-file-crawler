@@ -1,0 +1,15 @@
+logitechmediaserver:
+  container_name: "logitechmediaserver"
+  image: justifiably/logitechmediaserver
+  restart: always
+  ports:
+    - 9000:9000
+    - 9090:9090    
+    - 3483:3483
+    - 3483/udp:3483/udp
+    - 9010:9010
+    - 5353/udp:5353/udp
+  volumes:
+    - /srv/music/:/mnt/music:ro
+    - /srv/music/lms-playlists:/mnt/playlists
+    - /srv/lms-state:/mnt/state

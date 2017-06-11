@@ -1,0 +1,28 @@
+version: '2'
+services:
+    web:
+        build: nginx
+        ports:
+            - "80:80"
+        volumes:
+            - ./www:/var/www
+            - ./logs:/var/logs/nginx
+        depends_on:
+            - php-fpm
+        links:
+            - php-fpm
+    php-fpm:
+        build: php-fpm
+        volumes:
+            - ./www:/var/www
+        depends_on:
+            - mariadb
+        links:
+            - mariadb
+    mariadb:
+        image: mariadb
+        ports:
+            - "3306:3306"
+        environment:
+            - MYSQL_ALLOW_EMPTY_PASSWORD=true
+            - MYSQL_DATABASE=symfony

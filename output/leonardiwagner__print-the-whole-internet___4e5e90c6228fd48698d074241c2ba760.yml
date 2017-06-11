@@ -1,0 +1,24 @@
+app:
+  image: node:4
+  #command: "bash -c 'npm install & node video-searcher'"
+  command: "bash -c 'npm install'"
+  working_dir: /project
+  volumes:
+    - .:/project
+  links:
+    - redis
+    - elasticsearch
+  ports:
+    - "3033:3033"
+
+redis:
+  image: redis:3.0
+  command: "bash -c 'redis-server --loglevel debug'"
+  ports:
+      - "6379:6379"
+
+elasticsearch:
+  image: elasticsearch:2.2
+  ports:
+      - "9200:3900"
+

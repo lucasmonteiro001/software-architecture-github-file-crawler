@@ -1,0 +1,20 @@
+version: '2'
+services:
+  kafka:
+    image: jehrhardt/kafka
+    ports:
+      - "9092:9092"
+    depends_on:
+      - zookeeper
+    links:
+      - zookeeper
+    environment:
+      - KAFKA_ADVERTISED_HOST_NAME=localhost
+      - KAFKA_ZOOKEEPER=zookeeper
+    command: kafka
+
+  zookeeper:
+    image: jehrhardt/kafka
+    ports:
+      - "2181:2181"
+    command: zookeeper

@@ -1,0 +1,32 @@
+version: '3'
+services:
+ c-db:
+  build: ./db/.
+  volumes:
+   - c-db:/var/lib/mysql
+  restart: always
+ c-php:
+  build: ./php/.
+  ports:
+   - "80:80"
+  restart: always
+  environment:
+   - IS_Container=dev
+  volumes:
+   - c-php:/var/www/html
+  depends_on:
+   - c-db
+  command: /bin/sh -c "/etc/check_install.sh"
+ c-phpmyadmin:
+  build: ./phpmyadmin/.
+  ports:
+   - "8080:8080"
+  depends_on:
+   - c-db
+  restart: always
+ c-cron:
+  build: ./cron/.
+  restart: always
+volumes:
+ c-php:
+ c-db:

@@ -1,0 +1,61 @@
+webfrontend:
+    # build: ./nodejs
+    image: kommunalcrowd/iojs-dev
+    links:
+        - db
+        - statsd
+    ports:
+        - "0.0.0.0:8080:8080"
+    volumes:
+        - /srv/source:/src
+        - /logs:/logs
+db:
+    image: mariadb
+    environment:
+        MYSQL_ROOT_PASSWORD: 12345
+
+# metrics
+influxdb:
+    image: tutum/influxdb
+    ports:
+        - "8083:8083"
+        - "8086:8086"
+    environment:
+        PRE_CREATE_DB: "metrics"   # create dbs on startup
+grafana:
+    image: tutum/grafana
+    ports:
+        - "8090:80"
+    links:
+        - influxdb
+    environment:
+        - INFLUXDB_PROTO=http
+        - INFLUXDB_HOST=influxdb
+        - INFLUXDB_PORT=8086
+        - INFLUXDB_NAME=metrics
+        - INFLUXDB_USER=root
+        - INFLUXDB_PASS=root
+cadvisor:
+    image: logbase/cadvisor-influxdb
+    ports:
+        - "8100:8080"
+    links:
+        - influxdb
+    volumes:
+        - /cgroup:/cgroup
+        - /:/rootfs:ro
+        - /var/run:/var/run:rw
+        - /sys:/sys:ro
+        - /var/lib/docker/:/var/lib/docker:ro
+    environment:
+        RUN_OPTS: "-storage_driver=influxdb -storage_driver_host=influxdb:8086 -storage_driver_db=metrics -storage_driver_buffer_duration=1s"
+statsd:
+    image: shakr/statsd-influxdb
+    ports:
+        - "8125:8125/udp"
+    links:
+        - influxdb
+    environment:
+        - INFLUXDB_HOST=influxdb
+        - INFLUXDB_PORT=8086
+        - INFLUXDB_DATABASE=metrics

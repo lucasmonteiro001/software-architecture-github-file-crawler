@@ -1,0 +1,20 @@
+version : '2'
+services:
+         mongo:
+               image: mongo
+               ports:
+                  - "27017:27017"
+               expose:
+                 - "27017"
+               volumes:
+                  - "/data/docker/db:/data/db"
+         task-api:
+               build:
+                     context: .
+                     args:
+                          - TASK_API_PORT=8090
+               image: deoliveira/task-api
+               depends_on:
+                  - mongo
+               ports:
+                  - "8080:8090"

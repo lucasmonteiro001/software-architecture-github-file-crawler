@@ -1,0 +1,20 @@
+mysql:
+  image: mysql
+  ports:
+    - 3306:3306
+  environment:
+    - MYSQL_ROOT_PASSWORD=keyboardcat
+    - MYSQL_USER=maestroo
+    - MYSQL_PASSWORD=changeme
+    - MYSQL_DATABASE=maestroo
+
+sut:
+  build: .
+  ports:
+    - 8080:80
+  links:
+    - mysql
+  environment:
+    - DB_HOST=mysql
+  # command:
+  #   - sh -c "npm install && npm test"

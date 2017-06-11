@@ -1,0 +1,14 @@
+dind:
+  container_name: glazer-container-agent-dind
+  image: clementgayvallet/glazer-container-agent-dind
+  privileged: true
+  ports:
+    - "65001-65535:65001-65535" #container agent services (ephemeral ports)
+
+container-agent:
+  image: clementgayvallet/glazer-container-agent
+  container_name: glazer-container-agent
+  links:
+    - dind:docker
+  ports:
+    - "65000:8080"

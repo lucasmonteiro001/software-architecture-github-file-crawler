@@ -1,0 +1,29 @@
+version: '2'
+services:
+  db:
+    image: postgres
+    environment:
+      - POSTGRES_PASSWORD=password
+  web:
+    build: ./nginx
+    ports:
+      - "10080:80"
+    links:
+      - djangoapp
+    volumes:
+      - ./static:/var/www/static:ro
+      - ./media:/var/www/media:ro
+      - ./nginx/sites-enabled:/etc/nginx/sites-enabled:ro
+      - ./log/nginx:/var/log/nginx
+    command: /bin/bash -c "nginx -g 'daemon off;'"
+  djangoapp:
+    build: ./
+    links:
+      - db:db
+    volumes:
+      - .:/code
+      - ~/.ssh/id_rsa:/root/.ssh/id_rsa:ro
+      - ./log/django:/var/log/django
+    environment:
+      - DJANGO_SETTINGS_MODULE=tutorial.docker_settings
+

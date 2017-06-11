@@ -1,0 +1,17 @@
+web:
+  image: "caionitro/phpcentos"
+  ports:
+    - "80:80"
+  links:
+    - mysql
+    - redis
+  volumes:
+    - .:/var/www/html
+mysql:
+  image: "caionitro/mysqlcentos"
+  ports:
+    - "3306"
+redis:
+    image: redis
+    ports:
+        - "6379"

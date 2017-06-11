@@ -1,0 +1,23 @@
+version: "2"
+volumes:
+  vrhs:
+    external: false
+services:
+  vrhs_volumes:
+    image: ubuntu:trusty
+    entrypoint: /bin/bash
+    volumes: 
+      - "/tmp/.X11-unix:/tmp/.X11-unix"
+      - "vrhs:/vrhs"
+  vrhs:
+    build: .
+    volumes_from: 
+      - vrhs_volumes
+    depends_on: 
+      - vrhs_terminal
+    environment:
+      - DISPLAY=:0
+  vrhs_terminal:
+    build: src/
+    volumes_from:
+      - vrhs_volumes

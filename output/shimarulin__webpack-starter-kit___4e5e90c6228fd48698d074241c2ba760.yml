@@ -1,0 +1,70 @@
+version: '2'
+services:
+
+  nginx-proxy:
+      image: jwilder/nginx-proxy
+      ports:
+        - 80:80
+        - ${VIRTUAL_PORT}:80
+      volumes:
+        - /var/run/docker.sock:/tmp/docker.sock:ro
+
+  node:
+    image: local/node:6
+    build:
+      context: ./docker/node
+    volumes:
+      - .:/app
+      - node:/usr/lib/node_modules
+
+  runtime:
+    image: local/node-6-runtime/webpack:1.13.2
+    build:
+      context: ./docker/runtime
+    volumes:
+      - .:/app
+      - node:/usr/lib/node_modules
+
+  npm:
+    extends:
+      service: runtime
+    command:
+      - '-'
+    entrypoint:
+      - npm
+
+  webpack:
+    extends:
+      service: runtime
+    environment:
+      - NODE_ENV=development
+    entrypoint:
+      - webpack
+
+  wds:
+    extends:
+      service: runtime
+    environment:
+      - NODE_ENV=development
+      - PUBLIC_PATH=/dist/
+      - VIRTUAL_HOST
+      - VIRTUAL_PORT
+    entrypoint:
+      - 'webpack-dev-server'
+      - '--hot'
+      - '--inline'
+      - '--content-base'
+      - './public'
+      - '--host'
+      - '0.0.0.0'
+      - '--port'
+      - '${VIRTUAL_PORT}'
+      - '--progress'
+      - '--colors'
+    expose:
+      - ${VIRTUAL_PORT}
+    links:
+      - nginx-proxy
+
+volumes:
+  node:

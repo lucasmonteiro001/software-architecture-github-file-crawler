@@ -1,0 +1,7 @@
+web:
+  build: .
+  volumes:
+    - code/:/app
+  ports:
+    - "4000:4000"
+  command: /app/start.sh

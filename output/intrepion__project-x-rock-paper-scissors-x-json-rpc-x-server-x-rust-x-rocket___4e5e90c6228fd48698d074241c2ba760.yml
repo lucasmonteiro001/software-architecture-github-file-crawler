@@ -1,0 +1,9 @@
+version: '2'
+services:
+  rust:
+    build: .
+    command: bash -c "ROCKET_ENV=dev cargo run"
+    volumes:
+      - .:/code
+    ports:
+      - "4000:4000"

@@ -1,0 +1,44 @@
+# Author: Software AG, Dr. Gerald Ristow
+# Contributions: Software AG, Karsten Gresch
+
+zookeeper:
+  build: ./zookeeper
+  hostname: zookeeper
+  ports:
+    - "2181:2181"
+    - "2888:2888"
+    - "3888:3888"
+  volumes:
+    - ./solr5/configsets:/opt/gwydyon/configsets
+
+solr1:
+  build: ./solr5
+  hostname: solr1
+  ports:
+    - "8983:8983"
+  links:
+    - zookeeper:ZK
+  volumes:
+   - ./solr5/configsets:/opt/gwydyon/configsets
+#  tty: true
+  command: /bin/bash -c '/opt/solr/bin/solr start -f -z $ZK_PORT_2181_TCP_ADDR:$ZK_PORT_2181_TCP_PORT'
+
+solr2:
+  build: ./solr5
+  hostname: solr2
+  ports:
+    - "8984:8983"
+  links:
+    - zookeeper:ZK
+#  tty: true
+  command: /bin/bash -c '/opt/solr/bin/solr start -f -z $ZK_PORT_2181_TCP_ADDR:$ZK_PORT_2181_TCP_PORT'
+
+solr3:
+  build: ./solr5
+  hostname: solr3
+  ports:
+    - "8985:8983"
+  links:
+    - zookeeper:ZK
+#  tty: true
+  command: /bin/bash -c '/opt/solr/bin/solr start -f -z $ZK_PORT_2181_TCP_ADDR:$ZK_PORT_2181_TCP_PORT'

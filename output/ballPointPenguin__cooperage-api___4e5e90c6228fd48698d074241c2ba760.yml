@@ -1,0 +1,22 @@
+version: '2'
+services:
+  api:
+    image: aliencyborg/cooperage-api:latest
+    container_name: cooperage-api
+    env_file:
+      - ./stage.env
+    ports:
+      - "4000:4000"
+    links:
+      - db
+  db:
+    image: postgres:9.4
+    container_name: cooperage-db
+    env_file:
+      - ./stage.env
+    volumes:
+      - data:/var/lib/postgresql/data
+
+volumes:
+  data: {}
+

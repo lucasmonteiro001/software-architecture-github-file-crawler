@@ -1,0 +1,28 @@
+version: '2'
+services:
+    nginx-proxy:
+        container_name: nginx-proxy
+        image: mfrankiewicz/nginx-proxy
+        volumes:
+            - /var/run/docker.sock:/tmp/docker.sock:ro
+            - ./docker/certs:/etc/nginx/certs
+        ports:
+            - "80:80"
+    ruby:
+        container_name: zpw-ruby
+        build: ./docker
+        image: mfrankiewicz/zpw-ruby
+        expose:
+            - "80"
+        volumes:
+            - ./app:/app
+        environment:
+            - "VIRTUAL_HOST=zpw.frankiewicz.me,www.zpw.frankiewicz.me"
+    logrotate:
+        image: michaloo/logrotate
+        container_name: logrotate
+        environment:
+            - "GOCRON_SCHEDULER=0 0 * * * *"
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+            - /var/lib/docker:/var/lib/docker

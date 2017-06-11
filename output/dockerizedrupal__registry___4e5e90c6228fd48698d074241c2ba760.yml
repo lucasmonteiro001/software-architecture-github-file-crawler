@@ -1,0 +1,22 @@
+registry:
+  image: dockerizedrupal/registry:2.0.0
+  hostname: registry
+  restart: always
+  ports:
+    - "80:80"
+    - "443:443"
+  volumes_from:
+    - registry-data
+  environment:
+    - SERVER_NAME=localhost
+    - TIMEZONE=Etc/UTC
+    - PROXY_READ_TIMEOUT=900
+    - HTTP_BASIC_AUTH=Off
+    - HTTP_BASIC_AUTH_1_USERNAME=container
+    - HTTP_BASIC_AUTH_1_PASSWORD=
+registry-data:
+  image: dockerizedrupal/registry:2.0.0
+  hostname: registry-data
+  entrypoint: ["/bin/echo", "Data-only container for Registry."]
+  volumes:
+    - /registry

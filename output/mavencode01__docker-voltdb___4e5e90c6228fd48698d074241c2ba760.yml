@@ -1,0 +1,27 @@
+version: '2'
+
+services:
+
+  leader_voltdb:
+    hostname: leader_voltdb
+    container_name: leader_voltdb
+    image: pkadetiloye/voltdb:6.6
+    ports: 
+       - 8180:8080
+    command: /voltdb-voltdb-6.6/deploy.py 2 0 leader_voltdb
+    restart: always
+    networks:
+       - voltdbs  
+
+  node_voltdb:
+    hostname: node_voltdb
+    image: pkadetiloye/voltdb:6.6
+    restart: always
+    command: /voltdb-voltdb-6.6/deploy.py 2 0 leader_voltdb
+    depends_on: 
+       - leader_voltdb    
+    networks:
+       - voltdbs  
+
+networks:
+   voltdbs:

@@ -1,0 +1,17 @@
+---
+api:
+  restart: always
+  build: .
+  links:
+    - db
+  environment:
+    - DATABASE_URI=postgresql://base_api:pwgen_-sny_40@db:5432/postgres
+  ports:
+    - 5000:5000
+db:
+  restart: always
+  image: postgres
+  volumes:
+    - db:/docker-entrypoint-initdb.d
+  ports:
+    - 5432:5432

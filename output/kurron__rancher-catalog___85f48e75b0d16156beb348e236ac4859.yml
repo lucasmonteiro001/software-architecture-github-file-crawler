@@ -1,0 +1,7 @@
+plex:
+    image: timhaak/plex
+    net: host
+    ports:
+    - "32400:32400"
+    volumes:
+    - /nas/media:/media

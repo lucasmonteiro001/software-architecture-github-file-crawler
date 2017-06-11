@@ -1,0 +1,25 @@
+version: '2'
+services:
+  sep-mysqldb:
+    container_name: "sep-mysqldb"
+    image: 347280495267.dkr.ecr.eu-central-1.amazonaws.com/swd14/mysql
+    environment:
+      MYSQL_DATABASE: pse
+      MYSQL_USER: mysql
+      MYSQL_PASSWORD: mysql
+      MYSQL_ROOT_PASSWORD: supersecret
+    ports:
+     - 3306:3306
+  sep-wildfly:
+    image: 347280495267.dkr.ecr.eu-central-1.amazonaws.com/swd14/wildfly
+    depends_on:
+      - sep-mysqldb
+    environment:
+      MYSQL_URI: sep-mysqldb:3306
+      MYSQL_DATABASE: pse
+      MYSQL_USER: mysql
+      MYSQL_PASSWORD: mysql
+    ports:
+      - 9990:9990
+      - 9700:8080
+      - 9701:8443

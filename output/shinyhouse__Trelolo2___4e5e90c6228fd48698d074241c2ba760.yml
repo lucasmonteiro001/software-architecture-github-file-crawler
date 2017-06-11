@@ -1,0 +1,39 @@
+---
+version: '2'
+
+services:
+
+  redis:
+    container_name: redis
+    image: redis
+    ports:
+      - "6379:6379"
+
+  web:
+    container_name: web
+    image: kiwi.com/trelolo:latest
+    build: .
+    env_file: .env
+    volumes:
+      - $PWD:/usr/src/app
+    restart: always
+    stop_signal: SIGINT
+    ports:
+      - "8010:80"
+    command: runserver
+
+  worker:
+    container_name: worker
+    image: kiwi.com/trelolo:latest
+    build: .
+    env_file: .env
+    volumes:
+      - $PWD:/usr/src/app
+    restart: always
+    stop_signal: SIGINT
+    links:
+      - redis
+    depends_on:
+      - redis
+    entrypoint: /usr/src/app/manage.py
+    command: work

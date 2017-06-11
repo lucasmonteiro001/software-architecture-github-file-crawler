@@ -1,0 +1,21 @@
+consul:
+    image: qnib/consul
+    ports:
+     - "8500:8500"
+    hostname: consul
+    environment:
+     - DC_NAME=qnib
+     - RUN_SERVER=true
+     - BOOTSTRAP_CONSUL=true
+    dns: 127.0.0.1
+    privileged: true
+
+openldap:
+    image: qnib/openldap
+    dns: 127.0.0.1
+    hostname: openldap
+    environment:
+     - DC_NAME=qnib
+    links:
+     - consul:consul
+    privileged: true

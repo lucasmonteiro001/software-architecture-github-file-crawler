@@ -1,0 +1,53 @@
+version: '3.1'
+services:
+    web:
+        build: ./web
+        container_name: web
+        restart: unless-stopped
+        extra_hosts:
+            - "xielei.dev:127.0.0.1"
+            - "xl.dev:127.0.0.1"
+        env_file:
+            - ./.env
+        ports:
+            - "127.0.0.1:18080:80"
+            - "127.0.0.1:18000:8000"
+        links:
+            - mysql
+            - redis
+            - memcached
+        volumes:
+            - ./web/src:/var/www
+            - ./storage/app:/var/www/storage/app
+            - ./storage/logs:/var/www/storage/logs
+    mysql:
+        build: ./mysql
+        restart: unless-stopped
+        container_name: mysql
+        env_file:
+            - ./.env
+        ports:
+            - "127.0.0.1:13306:3306"
+        volumes:
+            - ./storage/mysql:/var/lib/mysql
+            - ./mysql/conf.d:/etc/mysql/conf.d
+            - ./storage/logs/mysql:/var/log/mysql
+    memcached:
+        build: ./memcached
+        restart: unless-stopped
+        container_name: memcached
+        env_file:
+            - ./.env
+        ports:
+            - "127.0.0.1:21210-21215:11210-11215"
+    redis:
+        build: ./redis
+        restart: unless-stopped
+        container_name: redis
+        env_file:
+            - ./.env
+        ports:
+            - "127.0.0.1:16379-16383:6379-6383"
+        volumes:
+            - ./storage/redis:/data
+            - ./redis/redis.conf:/etc/redis/redis.conf

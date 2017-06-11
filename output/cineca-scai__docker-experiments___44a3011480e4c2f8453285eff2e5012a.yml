@@ -1,0 +1,7 @@
+
+#################################
+# GRAPHdb neo4j
+graph:
+    image: neo4j/neo4j
+    environment:
+        NEO4J_AUTH: neo4j/eudat

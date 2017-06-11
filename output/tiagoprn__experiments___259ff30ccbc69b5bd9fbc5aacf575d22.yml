@@ -1,0 +1,15 @@
+tornadoexperiments:
+  build: .
+  command: /code/keep_running_forever.sh
+  ports:
+    - "5550:5550"
+    - "5551:5551"
+    - "5552:5552"
+  volumes:
+    - "/etc/localtime:/etc/localtime"  
+  environment:
+    C_FORCE_ROOT: "true"
+    TERM: xterm
+    TERMINFO: /etc/terminfo
+    LC_ALL: en_US.utf8
+    LANG: en_US.utf8  

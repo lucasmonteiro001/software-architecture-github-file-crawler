@@ -1,0 +1,15 @@
+datastore:
+  build: datastore
+
+mysql:
+  image: mysql:5.6
+  environment:
+    MYSQL_ROOT_PASSWORD: 'mysql_master'
+    MYSQL_DATABASE: '1nescloud'
+    MYSQL_USER: 'nes'
+    MYSQL_PASSWORD: 'P@ssw0rd'
+  volumes_from:
+    - datastore
+  volumes:
+    - conf.d:/etc/mysql/conf.d
+  net: "host"

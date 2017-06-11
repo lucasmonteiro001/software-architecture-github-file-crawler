@@ -1,0 +1,33 @@
+version: '2'
+services:
+  backendbase:
+    build: .
+    command: /bin/true
+    volumes:
+      - .:/code
+  db:
+    image: postgres
+  web:
+    image: keepscore_backendbase
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes_from:
+      - backendbase
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      - DEBUG=True
+      - SECRET_KEY="supersecretkey"
+  webtest:
+    image: keepscore_backendbase
+    command: python manage.py test
+    volumes_from:
+      - backendbase
+  dbmigrate:
+    image: keepscore_backendbase
+    command: bash -c "python manage.py makemigrations && python manage.py migrate"
+    volumes_from:
+      - backendbase
+    depends_on:
+      - db

@@ -1,0 +1,10 @@
+kibana:
+    build: .
+    environment:
+        - KIBANA_SECURE=false
+        - KIBANA_USER=kamasu
+        - KIBANA_PASSWORD=kamasu1235789
+        - ELASTICSEARCH_URL=http://192.168.0.10:9200
+        - ELASTICSEARCH_CONNECT=192.168.0.10:9200
+    ports:
+        - 80:80

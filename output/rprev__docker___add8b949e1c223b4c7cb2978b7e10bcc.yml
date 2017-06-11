@@ -1,0 +1,22 @@
+version: '2'
+services:
+  letschat:
+    image: sdelements/lets-chat
+    links:
+      - mongo
+    ports:
+    - 8080:8080
+    - 5222:5222
+ 
+  mongo:
+    image: mongo
+
+  hubot:
+   image: rprev/hubot-letschat
+   links:
+     - letschat
+   environment:
+     - HUBOT_LCB_TOKEN=[YOUR AUTHENTICATION TOKENS]
+     - HUBOT_LCB_ROOMS=[YOUR ROOM ID]
+     - HUBOT_LCB_HOSTNAME=letschat
+     - HUBOT_LCB_PORT=8080

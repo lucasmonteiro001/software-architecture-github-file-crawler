@@ -1,0 +1,15 @@
+version: "2"
+
+services:
+  paymentservice:
+    image: massanes/paymentservice
+
+    ports:
+      - "9090:9090"
+
+  webservices:
+    image: massanes/webservices
+
+    network_mode: "host"
+
+

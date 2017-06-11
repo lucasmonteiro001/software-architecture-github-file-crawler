@@ -1,0 +1,25 @@
+version: '2'
+services:
+  blog:
+    build:
+      context: ./backend
+    volumes:
+      - /tmp
+    user: uwsgi
+    command: uwsgi --die-on-term --ini /data/conf/uwsgi/blog.ini
+    depends_on:
+      - postgres
+  nginx:
+    build:
+      context: .
+      dockerfile: misc/nginx/Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - blog
+    volumes_from:
+      - blog
+  postgres:
+    image: postgres
+    environment:
+      - POSTGRES_PASSWORD=random_password

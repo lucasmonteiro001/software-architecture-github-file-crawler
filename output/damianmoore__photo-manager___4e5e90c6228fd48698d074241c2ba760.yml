@@ -1,0 +1,38 @@
+version: "2"
+
+services:
+  postgres:
+    container_name: pm-postgres
+    image: mdillon/postgis:9.6
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: photo-manager
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+
+  redis:
+    container_name: pm-redis
+    image: redis:3.2.8
+    ports:
+      - "6379:6379"
+
+  photomanager:
+    container_name: photomanager
+    build: .
+    ports:
+     - "8888:80"
+    environment:
+      POSTGRES_HOST: postgres
+      REDIS_HOST: redis
+    volumes:
+     - ./frontend-web:/srv/frontend-web
+     - ./ui/public:/srv/ui/public
+     - ./ui/src:/srv/ui/src
+     - ./ui/static:/srv/ui/static
+     - ./data/photos:/photos
+     - ./data/cache:/cache
+    links:
+     - postgres
+     - redis

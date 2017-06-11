@@ -1,0 +1,18 @@
+dind:
+  container_name: cdb-dind
+  image: docker:dind
+  volumes:
+    - /var/jenkins_home
+    - /root/.m2
+  privileged: true
+
+jenkins:
+  image: clementgayvallet/cdb-jenkins
+  container_name: cdb-jenkins
+  volumes_from:
+    - dind
+  links:
+    - dind:docker
+  ports:
+    - "9090:8080" 
+  

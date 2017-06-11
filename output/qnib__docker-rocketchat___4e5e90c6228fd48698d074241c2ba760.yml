@@ -1,0 +1,52 @@
+version: '2'
+services:
+  consul:
+    image: qnib/consul
+    ports:
+     - "8500:8500"
+    networks:
+      - rc-net
+    hostname: consul
+    container_name: consul
+    privileged: true
+    environment:
+     - CONSUL_SERVER=true
+     - BOOTSTRAP_CONSUL=true
+
+  mongodb:
+    image: qnib/mongodb
+    dns: consul
+    hostname: mongodb
+    container_name: mongodb
+    networks:
+      - rc-net
+    ports:
+     - "27017:27017"
+     - "28017:28017"
+    volumes:
+      - rc-vol:/var/lib/mongodb
+    environment:
+     - CONSUL_CLUSTER_IPS=consul
+     - MONGO_RESTORE=/backup/rocketchat_init.tar
+    privileged: true
+
+  rocketchat:
+    image: qnib/rocketchat
+    dns: consul
+    hostname: rocketchat
+    container_name: rocketchat
+    environment:
+     - CONSUL_CLUSTER_IPS=consul
+     - MONGO_URL=mongodb://mongodb:27017/meteor
+    networks:
+      - rc-net
+    ports:
+     - "3000:3000"
+    privileged: true
+
+networks:
+  rc-net:
+    driver: bridge
+volumes:
+  rc-vol:
+    driver: local

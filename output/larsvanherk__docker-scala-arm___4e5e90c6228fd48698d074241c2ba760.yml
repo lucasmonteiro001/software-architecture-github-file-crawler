@@ -1,0 +1,6 @@
+rpi-scala:
+    build: .
+    container_name: rpi-scala
+    volumes:
+      - ./scala/:/var/app/
+    command: sh /var/app/run.sh

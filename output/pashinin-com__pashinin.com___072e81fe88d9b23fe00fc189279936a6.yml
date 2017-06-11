@@ -1,0 +1,116 @@
+version: '3'
+services:
+  django:
+    # fixes: cannot open /dev/fuse (Operation not permitted)
+    # --cap-add SYS_ADMIN --device /dev/fuse
+    # trying this:
+
+    # either "build" or "image"
+    image: pashinin/pashinin.com:latest
+    # image: pashinin.com
+    # build: .
+
+    container_name: django
+
+    privileged: true
+    # with these not working yet:
+    cap_add:
+      - SYS_ADMIN
+    devices:
+      - /dev/fuse
+
+    # command: sleep infinity
+    command: python manage.py runserver 0.0.0.0:8000
+
+    # these 2 are for getting output from commands like djangos debug server
+    stdin_open: true
+    tty: true
+
+    user: $UID
+    restart: always
+
+    ports:
+      - "80:8000"
+      - "81:8001"
+    volumes:
+      - ../:/var/www/project
+      # - ../../parser:/var/www/parser
+    depends_on:
+      - redis
+      - db
+      # - dbinit
+      # - migration
+
+    links:
+      - db
+      - redis
+      # - "db:database"
+
+    extra_hosts:
+      - "pashinin.com:10.254.239.1"
+
+    environment:
+      DJANGO_SETTINGS_MODULE: pashinin.settings
+
+
+  # Run Gulp manually with:
+  # docker run -v `pwd`:/var/www/pashinin.com --user=`id -u` -it gulp sh -c "gulp"
+  gulp:
+    # privileged: true
+    tty: true
+    image: pashinin/gulp:latest
+    container_name: gulp
+    volumes:
+      - ../:/var/www/project
+    command: sh -c "(cd configs;./config.py secret-example.json secret.json);npm link gulp-sass;npm link gulp-livereload;npm link gulp-shell;npm link gulp-sourcemaps;gulp"
+    # restart: always
+    user: $UID
+    working_dir: /var/www/project
+    # run:
+    #   # link: ["redis:redis"]
+    #   detach: true
+
+  # https://hub.docker.com/_/redis/
+  redis:
+    image: redis
+    container_name: redis
+    # restart: always
+
+  # https://hub.docker.com/_/postgres/
+  db:
+    # image: postgres:alpine
+    image: pashinin/db:latest
+    container_name: db
+    volumes:
+      - ./:/var/www/project
+    environment:
+      POSTGRES_USER: pashinin
+      POSTGRES_PASSWORD: superpass
+      POSTGRES_DB: pashinin
+
+  # dbinit:
+  #   image: postgres
+  #   # image: python:3-onbuild
+  #   working_dir: /var/www/pashinin.com/configs
+  #   command: psql -h db -U postgres -a -f tmp/dbinit.sql
+  #   volumes:
+  #     - ../:/var/www/pashinin.com
+  #   # links:
+  #   #   - db
+  #   depends_on:
+  #     - db
+
+  # migration:
+  #   build: .
+  #   working_dir: /var/www/pashinin.com/src
+  #   command: ../configs/migrations.sh
+  #   user: www-data
+  #   volumes:
+  #     - ../:/var/www/pashinin.com
+  #   # links:
+  #   #   - db
+  #   depends_on:
+  #     - dbinit
+
+
+# restart: on-failure:10

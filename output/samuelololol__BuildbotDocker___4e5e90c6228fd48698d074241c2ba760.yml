@@ -1,0 +1,14 @@
+buildbotmaster:
+    extends:
+        file: ./common/docker-compose.yml
+        service: commonmaster
+    ports:
+        - "8010:8010"
+
+buildbotslave:
+    extends:
+        file: ./common/docker-compose.yml
+        service: commonslave
+    links:
+        - buildbotmaster
+

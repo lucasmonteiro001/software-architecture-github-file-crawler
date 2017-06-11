@@ -1,0 +1,26 @@
+mongodb:
+    image: mongo
+    ports:
+        - "27017:27017"
+    expose:
+        - 27017
+    volumes:
+        - /var/lib/mongo:/data/db
+
+web:
+  build: .
+#  links:
+#    - mongodb
+  ports:
+    - "80:80"
+  expose:
+    - "80"
+  volumes:
+    - .:/var/app
+  tty: true
+  environment:
+      - APP_RUN_MODE=dev
+      - SYMFONY_ENV=dev
+      - SYMFONY__MONGODB__NAME=OHF15
+      - SYMFONY__MONGODB__HOST=mongo
+      - SYMFONY__MONGODB__PORT=27017

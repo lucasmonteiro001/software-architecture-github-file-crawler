@@ -1,0 +1,18 @@
+version: '2'
+services:
+  acng:
+    container_name: %{container_name}
+    image: %{image_name}
+    environment:
+      - ACNG_BACKENDS_DEBIAN=http://ftp.jp.debian.org/debian/
+    restart: always
+    volumes:
+      - data:/var/lib/apt-cacher-ng
+      - cache:/var/cache/apt-cacher-ng
+    ports:
+      - "%{port}:%{port}"
+    network_mode: bridge
+volumes:
+  data: {}
+  cache: {}
+

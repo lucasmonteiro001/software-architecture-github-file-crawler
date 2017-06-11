@@ -1,0 +1,23 @@
+version: '2'
+services:
+  backend:
+    image: chrishaley311/employeemanagement:0.1.0-SNAPSHOT
+    ports:
+      - 8080:8080
+    links:
+        - dbpostgres
+  ui:
+    build: ./ui/
+    image: chrishaley311/employeemanagement-ui
+    ports:
+      - 4200:4200
+  dbpostgres:
+      image: postgres
+      volumes:
+        - ./data:/var/lib/postgres/data
+      ports:
+        - "5432:5432"
+      environment:
+        POSTGRES_USER: pguser
+        POSTGRES_PASSWORD: pguser
+        POSTGRES_DB: pgdb

@@ -1,0 +1,33 @@
+version: '2'
+
+services:
+
+  seed:
+    image: "haghard/docker-cluster:0.2"
+    hostname: ${SEED_NAME}
+    ports:
+      - "${HTTP_PORT}:${HTTP_PORT}"
+      - "${SEED_JMX_PORT}:${SEED_JMX_PORT}"
+    environment:
+      node.type: seed
+    networks:
+      akkacluster:
+        ipv4_address: 172.16.2.2
+
+  worker:
+    image: "haghard/docker-cluster:0.2"
+    environment:
+      node.type: worker
+    links:
+      - seed
+    networks:
+      - akkacluster
+
+networks:
+   akkacluster:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+      - subnet: 172.16.2.0/24
+        gateway: 172.16.2.1

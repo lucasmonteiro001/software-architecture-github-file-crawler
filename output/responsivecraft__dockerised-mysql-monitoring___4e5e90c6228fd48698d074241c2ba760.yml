@@ -1,0 +1,61 @@
+version: '2'
+services:
+
+  kibana:
+    image: kibana
+    ports:
+      - "80:5601"
+    links:
+      - elasticsearch
+    environment:
+      - SERVICE_NAME=kibana
+      - SERVICE_TAGS=elk
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+
+  elasticsearch:
+    image: elasticsearch
+    environment:
+      - SERVICE_NAME=elasticsearch
+      - SERVICE_TAGS=elk
+
+  logstash:
+    build: ./logstash
+    links:
+      - elasticsearch
+    volumes:
+      - ./logstash/logstash.conf:/config/logstash.conf
+    command: -w 1 -f '/config/logstash.conf'
+    environment:
+      - SERVICE_NAME=logstash
+      - SERVICE_TAGS=elk
+
+  collectd:
+    build: ./collectd
+    links:
+      - logstash
+    command: -f -C '/config/collectd.conf'
+    environment:
+      - SERVICE_NAME=collectd
+      - SERVICE_TAGS=collectd
+
+  consul:
+    image: gliderlabs/consul-server
+    ports:
+      - "8500:8500"
+    command: -data-dir /tmp/consul -bootstrap -client 0.0.0.0
+    volumes:
+      - ./consul/server.json:/config/server.json
+    environment:
+      - SERVICE_NAME=consul
+      - SERVICE_TAGS=service-discovery
+
+  registrator:
+    image: gliderlabs/registrator
+    links:
+      - consul
+    command: consul://consul:8500
+    volumes:
+      - "/var/run/docker.sock:/tmp/docker.sock"
+    environment:
+      - SERVICE_NAME=registrator
+      - SERVICE_TAGS=service-discovery

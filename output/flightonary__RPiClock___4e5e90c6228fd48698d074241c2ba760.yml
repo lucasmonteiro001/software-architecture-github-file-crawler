@@ -1,0 +1,21 @@
+web:
+  build: web
+  dockerfile: Dockerfile.dev
+  container_name: rpiclock_web
+  command: ./run.sh development
+  volumes:
+    - /etc/localtime:/etc/localtime:ro
+    - ./web:/app
+  ports:
+    - "3000:3000"
+
+alarm:
+  build: alarm
+  dockerfile: Dockerfile.dev
+  container_name: rpiclock_alarm
+  command: /usr/bin/supervisord -c supervisord.conf
+  volumes:
+    - /etc/localtime:/etc/localtime:ro
+    - /var/run/dbus:/var/run/dbus
+    - ./alarm:/app
+    - ./alarm/etc/mplayer/mplayer.conf:/etc/mplayer/mplayer.conf

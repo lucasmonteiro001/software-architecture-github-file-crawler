@@ -1,0 +1,50 @@
+version: '2'
+
+services:
+
+### Workspace Utilities Container ###########################
+
+    workspace:
+        build: ./workspace
+        volumes_from:
+            - volumes_source
+        links:
+            - mysql
+            - mysql:database
+        tty: true
+
+### Apache Server Container ##################################
+
+    apache2:
+        build: ./apache2
+
+        volumes_from:
+            - volumes_source
+        volumes:
+            - ./logs/apache2:/var/log/apache2
+        ports:
+            - "80:80"
+        links:
+            - workspace
+            - mysql
+            - mysql:database
+
+### MySQL Container #########################################
+
+    mysql:
+        build: 
+            context: ./mysql
+            args:
+                MYSQL_ROOT_PASSWORD: secret
+                MYSQL_DATABASE: my_php_app
+                MYSQL_USER: my_php_app
+                MYSQL_PASSWORD: pAsSwOrD
+        ports:
+            - "3306:3306"
+
+### PHP Application Code Container ######################
+
+    volumes_source:
+        build: ./volumes/application
+        volumes:
+            - ../xpressengine:/var/www/html

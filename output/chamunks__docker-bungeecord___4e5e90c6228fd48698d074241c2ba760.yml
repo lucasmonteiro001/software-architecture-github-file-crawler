@@ -1,0 +1,4 @@
+bungeecord:
+  build: .
+  ports:
+    - "0.0.0.0:25565:25565"

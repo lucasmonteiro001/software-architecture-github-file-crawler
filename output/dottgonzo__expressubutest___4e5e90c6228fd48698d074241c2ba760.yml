@@ -1,0 +1,35 @@
+version: '2'
+
+services:
+ app0:
+  image: dottgonzo/ubunodedocker
+  restart: always
+  command: '/bin/sh -c "rm -rf ./express-example && sync && git clone https://github.com/sequelize/express-example.git && cd ./express-example && npm i --production && npm start"'
+  ports:
+   - 3000:3000
+   
+ app0clone:
+  image: dottgonzo/ubunodedocker
+  restart: always
+  command: '/bin/sh -c "rm -rf ./express-example && sync && git clone https://github.com/sequelize/express-example.git && cd ./express-example && npm i --production && npm start"'
+  ports:
+   - 3100:3000
+   
+ app1:
+  image: dottgonzo/mininode
+  restart: always
+  command: '/bin/sh -c "rm -rf ./express-example && sync && git clone https://github.com/sequelize/express-example.git && cd ./express-example && npm i --production && npm start"'
+  ports:
+   - 4000:3000
+   
+ app2:
+  image: dottgonzo/httpdgitdocker
+  restart: always
+  command: '/bin/sh -c "rm -rf /usr/local/apache2/htdocs && sync && git clone https://github.com/sequelize/express-example.git /usr/local/apache2/htdocs&&httpd-foreground"'
+  ports:
+   - 8000:80
+
+   
+   
+   
+   

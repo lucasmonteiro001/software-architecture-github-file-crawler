@@ -1,0 +1,48 @@
+version: '2'
+
+volumes:
+  postgres_data: {}
+
+services:
+  db:
+    image: osmutcanev/postgishu
+    build: ./src/postgishu
+    volumes:
+      - postgres_data:/var/lib/postgresql/data    
+    tmpfs:
+     - /tmp
+    environment:
+     - POSTGRES_DB=osm
+     - POSTGRES_USER=osm
+     - POSTGRES_PASSWORD=osm 
+     
+  osmutcanev:
+    image: osmutcanev/osmutcanev
+    build: ./src/osmutcanev
+    command: /osm/start.sh
+    depends_on:
+      - db   
+    volumes:
+     - ./input:/osm/input
+     - ./output:/osm/output
+     - ./src/osmutcanev/src:/osm/src                
+    links:
+     - db:db
+    environment:
+     - LASTOSMTIMESTAMP=_missing_
+     - RUNTIME=_missing_
+     - PGHOST=db         
+     - PGUSER=osm
+     - PGDATABASE=osm
+     - PGPASSWORD=osm
+     - BASENAME=Posta
+     - MAPLABEL1="OpenStreetMap Hungary vs. Hungarian Post  -  Street Name Completeness Statistics "
+     - MAPLABEL2="---  Experimental!  ---"
+ 
+  web:
+    image: "abiosoft/caddy"
+    ports:
+     - "2015:2015"
+    volumes:
+     - ./output/web:/srv
+

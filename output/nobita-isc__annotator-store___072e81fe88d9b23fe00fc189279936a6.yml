@@ -1,0 +1,14 @@
+annotations:
+  build: .
+  # image: nobita/annotator-storage:1.3
+  ports:
+   - "80:80"
+  links:
+   - elastic:elastic
+  restart: always
+
+elastic:
+  image: elasticsearch:1.7.5
+  restart: always
+  volumes:
+   - /usr/data/esdata:/usr/share/elasticsearch/data

@@ -1,0 +1,10 @@
+web:
+  build: .
+  links:
+    - back
+  ports:
+    - 80:80
+  volumes:
+     - /tmp/cache:/var/cache/nginx
+back:
+  image: jenkins

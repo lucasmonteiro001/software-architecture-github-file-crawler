@@ -1,0 +1,20 @@
+version: '2'
+services:
+  db:
+    image: postgres
+    volumes:
+      - ./docker-volumes/postgres:/var/lib/postgresql/data
+  web:
+    build: backend
+    image: darignac/the-money-inferno
+    command: /code/docker-entrypoint.dev.sh
+    volumes:
+      - ./backend:/code
+      - ./docker-volumes/backend-static:/srv/static
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      - DEBUG=True
+      - ALLOWED_HOSTS=0.0.0.0

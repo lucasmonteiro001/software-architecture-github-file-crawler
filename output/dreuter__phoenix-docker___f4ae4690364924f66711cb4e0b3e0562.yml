@@ -1,0 +1,16 @@
+version: '2'
+services:
+  app:
+    build: .
+    ports:
+      - "4000:4000"
+    depends_on:
+      - postgres
+    environment:
+      MIX_ENV: docker
+      POSTGRES_HOSTNAME: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD:
+
+  postgres:
+    image: postgres

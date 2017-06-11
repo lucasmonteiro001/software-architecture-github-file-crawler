@@ -1,0 +1,15 @@
+pollmonkey:
+  image: elm
+  hostname: pollmonkey
+  ports:
+    - "8000:8000"
+  working_dir: /var/www/pollmonkey/
+  volumes:
+    - ./../:/var/www/pollmonkey/
+    - ./../conf/vhost.conf:/etc/nginx/sites-enabled/vhost.con
+  extra_hosts:
+    - "pollmonkey.dev:127.0.0.1"
+  external_links:
+    - docker_mockapi_1:mockapi.dev
+  environment:
+    - TERM=xterm

@@ -1,0 +1,11 @@
+# copyleft 2015 teodorescu.serban@gmail.com
+
+api:
+  extends:
+    file: common.yml
+    service: api
+
+db:
+  extends:
+    file: common.yml
+    service: db

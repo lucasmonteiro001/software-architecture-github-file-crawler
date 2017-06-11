@@ -1,0 +1,8 @@
+presentacion:
+  image: presentation
+  ports: 
+    - 3999:3999
+  volumes:
+    - /home/ggerman/docker/pandora/containers:/containers/pandora/containers/
+
+

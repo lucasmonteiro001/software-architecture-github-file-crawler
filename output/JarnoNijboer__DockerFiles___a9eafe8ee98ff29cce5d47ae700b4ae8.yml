@@ -1,0 +1,10 @@
+version: '2'
+
+services:
+  iis-php-sqlserver:
+    image: iis-php-sqlserver:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 8000:8000

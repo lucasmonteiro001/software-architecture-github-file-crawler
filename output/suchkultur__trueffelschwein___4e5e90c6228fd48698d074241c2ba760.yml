@@ -1,0 +1,15 @@
+crawler:
+  build: ./crawler
+  dockerfile: Dockerfile
+  env_file:
+    # configuration is managed by environment variables
+    - ./config/crawler.env
+    - ./config/python.env
+  links:
+    - crawlerstore
+
+crawlerstore:
+  image: mongo
+  command: mongod --smallfiles
+  ports:
+    - "27017:27017"

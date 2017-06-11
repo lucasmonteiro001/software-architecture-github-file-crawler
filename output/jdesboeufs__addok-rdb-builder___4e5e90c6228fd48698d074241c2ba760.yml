@@ -1,0 +1,13 @@
+version: "2"
+
+services:
+  db:
+    image: jdesboeufs/addok-redis:latest
+    volumes:
+      - ./data:/data
+  builder:
+    image: image: jdesboeufs/addok-rdb-builder:latest
+    volumes:
+      - ./data:/data
+    links:
+      - db:redis

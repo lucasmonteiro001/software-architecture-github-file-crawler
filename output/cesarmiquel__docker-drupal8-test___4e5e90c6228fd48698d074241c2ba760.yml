@@ -1,0 +1,80 @@
+version: '2'
+
+services:
+  db:
+    image: mysql:5.7.14
+    expose:
+      - 3306
+    environment:
+      - MYSQL_ROOT_PASSWORD
+      - MYSQL_DATABASE
+      - MYSQL_USER
+      - MYSQL_PASSWORD
+    volumes:
+      - "dbdata:/var/lib/mysql"
+    restart: always
+
+  php:
+    build: ./docker/drupal-php-fpm
+    image: php:5.6.24-fpm-alpine-${COMPOSE_PROJECT_NAME}
+    expose:
+      - 9000
+    restart: always
+    depends_on:
+      - db
+    volumes:
+      - ./app/docroot:/var/www/drupal
+    
+  web:
+    image: nginx:1.11.1-alpine
+    restart: always
+    ports:
+      - 80:80
+      - 443:443
+    depends_on:
+      - php
+    volumes:
+      - ./app/config/nginx/drupal.conf:/etc/nginx/conf.d/drupal.conf
+    volumes_from:
+      - php
+
+  memcached:
+    image: memcached:1.4.30-alpine
+    restart: always
+    expose:
+      - 9000
+
+  #composer:
+  #  image: composer/composer:1.1-php5-alpine
+  #  depends_on:
+  #    - php
+  #    - db
+  #  volumes_from:
+  #    - php
+  #  working_dir: /var/www/drupal
+  #  user: "$DRUPAL_USER:www-data"
+
+  drush:
+    image: drush/drush:8-alpine
+    depends_on:
+      - php
+      - db
+    volumes_from:
+      - php
+    working_dir: /var/www/drupal
+    user: "$DRUPAL_USER:www-data"
+
+  console:
+    image: drupalconsole/console:1.0-php5-alpine
+    depends_on:
+      - php
+      - db
+    volumes_from:
+      - php
+    working_dir: /var/www/drupal
+    user: "$DRUPAL_USER:www-data"
+ 
+volumes:
+  dbdata:
+    driver: local
+

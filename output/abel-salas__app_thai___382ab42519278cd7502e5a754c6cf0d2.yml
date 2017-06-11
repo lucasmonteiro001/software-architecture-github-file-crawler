@@ -1,0 +1,36 @@
+backendservicedb:
+  image: mongo
+  ports:
+      - "27017:27017"
+  volumes:
+      - /var/mongo/data/db:/data/db
+
+mongoexpressbackend:
+  image: mongo-express
+  ports:
+     - "8081:8081"
+  links:
+     - backendservicedb:mongo
+
+api_rest:
+  build: /home/app_thai/api_rest
+  environment:
+     - ENVIRONMENT=dev
+  privileged: true
+  volumes:
+       - /home/app_thai/api_rest:/home/app_thai/api_rest
+  ports:
+    - "8082:8082"
+  links:
+     - backendservicedb:backendservicedb
+
+frontend:
+  build: /home/app_thai/frontend
+  environment:
+     - ENVIRONMENT=dev
+  volumes:
+       - /home/app_thai/frontend:/home/app_thai/frontend
+  ports:
+     - "8080:8080"
+  links:
+     - api_rest:api_rest

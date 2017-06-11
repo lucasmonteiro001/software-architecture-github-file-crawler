@@ -1,0 +1,31 @@
+# MySQL comes with an image we need not modify in any way
+mysql:
+  image: mysql:latest
+  container_name: your-project-name-database
+  environment:
+    - MYSQL_ROOT_PASSWORD=password
+    - MYSQL_DATABASE=your-project-name
+    - MYSQL_USER=your-project-name
+    - MYSQL_PASSWORD=your-project-name
+
+# The webserver is nginx, we're mapping host port 8080 to 80 on the container
+# It will respond on any hostname
+webserver:
+  build: .
+  dockerfile: docker/Dockerfile.nginx.yml
+  container_name: your-project-name-webserver
+  volumes:
+      - .:/var/www/your-project-name
+  ports:
+   - "8080:80"
+  links:
+   - php-fpm
+
+php-fpm:
+  build: .
+  dockerfile: docker/Dockerfile.php-fpm.yml
+  container_name: your-project-name-php
+  volumes:
+    - .:/var/www/your-project-name
+  links:
+    - mysql

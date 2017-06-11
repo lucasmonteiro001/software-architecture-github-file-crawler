@@ -1,0 +1,14 @@
+version: '3'
+services:
+  app:
+    build: .
+    image: ytet5uy4/redirector:dev
+    container_name: redirector
+    volumes:
+      - .:/go/src/github.com/ytet5uy4/redirector
+      - vendor:/go/src/github.com/ytet5uy4/redirector/vendor
+    ports:
+      - '3000:3000'
+
+volumes:
+  vendor:

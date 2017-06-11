@@ -1,0 +1,11 @@
+scheduler:
+  image: rancher/aurora:latest
+  environment:
+    MESOS_SERVICE: Mesos/mesos-master
+    ZK_SERVICE: Mesos/zookeeper
+    AURORA_HTTP_PORT: ${AURORA_HTTP_PORT}
+  volumes:
+  - "/var/run/docker.sock:/var/run/docker.sock"
+  ports:
+  - "${AURORA_HTTP_PORT}:${AURORA_HTTP_PORT}"
+  privileged: true

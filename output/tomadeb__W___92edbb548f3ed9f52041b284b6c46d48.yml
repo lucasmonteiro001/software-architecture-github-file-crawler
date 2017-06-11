@@ -1,0 +1,12 @@
+version: '2'
+
+services:
+  ntpd:
+    image: tomdeb/ntpd
+    command: ntpd -d 
+    dns: 
+      - 8.8.8.8
+      - 8.8.4.4
+    ports:
+        - 123/udp:123/udp
+

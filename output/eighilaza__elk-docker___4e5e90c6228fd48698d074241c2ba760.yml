@@ -1,0 +1,29 @@
+elasticsearch:
+  image: elasticsearch:latest
+  ports:
+    - "9200:9200"
+    - "9300:9300"
+  volumes:
+    - ./elasticsearch/config:/usr/share/elasticsearch/config
+    - ./elasticsearch/data:/usr/share/elasticsearch/data  
+
+logstash:
+  image: logstash:latest
+  ports:
+    - "5500:5000"
+    - "5500:5000/udp"
+  volumes:
+    - ./logstash:/config-dir
+  links:
+    - elasticsearch:elasticsearch
+  environment:
+    #Avoid logstash sending its own logs in infinite loop
+    LOGSPOUT: ignore
+  command: logstash -f /config-dir/logstash.conf
+
+kibana:
+  image: kibana:latest
+  ports:
+    - "8484:5601"
+  links:
+    - elasticsearch:elasticsearch

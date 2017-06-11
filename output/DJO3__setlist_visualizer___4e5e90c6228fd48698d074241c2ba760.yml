@@ -1,0 +1,32 @@
+web:
+  restart: always
+  build: ./web
+  expose:
+    - "5000"
+  links:
+    - mongo:mongo
+  volumes:
+    - ./web:/usr/src/app
+  env_file: .env
+  command: uwsgi --ini /usr/src/app/setlist_visualizer.ini --pythonpath /usr/src/app/
+
+nginx:
+  restart: always
+  build: ./nginx/
+  ports:
+    - "80:80"
+  volumes:
+    - /www/static
+  volumes_from:
+    - web
+  links:
+    - web:web
+
+mongo:
+  restart: always
+  hostname: mongoContainer
+  image: mongo:latest
+  volumes:
+    - /Users/data/db:/data/db
+  ports:
+    - "27017:27017"

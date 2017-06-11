@@ -1,0 +1,37 @@
+db:
+    image: percona
+    env_file: conf/mysql
+    ports:
+        - 127.0.0.1:3306:3306
+
+redis:
+    image: redis:alpine
+
+mailcatch:
+    image: mailhog/mailhog
+
+php5:
+    build: php5
+    links:
+        - db
+        - mailcatch
+        - redis
+
+php7:
+    build: php7
+    links:
+        - db
+        - mailcatch
+        - redis
+
+web:
+    build: web
+    links:
+        - php5:fpm
+        - php5:fpm5
+        - php7:fpm7
+        - mailcatch
+    ports:
+        - 127.0.0.1:80:80
+        - 127.0.0.1:443:443
+

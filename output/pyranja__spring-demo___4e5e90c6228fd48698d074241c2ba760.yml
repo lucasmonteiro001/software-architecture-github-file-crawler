@@ -1,0 +1,28 @@
+version: '2'
+services:
+  db:
+    image: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=todo
+      - POSTGRES_USER=sa
+      - POSTGRES_PASSWORD=sa
+  auth:
+    image: pyranja/auth
+    ports:
+      - "9090:9090"
+  greeter:
+    image: pyranja/greeter
+    ports:
+      - "8050:8080"
+    links:
+      - auth
+  todo:
+    image: pyranja/todo
+    ports:
+      - "8080:8080"
+    links:
+      - greeter
+      - auth
+      - db

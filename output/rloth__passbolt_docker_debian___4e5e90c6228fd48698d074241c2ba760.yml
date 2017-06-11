@@ -1,0 +1,25 @@
+version: '2'
+services:
+  passbolt:
+    ports:
+      - "8081:8081"
+      - "8080:80"
+      - "443:443"
+    image: passbolt_image
+    build: ./passbolt_image
+    env_file: .env
+    environment:
+      # runtime conf straight from ./.env
+      - MYSQL_HOST=$MYSQL_HOST
+      - MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD
+      - MYSQL_USERNAME=$MYSQL_USERNAME
+      - MYSQL_PASSWORD=$MYSQL_PASSWORD
+      - MYSQL_DATABASE=$MYSQL_DATABASE
+      - ADMIN_USERNAME=$ADMIN_USERNAME
+      - ADMIN_FIRST_NAME=$ADMIN_FIRST_NAME
+      - ADMIN_LAST_NAME=$ADMIN_LAST_NAME
+      # previously used but replaced by MY_PREFIX=`hostname -i` in entry-point
+      # - APP_URL=http://0.0.0.0
+    # external volume ./data for containers' mysql data
+    volumes:
+     - ./data:/var/lib/mysql

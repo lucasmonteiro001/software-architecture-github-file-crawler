@@ -1,0 +1,14 @@
+web:
+  build: .
+  volumes:
+    - ./server:/app/server
+    - ./client:/app/client
+    - ./bin:/app/bin
+  command: bin/www
+  ports:
+    - "9000:9000"
+  restart: always
+  links:
+    - db
+db:
+  image: mongo

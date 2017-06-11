@@ -1,0 +1,17 @@
+version: "3"
+
+services:
+  sftp:
+    container_name: 'sftp'
+    hostname: 'sftp'
+    image: 1000kit/sftp
+    ports:
+      - "2222:22"
+    environment:
+      - SFTP_USERS=tkitftp:passwd1234:1001::in;out;test/abc/def
+
+
+#SFTP_USER format:
+# username:password:UID:e[e: password encrypted]:directories[; separated list of directories created in home dir]
+
+#END

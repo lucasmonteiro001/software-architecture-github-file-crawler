@@ -1,0 +1,17 @@
+apache:
+    build: ./apache
+    volumes:
+    - "./html/:/var/www/html"
+    - "./ssl:/ssl"
+    links:
+    - mysql
+    ports:
+    - "80:80"
+    - "443:443"
+
+mysql:
+    image: mariadb:latest
+    environment:
+        MYSQL_ROOT_PASSWORD: password
+        MYSQL_DATABASE: blog
+        MYSQL_USER: name

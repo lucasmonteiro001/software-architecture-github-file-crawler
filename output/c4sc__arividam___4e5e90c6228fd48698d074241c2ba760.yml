@@ -1,0 +1,41 @@
+version: '2'
+
+volumes:
+  postgres_data: {}
+  postgres_backup: {}
+  django_static: {}
+  django_media: {}
+
+services:
+  postgres:
+    build: ./compose/postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - postgres_backup:/backups
+    env_file: .env
+
+  django:
+    build:
+      context: .
+      dockerfile: ./compose/django/Dockerfile
+    #user: django
+    depends_on:
+      - postgres
+      - redis
+    command: /gunicorn.sh
+    env_file: .env
+    volumes:
+      - django_static:/static
+      - django_media:/app/arividam/media
+
+  nginx:
+    build: ./compose/nginx
+    depends_on:
+      - django
+    volumes:
+      - django_static:/static:ro
+      - django_media:/media:ro
+
+  redis:
+    image: redis:3.0
+  

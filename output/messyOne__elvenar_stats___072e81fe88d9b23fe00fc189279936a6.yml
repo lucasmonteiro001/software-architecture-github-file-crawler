@@ -1,0 +1,22 @@
+nginx:
+  build: .
+  ports:
+    - "80:80"
+    - "443:443"
+    - "2222:22"
+    - "9000:9000"
+  links:
+    - db:db
+  volumes:
+    - ../:/var/www/default
+    - ./sites:/etc/nginx/conf.d
+    - ./logs:/var/log/supervisor
+
+db:
+  image: postgres:9.5
+  ports:
+    - "5432:5432"
+  environment:
+    POSTGRES_USER: docker
+    POSTGRES_PASSWORD: docker
+

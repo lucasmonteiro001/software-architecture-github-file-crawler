@@ -1,0 +1,32 @@
+# database container
+mariadb:
+  image: mariadb
+  environment:
+    - "MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}"
+    - "MYSQL_DATABASE=${MYSQL_DATABASE}"
+    - "MYSQL_USER=${MYSQL_USER}"
+    - "MYSQL_PASSWORD=${MYSQL_PASSWORD}"
+  labels:
+    io.rancher.scheduler.affinity:host_label: host.type=data
+  volumes:
+    - "/home/data/${PATH}/mysql:/var/lib/mysql"
+
+php:
+  image: vidavenel/php:presta
+  volumes:
+    - "/home/data/${PATH}/public_html/:/var/www/html"
+    - "/home/data/${PATH}/log/php/:/usr/local/var/log"
+    - "/home/data/${PATH}/php/:/usr/local/etc/php"
+  labels:
+    io.rancher.scheduler.affinity:host_label: host.type=compute
+
+nginx:
+  image: vidavenel/nginx:presta
+  volumes:
+    - "/home/data/${PATH}/public_html/:/var/www/html"
+    - "/home/data/${PATH}/log/nginx/:/var/log/nginx"
+    - "/home/data/${PATH}/nginx/certs/:/etc/nginx/certs"
+    - "/home/data/${PATH}/nginx/conf.d/:/etc/nginx/conf.d"
+  entrypoint: bash /tmp/init/init.sh
+  labels:
+    io.rancher.scheduler.affinity:host_label: host.type=compute

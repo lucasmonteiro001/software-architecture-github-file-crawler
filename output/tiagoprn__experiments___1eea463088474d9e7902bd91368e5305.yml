@@ -1,0 +1,20 @@
+dbdata:
+  image: postgres:9.5
+  volumes:
+    - /var/lib/postgresql
+  command: /bin/true
+database:
+  image: postgres:9.5
+  volumes:
+    - "./tmp:/shared"
+    - "./utils:/utils"
+  volumes_from:
+    - dbdata
+  expose:
+    - 5432
+  ports:
+    - "5432:5432"
+  environment:
+    - POSTGRES_USER=apiuser
+    - POSTGRES_PASSWORD=demo123
+    - POSTGRES_DB=apidemo

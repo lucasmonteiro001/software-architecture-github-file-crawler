@@ -1,0 +1,8 @@
+atlas:
+  container_name: atlas
+  restart: always
+  image: atlas
+  volumes:
+    - ./atlas-server-data/opt/atlas-server-data
+  ports:
+    - 2999:2999

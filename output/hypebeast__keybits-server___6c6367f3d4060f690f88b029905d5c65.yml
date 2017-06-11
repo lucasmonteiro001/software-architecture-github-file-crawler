@@ -1,0 +1,13 @@
+---
+# Install docker-compose
+
+- name: Get kernel name
+  shell: uname -s
+  register: kernel_name
+
+- name: Get machine hardware name
+  shell: uname -m
+  register: machine_name
+
+- name: Download docker-compose
+  get_url: url=https://github.com/docker/compose/releases/download/1.6.2/docker-compose-{{kernel_name}}-{{machine_name}} dest=/usr/local/bin/docker-compose mode=0770

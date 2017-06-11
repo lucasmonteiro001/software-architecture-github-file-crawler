@@ -1,0 +1,32 @@
+version: '2'
+services:
+  shell:
+    container_name: shell
+    image: shell:latest
+    volumes:
+      - .:/usr/src/app/
+    networks:
+      - workspace_network
+  web:
+    container_name: web
+    image: web
+    volumes:
+      - .:/usr/src/app/
+    networks:
+      - workspace_network
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=postgresql://postgres:password@db/
+  db:
+    container_name: db
+    image: postgres
+    networks:
+      - workspace_network
+    environment:
+      - POSTGRES_PASSWORD=password
+networks:
+  workspace_network:
+    driver: bridge

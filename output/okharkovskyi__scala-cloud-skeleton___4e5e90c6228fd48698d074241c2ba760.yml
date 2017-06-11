@@ -1,0 +1,50 @@
+discovery:
+  image: progrium/consul
+  command: -server -bootstrap
+  ports:
+    - 8400:8400
+    - 8500:8500
+    - 8600:8600
+
+#registrator:
+#  container_name: registrator
+#  image: gliderlabs/registrator:latest
+#  command: consul://discovery:8500
+#  volumes:
+#    - /var/run/docker.sock:/tmp/docker.sock
+#  links:
+#    - discovery
+
+mongodb:
+  build: ./mongodb
+  environment:
+    MONGODB_PASSWORD: user
+  ports:
+    - 27017:27017
+
+user-service:
+  build: ./user-service
+  restart: always
+  ports:
+      - 2000
+  links:
+    - mongodb
+    - discovery
+
+car-service:
+  build: ./car-service
+  restart: always
+  ports:
+    - 3000
+  links:
+    - mongodb
+    - discovery
+
+booking-service:
+  build: ./booking-service
+  restart: always
+  ports:
+    - 4000:4000
+  links:
+    - mongodb
+    - discovery

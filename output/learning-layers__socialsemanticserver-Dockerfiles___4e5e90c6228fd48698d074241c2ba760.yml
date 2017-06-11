@@ -1,0 +1,19 @@
+sss.data:
+  image: dtheiler/sss.data
+  container_name: sss.data
+  log_driver: "json-file"
+sss:
+  image: dtheiler/sss
+  container_name: sss
+  env_file:
+   - common.env
+   - sss.env
+  log_driver: "json-file"
+  volumes_from:
+   - sss.data
+  links:
+   - mysql
+  ports:
+   - "9000:9000"
+  actions:
+   - create_databases: [sss.env]

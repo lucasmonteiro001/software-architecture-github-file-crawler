@@ -1,0 +1,44 @@
+version: '2'
+
+networks:
+  custom_network:
+    driver: bridge
+    ipam:
+     config:
+       - subnet: 172.19.0.0/24
+         gateway: 172.19.0.1
+
+services:
+
+  db:
+    build: build/images/mysql
+    container_name: mysql_container
+    ports:
+     - "3306:3306"
+
+  web:
+    build: build/images/apache
+    container_name: apache_container
+    ports:
+     - "80:80"
+    links:
+     - db
+    volumes:
+      - /var/www/html/project:/var/www/html
+    networks:
+      custom_network:
+        ipv4_address: 172.19.0.8
+
+  nodejs:
+    build: build/images/nodejs
+    container_name: nodejs_container
+    ports:
+     - "8871:8871"
+    volumes:
+      - ./nodejs_project:/var/www/html
+      - ./build/images/nodejs/start.sh:/build/start.sh
+    networks:
+      custom_network:
+        ipv4_address: 172.19.0.9
+    extra_hosts:
+      - "web:172.19.0.8"

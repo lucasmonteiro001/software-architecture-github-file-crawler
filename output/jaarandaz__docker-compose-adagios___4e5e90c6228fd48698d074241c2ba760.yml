@@ -1,0 +1,18 @@
+adagiosdata:
+  image: jaarandaz/adagios-data
+
+adagios:
+  image: jaarandaz/adagios
+  volumes_from:
+    - adagiosdata
+  ports:
+    - "80:80"
+  volumes:
+    - ./log/nagios3:/var/log/nagios3
+    - ./log/pnp4nagios:/var/log/pnp4nagios
+    - ./log/apache2:/var/log/apache2
+    - ./etc/nagios3:/etc/nagios3
+    - ./etc/nagios-plugins:/etc/nagios-plugins
+    - ./etc/adagios:/etc/adagios
+    - ./etc/pnp4nagios:/etc/pnp4nagios
+    - ./etc/apache2:/etc/apache2

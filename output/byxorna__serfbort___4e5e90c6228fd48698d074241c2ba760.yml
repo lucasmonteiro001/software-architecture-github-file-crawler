@@ -1,0 +1,23 @@
+---
+serfnet:
+  image: google/pause
+master:
+  build: .
+  command: master -name master
+  net: container:serfnet
+  ports:
+  - 7373:7373
+agent0:
+  build: .
+  command: -config examples/config.json agent -name agent0 -master localhost:7946
+    -listen localhost:7947
+  net: container:serfnet
+agent1:
+  build: .
+  command: -config examples/config.json agent -name agent1 -master localhost:7946
+    -listen localhost:7948
+  net: container:serfnet
+collins:
+  image: tumblr/collins
+  ports:
+  - 9000:9000

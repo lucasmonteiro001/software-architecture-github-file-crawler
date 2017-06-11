@@ -1,0 +1,95 @@
+version: '2.1'
+
+services:
+  squid1:
+    image: tomdeb/proxy
+    networks: 
+      - infra
+    ports:
+      - 31281/tcp:3128/tcp
+    volumes:
+      - /var/docker/squid/squid.conf:/etc/squid/squid.conf
+  squid2:
+    image: tomdeb/proxy
+    networks: 
+      infra:
+        ipv4_address: 172.25.0.251
+    ports:
+      - 31282/tcp:3128/tcp
+    volumes:
+      - /var/docker/squid/squid.conf:/etc/squid/squid.conf
+  mysqld:
+    image: tomdeb/mysql
+    container_name: mysqld
+    networks:
+      - infra
+    volumes:
+      - /var/docker/mysql/data:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=sXRep65phpfEOnlPZ3Nw
+  wiki:
+    image: tomdeb/mediawiki 
+    container_name: wiki
+    networks:
+      - infra 
+    environment:
+    - MEDIAWIKI_SHARED=/data
+    - MEDIAWIKI_DB_HOST=mysqld 
+    - MEDIAWIKI_DB_TYPE=mysql
+    - MEDIAWIKI_DB_USER=wiki
+    - MEDIAWIKI_DB_PASSWORD=sXRep65phpfEOnlPZ3Nw
+    - MEDIAWIKI_DB_NAME=tomdeb_wiki 
+    - MEDIAWIKI_RESTBASE_URL=http://wiki.tomdeb.int
+    - MEDIAWIKI_SLEEP=30 
+    volumes:
+      - /var/docker/wiki:/data
+  memcached:
+    image: memcached
+    container_name: memcached
+    networks:
+      - infra 
+  haproxy:
+    image: haproxy:alpine
+    networks:
+      - infra 
+    volumes:
+      - /var/docker/haproxy/certs:/certs
+      - /var/docker/haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
+    ports:
+      - 80/tcp:80/tcp
+      - 443/tcp:443/tcp
+  rsyslog:
+    image: tomdeb/rsyslog
+    networks: 
+      infra:
+        ipv4_address: 172.25.0.253
+    volumes:
+      - /var/docker/rsyslog/rsyslog.d:/etc/rsyslog.d
+      - /var/docker/rsyslog/logs:/var/log
+    ports:
+      - 514/udp:514/udp
+  cacti:
+    image: tomdeb/cacti
+    networks:
+      - infra
+    volumes:
+      - /var/docker/cacti:/var/lib/cacti
+  dls:
+    image: tomdeb/transmission
+    container_name: dls
+    networks:
+      infra:
+        ipv4_address: 172.25.0.252
+    ports:
+      - 6881:6881/udp
+    volumes:
+      -  /media/volume1/bulk/dls:/dls
+      -  /var/docker/transmission-daemon:/root/.config/transmission-daemon
+
+networks:
+  infra:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+      - subnet: 172.25.0.0/24

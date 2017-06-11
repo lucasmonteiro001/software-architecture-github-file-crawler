@@ -1,0 +1,11 @@
+version: '2'
+services:
+  python-dev:
+    build:
+      context: python-dev
+      args:
+        - USER
+    stdin_open: true
+    tty: true
+    volumes:
+       - ./workdir:/home/${USER}/workdir

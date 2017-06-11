@@ -1,0 +1,30 @@
+mysql-data:
+  image: busybox
+  volumes:
+   - /var/lib/mysql
+  command: echo Data-only container for Mysql
+
+mysqld-server:
+  image: mysql:5.6.28
+  volumes_from:
+  - mysqldata
+  ports:
+  - "3306:3306"
+  environment:
+   MYSQL_ROOT_PASSWORD: symfony
+   MYSQL_USER: sayma
+   MYSQL_DATABASE: isinvoices
+   MYSQL_PASSWORD: isinvoices
+
+php-fpm:
+  image: php:7.0.2-fpm
+
+webserver:
+  image: nginx:1.9.10
+  ports:
+   - "8000:80"
+  links:
+  - php-fpm
+  environment:
+    NGINX_HOST: app.instalacionessayma.lo
+#  command: /bin/bash -c "envsubst < /etc/nginx/conf.d/mysite.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"

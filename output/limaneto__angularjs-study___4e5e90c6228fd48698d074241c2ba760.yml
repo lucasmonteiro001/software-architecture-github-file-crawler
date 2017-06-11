@@ -1,0 +1,11 @@
+version: "2"
+
+services:
+
+  frontend:
+    build: .
+    command: bash -c "node_modules/.bin/gulp compile && npm run server"
+    environment:
+      - API_URL=http://localhost:8080/api/
+    ports:
+      - "8888:3000"

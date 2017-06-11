@@ -1,0 +1,25 @@
+version: '2'
+services:
+  cms:
+    build: .
+    image: zilleem-cms:1.0
+    volumes:
+      - $PWD/html:/var/www/html
+    ports:
+      - "80:80"
+    links:
+      - db
+#      - redis
+  db:
+    image: mysql
+    volumes:
+      - $PWD/mysql/:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: mysql
+      MYSQL_DATABASE: cms
+      MYSQL_USER: cms
+      MYSQL_PASSWORD: cms
+#  redis:
+#    image: redis:2.8
+#    ports:
+#      - "6379"

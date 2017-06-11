@@ -1,0 +1,25 @@
+redis:
+    image: redis:2
+    ports:
+        - "6379"
+watchmenpopulate:
+    # populates with stub data of real services
+    build: ./
+    links:
+        - redis
+    command: node scripts/data-load/populate-services-from-fixtures.js -r
+    env_file: docker-compose.env
+watchmenweb:
+    build: ./
+    ports:
+        - "3000:3000"
+    links:
+        - redis
+    command: node run-web-server.js
+    env_file: docker-compose.env
+watchmenserver:
+    build: ./
+    links:
+        - redis
+    command: node run-monitor-server.js
+    env_file: docker-compose.env

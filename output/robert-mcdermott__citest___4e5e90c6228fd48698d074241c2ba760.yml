@@ -1,0 +1,16 @@
+version: '2'
+
+services:
+    citest:
+        build:
+            context: .
+
+        image: fredhutch/citest:${CIRCLE_BRANCH}
+
+        ports:
+          - "8000:80"
+
+        container_name: citest-${CIRCLE_BRANCH}
+
+        privileged: false
+        restart: always

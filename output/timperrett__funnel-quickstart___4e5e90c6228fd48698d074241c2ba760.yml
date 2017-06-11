@@ -1,0 +1,76 @@
+---
+### targets
+
+target01:
+  extends:
+    file: common.yml
+    service: monitorable
+  ports:
+    - "8001:5775"
+
+target02:
+  extends:
+    file: common.yml
+    service: monitorable
+  ports:
+    - "8002:5775"
+
+target03:
+  extends:
+    file: common.yml
+    service: monitorable
+  ports:
+    - "8003:5775"
+
+### flasks
+
+flask01:
+  extends:
+    file: common.yml
+    service: flask
+  ports:
+    - "7777:7777"
+  links:
+    - elasticsearch
+
+flask02:
+  extends:
+    file: common.yml
+    service: flask
+  ports:
+    - "7778:7777"
+  links:
+    - elasticsearch
+
+### chemist
+
+chemist:
+  build: chemist/
+  ports:
+    - "8000:5775"
+    - "3000:3000"
+  volumes:
+    - ./chemist-static/etc:/usr/share/oncue/etc
+  links:
+    - flask01
+    - flask02
+    - target01
+    - target02
+    - target03
+
+### sinks
+
+elasticsearch:
+  image: elasticsearch:latest
+  command: elasticsearch -Des.network.host=0.0.0.0
+  ports:
+    - "9200:9200"
+
+kibana:
+  build: kibana/
+  volumes:
+    - ./kibana/config/kibana.yml:/opt/kibana/config/kibana.yml
+  ports:
+    - "5601:5601"
+  links:
+    - elasticsearch

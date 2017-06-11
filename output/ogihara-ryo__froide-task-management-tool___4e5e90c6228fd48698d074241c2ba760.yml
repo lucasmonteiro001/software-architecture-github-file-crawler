@@ -1,0 +1,34 @@
+# docker-compose.yml
+version: '2'
+services:
+  datastore:
+    image: busybox
+    volumes:
+      # postgres
+      - /var/lib/postgresql/data
+      # rails
+      - /opt/app
+  postgres:
+    image: postgres:9.6
+    ports:
+      - "5432:5432"
+    volumes_from:
+      - datastore
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: password
+  rails:
+    build: .
+    volumes:
+      - .:/opt/app
+    volumes_from:
+      - datastore
+    ports:
+      - "3000:3000"
+    environment:
+      FROIDE-TASK-MANAGEMENT-TOOL_DATABASE_USERNAME: root
+      FROIDE-TASK-MANAGEMENT-TOOL_DATABASE_PASSWORD: password
+      FROIDE-TASK-MANAGEMENT-TOOL_DATABASE_HOST: postgres
+      RAILS_ENV: development
+    links:
+      - postgres

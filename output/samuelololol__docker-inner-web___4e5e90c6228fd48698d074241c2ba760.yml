@@ -1,0 +1,21 @@
+nginx:
+    build: .
+    expose:
+        - "<ex-port>" # http://dockerip:<ex-port>
+    #for docker-machine port
+    #ports:
+    #    - "<inner-port>:<ex-port>" 
+    #    inner-port can be used as docker-machine used port:
+    #    ie. 192.168.99.100:<inner-port>
+    environment:
+        - "EXPOSE_PORT=<ex-port>"
+        - "INNER_PORT=<ssh tunnel local port>"
+        - "TARGET_INNER_IP=<docker ip on target machine>"
+        - "TARGET_INNER_PORT=<docker port on target machine>"
+        - "TARGET_ACC=<target machine acc>"
+        - "TARGET_IP=<target machine ip>"
+    volumes:
+        - ~/.ssh:/ssh:ro
+        - .:/app
+    command: /app/install.sh
+

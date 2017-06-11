@@ -1,0 +1,43 @@
+vmserver-db:
+  image: mysql:5.6
+  container_name: vmserver-db
+  volumes:
+    - /etc/localtime:/etc/localtime:ro
+    - /opt/volumes/mysql/backups:/backups
+    - /opt/volumes/mysql/mysql:/var/lib/mysql
+  environment:
+    - MYSQL_ROOT_PASSWORD=123456
+    - MYSQL_DATABASE=vmserver
+    - MYSQL_USER=vmserver
+    - MYSQL_PASSWORD=vmserver
+  command: [mysqld, --character-set-server=utf8, --collation-server=utf8_general_ci]
+
+vmserver-mongodb:
+  image: tutum/mongodb:3.2
+  container_name: vmserver-mongodb
+  volumes:
+    - /etc/localtime:/etc/localtime:ro
+    - /opt/volumes/mongodb/data:/data/db
+  ports:
+    - "27017:27017"
+    - "28017:28017"
+  environment:
+    - AUTH=no
+
+vmserver:
+  image: zouyapeng/vmserver
+  container_name: vmserver
+  volumes:
+    - /etc/localtime:/etc/localtime:ro
+  ports:
+    - "9339:9339"
+  links:
+    - vmserver-db:vmserverdb
+  environment:
+    - OPENSTACK_AUTH_URL=192.168.213.220
+    - DB_NAME=vmserver
+    - DB_USER=vmserver
+    - DB_PASSWORD=vmserver
+    - MONGODB_HOST=192.168.205.32
+    - MONGODB_PORT=27017
+    - MONGODB_EXPIRE=2592000

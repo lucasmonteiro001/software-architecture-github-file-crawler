@@ -1,0 +1,9 @@
+version: '2'
+services:
+  sacloud-cputime:
+    build:
+      context: .
+    environment:
+      - SACLOUD_ACCESS_TOKEN
+      - SACLOUD_ACCESS_TOKEN_SECRET
+      - SACLOUD_REGION

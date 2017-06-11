@@ -1,0 +1,59 @@
+version: '2'
+services:
+  nginx:
+    image: connorniu/nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    links:
+      - php:php
+      - node1:node1
+    volumes:
+      # app
+      - .:/var/www/html
+      - ./docker/log:/var/log
+      # nginx configs
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./docker/nginx/conf.d/:/etc/nginx/conf.d/:ro
+  mysql:
+    image: mysql:latest
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./docker/mysql:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=mysql_password
+#  redis:
+#    image: connorniu/redis
+#    ports:
+#      - "6379:6379"
+  php:
+    image: connorniu/php7
+    ports:
+      - "9071:9000"
+    links:
+      - mysql:mysql
+#      - redis:redis
+    extra_hosts:
+      shuaijiang: 127.0.0.1
+#    depends_on:
+#      - redis
+    volumes:
+      # app
+      - .:/var/www/html
+      # Configuration file
+      - ./docker/php/php.ini:/usr/local/etc/php/php.ini
+      # log
+      - ./docker/log:/usr/local/var/log
+  mongo:
+    image: connorniu/mongo
+    volumes:
+      - ./docker/mongo/data:/data/db
+      - ./docker/mongo/backup:/dump
+  node1:
+    image: connorniu/node
+    links:
+      - mongo:mongo
+    volumes:
+      - ./node:/src
+    restart: always

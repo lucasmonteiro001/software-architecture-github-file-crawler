@@ -1,0 +1,14 @@
+version: '2'
+services:
+  runner:
+    image: sammousa/transip-rancher
+    stdin_open: false
+    tty: false
+    labels:
+      io.rancher.container.pull_image: always
+    environment:
+      WATCH_SERVICE: ${WATCH_SERVICE}
+      USER_NAME: ${USER_NAME}
+      PRIVATE_KEY: ${PRIVATE_KEY}
+      INTERVAL: ${INTERVAL}
+      DEBUG: ${DEBUG}

@@ -1,0 +1,13 @@
+web:
+  build: ../geostack-api
+  links:
+   - db
+   - tilestream
+  expose:
+     - "8000"
+  ports:
+   - "8000:8000"
+db:
+  build: ../geostack-db
+tilestream:
+  build: ../geostack-tilestream

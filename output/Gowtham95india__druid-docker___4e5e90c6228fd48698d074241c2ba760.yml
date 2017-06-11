@@ -1,0 +1,73 @@
+version: "2"
+services:
+
+  mysql:
+    image: mysql
+    container_name: mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=gowtham0109
+      - MYSQL_DATABASE=druid
+      - MYSQL_USER=druid
+      - MYSQL_PASSWORD=duird
+
+  zookeeper:
+    container_name: zookeeper
+    build: ./zookeeper
+    environment:
+      - ZOO_ID=1
+      - ZOO_SERVERS=zookeeper
+
+  overlord:
+    container_name: overlord
+    build: ./overlord
+    environment:
+      - DRUID_XMX=1g 
+      - DRUID_XMS=1g 
+      - DRUID_MAXNEWSIZE=250m 
+      - DRUID_NEWSIZE=250m
+    command:
+      - overlord
+
+  coordinator:
+    container_name: coordinator
+    build: ./coordinator
+    environment:
+      - DRUID_XMX=1g 
+      - DRUID_XMS=1g 
+      - DRUID_MAXNEWSIZE=250m 
+      - DRUID_NEWSIZE=250m
+    command:
+      - coordinator
+
+  middlemanager:
+    container_name: middlemanager
+    build: ./middleManager
+    environment:
+      - DRUID_XMX=1g 
+      - DRUID_XMS=1g 
+      - DRUID_MAXNEWSIZE=250m 
+      - DRUID_NEWSIZE=250m
+    command:
+      - middleManager
+
+  historical:
+    container_name: historical
+    build: ./historical
+    environment:
+      - DRUID_XMX=1g 
+      - DRUID_XMS=1g 
+      - DRUID_MAXNEWSIZE=250m 
+      - DRUID_NEWSIZE=250m
+    command:
+      - historical
+
+  broker:
+    container_name: broker
+    build: ./broker
+    environment:
+      - DRUID_XMX=1g 
+      - DRUID_XMS=1g 
+      - DRUID_MAXNEWSIZE=250m 
+      - DRUID_NEWSIZE=250m
+    command:
+      - broker

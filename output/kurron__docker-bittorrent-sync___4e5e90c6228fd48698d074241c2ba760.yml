@@ -1,0 +1,4 @@
+btsync:
+    build: .
+    container_name: "bittorrent-sync"
+    net: "host"

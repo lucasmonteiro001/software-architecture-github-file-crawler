@@ -1,0 +1,12 @@
+  hub:
+    container_name: hub
+    image: selenium/hub
+    ports: 
+    - "4444:4444"
+    expose:
+    - "4444"
+  chrome:
+    container_name: chrome
+    image: selenium/node-chrome
+    links:
+    - hub 

@@ -1,0 +1,28 @@
+version: '2'
+services:
+    xmusic-db:
+        container_name: xmusic-db
+        build:
+            context: ../
+            dockerfile: docker/xmusic-db/Dockerfile
+        image: postgres:xmusic-db
+        environment:
+            - POSTGRES_USER=admin
+            - POSTGRES_PASSWORD=admin
+            - POSTGRES_DB=xmusic
+        ports:
+            - 5432:5432
+    xmusic-daemon:
+        container_name: xmusic-daemon
+        build:
+            context: .
+            dockerfile: xmusic-daemon/Dockerfile
+        image: python:xmusic-daemon
+        links:
+            - xmusic-db:xmusic-db
+        volumes:
+            - ../daemon:/var/xmusic
+        ports:
+            - 50000:50000
+        working_dir: /var/xmusic
+        command: python3 xmusic.py

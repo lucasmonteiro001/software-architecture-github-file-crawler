@@ -1,0 +1,67 @@
+version: "2"
+
+services:
+  meteor:
+    image: partup/partup:ft-api-gateway
+    links:
+      - mongo
+      - gateway
+    env_file: ../part-up/config/development/env
+    environment:
+      MONGO_URL: mongodb://mongo/partup
+      ROOT_URL: http://localhost:8080
+      API_KEY: b034eba7573692f9d8c8e43475e43f81ad786d44625fe30c6b55a8246adfcccd
+      API_ROOT_URL: http://gateway:8000/
+      NODE_ENV: development
+    ports:
+      - "3000:3000"
+
+  gateway: 
+    image: kong:0.9
+    links:
+      - gatewaydb
+      - api
+    environment: 
+      KONG_DATABASE: postgres
+      KONG_PG_HOST: gatewaydb
+    ports:
+      - "8000:8000"
+      - "8001:8001"
+    restart: unless-stopped
+
+  gatewaydb:
+    image: postgres:9.4
+    environment: 
+      POSTGRES_DB: kong
+      POSTGRES_USER: kong
+
+  gateway_init:
+    build: src/test/docker/kong-init
+    environment:
+      API_KEY: b034eba7573692f9d8c8e43475e43f81ad786d44625fe30c6b55a8246adfcccd
+    links:
+      - gateway
+
+  api:
+    build: .
+    links:
+      - mongo
+      - neo4j
+    environment:
+      MONGO_HOST: mongo
+      NEO4J_URI: http://neo4j:7474
+    ports:
+      - "8080:80"
+
+  mongo:
+    image: mongo:3
+    command: mongod --smallfiles
+    ports:
+     - "27017"
+
+  neo4j:
+    image: partup/ubcf:master
+    environment:
+      NEO4J_AUTH: none
+    ports:
+      - "7474:7474"

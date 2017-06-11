@@ -1,0 +1,52 @@
+version: '2'
+
+services:
+  nginx:
+    container_name: blog_nginx
+    image: nginx:1.11
+    depends_on:
+    - mariadb
+    - php-fpm
+    - redis
+    ports:
+    - "8088:80"
+    volumes:
+    - ./src:/var/www/blog
+    - ./config/nginx/blog.dev.conf:/etc/nginx/conf.d/blog.dev.conf
+    networks:
+    - blog_network
+
+  php-fpm:
+    container_name: blog_php-fpm
+    build:
+      context: ./docker/php-fpm
+      dockerfile: Dockerfile
+    volumes:
+    - ./src:/var/www/blog
+    networks:
+    - blog_network
+
+  mariadb:
+    container_name: blog_mariadb
+    image: mariadb:10.1
+    volumes:
+    - ./.data/mariadb:/var/lib/mysql
+    environment:
+    - MYSQL_ROOT_PASSWORD=DevRoot
+    - MYSQL_DATABASE=blog_dev
+    - MYSQL_USER=DevUser
+    - MYSQL_PASSWORD=DevPassword
+    networks:
+    - blog_network
+
+  redis:
+    container_name: blog_redis
+    image: redis:3.2
+    volumes:
+    - ./.data/redis/:/data
+    networks:
+    - blog_network
+
+networks:
+  blog_network:
+    driver: bridge

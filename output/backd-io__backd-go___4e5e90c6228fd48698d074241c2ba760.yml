@@ -1,0 +1,18 @@
+version: '2'
+
+services:
+  backd:
+    image: "backd/backd:latest"
+    restart: always
+    ports:
+      - "1323:1323"
+    links:
+      - mongodb:mongo
+    environment:
+      - "DEV=true"
+
+  mongodb:
+    image: "mongo:3.2.9"
+    command: --storageEngine wiredTiger
+    ports:
+      - "47017:27017"

@@ -1,0 +1,28 @@
+WarriorMachinesLaravel:
+  image: warriormachines/warriormachines-laravel:latest
+  volumes:
+   - ./:/var/www/html
+  volumes_from:
+   - WarriorMachinesPhpBb
+
+WarriorMachinesNginx:
+  external_links:
+   - mysql-database
+  image: warriormachines/warriormachines-nginx:latest
+  links:
+   - WarriorMachinesPhpFpm
+  ports:
+   - "80"
+   - "80:80"
+  volumes_from:
+   - WarriorMachinesLaravel
+
+WarriorMachinesPhpBb:
+  image: warriormachines/warriormachines-phpbb:latest
+  volumes:
+   - ../warriormachines-phpbb/:/var/www/html/public/forums
+
+WarriorMachinesPhpFpm:
+  image: warriormachines/warriormachines-php-fpm:latest
+  volumes_from:
+   - WarriorMachinesLaravel

@@ -1,0 +1,13 @@
+web:
+  build: .
+  links:
+    - db:mysql
+  ports:
+    - 8084:80
+  volumes:
+    - config.example.php:/var/www/html/application/config/config.development.php
+
+db:
+  image: knickers/huge-mysql
+  environment:
+    MYSQL_ROOT_PASSWORD: example_password

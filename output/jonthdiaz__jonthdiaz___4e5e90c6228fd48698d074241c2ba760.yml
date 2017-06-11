@@ -1,0 +1,38 @@
+version: '2'
+services:
+
+  rdb:
+    restart: always
+    container_name: "rdb"
+    image: jonthdiaz/rethinkdb:latest
+    volumes_from:
+      - dbData
+    ports:
+      -   "8080:8080"
+      -   "28015:28015"
+      -   "29015:29015"
+
+  dbData:
+    image: busybox
+    volumes:
+    - /data
+    command: echo Data Volume for db
+
+
+  server:
+      restart: always
+      # build:
+      #   context: ./docker/node
+      #   dockerfile: Dockerfile
+      container_name: "node"
+      image: jonthdiaz/node:latest
+      ports:
+      -   "3000:3000"
+      -   "5858:5858"
+      -   "8011:8011"
+      -   "9229:9229"
+
+      volumes:
+      - ../:/app
+      depends_on:
+        -   rdb

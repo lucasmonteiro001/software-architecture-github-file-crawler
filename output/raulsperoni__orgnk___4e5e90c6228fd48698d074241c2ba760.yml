@@ -1,0 +1,42 @@
+wildfy:
+  build: wildfly
+  restart: always
+  ports:
+    - 127.0.0.1:8080:8080
+  links:
+    - pg
+  volumes:
+    - ./deployments:/opt/jboss/wildfly/standalone/deployments/
+pg:
+  image: postgres:9.5
+  restart: always
+  volumes:
+    - ./postgres:/docker-entrypoint-initdb.d
+  environment:
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: postgres
+    POSTGRES_DB: nitro
+  volumes_from:
+    - postgresdata
+
+postgresdata:
+  image: postgres:9.5
+  # This is a data container, so we want to exit as soon as the container is created
+  command: /bin/true
+  volumes:
+    - /etc/postgresql
+    - /var/lib/postgresql
+
+backup:
+  image: mgcoders/postgres-s3-backup:9.5
+  restart: always
+  links:
+    - pg
+  environment:
+    PG_S3_BACKUP_BUCKET: 'organikacg/backup'
+    PG_S3_BACKUP_ACCESS_KEY: ''
+    PG_S3_BACKUP_SECRET_KEY: ''
+    PG_S3_BACKUP_HOST: 'pg'
+    PG_S3_BACKUP_USER: 'postgres'
+    PG_S3_BACKUP_PASSWORD: 'postgres'
+    PG_S3_BACKUP_DB : 'nitro'

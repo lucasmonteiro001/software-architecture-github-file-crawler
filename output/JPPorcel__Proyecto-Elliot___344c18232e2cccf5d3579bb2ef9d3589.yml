@@ -1,0 +1,30 @@
+version: '2'
+
+services:
+  main:
+    image: jpporcel/main
+    container_name: main
+    command: node main.js
+    ports:
+      - "3000:3000"
+    links: 
+      - mongo
+    environment:
+      PORT: 3000
+
+  recognition:
+    image: jpporcel/recognition
+    container_name: recognition
+    command: build/server
+    ports:
+      - "8080:8080"
+    links:
+      - mongo
+    environment:
+      PORT: 9080
+
+  mongo:
+    image: mongo
+    container_name: mongo
+    expose:
+      - "27017"

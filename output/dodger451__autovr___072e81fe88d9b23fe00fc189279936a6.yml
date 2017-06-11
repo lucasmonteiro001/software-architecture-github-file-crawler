@@ -1,0 +1,32 @@
+version: '2'
+services:
+  roscore:
+    image: autovr
+    command: roscore
+    environment:
+      - "ROS_HOSTNAME=roscore"
+
+  player:
+    image: autovr
+    command: roslaunch LogPlayback.launch logfile:=/rosbags/2016-05-11-00-00-01.bag
+    volumes:
+      - ${ROSBAGDIR}:/rosbags
+    environment:
+      - "ROS_HOSTNAME=player"
+      - "ROS_MASTER_URI=http://roscore:11311"
+    depends_on:
+      - roscore
+    restart: always
+
+  websocket:
+    image: autovr
+    command: roslaunch rosbridge_server rosbridge_websocket.launch
+    ports:
+      - 9090:9090
+    environment:
+      - "ROS_HOSTNAME=websocket"
+      - "ROS_MASTER_URI=http://roscore:11311"
+    depends_on:
+      - roscore
+      - player
+    restart: always

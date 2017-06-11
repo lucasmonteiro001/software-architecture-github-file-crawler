@@ -1,0 +1,32 @@
+version: '2'
+services:
+  runner:
+    image: gitlab/gitlab-runner:alpine
+    labels:
+      io.rancher.container.hostname_override: container_name
+      io.rancher.container.pull_image: always
+      io.rancher.scheduler.affinity:host_label: ${HOST_LABEL}
+      io.rancher.scheduler.affinity:container_label_ne: io.rancher.stack_service.name=$${stack_name}/$${service_name}
+      io.rancher.scheduler.global: 'true'
+      io.rancher.sidekicks: configuration
+    volumes_from:
+      - configuration
+  configuration:
+    image: gitlab/gitlab-runner:alpine
+    entrypoint: /usr/bin/dumb-init
+    command:
+      - sh
+      - -c
+      - '([ -f /etc/gitlab-runner/config.toml ] || /entrypoint register) && sed -i "s/concurrent \= [0-9]*/concurrent \= ${CONCURRENT}/" /etc/gitlab-runner/config.toml && cat /etc/gitlab-runner/config.toml'
+    environment:
+      CI_SERVER_URL: ${CI_SERVER_URL}
+      REGISTRATION_TOKEN: ${REGISTRATION_TOKEN}
+      RUNNER_EXECUTOR: "docker"
+      REGISTER_NON_INTERACTIVE: 1
+      DOCKER_IMAGE: alpine
+    labels:
+      io.rancher.container.hostname_override: container_name
+      io.rancher.container.start_once: true
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /etc/gitlab-runner

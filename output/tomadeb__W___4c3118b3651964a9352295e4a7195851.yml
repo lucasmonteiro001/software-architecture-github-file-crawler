@@ -1,0 +1,13 @@
+version: '2'
+
+services:
+  dhcpd:
+    image: tomdeb/dhcpd
+    network_mode: host
+    command: /usr/sbin/dhcpd -4 -f -d --no-pid -cf /etc/dhcp/dhcpd.conf
+    ports:
+        - 67/udp:67/udp
+        - 67/tcp:67/tcp
+    volumes:
+        - /var/docker/dhcp:/etc/dhcp
+

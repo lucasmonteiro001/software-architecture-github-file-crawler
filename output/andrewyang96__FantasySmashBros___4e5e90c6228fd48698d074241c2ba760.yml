@@ -1,0 +1,77 @@
+nginx:
+    build: ./nginx
+    links:
+        - client1:client1
+        - client2:client2
+        - gateway1:gateway1
+        - gateway2:gateway2
+        - admin:admin
+    ports:
+        - "80:80"
+
+client1:
+    build: ./client
+    ports:
+        - "8080"
+    links:
+        - jwt:jwt
+client2:
+    build: ./client
+    ports:
+        - "8080"
+    links:
+        - jwt:jwt
+
+gateway1:
+    build: ./gateway
+    ports:
+        - "4747"
+    links:
+        - scoring:scoring
+        - auth:auth
+        - main:main
+gateway2:
+    build: ./gateway
+    ports:
+        - "4747"
+    links:
+        - scoring:scoring
+        - auth:auth
+        - main:main
+
+auth:
+    build: ./auth
+    ports:
+        - "3000"
+    links:
+        - database:database
+        - jwt:jwt
+main:
+    build: ./main
+    ports:
+        - "8000"
+    links:
+        - database:database
+        - jwt:jwt
+        - scoring:scoring
+
+jwt:
+    build: ./jwt
+    ports:
+        - "5987"
+scoring:
+    build: ./scoring
+    ports:
+        - "5000"
+
+admin:
+    build: ./admin
+    ports:
+        - "80"
+    links:
+        - database:database
+database:
+    image: mongo
+    ports:
+        - "27017"
+        - "28017"

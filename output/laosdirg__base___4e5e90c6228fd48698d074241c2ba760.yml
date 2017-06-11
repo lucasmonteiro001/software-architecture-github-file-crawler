@@ -1,0 +1,15 @@
+api:
+  build: ./containers/api
+  volumes:
+    - "containers/api/app:/srv/app:ro"
+
+web:
+  build: ./containers/web
+
+nginx:
+  build: ./containers/nginx
+  links:
+    - "api:api"
+    - "web:web"
+  ports:
+    - "80:80"

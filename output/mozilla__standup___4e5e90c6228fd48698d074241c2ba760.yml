@@ -1,0 +1,60 @@
+# Note: Requires docker 1.10.0+ and docker-compose 1.6.0+.
+version: "2"
+services:
+  db:
+    image: postgres:9.4
+
+  # run the site with the django dev-server
+  web:
+    image: local/standup_dev
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    links:
+      - db
+    environment:
+      - DATABASE_URL=postgres://postgres@db/postgres
+      - DEBUG=True
+      - ALLOWED_HOSTS=localhost,127.0.0.1,web
+      - SECRET_KEY=itsasekrit
+    command: ./bin/run.sh dev
+
+  # run the site in a prod-like environment
+  prod:
+    image: local/standup_code
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    links:
+      - db
+    environment:
+      - DATABASE_URL=postgres://postgres@db/postgres
+      - DEBUG=False
+      - ALLOWED_HOSTS=localhost,127.0.0.1
+      - SECRET_KEY=itsasekrit
+    command: ./bin/run.sh prod
+
+  # build static files
+  assets:
+    image: local/standup_builder
+    environment:
+      - DEBUG=False
+      - SECRET_KEY=foo
+      - DATABASE_URL=sqlite://
+    volumes:
+      - .:/app
+    command: python manage.py collectstatic --noinput
+
+  # run the tests
+  test:
+    image: local/standup_dev
+    volumes:
+      - .:/app
+    command: ./bin/run-tests.sh
+
+  # run the tests against the files in the image, not local
+  test-image:
+    image: local/standup_dev
+    command: ./bin/run-tests.sh

@@ -1,0 +1,18 @@
+elasticsearch:
+  build: ./elasticsearch-marvel
+  ports: 
+    - "9200:9200"
+    - "9300:9300"
+  environment:
+    HOSTNAME: 127.0.0.1
+
+rabbitmq:
+  build: ./rabbitmq-mqtt
+  ports:
+    - "1883:1883"
+    - "15672:15672"
+    - "5672:5672"
+    
+iot-etl:
+  build: ./iot-etl
+

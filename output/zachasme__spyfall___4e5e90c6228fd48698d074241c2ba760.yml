@@ -1,0 +1,13 @@
+web:
+  build: ./web
+  ports:
+    - "1337:80"
+  volumes:
+    - ./web:/application
+
+signaller:
+  build: ./signaller
+  ports:
+    - "1337:80"
+  volumes:
+    - ./signaller:/application

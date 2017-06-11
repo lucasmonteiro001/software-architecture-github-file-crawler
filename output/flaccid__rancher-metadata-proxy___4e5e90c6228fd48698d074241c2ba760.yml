@@ -1,0 +1,17 @@
+metadata-proxy-lb:
+  ports:
+  - 1169:80
+  tty: true
+  image: rancher/load-balancer-service
+  links:
+  - rancher-metadata-proxy:rancher-metadata-proxy
+  stdin_open: true
+rancher-metadata-proxy:
+  tty: true
+  image: flaccid/rancher-metadata-proxy
+  labels:
+    io.rancher.container.pull_image: always
+  stdin_open: true
+  environment:
+    HTTP_USER: rancher
+    HTTP_PASSWORD: Supers3cure

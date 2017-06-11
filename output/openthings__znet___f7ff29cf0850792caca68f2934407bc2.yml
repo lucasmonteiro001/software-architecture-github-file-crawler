@@ -1,0 +1,15 @@
+version: '2'
+services:
+  probe:
+    container_name: weavescope_probe
+    image: weaveworks/scope:1.1.0
+    network_mode: "host"
+    pid: "host"
+    restart: "always"
+    privileged: true
+    labels:
+      - "works.weave.role=system"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:rw"
+    command:
+      - "--probe.docker=true"

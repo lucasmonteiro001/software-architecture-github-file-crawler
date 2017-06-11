@@ -1,0 +1,29 @@
+ruleEditor:
+  build: ./rule-editor/.
+  command: /root/code/start.sh
+  #command: start.sh
+  #command: /code/start.sh
+  #command: python /code/app.py
+  #command: python app.py
+  privileged: true
+  ports:
+    - "5000:5000"
+    - "5022:22"
+  volumes:
+    - .:/code
+  links:
+    - redis
+ruleWorker:
+  build: ./rule-worker/.
+  command: /root/code/start.sh
+  privileged: true
+  ports:
+    - "6000:5000"
+    - "6022:22"
+  volumes:
+    - .:/code
+  links:
+    - redis
+redis:
+  image: redis
+

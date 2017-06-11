@@ -1,0 +1,44 @@
+iptime_rebooter:
+  image: ermaker/iptime_rebooter
+  env_file: .env.iptime_rebooter
+  command: sh -c 'yes "bundle exec rake reboot; sleep 43200" | /bin/bash'
+  restart: always
+redis:
+  image: redis
+  command: redis-server --appendonly yes
+  volumes:
+    - /opt/redis/data:/data
+  restart: always
+mongo:
+  image: mongo
+  command: --smallfiles
+  volumes:
+    - /opt/mongo/data/db:/data/db
+  restart: always
+mshard:
+  image: ermaker/mshard_server
+  links:
+    - redis
+  env_file: .env.mshard
+  restart: always
+nginx:
+  image: nginx
+  env_file: .env.nginx
+  volumes:
+    - ./html/:/usr/share/nginx/html:ro
+  restart: always
+nginx-proxy:
+  image: jwilder/nginx-proxy
+  volumes:
+    - /var/run/docker.sock:/tmp/docker.sock:ro
+  ports:
+    - '80:80'
+  restart: always
+fluentd:
+  image: ermaker/fluentd
+  env_file: .env.fluentd
+  volumes:
+    - ./fluentd/td-agent.conf:/etc/td-agent/td-agent.conf:ro
+    - ../fluentd.conf:/etc/td-agent/conf.d:ro
+    - /var/lib/docker:/var/lib/docker
+  restart: always

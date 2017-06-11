@@ -1,0 +1,13 @@
+web:
+  build: .
+  working_dir: /development
+  command: lein repl :headless :host 0.0.0.0 :port 4343
+  ports:
+    - "8080:8080"
+    - "4343:4343"
+  volumes:
+    - .:/development
+  links:
+    - postgres
+postgres:
+  image: postgres

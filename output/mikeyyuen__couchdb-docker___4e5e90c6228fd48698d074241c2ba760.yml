@@ -1,0 +1,13 @@
+
+version: '2'
+services:
+  primary:
+    image: mikeyyuen/couchdb:latest
+    ports:
+      - 5984:5984
+  replicant:
+    image: mikeyyuen/couchdb:latest
+    depends_on:
+      - primary
+
+

@@ -1,0 +1,66 @@
+# UI Angular
+ui:
+  container_name: "ui"
+  build: ./docker/dev/run/frontend
+  #image: httpd:2.4.17
+  labels:
+    com.mgreau.tennistour.ui: "UI"
+  ports:
+    - "8888:80"
+  volumes:
+    - ./app/tennistour-ui/app:/usr/local/apache2/htdocs/
+  environment:
+    - WEBSOCKET_HOST=docker4devtennistourapp_realtime
+
+# Backend:: Batch App
+batch:
+  container_name: "batch"
+  build: ./docker/dev/run/backend
+  labels:
+    com.mgreau.tennistour.batch.run: "Batch Binaries"
+  ports:
+    - "7777:8080"
+    - "8787:8787"
+  #debug
+  command: ["/opt/jboss/wildfly/bin/standalone.sh", "-b", "0.0.0.0", "--debug", "8787"]
+  expose:
+    - "8787"
+  volumes:
+    - ./app/tennistour-batch/target/batch:/opt/jboss/wildfly/standalone/deployments/ROOT.war/
+  environment:
+    - MYSQL_HOST=db
+    - REDIS_HOST=redis-cache
+
+# Backend:: Run WebSocket
+realtime:
+  build: ./docker/dev/run/backend
+  labels:
+    com.mgreau.tennistour.ws.run: "WS Binaries"
+  expose:
+    - "8080"
+  volumes:
+    - ./app/tennistour-realtime-server/target/ws:/opt/jboss/wildfly/standalone/deployments/ROOT.war/
+  environment:
+    - MYSQL_HOST=db
+    - REDIS_HOST=redis-cache
+
+redis:
+  container_name: "redis-cache"
+  image: redis
+
+dbdata:
+  container_name: "datas"
+  image: mysql:5.7
+  volumes:
+    - /var/lib/mysql
+
+mysql:
+  container_name: "db"
+  image: mysql:5.7
+  volumes_from:
+    - dbdata
+  environment:
+    - MYSQL_ROOT_PASSWORD=tennistour
+    - MYSQL_DATABASE=tennistour
+    - MYSQL_USER=tennistour
+    - MYSQL_PASSWORD=tennistour

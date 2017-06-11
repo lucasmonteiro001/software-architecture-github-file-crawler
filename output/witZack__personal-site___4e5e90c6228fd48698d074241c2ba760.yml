@@ -1,0 +1,19 @@
+version: '2'
+services:
+  db:
+    image: postgres
+    environment:
+      - DEBUG=false
+  app:
+    build: .
+    command: bundle exec rails s -p 3000 -b '0.0.0.0'
+    volumes:
+      - .:/personal-site
+      - ./config/personal:/etc/personal
+    ports:
+      - "3000:3000"
+    links:
+      - db
+    environment:
+      # RAILS ENVIRONMENT
+      - RAILS_ENV=development

@@ -1,0 +1,18 @@
+pythonserver:
+  build: .
+  command: make run
+  volumes:
+    - .:/code
+  ports:
+    - "8888"
+
+nginx:
+  build: ./static
+  volumes:
+    - ./static/html:/app/html/
+    - ./static/upload:/app/upload/
+  links:
+    - pythonserver
+  ports:
+    - "80:80"
+

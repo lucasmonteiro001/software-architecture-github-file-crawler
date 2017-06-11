@@ -1,0 +1,14 @@
+mysql:
+  image: mysql:latest
+  environment:
+    MYSQL_ROOT_PASSWORD: "sakdhfopawblvfnapsidnhvpawasd"
+    MYSQL_DATABASE: "gogs"
+gogs:
+  image: gogs/gogs
+  volumes:
+    - /var/gogs:/data
+  ports:
+    - "10022:22"
+    - "10080:3000"
+  links:
+    - mysql

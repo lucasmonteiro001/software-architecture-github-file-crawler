@@ -1,0 +1,11 @@
+version: '2'
+
+services:
+  squid:
+    image: tomdeb/proxy
+    command: /var/spool/squid/squid.sh
+    ports:
+        - 3128/tcp:3128/tcp
+    volumes:
+        - /var/docker/squid/squid.conf:/etc/squid/squid.conf
+

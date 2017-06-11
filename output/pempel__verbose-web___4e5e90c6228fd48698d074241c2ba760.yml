@@ -1,0 +1,9 @@
+app:
+  build: "."
+  command: "npm run serve"
+  ports:
+    - "3030:3030"
+  volumes:
+    - "./app:/var/www/verbose/app"
+  env_file:
+    - "development.env"

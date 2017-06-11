@@ -1,0 +1,77 @@
+# Redis
+redis:
+  restart: always
+  image: redis:latest
+  ports:
+    - "6379:6379"
+  
+  volumes:
+    - ./data/:/data/
+
+
+# Selenium Chrome Web Driver
+chrome:
+  build: ./browser-chrome
+  restart: always
+  links:
+    - redis:redis
+
+  environment:
+    - NODE_KEY=nodes-chrome
+
+  # see https://github.com/SeleniumHQ/docker-selenium/issues/79
+  volumes:
+    - /dev/shm:/dev/shm
+
+# Selenium FF Web Driver
+firefox:
+  build: ./browser-firefox
+  restart: always
+  links:
+    - redis:redis
+
+  environment:
+    - NODE_KEY=nodes-firefox
+
+
+# Worker for Chrome Browsers
+workerchrome:
+  restart: always
+  build: ./web
+  links:
+    - redis:redis
+    - chrome:browser
+
+  environment:
+    - NODE_KEY=nodes-chrome
+
+  command: python worker.py chrome
+
+
+# Worker for FF Browsers
+workerfirefox:
+  restart: always
+  build: ./web
+  links:
+    - redis:redis
+    - firefox:browser
+
+  environment:
+    - NODE_KEY=nodes-firefox
+
+  command: python worker.py firefox
+
+
+# Web App
+web:
+  restart: always
+  build: ./web
+
+  command: uwsgi uwsgi.ini
+
+  links:
+    - redis:redis
+
+  ports:
+    - "8080:8080"
+

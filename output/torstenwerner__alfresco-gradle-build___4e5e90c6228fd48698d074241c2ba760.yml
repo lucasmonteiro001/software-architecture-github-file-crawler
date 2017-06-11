@@ -1,0 +1,8 @@
+version: '2'
+services:
+  alfresco-sample:
+    image: webcenter/rancher-alfresco
+    ports:
+      - '8080:8080'
+    volumes:
+      - ./build/docker:/opt/alfresco/modules/platform

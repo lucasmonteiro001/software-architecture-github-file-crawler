@@ -1,0 +1,7 @@
+version: '2'
+services:
+  sextant:
+    image: bde2020/sextant
+    hostname: sextant
+    ports:
+      - "9999:8080"

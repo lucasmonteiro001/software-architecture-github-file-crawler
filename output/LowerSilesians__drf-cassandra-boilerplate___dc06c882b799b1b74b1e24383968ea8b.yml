@@ -1,0 +1,20 @@
+version: '2'
+
+services:
+
+  web:
+    build: .
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
+    depends_on:
+      - cassandra
+    command: ./conf/up.sh
+
+  cassandra:
+    build:
+      context: .
+      dockerfile: DockerfileCassandra
+    ports:
+      - "9042:9042"

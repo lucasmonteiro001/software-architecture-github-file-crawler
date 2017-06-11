@@ -1,0 +1,26 @@
+version: '2'
+
+services:
+  api:
+    build: ./api
+    command: npm run dev 
+    mem_limit: 512mb
+    restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "128k"
+        max-file: "1"
+    volumes:
+      - ./api:/api
+    ports:
+      - "3000:3000"
+    networks:
+      - back-tier
+    #depends_on:
+      #- test
+      #- db
+
+networks:
+  back-tier:
+    driver: bridge

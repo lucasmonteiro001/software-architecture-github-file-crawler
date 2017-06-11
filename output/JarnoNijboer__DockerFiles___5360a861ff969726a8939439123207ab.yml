@@ -1,0 +1,11 @@
+
+version: '2'
+
+services:
+  nginx-php-sqlserver:
+    image: nginx-php-sqlserver:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 8000:8000

@@ -1,0 +1,22 @@
+videosearcher:
+  image: node:4
+  command: "bash -c 'npm install & node video-searcher'"
+  working_dir: /project
+  volumes:
+    - .:/project
+  links:
+    - redis
+    - mongodb
+    - selenium
+  ports:
+    - "3033:3033"
+
+redis:
+  image: redis:3.0
+  command: "bash -c 'redis-server --loglevel debug'"
+
+mongodb:
+  image: mongo:3.1
+
+selenium:
+  image: selenium/standalone-firefox

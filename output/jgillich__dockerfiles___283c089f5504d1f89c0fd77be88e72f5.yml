@@ -1,0 +1,10 @@
+version: '2'
+services:
+  invoice:
+    build: .
+    container_name: invoiceplane
+    environment:
+      - INVOICEPLANE_URL=http://localhost:8888
+      - TZ=Europe/Berlin
+    ports:
+      - 8888:8888

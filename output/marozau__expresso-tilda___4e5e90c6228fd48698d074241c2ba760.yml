@@ -1,0 +1,8 @@
+expresso-tilda:
+  image: expressotoday/expresso-tilda:latest
+  labels:
+    io.rancher.container.hostname_override: container_name
+  ports:
+    - 80:80
+  environment:
+    MAILCHIMP_API_KEY:

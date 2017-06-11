@@ -1,0 +1,9 @@
+---
+version: "3"
+services:
+  springboot:
+    expose: 
+      - "8080"
+    image: "janosch/springboot-raml"
+    ports: 
+      - "8080:8080"

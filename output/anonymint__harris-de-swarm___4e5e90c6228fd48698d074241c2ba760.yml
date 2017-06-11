@@ -1,0 +1,37 @@
+version: "2"
+
+services:
+  authorize-server:
+    build: ./authserver/.
+    container_name: authorize-server
+    ports:
+      - "9999:9999"
+    networks:
+      - front-tier
+      - back-tier
+
+  resource-server:
+    build: ./resource/.
+    container_name: resource-server
+    ports:
+      - "9000:9000"
+    links:
+      - authorize-server:authserver-local
+    networks:
+      - front-tier
+      - back-tier
+
+  ui-service:
+    build: ./ui/.
+    ports:
+      - "8080:8080"
+    links:
+      - authorize-server:authserver-local
+      - resource-server:resourceserver-local
+    networks:
+      - front-tier
+      - back-tier
+
+networks:
+  front-tier:
+  back-tier:

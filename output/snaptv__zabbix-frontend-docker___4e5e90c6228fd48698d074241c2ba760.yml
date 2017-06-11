@@ -1,0 +1,15 @@
+frontend:
+  build: .
+  environment:
+    DATABASE_HOST: postgres
+    DATABASE_NAME: postgres
+    DATABASE_USER: postgres
+    DATABASE_PASSWORD: postgres
+    ZABBIX_HOST: zabbix
+  ports:
+    - "8080:80"
+  links:
+    - postgres:postgres
+
+postgres:
+  image: postgres:9.4

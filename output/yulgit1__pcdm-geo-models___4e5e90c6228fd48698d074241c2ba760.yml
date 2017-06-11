@@ -1,0 +1,9 @@
+version: '2'
+# More services can be found in docker-compose-full.yml 
+services:
+  geoserver:
+    image: geoconcerns/geoserver
+    ports:
+      - "8181:8080"
+    volumes:
+      - ./.internal_test_app/tmp/derivatives:/opt/geoserver/data_dir/derivatives

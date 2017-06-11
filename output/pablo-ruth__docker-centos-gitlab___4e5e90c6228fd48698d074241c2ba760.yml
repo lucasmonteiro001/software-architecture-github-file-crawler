@@ -1,0 +1,56 @@
+version: "2"
+
+services:
+  postgres:
+    image: postgres:9.2
+    restart: on-failure:2
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=mysecretpassword
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  redis:
+    image: redis:2.8.23
+    restart: on-failure:2
+
+  gitlab:
+    image: centos-gitlab-ce:latest
+    restart: on-failure:2
+    depends_on:
+      - postgres
+      - redis
+    ports:
+      - "8080:8080"
+      - "8181:8181"
+    links:
+      - postgres
+      - redis
+    environment:
+      - GITLAB_HOST=mydomain.org
+      - GITLAB_DB_ADMIN_USER=postgres
+      - GITLAB_DB_ADMIN_PASS=mysecretpassword
+      - GITLAB_DB_USER=git
+      - GITLAB_DB_PASS=gitlabsecretpassword
+      - GITLAB_TIMEZONE=Paris
+      - GITLAB_UNICORN_WORKERS=5
+    volumes:
+      - repositories:/home/git/repositories
+      - cache:/home/git/gitlab/tmp/cache
+      - assets:/home/git/gitlab/public/assets
+      - uploads:/home/git/gitlab/public/uploads
+      - logs:/home/git/gitlab/log
+
+volumes:
+  pgdata:
+    driver: local
+  repositories:
+    driver: local
+  cache:
+    driver: local
+  assets:
+    driver: local
+  uploads:
+    driver: local
+  logs:
+    driver: local

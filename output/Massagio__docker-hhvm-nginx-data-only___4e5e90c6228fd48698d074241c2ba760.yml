@@ -1,0 +1,49 @@
+db:
+    image: mysql:latest
+    expose:
+        - "3306"
+    ports:
+        - "3307:3306"
+    environment:
+      MYSQL_DATABASE: database
+      MYSQL_USER: root
+      MYSQL_PASSWORD: admin123
+      MYSQL_ROOT_PASSWORD: admin123
+
+hhvm:
+    build: hhvm/.
+    # image: brunoric/hhvm:deb
+    volumes:
+        - ./hhvm/logs:/var/log/hhvm
+    expose:
+        - "9000"
+    volumes_from:
+        - data
+        - data2
+nginx:
+    build: nginx/.
+    volumes:
+        - ./nginx/cache:/var/cache/nginx
+        - ./nginx/logs:/var/log/nginx
+    ports:
+        - "8000:80"
+        - "7000:8080"
+    volumes_from:
+        - data
+        - data2
+    links:
+        - hhvm
+
+data:
+  build: data/.
+  volumes:
+    - ./data/src:/var/www/src
+  links:
+      - db
+
+data2:
+  build: data/.
+  volumes:
+    - ./data2/src:/var/www/src1
+  links:
+      - db

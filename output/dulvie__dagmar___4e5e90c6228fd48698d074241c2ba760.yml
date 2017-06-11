@@ -1,0 +1,32 @@
+rubydagmar:
+  env_file:
+    - ./env.development
+  image: rubydagmar
+  hostname: ruby
+  command: /sbin/runit-init
+  volumes:
+    - .:/opt/apps/dagmar
+  links:
+    - redis
+    - postgres
+  ports:
+    - '127.0.0.1:3000:3000'
+    - '127.0.0.1:1080:1080'
+
+postgres:
+  env_file:
+    - ./env.development
+  image: postgres:9.1
+  hostname: postgres
+  volumes_from:
+    - dagmar-data
+  ports:
+    - '127.0.0.1:5432:5432'
+
+redis:
+  env_file:
+    - ./env.development
+  image: redis:2.6
+  hostname: redis
+  volumes_from:
+    - dagmar-data

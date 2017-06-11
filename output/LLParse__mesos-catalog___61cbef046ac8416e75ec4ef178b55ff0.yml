@@ -1,0 +1,68 @@
+scheduler:
+  image: llparse/mesos-k8s:v1.2.4
+  entrypoint: /scheduler.sh
+  environment:
+    VERBOSITY: ${VERBOSITY}
+  links:
+  - apiserver
+
+controller-manager:
+  image: llparse/mesos-k8s:v1.2.4
+  entrypoint: /controller-manager.sh
+  environment:
+    VERBOSITY: ${VERBOSITY}
+  links:
+  - apiserver
+
+apiserver:
+  image: llparse/mesos-k8s:v1.2.4
+  entrypoint: /apiserver.sh
+  environment:
+    INSECURE_PORT: 8888
+    VERBOSITY: ${VERBOSITY}
+  links:
+  - etcd
+  ports:
+  - "8888:8888"
+
+etcd:
+  image: rancher/etcd:v2.3.6
+  labels:
+    io.rancher.scheduler.affinity:container_label_soft_ne: io.rancher.stack_service.name=$${stack_name}/$${service_name}
+    io.rancher.sidekicks: data
+    io.rancher.service.allocate.skip.serialize: 'true'
+    io.rancher.container.start_once: 'true'
+  environment:
+    ETCD_DATA_DIR: /data
+    ETCDCTL_ENDPOINT: http://etcd:2379
+  links:
+  - data
+  - discovery
+  volumes_from:
+    - data
+
+data:
+  image: busybox
+  command: /bin/true
+  net: none
+  volumes:
+  - /data
+  labels:
+    io.rancher.container.start_once: 'true'
+
+discovery:
+  image: rancher/etcd:v2.3.6
+  command: discovery_node
+  labels:
+    io.rancher.container.start_once: 'true'
+    io.rancher.sidekicks: bootstrap
+
+bootstrap:
+  image: rancher/etcd:v2.3.6
+  command: bootstrap
+  links:
+  - discovery
+  labels:
+    io.rancher.container.start_once: 'true'
+  environment:
+    ETCDCTL_ENDPOINT: http://etcd:2379

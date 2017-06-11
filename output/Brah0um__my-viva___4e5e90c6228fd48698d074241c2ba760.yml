@@ -1,0 +1,9 @@
+reveal:
+  image: ovski/node-grunt
+  volumes:
+   - .:/var/www
+  ports:
+   - 8079:8000
+  environment:
+   - VIRTUAL_HOST=soutenance.ovski.net
+  restart: always

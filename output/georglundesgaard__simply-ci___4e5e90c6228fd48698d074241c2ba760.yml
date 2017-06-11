@@ -1,0 +1,32 @@
+version: '2'
+
+services:
+  simply-ci:
+    image: simply-ci/gui
+    ports:
+      - "80:80"
+    links:
+      - builds
+      - events
+      - repositories
+    container_name: gui
+
+  builds:
+    image: simply-ci/builds
+    container_name: builds
+  
+  events:
+    image: simply-ci/events
+    container_name: events
+  
+  repositories:
+    image: simply-ci/repositories
+    volumes:
+      - repositories:/repositories
+    links:
+      - events
+    container_name: repositories
+
+volumes:
+  repositories:
+    external: true

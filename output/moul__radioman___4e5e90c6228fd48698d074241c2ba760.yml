@@ -1,0 +1,49 @@
+radiomand:
+  build: ./radioman
+  restart: always
+  environment:
+  - NO_LOCAL_PLAYLISTS=1
+  volumes:
+  - $HOME/Music:/home/Music
+  - /etc/localtime:/etc/localtime:ro
+  - ./playlists:/playlists
+  - $HOME/playlists:/home/playlists
+  - ./radioman/web:/web
+  ports:
+  - 4343:8000
+  links:
+  - liquidsoap
+
+liquidsoap:
+  image: moul/liquidsoap
+  volumes:
+  # command: /supervisor.sh liquidsoap -v --debug /liquidsoap/main.liq
+  command: liquidsoap -v --debug /liquidsoap/main.liq
+  user: liquidsoap
+  restart: always
+  volumes:
+  - ./liquidsoap:/liquidsoap
+  - $HOME/Music:/home/Music
+  - /etc/localtime:/etc/localtime:ro
+  - $HOME/playlists:/home/playlists
+  - ./playlists:/playlists
+  links:
+  - icecast
+  ports:
+  - 2300:2300
+  environment:
+  - RADIOMAND_URL
+  - ICECAST_SOURCE_PASSWORD
+
+icecast:
+  image: moul/icecast
+  restart: always
+  volumes:
+  - /etc/localtime:/etc/localtime:ro
+  ports:
+  - 4444:8000
+  environment:
+  - ICECAST_SOURCE_PASSWORD
+  - ICECAST_ADMIN_PASSWORD
+  - ICECAST_PASSWORD
+  - ICECAST_RELAY_PASSWORD

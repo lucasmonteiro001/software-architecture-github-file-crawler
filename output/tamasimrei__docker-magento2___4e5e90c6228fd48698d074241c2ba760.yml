@@ -1,0 +1,90 @@
+version: '2'
+
+volumes:
+    htdocs: ~
+    dbdata: ~
+
+services:
+    php-common:
+        domainname: docker.loc
+        hostname: php
+        build: .
+        volumes:
+            - htdocs:/var/www/html
+            - ./app/design/code/${VENDOR}:/var/www/html/magento2/app/code/${VENDOR}
+            - ./app/design/frontend/${VENDOR}:/var/www/html/magento2/app/design/frontend/${VENDOR}
+            - ./app/design/adminhtml/${VENDOR}:/var/www/html/magento2/app/design/adminhtml/${VENDOR}
+        cap_add:
+            - ALL
+        stdin_open: true
+        tty: true
+        working_dir: /var/www/html
+        environment:
+            APP_ENV: dev
+            MAGE_MODE: developer
+
+    setup:
+        extends:
+            service: php-common
+        command: /usr/local/bin/magento-2-setup.sh
+        depends_on:
+            - db
+            - memcached
+            - redis
+            - rabbitmq
+
+    php:
+        extends:
+            service: php-common
+        depends_on:
+            - db
+            - memcached
+            - redis
+            - rabbitmq
+        ports:
+            - "80:80"
+
+    db:
+        image: mariadb:latest
+        volumes:
+            - dbdata:/var/lib/mysql
+        ports:
+            - "3306:3306"
+        environment:
+            MYSQL_ROOT_PASSWORD: "123"
+            MYSQL_DATABASE: "magento"
+            MYSQL_USER: "user"
+            MYSQL_PASSWORD: "pass"
+
+    memcached:
+        image: memcached:latest
+
+    redis:
+        image: redis:latest
+
+    rabbitmq:
+        image: rabbitmq:latest
+        hostname: rabbitmq
+        environment:
+            RABBITMQ_DEFAULT_USER: rabbitmq
+            RABBITMQ_DEFAULT_PASS: rabbitmq
+            RABBITMQ_DEFAULT_VHOST: rabbitmq
+
+# Left this here for future reference
+# the version 4 required by Magento 2 is really outdated.
+# I don't recommend using it until you have thousands of products.
+#
+# If needed, it'd probably be better to create a separate Dockerfile for it.
+# See the official documentation
+# http://devdocs.magento.com/guides/v2.0/config-guide/solr/solr-overview.html
+# for detailed instructions for setting up Solr.
+# You will have to add the solr service as a dependency for php, and
+# define a volume for persisting data, e.g.
+#    solrdata: ~
+#    solr:
+#       image: makuk66/docker-solr:4.10.4
+#       volumes:
+#           - solrdata:/opt/solr/server/solr
+#       hostname: solr
+#       ports:
+#           - 8983:8983

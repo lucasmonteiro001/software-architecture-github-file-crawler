@@ -1,0 +1,30 @@
+# docker run --detach --volume=/var/lib/postgresql --name=wvdc_dbdata_1 postgres:9.4 /bin/true
+dbdata:
+    image: postgres:9.4
+    command: /bin/true
+    volumes:
+        - "/var/lib/postgresql"
+
+# docker build --tag=wvdc_db wdb
+# docker run --detach --volumes-from=wvdc_dbdata_1 --publish=5432:5432 --name=wvdc_db_1 wvdc_db
+# docker run --detach --volumes-from=wvdc_dbdata_1 --name=wvdc_db_1 wvdc_db
+db:
+    build: wdb
+    volumes_from:
+        - dbdata
+    ports:
+        - "5432:5432" # for development access only
+
+# docker build --tag=wvdc_app wapp
+# docker run --detach --volume="$(pwd)/wapp/src:/srv/www" --link=wvdc_db_1:db --publish=8000:8000 --name=wvdc_app_1 wvdc_app dj runserver 0.0.0.0:8000
+# docker run --rm --link=wvdc_db_1:db -it wvdc_app dj migrate
+# docker run --rm --link=wvdc_db_1:db -it wvdc_app dj syncdb
+app:
+    build: wapp
+    command: "dj runserver 0.0.0.0:8000"
+    volumes:
+        - "wapp/src:/srv/www"
+    ports:
+        - "8000:8000"
+    links:
+        - db

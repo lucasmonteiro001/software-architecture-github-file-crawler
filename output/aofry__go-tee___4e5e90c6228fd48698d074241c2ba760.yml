@@ -1,0 +1,23 @@
+backend:
+    image: clue/json-server
+    container_name: backend
+    volumes:
+            - ./mock/mock.json:/data/db.json
+    ports:
+            - 9094:80
+tee:
+    container_name: go-tee
+    build: ./
+    links:
+        - backend
+        - tracer
+    environment:
+        - REAL_BACKEND=http://backend:80/
+        - DEBUG_BACKEND=tracer:8080
+    ports:
+        - 8082:8080
+tracer:
+    build: ./tracer/
+    container_name: tracer
+    ports:
+        - 9095:8080

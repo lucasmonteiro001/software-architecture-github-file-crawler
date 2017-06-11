@@ -1,0 +1,28 @@
+version: '2'
+services:
+  server:
+    extends:
+        file: base.yml
+        service: server
+    volumes:
+      - ./data:/data/izou
+    links:
+       - db_izou:dbizou
+    environment:
+      - DUMMY_DATA=true
+    ports:
+       - "4567:4567"
+       - "4000:4000"
+    command:
+       - -Dlogback.configurationFile=/conf/logging_trace.xml
+    depends_on:
+       - db_izou
+
+  db_izou:
+    extends:
+        file: base.yml
+        service: db_izou
+    command:
+        - --character-set-server=utf8mb4
+    ports:
+         - "3306:3306"

@@ -1,0 +1,65 @@
+version: '2.0'
+services:
+
+  app:
+    build: .
+    ports:
+      - 3000
+    depends_on:
+      - pgdb
+      - redis
+    environment:
+      DATABASE_URL: postgresql://pgdb:5432/demodocker_development
+      DEMO_DOCKER_REDIS_URL: redis://redis:6379/1
+    mem_limit: 2G
+    memswap_limit: 2G
+    restart: on-failure:3
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile-worker
+    depends_on:
+      - pgdb
+      - redis
+    mem_limit: 2G
+    memswap_limit: 2G
+    restart: on-failure:3
+
+  pgdb:
+    image: postgres:9.6-alpine
+    volumes:
+      - pgdb_data:/var/lib/postgresql/data
+    ports:
+      - 5432
+    mem_limit: 2G
+    memswap_limit: 2G
+    restart: on-failure:3
+
+  redis:
+    image: redis:3.2-alpine
+    volumes:
+      - redis_data:/data
+    ports:
+      - 6379
+    mem_limit: 2G
+    memswap_limit: 2G
+    restart: on-failure:3
+
+  lb:
+    image: dockercloud/haproxy
+    links:
+      - app
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    ports:
+      - 80:80
+    mem_limit: 2G
+    memswap_limit: 2G
+    restart: on-failure:3
+
+volumes:
+  pgdb_data:
+    driver: local
+  redis_data:
+    driver: local

@@ -1,0 +1,21 @@
+app:
+ image: 'node'
+ command: 'node app/index.js'
+ env_file:
+  - .env
+  - .secrets
+ ports:
+  - "3000:3000"
+ volumes:
+  - .:/app
+ links:
+  - "redis"
+  - "docker"
+  - "registry"
+redis:
+  image: redis
+registry:
+  image: registry
+docker:
+ image: docker:dind
+ privileged: true

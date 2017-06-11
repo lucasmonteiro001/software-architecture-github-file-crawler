@@ -1,0 +1,27 @@
+mysql_db:
+  image: mysql/mysql-server:latest
+  ports:
+      - "3306:3306"
+  environment:
+    MYSQL_ROOT_PASSWORD: root
+  restart: always
+
+mongo_db:
+  image: mongo:latest
+  ports:
+        - "27017:27017"
+  restart: always
+
+phpserver:
+  build: ./
+  ports:
+    - "80:80"
+    - "443:443"
+  volumes:
+    - ./:/var/www/
+    - ./vagrant/nginx/hosts:/etc/nginx/sites-enabled
+    - ./vagrant/nginx/logs:/var/log/nginx
+  links:
+    - mysql_db
+    - mongo_db
+  restart: always

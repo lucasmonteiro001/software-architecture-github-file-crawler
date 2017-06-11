@@ -1,0 +1,33 @@
+version: '2'
+services:
+  pinlinkfetcher:
+    build:
+      context: .
+      dockerfile: Dockerfile.pinlinkfetcher
+    image: pinlinkfetcher:latest
+    container_name: pinlinkfetcher
+    network_mode: host
+    restart: always
+
+  pindownloadr:
+    build:
+      context: .
+      dockerfile: Dockerfile.pindownloadr2
+    image: pindownloadr:latest
+    container_name: pindownloadr
+    network_mode: host
+    volumes:
+      - /tmp:/tmp
+
+  pinmyboards:
+    build:
+      context: .
+      dockerfile: Dockerfile.pinmyboards
+    image: pinmyboards:latest
+    container_name: pinmyboards
+    network_mode: host
+    environment:
+      USERNAME: your-username
+      LOGINNAME: your-loginname
+      LOGINPW: your-password
+

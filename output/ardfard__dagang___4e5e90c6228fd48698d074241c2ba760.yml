@@ -1,0 +1,13 @@
+db:
+  image: postgres
+web:
+  image: dagang
+  command: dagang
+  volumes:
+    - .:/code
+  ports:
+    - "8000:8000"
+  links:
+    - db
+  environment:
+    PORT: 8000

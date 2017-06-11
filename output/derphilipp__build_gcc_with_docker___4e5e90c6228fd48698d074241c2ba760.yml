@@ -1,0 +1,6 @@
+builder:
+    tty: true
+    build: docker/.
+    volumes:
+        - "./temp:/tmp/build"
+        - "./output:/usr/local"

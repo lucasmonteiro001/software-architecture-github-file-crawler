@@ -1,0 +1,15 @@
+DevEnv:
+    build: .
+    volumes:
+        - ./web:/app
+        - ./mysql:/var/lib/mysql
+    ports:
+        - 80:80
+        - 3306:3306
+    environment:
+        MYSQL_ADMIN_PASS: password
+        MYSQL_USER_NAME: user
+        MYSQL_USER_DB: db
+        MYSQL_USER_PASS: pass
+        PHP_UPLOAD_MAX_FILESIZE: 10M
+        PHP_POST_MAX_SIZE: 10M

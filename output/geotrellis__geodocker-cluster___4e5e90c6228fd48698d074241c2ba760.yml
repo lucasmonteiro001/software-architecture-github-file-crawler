@@ -1,0 +1,38 @@
+version: '2'
+services:
+    geodocker-pbase:
+        build:
+          context: ./base
+          # choose one of images (centos.dockerfile / ubuntu.dockerfile)
+          dockerfile: centos.dockerfile
+        image: geodocker-pbase:latest
+    geodocker-zookeeper:
+        build: ./zookeeper
+        image: geotrellis/geodocker-zookeeper:latest
+        depends_on:
+          - geodocker-pbase
+    geodocker-hadoop:
+        build: ./hadoop
+        image: geotrellis/geodocker-hadoop:latest
+        depends_on:
+          - geodocker-zookeeper
+    geodocker-accumulo:
+        build: ./accumulo
+        image: geotrellis/geodocker-accumulo:latest
+        depends_on:
+          - geodocker-hadoop
+    geodocker-accumulo-gis:
+        build: ./extras/accumulo-gis
+        image: geotrellis/geodocker-accumulo-gis:latest
+        depends_on:
+          - geodocker-accumulo
+    geodocker-spark:
+        build: ./spark
+        image: geotrellis/geodocker-spark:latest
+        depends_on:
+          - geodocker-hadoop
+    geodocker-geoserver:
+        build: ./extras/geoserver
+        image: geotrellis/geodocker-geoserver:latest
+        depends_on:
+          - geodocker-spark

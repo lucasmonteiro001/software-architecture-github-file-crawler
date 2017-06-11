@@ -1,0 +1,25 @@
+web:
+  build: .
+  command: /code/start.sh
+  ports:
+    - "5000:5000"
+  links:
+    - redis
+    - mariadb
+  environment:
+    - MYSQL_ROOT_PASSWORD=5E84F90
+celery:
+  build: .
+  command: /code/start-celery.sh
+  links:
+    - redis
+    - mariadb
+  environment:
+    - MYSQL_ROOT_PASSWORD=5E84F90
+redis:
+  image: redis
+mariadb:
+  image: mariadb
+  environment:
+    - MYSQL_ROOT_PASSWORD=5E84F90
+    - MYSQL_DATABASE=vpnchooser

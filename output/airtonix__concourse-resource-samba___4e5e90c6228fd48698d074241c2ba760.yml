@@ -1,0 +1,10 @@
+version: "2"
+services:
+  test:
+    build: .
+    volumes:
+      - "./test:/test"
+      - "./resource:/opt/resource"
+      - "./test/fixtures/in:/mnt/in"
+      - "./README.md:/mnt/out/README.md"
+    command: ["/test/run", "in"]

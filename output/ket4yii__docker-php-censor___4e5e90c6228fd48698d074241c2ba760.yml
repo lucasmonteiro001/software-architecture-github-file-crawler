@@ -1,0 +1,24 @@
+version: '2.1'
+services:
+  web:
+    image: "ket4yii/php-censor:web"
+    ports:
+    - "80:80"
+    env_file:
+    - ./env/phpcensor.env
+  worker:
+    image: "ket4yii/php-censor:worker"
+    env_file:
+    - ./env/phpcensor.env
+  db:
+    image: "postgres"
+    user: postgres
+    env_file:
+    - ./env/database.pgsql.env
+  queue:
+    image: "schickling/beanstalkd"
+    networks:
+      default:
+        aliases:
+        - beanstalk
+

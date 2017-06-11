@@ -1,0 +1,31 @@
+load-balancer:
+  build: ./load-balancer
+  links:
+    - worker1:worker1
+    - worker2:worker2
+    - worker3:worker3
+  ports:
+    - "3000:3000"
+worker1:
+  build: ./worker
+  links:
+    - queue
+worker2:
+  build: ./worker
+  links:
+    - queue
+worker3:
+  build: ./worker
+  links:
+    - queue
+web:
+  build: ./web
+  links:
+    - queue
+  ports:
+    - "4000:4000"
+    - "4001:4001"
+queue:
+  build: ./queue
+  ports:
+    - "6379"

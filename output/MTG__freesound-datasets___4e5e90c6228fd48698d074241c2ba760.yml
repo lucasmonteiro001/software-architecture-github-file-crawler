@@ -1,0 +1,39 @@
+version: '2'
+volumes:
+  dbvolume:
+  ipython:
+services:
+  db:
+    image: postgres:9.6
+    ports:
+      - 5543:5432
+    env_file:
+      - .env
+    volumes:
+      - dbvolume:/var/lib/postgresql/data/
+  redis:
+    image: redis
+  web:
+    build: .
+    ports:
+      - 8000:8000
+    env_file:
+      - .env
+    volumes:
+      - .:/code
+      - /static/
+      - ipython:/root/.ipython
+    command: dumb-init python manage.py runserver 0.0.0.0:8000
+    depends_on:
+      - db
+      - redis
+  celery:
+    build: .
+    env_file:
+      - .env
+    volumes_from:
+      - web
+    command: celery worker -A freesound_datasets --concurrency=${CELERY_CONCURRENCY}
+    depends_on:
+      - db
+      - redis

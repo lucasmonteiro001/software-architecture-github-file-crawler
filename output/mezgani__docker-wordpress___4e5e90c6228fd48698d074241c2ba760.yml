@@ -1,0 +1,31 @@
+version: '2'
+services:
+  web:
+    image: webdevops/php-nginx 
+    container_name: blog-web
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes_from:
+      - storage
+    links:
+      - db
+ 
+  storage:
+    image: busybox
+    container_name: blog-storage
+    volumes:
+      - "/data/blog/db:/var/lib/mysql"
+      - "/data/blog/www/html:/app"
+
+  db:
+    image: mysql:5.7
+    container_name: blog-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: xeeW3kah
+      MYSQL_DATABASE: ngstones
+      MYSQL_USER: ngstones_user
+      MYSQL_PASSWORD: xeeW3kah
+    volumes:
+      - "/data/blog/db:/var/lib/mysql"

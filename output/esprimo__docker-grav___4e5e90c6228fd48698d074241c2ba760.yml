@@ -1,0 +1,13 @@
+nginx:
+  build: ./nginx
+  ports:
+    - 8081:80
+  volumes:
+    - ./data:/data
+  links:
+    - php
+
+php:
+  build: ./php
+  volumes: 
+    - ./data:/data

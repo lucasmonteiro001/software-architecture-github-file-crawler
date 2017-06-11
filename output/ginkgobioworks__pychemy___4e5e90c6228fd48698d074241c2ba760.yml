@@ -1,0 +1,31 @@
+version: '2.1'
+
+services:
+  pychemy-base:
+    build:
+      context: .
+      args:
+        - GIT_USER_NAME
+        - GIT_USER_EMAIL
+    volumes:
+      - caches:/root/.cache
+      - .:${PYCHEMY_HOME:-/usr/src/pychemy}
+    tty:
+      true
+    environment:
+      - TOXENV
+
+  pychemy-py2:
+    extends:
+      service: pychemy-base
+    build:
+      dockerfile: Dockerfile.py2
+
+  pychemy-py3:
+    extends:
+      service: pychemy-base
+    build:
+      dockerfile: Dockerfile.py3
+
+volumes:
+  caches:

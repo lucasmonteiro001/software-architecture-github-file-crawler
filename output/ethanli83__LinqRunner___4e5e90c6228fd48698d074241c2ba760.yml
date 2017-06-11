@@ -1,0 +1,21 @@
+version: "2"
+services:
+    web:
+        image: "daydreamerio/linqrunner"
+        ports:
+            - "80:5000"
+        links:
+            - mysql
+        volumes: 
+            - ./config:/app/config/:ro
+    mysql:
+        image: "mysql:8.0"
+        container_name: northwind-mysql
+        expose:
+            - "3306"
+        ports:
+            - "3306:3306"
+        environment:
+            - MYSQL_ROOT_PASSWORD=chenli1234
+        volumes:
+            - ./initdb/:/docker-entrypoint-initdb.d/:ro

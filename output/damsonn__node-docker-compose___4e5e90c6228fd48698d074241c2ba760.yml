@@ -1,0 +1,42 @@
+db:
+  image: tutum/mongodb
+  restart: always
+  env_file: .env.docker
+
+redis:
+  image: redis
+  restart: always
+
+app:
+  build: .
+  volumes:
+    - /opt/app/public
+  command: node bin/www
+  restart: always
+  ports:
+    - "3000:3000"
+  links:
+    - db
+    - redis
+  env_file: .env.docker
+  environment:
+    - DEBUG=node-docker-compose:server
+
+worker:
+  build: .
+  command: node worker.js
+  links:
+    - db
+    - redis
+  env_file: .env.docker
+  environment:
+    - DEBUG=node-docker-compose:worker
+
+nginx:
+  build: nginx
+  ports:
+    - "80:80"
+  links:
+    - app
+  volumes_from:
+    - app

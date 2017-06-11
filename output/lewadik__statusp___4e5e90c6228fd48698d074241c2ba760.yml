@@ -1,0 +1,31 @@
+version: "3"
+
+services:
+  postgres:
+    image: postgres:9.5
+    volumes:
+      - /var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+  cachet:
+    build:
+      context: .
+      args:
+        - cachet_ver=v2.3.10
+    ports:
+      - 8000:8000
+    links:
+      - postgres:postgres
+    environment:
+      - DB_DRIVER=pgsql
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_DATABASE=postgres
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=postgres
+      - DB_PREFIX=chq_
+      - APP_KEY=base64:qSxl6T7Hx3NVFeFv6+2nmosAfSOMWAPIiu795AzcK0Q=
+      - DEBUG=false
+    depends_on:
+      - postgres

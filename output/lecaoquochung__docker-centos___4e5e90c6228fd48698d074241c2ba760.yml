@@ -1,0 +1,41 @@
+server:
+    dockerfile: $PWD/docker/server/Dockerfile
+    build: $PWD/docker/server
+    working_dir: /var/www/html/lihocent
+    links:
+        - mysql:mysql.local
+        - memcached
+    ports:
+        - "80:80"
+        - "3000:3000"
+    volumes:
+        - $PWD:/var/www/html/lihocent
+        - lihocent-server:/var/www/html
+    environment:
+        - PROJECT_HOST_ENV=lihocent.dev
+        - MYSQL_DATABASE=lihocent
+        - MYSQL_USER=lihocent
+        - MYSQL_PASSWORD=lihocent
+        - MYSQL_ROOT_PASSWORD=lihocent
+        - MYSQL_HOST=mysql.local
+
+mysql:
+    dockerfile: $PWD/docker/db/Dockerfile
+    build: $PWD/docker/db
+    ports:
+        - "3306:3306"
+    environment:
+        - MYSQL_DATABASE=lihocent
+        - MYSQL_USER=lihocent
+        - MYSQL_PASSWORD=lihocent
+        - MYSQL_ROOT_PASSWORD=lihocent
+    volumes:
+        - ".:/var/www/html/lihocent"
+        - $PWD/docker/db/init.d:/docker-entrypoint-initdb.d
+        - lihocent-mysql:/var/lib/mysql
+    mem_limit: 1000000000
+
+memcached:
+  image: memcached
+  volumes:
+    - lihocent-memcached:/etc/sysconfig/memcached

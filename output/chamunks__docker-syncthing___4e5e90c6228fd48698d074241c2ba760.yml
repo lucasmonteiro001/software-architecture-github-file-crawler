@@ -1,0 +1,9 @@
+syncthing:
+  image: chamunks/docker-syncthing
+  ports:
+    - "22000:22000"
+    - "8384:8384"
+    - "21025:21025"
+  volumes:
+    - "./data:/data/sync"
+    - "./config.d:/opt/syncthing/config.d"

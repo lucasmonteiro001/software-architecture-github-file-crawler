@@ -1,0 +1,18 @@
+version: '2'
+services:
+  test2:
+    image: test2
+    ports:
+      - "::8001" # bind to a dynamic port on localhost
+    environment:
+      - "CONSUL=consul:8500"
+    links:
+      - statsd:statsd
+  statsd:
+    image: 'hopsoft/graphite-statsd:latest'
+    ports:
+      - "::80"
+    expose:
+      - "8125/udp"
+    environment:
+      - "SERVICE_NAME=statsd"

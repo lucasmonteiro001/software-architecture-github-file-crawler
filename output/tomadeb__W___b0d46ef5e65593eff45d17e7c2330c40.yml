@@ -1,0 +1,10 @@
+version: '2'
+
+services:
+  jekyll:
+    image: tomdeb/jekyll
+    command: jekyll serve --watch --future --host jekyll
+    ports:
+        - 4000:4000
+    volumes:
+        - /home/tom/tomadeb.github.io:/srv/jekyll

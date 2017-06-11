@@ -1,0 +1,17 @@
+web:
+  build: .
+  ports:
+   - "3000:3000"
+   - "7000:7000"
+  volumes:
+   - .:/usr/src/app
+  links:
+   - redis
+   - rabbitmq
+redis:
+  image: redis
+rabbitmq:
+  image: rabbitmq:3-management
+  hostname: rabbitmq
+  ports:
+    - "15672:15672"

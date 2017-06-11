@@ -1,0 +1,15 @@
+web:
+    build: ./docker/nginx
+    ports:
+        - "8001:8001"
+    links:
+        - node:node
+
+node:
+    build: ./src
+    ports:
+        - "8080"
+    env_file:
+        - ./src/.env
+    volumes:
+        - ~/ssl:/etc/ssl/:ro

@@ -1,0 +1,155 @@
+actrn:
+  extends:
+    service: actrn
+    file: docker-cloud.yml
+  restart: 'no'
+
+euctr:
+  extends:
+    service: euctr
+    file: docker-cloud.yml
+  restart: 'no'
+
+fdadl:
+  extends:
+    service: fdadl
+    file: docker-cloud.yml
+  restart: 'no'
+
+fdadap:
+  extends:
+    service: fdadap
+    file: docker-cloud.yml
+  restart: 'no'
+
+gsk:
+  extends:
+    service: gsk
+    file: docker-cloud.yml
+  restart: 'no'
+
+hra:
+  extends:
+    service: hra
+    file: docker-cloud.yml
+  restart: 'no'
+
+hra-linker:
+  extends:
+    service: hra-linker
+    file: docker-cloud.yml
+  restart: 'no'
+
+icdcm:
+  extends:
+    service: icdcm
+    file: docker-cloud.yml
+  restart: 'no'
+
+icdpcs:
+  extends:
+    service: icdpcs
+    file: docker-cloud.yml
+  restart: 'no'
+
+ictrp:
+  extends:
+    service: ictrp
+    file: docker-cloud.yml
+  restart: 'no'
+
+isrctn:
+  extends:
+    service: isrctn
+    file: docker-cloud.yml
+  restart: 'no'
+
+jprn:
+  extends:
+    service: jprn
+    file: docker-cloud.yml
+  restart: 'no'
+
+nct:
+  extends:
+    service: nct
+    file: docker-cloud.yml
+  restart: 'no'
+
+osf:
+  extends:
+    service: osf
+    file: docker-cloud.yml
+  restart: 'no'
+
+pfizer:
+  extends:
+    service: pfizer
+    file: docker-cloud.yml
+  restart: 'no'
+
+pubmed:
+  extends:
+    service: pubmed
+    file: docker-cloud.yml
+  restart: 'no'
+
+pubmed-linker:
+  extends:
+    service: pubmed-linker
+    file: docker-cloud.yml
+  restart: 'no'
+
+takeda:
+  extends:
+    service: takeda
+    file: docker-cloud.yml
+  restart: 'no'
+
+trial-remover:
+  extends:
+    service: trial-remover
+    file: docker-cloud.yml
+  restart: 'no'
+
+merge-trials-identifiers:
+  extends:
+    service: merge-trials-identifiers
+    file: docker-cloud.yml
+  restart: 'no'
+
+remove-unknown-dcloud-docs:
+  extends:
+    service: remove-unknown-dcloud-docs
+    file: docker-cloud.yml
+  restart: 'no'
+
+sync-text-from-documentcloud:
+  extends:
+    service: sync-text-from-documentcloud
+    file: docker-cloud.yml
+  restart: 'no'
+
+send-fda-docs-to-documentcloud:
+  extends:
+    service: send-fda-docs-to-documentcloud
+    file: docker-cloud.yml
+  restart: 'no'
+
+sources-remover:
+  extends:
+    service: sources-remover
+    file: docker-cloud.yml
+  restart: 'no'
+
+remove-sources-data:
+  extends:
+    service: remove-sources-data
+    file: docker-cloud.yml
+  restart: 'no'
+
+cochrane-reviews:
+  extends:
+    service: cochrane-reviews
+    file: docker-cloud.yml
+  restart: 'no'

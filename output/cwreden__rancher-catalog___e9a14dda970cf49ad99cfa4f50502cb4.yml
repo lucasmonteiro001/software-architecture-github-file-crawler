@@ -1,0 +1,15 @@
+kimai-server:
+  image: maestroalubia/kimai:1.1.0
+  hostname: ${kimai_hostname}
+  links:
+  - kimai-db:db
+
+kimai-db:
+  image: mariadb:10.1
+  environment:
+  - MYSQL_DATABASE=${kimai_database}
+  - MYSQL_USER=${kimai_user}
+  - MYSQL_PASSWORD=${kimai_password}
+  - MYSQL_ROOT_PASSWORD=${root_password}
+  volumes:
+  - ${DIR}/data:/var/lib/mysql

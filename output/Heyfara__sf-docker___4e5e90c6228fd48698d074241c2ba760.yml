@@ -1,0 +1,14 @@
+# MYSQL
+mysql:
+  build: dockerfiles/mysql
+  volumes:
+    - volumes/mysql:/var/lib/mysql
+# Apache - PHP
+apache:
+  build: dockerfiles/apache
+  links:
+    - mysql:mysql
+  volumes:
+    - volumes/www:/var/www/html
+  ports:
+    - 80:80

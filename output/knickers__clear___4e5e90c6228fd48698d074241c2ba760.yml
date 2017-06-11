@@ -1,0 +1,14 @@
+web:
+  build: .
+  links:
+    - db:db
+  ports:
+    - 8004:80
+  volumes:
+    - src:/var/www/html
+db:
+  image: mariadb:10.1
+  environment:
+    MYSQL_ROOT_PASSWORD: qwerty
+  volumes:
+    - config:/docker-entrypoint-initdb.d

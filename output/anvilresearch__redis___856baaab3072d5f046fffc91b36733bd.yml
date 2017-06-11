@@ -1,0 +1,8 @@
+redis:
+  image: anvilresearch/redis
+  volumes:
+    - ./data:/data
+    - ./logs:/logs
+  ports:
+    - "6379:6379"
+  restart: always

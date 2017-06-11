@@ -1,0 +1,48 @@
+version: '2'
+services:
+  master:
+    build:
+         context: ./master
+    container_name: master
+    hostname: master
+    environment:
+      - "ROS_HOSTNAME=master"
+      - "ROS_MASTER_URI=http://master:11311"
+    command: ["roscore"]
+  desktop:
+    build: 
+         context: ./desktop
+    container_name: desktop
+    hostname: desktop
+    environment:
+      - "ROS_HOSTNAME=desktop"
+      - "ROS_MASTER_URI=http://master:11311"
+    volumes:
+      - "/tmp/.X11-unix:/tmp/.X11-unix:rw"
+      - "../../project:/home/rosuser/project"
+    depends_on:
+      - master
+    devices:
+      - "/dev/dri:/dev/dri" 
+      - "/dev/bus/usb:/dev/bus/usb"
+    command: ["/bin/bash", "-c", "roslaunch openni2_launch openni2.launch"]
+  simulation:
+    build: 
+         context: ./simulation
+    container_name: simulation
+    hostname: simulation
+    environment:
+      - "ROS_HOSTNAME=simulation"
+      - "ROS_MASTER_URI=http://master:11311"
+    volumes:
+      - "/tmp/.X11-unix:/tmp/.X11-unix:rw"
+      - "../../project:/home/rosuser/project"
+    depends_on:
+      - master
+    devices:
+      - "/dev/dri:/dev/dri" 
+    command: ["/bin/bash"]
+
+
+
+

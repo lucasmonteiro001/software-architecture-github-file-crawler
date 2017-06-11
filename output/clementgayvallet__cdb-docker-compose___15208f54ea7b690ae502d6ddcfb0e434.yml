@@ -1,0 +1,13 @@
+mysql:
+  container_name: cdb-mysql
+  image: clementgayvallet/cdb-mysql:latest
+  environment:
+    - MYSQL_ROOT_PASSWORD=root
+
+webapp:
+  container_name: cdb-webapp
+  image: clementgayvallet/cdb-webapp:latest
+  links:
+    - mysql:mysql
+  ports:
+    - "8181:8080"

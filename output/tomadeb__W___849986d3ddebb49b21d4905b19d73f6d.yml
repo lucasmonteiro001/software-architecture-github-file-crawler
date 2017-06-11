@@ -1,0 +1,7 @@
+mongo:
+    image: tomdeb/mongo
+    command: jekyll s -w 
+    container_name: mongo
+    net: myapp_nw
+    volumes:
+      - /var/mongodb:/data/db

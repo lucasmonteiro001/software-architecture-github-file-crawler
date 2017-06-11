@@ -1,0 +1,16 @@
+#
+# our bitbucket service container
+#
+bitbucket:
+  restart: 'no'
+  # image: dunkelfrosch/bitbucket
+  build: .
+  container_name: df-atls-bitbucket
+
+  ports:
+    - "7990:7990"
+    - "7999:7999"
+
+  privileged: false
+  stdin_open: true
+  tty: true

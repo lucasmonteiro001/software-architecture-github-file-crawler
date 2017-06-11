@@ -1,0 +1,22 @@
+version: '2'
+services:
+  mariadb:
+    image: mariadb
+    volumes:
+     - ./db_data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: test
+    ports:
+     - "9001:3306"
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    environment:
+      PMA_HOST: mariadb
+    ports:
+     - "9000:80"
+  transcoder:
+    build:
+      context: transcoder
+      ports:
+      - "9004:8080"
+      - "1935:1935"

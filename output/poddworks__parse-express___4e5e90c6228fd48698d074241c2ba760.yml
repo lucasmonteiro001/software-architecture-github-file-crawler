@@ -1,0 +1,39 @@
+version: "2"
+
+services:
+  api:
+    build:
+      context: .
+    env_file:
+      - .env_api
+      - .env_local
+    environment:
+      AWS_REGION: ${AWS_REGION}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+    image: poddworks/parse
+    ports:
+      - "8080:8080"
+    networks:
+      - backend
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile.dashboard
+    env_file:
+      - .env_dashboard
+      - .env_local
+    image: poddworks/dashboard:1.0.19
+    ports:
+      - "4040:4040"
+    networks:
+      - backend
+  db:
+    image: mongo:3.2.6
+    networks:
+      - backend
+    ports:
+      - "27017:27017"
+
+networks:
+  backend:

@@ -1,0 +1,9 @@
+node:
+    image: node
+    command: /node/wait-for-it.sh -- node /node/server.js
+    container_name: node
+    net: myapp_nw
+    ports:
+      - 3000:3000
+    volumes:
+      - /home/tom/W/myapp/node/:/node

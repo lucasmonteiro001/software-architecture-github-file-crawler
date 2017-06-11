@@ -1,0 +1,8 @@
+web:
+  build: .
+  command: ["npm", "run", "gulp"]
+  ports:
+    - '4000:4000'
+  volumes:
+    - .:/home/app/web
+    - /home/app/web/node_modules

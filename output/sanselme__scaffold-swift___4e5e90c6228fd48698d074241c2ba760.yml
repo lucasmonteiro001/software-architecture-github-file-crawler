@@ -1,0 +1,13 @@
+version: "2"
+
+services:
+  app:
+    image: sanselme/swift
+    command: start.sh
+    privileged: true
+    tty: true
+    stdin_open: true
+    working_dir: /usr/src/app
+    volumes:
+      - ./start.sh:/usr/local/bin/start.sh
+      - .:/usr/src/app

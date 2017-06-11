@@ -1,0 +1,15 @@
+version: '2'
+services:
+  web:
+    build: .
+    links:
+     - "mongo"
+    ports:
+     - "8080:8080"
+    volumes:
+     - ./server/:/usr/src/app/server/
+     - ./webMonitor/:/usr/src/app/webMonitor/
+  mongo:
+    image: "mongo:3.0.14"
+    ports:
+     - "27017:27017"

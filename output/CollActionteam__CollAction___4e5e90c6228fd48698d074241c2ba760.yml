@@ -1,0 +1,31 @@
+version: '2'
+
+volumes:
+  images:
+
+services:
+  collaction:
+    image: collaction
+    build:
+      context: ./CollAction
+      dockerfile: Dockerfile
+    env_file:
+      - env_collaction
+    depends_on:
+      - db
+    links:
+      - db:db
+    ports:
+      - "5000:5000"
+    volumes:
+      - images:/app/wwwroot/usercontent
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Release
+      - ASPNETCORE_URLS=http://*:5000
+
+  db:
+    image: postgres
+    env_file:
+      - env_postgres
+    ports:
+      - "5432:5432"

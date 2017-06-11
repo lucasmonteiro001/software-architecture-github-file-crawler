@@ -1,0 +1,15 @@
+mongodb:
+  image: "mongo:3.2.1"
+  ports:
+    - "27017:27017"
+  volumes:
+    - ./_mongodata:/data/db
+
+app:
+  build: .
+  ports:
+    - "8090:8090"
+  links:
+    - "mongodb"
+  environment:
+    - MONGO_ENDPOINT=mongodb

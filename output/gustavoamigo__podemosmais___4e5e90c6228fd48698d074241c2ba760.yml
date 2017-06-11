@@ -1,0 +1,32 @@
+telescope:
+  restart: always
+  image: telescopeapp/telescope
+  links:
+   - mongo
+  environment:
+   - ROOT_URL=http://comuna.podemosmais.tk
+   - MONGO_URL=mongodb://mongo
+
+mongo:
+  restart: always
+  image: mongo
+  ports:
+  - "27017:27017"
+  - "28017:28017"
+  command: mongod --rest
+
+wordpress:
+  restart: always
+  image: wordpress
+  env_file: ./wordpress.env
+
+nginx:
+  restart: always
+  image: nginx
+  ports:
+    - "80:80"
+  volumes:
+  - "./nginx.conf:/etc/nginx/nginx.conf:ro"
+  links:
+    - telescope
+    - wordpress

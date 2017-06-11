@@ -1,0 +1,8 @@
+ghost-slack-integration:
+  image: pilsprog/ghost-slack-integration
+  environment:
+    - FEED=https://example.com/rss
+    - INTERVAL=60
+    - SLACK_HOOK=https://hooks.slack.com/services/<yourservicehash>
+    - SLACK_ICON=https://example.com/icon.png
+    - SLACK_BOT_USER=SlackBotUsername

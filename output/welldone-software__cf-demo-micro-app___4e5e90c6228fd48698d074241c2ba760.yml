@@ -1,0 +1,20 @@
+cf-welldone-demo_cf-demo-micro-app:
+  image: cf-welldone-demo/cf-demo-micro-app:master
+  ports:
+    - 5000
+  links:
+    - mongo
+  environment:
+    MONGO_URL: mongo/cf-micro-api
+    PORT: 5000
+mongo:
+  image: mongo
+cf-welldone-demo_cf-demo-micro-worker:
+  image: cf-welldone-demo/cf-demo-micro-worker:master
+  ports:
+    - 5000
+  links:
+    - mongo
+  environment:
+    MONGO_URL: mongo/cf-micro-api
+    PORT: 5000

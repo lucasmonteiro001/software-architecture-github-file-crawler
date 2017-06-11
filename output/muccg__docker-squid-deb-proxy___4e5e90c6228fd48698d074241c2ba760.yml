@@ -1,0 +1,13 @@
+version: '2'
+services:
+
+  squid-deb-proxy:
+    image: muccg/squid-deb-proxy:latest
+    volumes:
+      - ./data:/data
+    ports:
+        - "8000:8000"
+    environment:
+      - USE_ACL=${DOCKER_SQUID_USE_ACL}
+      - USE_AVAHI=${DOCKER_SQUID_USE_AVAHI}
+    restart: always

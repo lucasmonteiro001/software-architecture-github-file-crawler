@@ -1,0 +1,16 @@
+apiserver:
+  image: telemark/tfk.search.service
+  # build: .
+  environment:
+    SERVER_PORT: 3000
+    JWT_SECRET: "Louie Louie, oh no, I got to go Louie Louie, oh no, I got to go"
+    ELASTIC_URL: "http://elasticserver:9200"
+  ports:
+    - "3000:3000"
+  links:
+   - elasticserver
+elasticserver:
+  image: elasticsearch:2.4.0
+  ports:
+     - "9200:9200"
+     - "9300:9300"

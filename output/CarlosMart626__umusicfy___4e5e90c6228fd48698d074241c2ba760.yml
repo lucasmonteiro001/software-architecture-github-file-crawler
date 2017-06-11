@@ -1,0 +1,60 @@
+umusicfy:
+  restart: always
+  build: ./umusicfy
+  expose:
+    - "8000"
+  links:
+    - postgres:postgres
+    - redis:redis
+  volumes:
+    - /usr/src/app
+    - /usr/src/app/static
+    - ./media/:/var/www/umusicfy.ml/media
+    - ./static/:/var/www/umusicfy.ml/static
+  env_file: .env
+  environment:
+    DEBUG: 'True'
+  command: ./run_web.sh
+
+celery:
+  restart: always
+  build: ./umusicfy
+  links:
+    - postgres:postgres
+    - redis:redis
+  volumes:
+    - /usr/src/app
+    - /usr/src/app/static
+    - ./media/:/var/www/umusicfy.ml/media
+    - ./media/:/var/www/umusicfy.ml/static
+  env_file: .env
+  environment:
+    DEBUG: 'True'
+  command: ./run_celery.sh
+
+nginx:
+  restart: always
+  build: ./nginx/
+  ports:
+    - "80:80"
+  volumes:
+    - ./static/:/var/www/umusicfy.ml/static/
+    - ./media/:/var/www/umusicfy.ml/media
+  volumes_from:
+    - umusicfy
+  links:
+    - umusicfy:umusicfy
+
+postgres:
+  restart: always
+  image: postgres:latest
+  env_file: .env
+
+redis:
+  restart: always
+  image: redis:latest
+  env_file: .env
+  ports:
+    - "6379:6379"
+  volumes:
+    - redisdata:/data

@@ -1,0 +1,33 @@
+# database container
+mariadb:
+  image: mariadb
+  environment:
+    - "MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}"
+    - "MYSQL_DATABASE=${MYSQL_DATABASE}"
+    - "MYSQL_USER=${MYSQL_USER}"
+    - "MYSQL_PASSWORD=${MYSQL_PASSWORD}"
+  labels:
+    io.rancher.scheduler.affinity:host_label: host.type=data
+  volumes:
+    - "/home/data/${PATH}/mysql:/var/lib/mysql"
+
+# php container
+php:
+  image: vidavenel/php
+  volumes:
+    - "/home/data/${PATH}/public_html/:/var/www/html"
+  labels:
+    io.rancher.scheduler.affinity:host_label: host.type=compute
+  mem_limit: 2097152000
+  memswap_limit: 2097152000
+
+# nginx container
+nginx:
+  image: nginx
+  volumes:
+    - "/home/data/${PATH}/public_html/:/var/www/html"
+    - "/home/data/${PATH}/nginx/conf.d:/etc/nginx/conf.d"
+  labels:
+    io.rancher.scheduler.affinity:host_label: host.type=compute
+  mem_limit: 2097152000
+  memswap_limit: 2097152000

@@ -1,0 +1,18 @@
+web:
+    container_name: wp-web
+    build: .
+    links:
+     - mysql
+    environment:
+     - WORDPRESS_DB_PASSWORD=mysqlPassword
+    ports:
+     - "4.31.168.84:8080:80"
+mysql:
+    container_name: wp-mysql
+    image: mysql:5.7
+    environment:
+     - MYSQL_ROOT_PASSWORD=mysqlPassword
+     - MYSQL_DATABASE=ohmy_wordpress
+     - SKIP_NAME_RESOLVE=Yes
+    expose:
+     - "3306"

@@ -1,0 +1,22 @@
+version: '2'
+services:
+    test-server:
+        image: clue/json-server
+        command: --routes /data/routes.json
+        volumes:
+            - ./server:/data:ro
+
+    runner:
+        image: graze/cucumber-rest-bdd
+        build: .
+        volumes:
+            - .:/opt/src
+        working_dir: /opt/src
+        environment:
+            - endpoint=http://test-server/
+            - cucumber_api_verbose=false
+            - field_separator=_
+            - field_camel=true
+            - resource_single=false
+            - data_key=
+            - set_parent_id=true

@@ -1,0 +1,12 @@
+version: '3'
+services:
+  worker:
+    build:
+      context: .
+    image: alfredo-ramos/arch-ruby
+    env_file:
+      - config/bot.env
+    entrypoint:
+      - /usr/bin/env
+      - ruby
+    command: sddm_themes_bot.rb

@@ -1,0 +1,27 @@
+web:
+  image: ds-auth:base_localbuild
+  links:
+    - db:postgres
+  environment:
+    DS_AUTH_DATABASE_HOST: postgres
+  ports:
+    - "3000:3000"
+  volumes:
+    - .:/usr/src/app
+  working_dir: /usr/src/app
+  command: bash -c "bundle exec rails s -b 0.0.0.0"
+
+
+dbdata:
+  image: cogniteev/echo
+  command: echo 'Persistent data container for PostgreSQL'
+  volumes:
+    - /var/lib/postgresql/data
+
+db:
+  image: postgres
+  environment:
+    DS_AUTH_DATABASE_PASSWORD: password
+    DS_AUTH_DATABASE_USERNAME: ds_auth
+  volumes_from:
+    - dbdata

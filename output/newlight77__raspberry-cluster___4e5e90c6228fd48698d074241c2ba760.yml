@@ -1,0 +1,24 @@
+front:
+  build: front
+  ports:
+    - "3000:3000"
+  volumes:
+    - ./front:/front
+  command: npm install npm start
+
+server:
+  build: server
+  ports:
+    - "3001:3000"
+  volumes:
+    - ./server:/server
+  command: npm start
+
+
+mongo:
+  image: mongo
+  volumes:
+    - /data/db
+  ports:
+    - "27017:27017"
+    - "28017:28017"

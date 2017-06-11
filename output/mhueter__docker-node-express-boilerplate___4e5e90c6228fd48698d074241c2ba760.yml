@@ -1,0 +1,30 @@
+version: '2'
+services:
+  server:
+    build: .
+    command: pm2-docker --watch server/server.js
+    environment:
+      NODE_ENV: development
+      NODE_CONFIG_DIR: ./server/config
+      NODE_APP_INSTANCE: ''
+    links:
+      - mongodb
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/docker-node-express-boilerplate
+
+  nginx:
+    image: nginx:latest
+    links:
+      - server
+    ports:
+      - "80:80"
+    volumes:
+      - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+
+  mongodb:
+    image: mongo:3.2.11
+    command: mongod --httpinterface --rest
+    ports:
+      - "27017:27017"

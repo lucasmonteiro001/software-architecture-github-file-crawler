@@ -1,0 +1,13 @@
+version: '2'
+services:
+  app:
+    command: bundle exec guard start -cipB
+    environment:
+      BUNDLE_APP_CONFIG: /app/.bundle
+      BUNDLE_PATH: /app/.bundle
+    image: ruby:2.2.3
+    tty: true
+    user: 1001:1001
+    volumes:
+      - .:/app
+    working_dir: /app

@@ -1,0 +1,12 @@
+ctx:
+    build: .
+    links:
+        - db
+    environment:
+        - CTX_CFG=container
+db:
+    image: kevinjqiu/couchdb
+    environment:
+        - COUCHDB_PASS=passw0rd
+    ports:
+        - "5984:5984"

@@ -1,0 +1,26 @@
+version: '2'
+services:
+  mysql:
+    image: mysql
+    environment:
+      MYSQL_DATABASE: mobtown
+      MYSQL_ROOT_PASSWORD: password
+
+  ingest:
+    image: mobtown/ingest
+    command: --connection-string jdbc:mysql://mysql/mobtown
+    links:
+      - mysql
+
+  services:
+    image: mobtown/services
+    command: --connection-string jdbc:mysql://mysql/mobtown
+    links:
+      - mysql
+
+  web:
+    image: mobtown/web
+    ports:
+      - 9000:80
+    links:
+      - services

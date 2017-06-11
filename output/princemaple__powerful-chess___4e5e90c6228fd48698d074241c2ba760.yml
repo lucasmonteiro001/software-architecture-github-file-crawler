@@ -1,0 +1,17 @@
+server:
+  image: nginx
+  volumes:
+    - ./nginx.conf:/etc/nginx/nginx.conf
+    - .:/var/app
+  ports:
+   - "80:80"
+   - "443:443"
+assets:
+  build: .
+  dockerfile: Dockerfile.assets
+  volumes:
+    - ./src:/var/build/src
+    - ./dist:/var/build/dist
+    - ./typings:/var/build/typings
+    - ./webpack.config.js:/var/build/webpack.config.js
+    - ./tsconfig.json:/var/build/tsconfig.json

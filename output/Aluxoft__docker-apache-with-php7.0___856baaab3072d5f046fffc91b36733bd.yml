@@ -1,0 +1,21 @@
+web:
+  image: aluxoft/apache-with-php7.0
+  ports:
+    - "8080:80"
+  volumes:
+    - .:/var/www/html
+    - $SSH_AUTH_SOCK:/ssh-agent
+  environment:
+    SSH_AUTH_SOCK: /ssh-agent
+  links:
+    - db
+db:
+  image: sameersbn/mysql
+  ports:
+    - "3307:3306"
+  volumes:
+   - /var/lib/mysql
+  environment:
+   - DB_NAME=db_name
+   - DB_USER=db_user
+   - DB_PASS=db_pass

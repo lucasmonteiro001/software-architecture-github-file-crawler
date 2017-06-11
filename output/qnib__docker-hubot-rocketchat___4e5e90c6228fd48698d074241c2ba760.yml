@@ -1,0 +1,60 @@
+consul:
+    image: qnib/consul
+    ports:
+     - "8500:8500"
+    hostname: consul
+    container_name: consul
+    dns: 127.0.0.1
+    privileged: true
+    environment:
+    - RUN_SERVER=true
+    - BOOTSTRAP_CONSUL=true
+
+mongodb:
+    image: qnib/mongodb
+    dns: 127.0.0.1
+    hostname: mongodb
+    container_name: mongodb
+    ports:
+     - "27017:27017"
+     - "28017:28017"
+    links:
+     - consul:consul
+    privileged: true
+    environment:
+     - MONGO_RESTORE=/backup/rocketchat_init.tar
+
+rocketchat:
+    image: qnib/rocketchat
+    dns: 127.0.0.1
+    hostname: rocketchat
+    container_name: rocketchat
+    ports:
+     - "3000:3000"
+    links:
+     - consul:consul
+     - mongodb:db
+    environment:
+    - RUN_SERVER=false
+    - BOOTSTRAP_CONSUL=false
+    privileged: true
+
+hubot:
+    image: qnib/hubot-rocketchat
+    dns: 172.17.0.1
+    hostname: hubot
+    container_name: hubot
+    links:
+     - consul:consul
+    environment:
+    - RUN_SERVER=false
+    - BOOTSTRAP_CONSUL=false
+    - ROCKETCHAT_URL=192.168.99.100:3000
+    - ROCKETCHAT_ROOM=GENERAL
+    - ROCKETCHAT_USER=hubot
+    - ROCKETCHAT_PASSWORD=hubot
+    - BOT_NAME=bot
+    - HUBOT_GRAPHITE_URL=http://192.168.99.100:8181
+    privileged: true
+
+  

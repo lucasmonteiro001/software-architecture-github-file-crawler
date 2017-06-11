@@ -1,0 +1,38 @@
+redis:
+  image: redis
+  restart: always
+  volumes:
+    - $HOME/data/redis:/data
+  command:  redis-server --appendonly yes
+
+mysql:
+  image: mysql
+  volumes:
+    - $HOME/data/fishbase:/var/lib/mysql
+  environment:
+    - MYSQL_ROOT_PASSWORD=root
+  restart: always
+
+sealifebase:
+  image: mysql
+  volumes:
+    - $HOME/data/sealifebase:/var/lib/mysql
+  environment:
+    - MYSQL_ROOT_PASSWORD=root
+  restart: always
+
+api:
+  build: .
+  links:
+    - sealifebase
+    - mysql
+    - redis
+
+nginx:
+  ports:
+    - 80:80
+  links:
+    - api
+  volumes:
+    - ./nginx.conf:/etc/nginx/nginx.conf
+  image: nginx

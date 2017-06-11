@@ -1,0 +1,16 @@
+notary:
+  build: .
+  links:
+   - notarymysql
+  ports:
+   - "8080:8080"
+   - "4443:4443"
+#rufus:
+#  volumes:
+#   - /dev/bus/usb/003/010:/dev/bus/usb/002/010
+#   - /var/run/pcscd/pcscd.comm:/var/run/pcscd/pcscd.comm
+#  build: ../rufus
+notarymysql:
+  build: ./notarymysql/
+  ports:
+    - "3306:3306"

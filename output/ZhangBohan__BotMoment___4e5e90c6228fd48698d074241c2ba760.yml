@@ -1,0 +1,11 @@
+version: '2'
+
+services:
+  # Web Server
+  web:
+     build: .
+     command: python server.py
+     volumes:
+      - .:/code
+     ports:
+      - "9002:8000"
