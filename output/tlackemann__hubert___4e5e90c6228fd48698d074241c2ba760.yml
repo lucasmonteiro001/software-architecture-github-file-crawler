@@ -1,0 +1,39 @@
+# Hubert (Main listener)
+hubert_dev:
+  build: .
+  links:
+    - cassandra_dev
+    - rabbitmq_dev:hubert
+  volumes:
+    - .:/usr/src/app
+  command: babel src/ --watch -d dist & nodemon -L index.js
+  ports:
+    - "3000:3000"
+  expose:
+    - "3000"
+
+# Hubert Machine Learning
+learn_dev:
+  build: script/
+  links:
+    - cassandra_dev
+    - rabbitmq_dev:hubert.rabbitmq
+  volumes:
+    - ./script:/usr/src/app
+  command: python index.py
+
+# RabbitMQ
+rabbitmq_dev:
+  image: rabbitmq:3.6
+  hostname: hubert.rabbitmq
+  environment:
+    - RABBITMQ_NODENAME=hubert@hubert.rabbitmq
+    - RABBITMQ_ERLANG_COOKIE=hubert-cookie
+    - RABBITMQ_DEFAULT_USER=hubert
+    - RABBITMQ_DEFAULT_PASS=hubert
+
+# Cassandra
+cassandra_dev:
+  build: cassandra/
+  expose:
+    - "9042"

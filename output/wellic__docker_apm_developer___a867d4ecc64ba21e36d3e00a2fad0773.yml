@@ -1,0 +1,17 @@
+mysql55:
+    image: mysql:5.5
+    container_name: mysql55
+    ports:
+        - "33055:3306"
+    volumes:
+        - $PWD/mysql_data:/var/lib/mysql
+        - $PWD/etc/mysql/conf.d:/etc/mysql/conf.d
+#        - $PWD/dump/dump.sql:/docker-entrypoint-initdb.d/dump.sql
+    environment:
+        MYSQL_ROOT_PASSWORD: "yourpassword"
+#        MYSQL_DATABASE: "databasename"
+
+# see details https://hub.docker.com/_/mysql/
+#        MYSQL_USER:
+#        MYSQL_PASSWORD:
+#        MYSQL_ALLOW_EMPTY_PASSWORD:

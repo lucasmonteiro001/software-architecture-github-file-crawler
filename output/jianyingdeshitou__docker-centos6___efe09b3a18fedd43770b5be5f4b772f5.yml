@@ -1,0 +1,12 @@
+lamp:
+    image: 'lamp-c6'
+#    restart: always
+    command: /run/start.sh
+    ports:
+        - '80:80'
+        - '1022:22'
+        - '3306:3306'
+    volumes:
+        - './app:/app'
+        - './run:/run'
+#        - './mysql:/var/lib/mysql'

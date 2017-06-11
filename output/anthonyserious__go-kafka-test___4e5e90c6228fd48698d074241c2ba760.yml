@@ -1,0 +1,40 @@
+version: '2'
+
+networks:
+  wut:
+    driver: bridge
+
+services:
+  kafka:
+    image: spotify/kafka:latest
+    networks:
+      - wut
+    ports:
+      - "2181:2181"
+      - "9092:9092"
+    environment:
+      - "ADVERTISED_HOST=kafka"
+      - "ADVERTISED_PORT=9092"
+
+  kafkamgr:
+    image: sheepkiller/kafka-manager
+    networks:
+      - wut
+    ports:
+      - "9000:9000"
+    environment:
+      - "ZK_HOSTS=kafka:2181"
+      - "APPLICATION_SECRET=wutwut"
+
+  producer:
+    image: g
+    command: producer
+    networks:
+      - wut
+
+  consumer:
+    image: g
+    command: consumer
+    networks:
+      - wut
+

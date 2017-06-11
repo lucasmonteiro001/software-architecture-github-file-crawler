@@ -1,0 +1,9 @@
+nginx-proxy:
+  build: .
+  ports:
+    - 80:80
+  volumes:
+    - ./htpasswd:/etc/nginx/htpasswd:ro
+    - /var/run/docker.sock:/tmp/docker.sock:ro
+    - ./conf:/etc/nginx/conf.d
+

@@ -1,0 +1,44 @@
+version: '2'
+
+services:
+  app:
+    build: ./app
+    environment:
+      - "NODE_ENV=development"
+      - "DB_HOST=db"
+      - "DEBUG=linz:*"
+    volumes:
+      - /vagrant/app/root/app:/app
+      - /linz:/app/node_modules/linz
+    ports:
+      - 4000:4000
+  static:
+    build: ./static
+    ports:
+      - 80:80
+      - 443:443
+  db:
+    build: ./db
+    volumes:
+      - dbvolume:/data/mongodb
+    ports:
+      - 27017:27017
+  rtd:
+    build: ./rtd
+    volumes:
+      - /linz/docs:/doc/src
+      - rtdbuild:/doc/_build/html
+    command: 'watch'
+  docs:
+    image: pierrezemb/gostatic
+    ports:
+      - 8043:8043
+    volumes:
+      - rtdbuild:/srv/http
+    command: --forceHTTP
+
+volumes:
+  dbvolume:
+    driver: local
+  rtdbuild:
+    driver: local

@@ -1,0 +1,43 @@
+version: '2'
+
+volumes:
+  es-data:
+  redis-data:
+
+services:
+    elasticsearch:
+        image: elasticsearch:5.2.1
+        command: elasticsearch -E network.host=0.0.0.0 -E http.cors.enabled=true -E http.cors.allow-origin=* -E path.data=/usr/share/elasticsearch/data -E path.repo=/snapshots
+        environment:
+            ES_JAVA_OPTS: "-Xms1g -Xmx1g"
+        volumes:
+            - es-data:/usr/share/elasticsearch/data
+            - es-data:/snapshots
+
+    kibana:
+        image: kibana:5.2.1
+        links:
+            - elasticsearch:elasticsearch
+
+    redis:
+        image: redis:3.2.8
+        volumes:
+          - redis-data:/data
+
+    logstash:
+        image: rmrfslashbin/logstash:latest
+        links:
+            - elasticsearch:elasticsearch
+
+    haproxy:
+        image: rmrfslashbin/haproxy:latest
+        links:
+            - elasticsearch:elasticsearch
+            - kibana
+            - logstash
+        ports:
+            - "80:80"
+            - "443:443"
+            - "9200:9200"
+        volumes:
+            - /dev/log:/dev/log

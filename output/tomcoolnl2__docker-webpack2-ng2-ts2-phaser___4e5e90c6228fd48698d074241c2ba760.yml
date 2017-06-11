@@ -1,0 +1,28 @@
+version: '2'
+
+services:
+   mongo: 
+      container_name: mongodb
+      image: mongo
+
+   frontend:
+      links:
+         - mongo     
+      container_name: frontend
+      build:
+         context: .
+         dockerfile: docker/Dockerfile-frontend
+      volumes:
+         - .:/project
+         - /project/node_modules
+      ports:
+         - "8080:8080"
+      command: "npm run serve"
+      environment:
+         - NODE_ENV=development
+      networks:
+         - angular
+         
+networks:
+   angular:
+      driver: bridge

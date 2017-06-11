@@ -1,0 +1,11 @@
+email:
+  build: .
+  env_file:
+    - ./env/.env
+  volumes:
+    - ./Gruntfile.js:/opt/Gruntfile.js
+    - ./package.json:/opt/package.json
+    - ./src:/opt/src
+    - ./dist:/opt/dist
+    - ./config:/opt/config
+    - ./tools:/opt/tools

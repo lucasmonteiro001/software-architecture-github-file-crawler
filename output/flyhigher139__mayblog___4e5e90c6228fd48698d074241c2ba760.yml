@@ -1,0 +1,26 @@
+version: '2'
+services:
+  blog:
+    # restart: always
+    image: gevin/mayblog:0.1.1
+    ports:
+      - "8000:8000"
+    links:
+      - postgres:postgres
+    # volumes:
+    #   - /usr/src/app/static
+    env_file: .env
+
+
+  postgres:
+    # restart: always
+    image: postgres:9.5
+    env_file: .env
+    volumes:
+      - /var/lib/postgres
+
+
+
+
+
+

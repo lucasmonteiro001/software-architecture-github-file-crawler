@@ -1,0 +1,23 @@
+traefik:
+  image: traefik
+  command: --web --docker --docker.domain=pfae.localhost --logLevel=DEBUG
+  ports:
+    - "80:80"
+    - "8080:8080"
+  volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
+    - /dev/null:/traefik.toml
+
+pfae:
+  build: .
+  ports:
+    - "8080"
+  labels:
+    - "traefik.backend=pfae"
+    - "traefik.enable=true"
+    - "traefik.frontend.rule=HostRegexp: {.*}"
+    - "traefik.frontend.rule=Path: /, /count, /test, /transfer"
+  volumes:
+    - /etc/pfae.cfg:/pfae.cfg:ro
+  environment:
+    PFAE_CONFIG: /pfae.cfg

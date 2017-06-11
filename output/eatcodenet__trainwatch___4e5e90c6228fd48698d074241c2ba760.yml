@@ -1,0 +1,35 @@
+version: "2"
+
+services:
+  hazelcast:
+    image: eatcode/hazelcast
+    container_name: hazelcast
+    ports:
+      - "5701:5701"
+  
+  zookeeper:
+    image: eatcode/zookeeper
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      ZK_SERVER_ID: 1
+    volumes:
+      - /tmp/docker/zk1/logs:/logs
+  
+  kafka:
+    image: eatcode/kafka
+    container_name: kafka
+    ports:
+      - "9092:9092"
+    depends_on:
+      - zookeeper
+    links:
+      - zookeeper
+    environment:
+      ADVERTISED_HOST: "${ADVERTISED_HOST}"
+      ZOOKEEPER_CONNECT: "zookeeper:2181"
+      KAFKA_OFFSETS_STORAGE: kafka
+    volumes:
+      - /tmp/docker/kafka1/logs:/logs
+

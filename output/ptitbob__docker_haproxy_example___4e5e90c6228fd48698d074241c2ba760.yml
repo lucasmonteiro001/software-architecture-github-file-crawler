@@ -1,0 +1,27 @@
+front_http1:
+  image: nginx
+  ports:
+    - 81:80
+  volumes:
+    - ./http1/front:/usr/share/nginx/html:ro
+    - ./http1/conf/nginx.conf:/etc/nginx/nginx.conf:ro
+
+front_http2:
+  image: nginx
+  ports:
+    - 82:80
+  volumes:
+    - ./http2/front:/usr/share/nginx/html:ro
+    - ./http2/conf/nginx.conf:/etc/nginx/nginx.conf:ro
+
+haproxy:
+  container_name: proxy
+  image: haproxy
+  volumes:
+    - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+  ports:
+    - 80:80
+    - 9000:9000
+  links:
+    - front_http1
+    - front_http2

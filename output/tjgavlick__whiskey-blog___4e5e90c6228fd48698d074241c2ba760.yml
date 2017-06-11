@@ -1,0 +1,18 @@
+version: '2'
+services:
+    web:
+        build: .
+        restart: always
+        ports:
+         - '80:80'
+         - '443:443'
+        volumes:
+         - ./app:/whiskey-blog/app
+         - /usr/share/nginx/html:/usr/share/nginx/html
+         - /etc/letsencrypt:/etc/letsencrypt
+         - /etc/ssl/certs:/etc/ssl/certs
+        depends_on:
+         - db
+    db:
+        build: ./db
+        restart: always

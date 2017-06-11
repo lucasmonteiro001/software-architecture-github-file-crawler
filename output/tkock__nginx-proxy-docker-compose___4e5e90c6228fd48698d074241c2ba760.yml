@@ -1,0 +1,10 @@
+blankweb:
+  image: jwilder/nginx-proxy
+  restart: always
+  ports:
+    - "80:80"
+    - "443:443"
+  volumes:
+    - /var/run/docker.sock:/tmp/docker.sock:ro
+    - ./volumes/etc/nginx/certs:/etc/nginx/certs
+

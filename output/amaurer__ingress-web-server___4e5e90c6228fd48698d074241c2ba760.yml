@@ -1,0 +1,11 @@
+version: '2'
+services:
+  web:
+    image: amaurer/ingress_web_server:1.0
+    ports:
+      - "80:80"
+      - "443:443"
+    restart: always
+    volumes:
+      - /etc/ssl/certs/web/:/etc/ssl/certs/web/
+      - /var/log/ingress_web_server/:/var/log/nginx/

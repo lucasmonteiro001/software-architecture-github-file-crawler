@@ -1,0 +1,36 @@
+version: "2"
+
+volumes:
+  showcase01-sync:
+    external: true
+
+services:
+  pg:
+    image: postgres:9.5
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=showcase01_dev
+    ports:
+      - "5433:5432"
+
+  app:
+    tty: true
+    stdin_open: true
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - showcase01-sync:/opt/webapps/showcase01:rw
+    ports:
+      - "3333:4000"
+    links:
+      - pg:pg
+    depends_on:
+      - pg
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=showcase01_dev
+      - POSTGRES_HOST=pg
+    command: mix phoenix.server

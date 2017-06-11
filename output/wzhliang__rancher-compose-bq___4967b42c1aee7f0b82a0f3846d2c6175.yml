@@ -1,0 +1,16 @@
+Keepalived:
+  labels:
+    io.rancher.scheduler.global: 'true'
+  environment:
+    VIRTUAL_IP: "${virtual_ip}"
+    CHECK_PORT: "${check_port}"
+    VRID: 150
+    INTERFACE: "${network_interface}"
+    NETMASK_BIT: "${netmask_bit}"
+  tty: true
+  image: alanpeng/rancher-keepalived
+  stdin_open: true
+  net: host
+  cap_add:
+    - NET_ADMIN
+    - NET_BROADCAST

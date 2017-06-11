@@ -1,0 +1,21 @@
+
+server:
+  build: .
+  command: make example
+  volumes:
+    - .:/usr/src/app
+  links:
+    - db:dynamodb-local
+  ports:
+   - "8080:8080"
+  environment:
+    AWS_ACCESS_KEY_ID: AKID
+    AWS_SECRET_ACCESS_KEY: SECRET
+    AWS_REGION: us-east-1
+    DYNAMODB_ENDPOINT: http://dynamodb-local:8000
+    FACEBOOK_APP_SECRET : 2895e93977f23010fdfg428f043791v0
+    COGNITO_IDENTITY_POOL_ID : us-east-1:114c540a-98bb-4396-a2fe-2d1d1ae68bd7
+    COGNITO_DEVELOPER_PROVIDER_NAME : login.clutchretail.cinch
+db:
+  image: fitz/dynamodb-local
+  command: -inMemory

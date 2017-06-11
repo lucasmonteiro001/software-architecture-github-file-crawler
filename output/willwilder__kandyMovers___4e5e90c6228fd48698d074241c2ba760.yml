@@ -1,0 +1,27 @@
+mongodb:
+  build: ./mongodb
+  ports:
+    - "27017:27017"
+    - "28017:28017"
+  environment:
+    - AUTH=no
+
+express:
+  build: ./api
+  ports:
+    - "8080:8080"
+  links:
+    - mongodb
+  volumes:
+    - ./api:/api/src
+
+
+frontend:
+  build: ./ember-app
+  ports:
+    - "4200:4200"
+    - "49152:49152"
+  links:
+    - express
+  volumes:
+    - ./ember-app:/app/src

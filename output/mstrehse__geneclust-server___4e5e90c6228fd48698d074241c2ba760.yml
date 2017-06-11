@@ -1,0 +1,45 @@
+db:
+  image: mariadb
+  environment:
+    - MYSQL_DATABASE=django
+    - MYSQL_ROOT_PASSWORD=p4ssw0rd
+  volumes_from:
+    - data
+
+redis: 
+  image: redis
+
+data:
+  image: 'busybox'
+  volumes:
+    - /var/lib/mysql
+    - ./app:/app
+  
+celery:
+  image: 'mstrehse/geneclust-server'
+  environment:
+    - C_FORCE_ROOT=true
+    - DATABASE_HOST=db
+    - BROKER_URL=redis://redis:6379/0
+  working_dir: /app
+  command: bash -c "sleep 3 && celery -A app worker -E -l info --concurrency=3"
+  volumes_from:
+    - data
+  links:
+    - db
+    - redis
+
+django:
+  image: 'mstrehse/geneclust-server'
+  environment:
+    - DATABASE_HOST=db
+    - BROKER_URL=redis://redis:6379/0
+  working_dir: /app
+  command: bash -c "sleep 3 && python manage.py migrate --run-syncdb && python manage.py runserver 0.0.0.0:80"
+  volumes_from:
+    - data
+  ports:
+    - "80:80"
+  links:
+    - db
+    - redis

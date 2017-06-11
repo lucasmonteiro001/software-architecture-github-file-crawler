@@ -1,0 +1,47 @@
+version: "2"
+
+services:
+  redis:
+    image: redis
+
+  db:
+    image: postgres:9.4.4
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./pgdata/:/var/lib/postgresql/data
+
+  messagequeue:
+    image: rabbitmq
+
+  falcon_service:
+    build: falcon_microservice
+    volumes:
+       - ./falcon_microservice:/api
+    expose:
+      - "8000"
+    links:
+      - db
+    env_file:
+      - ./db.env
+
+  nginx_service:
+    restart: always
+    build: nginx_microservice
+    volumes:
+      - ./nginx_microservice/static:/static
+    ports:
+      - "8080:80"
+    links:
+      - falcon_service:falcon
+
+  parsing_service:
+    build: parser_routines
+    volumes:
+       - ./parser_routines/:/app/parser_routines
+    links:
+      - redis
+      - db
+      - messagequeue
+    env_file:
+      - ./db.env

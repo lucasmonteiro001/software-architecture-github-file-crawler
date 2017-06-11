@@ -1,0 +1,50 @@
+version: "3"
+services:
+  ui:
+    build:
+      context: .
+      dockerfile: ./.docker/dockerfile.node
+    command: npm run start.dev-docker
+    image: "fnlcr/nci-adult-match-ui-dev"
+    ports:
+      - '5555:5555'
+    volumes:
+      - .:/usr/src/app
+      - node_modules:/usr/src/app/node_modules
+    networks:
+      - adult-match-net
+  patient-api:
+    image: "fnlcr/nci-adult-match-patient-api"
+    command: python app.py
+    ports:
+      - "5000:5000"
+    depends_on:
+      - mongo
+    environment:
+      - MONGODB_URI=mongodb://mongo:27017/Match
+    networks:
+      - adult-match-net
+  treatment-arm-api:
+    image: "fnlcr/nci-adult-match-treatment-arm-api"
+    command: python app.py
+    ports:
+      - "5010:5010"
+    depends_on:
+      - mongo
+    environment:
+      - MONGODB_URI=mongodb://mongo:27017/Match
+    networks:
+      - adult-match-net
+  mongo:
+    image: mongo:3.4.0
+    volumes:
+      - ./misc/data_setup/match:/backup
+    ports:
+      - "27018:27017"
+    networks:
+      - adult-match-net
+volumes: 
+  node_modules:
+networks:
+  adult-match-net:
+    driver: bridge

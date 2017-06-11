@@ -1,0 +1,61 @@
+version: "2"
+services:
+    reverseproxy:
+        image: traefik
+        command: --web --docker --docker.domain=@domain@ --logLevel=ERROR
+        ports:
+            - "80:80"
+            - "443:443"
+            - "8089:8080"
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+            - ./images/reverseproxy/config.toml:/traefik.toml
+    database:
+        container_name: 'database'
+        image: 'sameersbn/postgresql:9.4-24'
+        volumes:
+            - ./images/database/_state:/var/lib/postgresql
+    worker:
+        build: ./src/worker
+        links:
+            - msgsys
+            - database
+        environment:
+            APPNAME: "tgBotWorker"
+            NATSADDR: "nats://msgsys:4233"
+            LOGLEVEL: @appLogLevel@
+            SUBNAME: tgupdate
+            TG_TOKEN: @token@
+            DB_ADDR: "database:5432"
+            DB_NAME: app
+            DB_USER: app
+            DB_PASS: apppassword
+    listener:
+        build: ./src/listener
+        labels:
+            - "traefik.backend=httplistener"
+            - "traefik.frontend.rule=Host:@hostname@"
+        links:
+            - msgsys
+        environment:
+            APPNAME: "httpTgUpdateListener"
+            NATSADDR: "nats://msgsys:4233"
+            LOGLEVEL: @appLogLevel@
+            LISTENADDR: ":80"
+            PUBNAME: tgupdate
+    pumper:
+        build: ./src/pumper
+        container_name: "telegramapi_pumper"
+        links:
+            - msgsys
+        environment:
+            APPNAME: "tgUpdatePumper"
+            NATSADDR: "nats://msgsys:4233"
+            LOGLEVEL: @appLogLevel@
+            PUBNAME: tgupdate
+            PUMPPERIODMS: 100
+            TG_TOKEN: @token@
+    msgsys:
+        image: nats
+        container_name: 'msgsys'
+        command: -p 4233

@@ -1,0 +1,211 @@
+# Database persistent data
+mysqldata:
+  image: ubuntu
+  container_name: mysqldata
+  volumes:
+    - /opt/goxsql01/db/data:/var/lib/mysql
+
+# Database container
+mysql:
+  image: mariadb
+  hostname: goxsql01
+  domainname: flexsolutions.local
+  container_name: mariadb
+  ports:
+    - "3306:3306"
+
+  env_file:
+    - ./glpi.env
+
+  volumes_from:
+    - mysqldata
+
+# PostgreSQL
+goxpgsql01:
+  image: postgres:9.5
+  hostname: goxpgsql01
+  domainname: flexsolutions.local
+  container_name: goxpgsql01
+  links:
+    - zabbix
+
+  ports:
+    - "5432:5432"
+
+  environment:
+    - POSTGRES_USER=postgres
+    - POSTGRES_PASSWORD=xxxxxxxxxxxxxxxxxxxxxxxxx
+    - PGDATA=/var/lib/postgresql/data/pgdata
+
+  volumes:
+    - /opt/goxpgsql01/db/pgdata:/var/lib/postgresql/data/pgdata
+
+# Pentaho
+goxpen01:
+  # image: flexsolutions/pentaho-biserver:v1
+  image: flexsolutions/pentaho:v2
+  hostname: goxpen01
+  domainname: flexsolutions.local
+  container_name: goxpen01
+  links:
+    - goxpgsql01
+
+  ports:
+    - "8094:8080"
+    - "8095:8009"
+    - "8802:8802"
+    - "9051:9051"
+    - "11099:11099"
+    - "44445:44445"
+
+  environment:
+    - PGHOST=172.17.0.7
+    - PGDATABASE=pentaho
+    - PGUSER=postgres
+    - POSTGRES_USER=postgres
+    - PGPASSWORD=xxxxxxxxxxx
+    - POSTGRES_PASSWORD=xxxxxxxxxx
+    - PGDATA=/var/lib/postgresql/data/pgdata
+
+  extra_hosts:
+    - "goxdsk01.flexsolutions.local goxdsk01:172.17.0.2"
+    - "goxsql01.flexsolutions.local db mariadb:172.17.0.3"
+    - "goxzbx01.flexsolutions.local goxzbx01:172.17.0.4"
+    - "goxpgsql01.flexsolutions.local goxpgsql01:172.17.0.7"
+    - "goxpen01.flexsolutions.local goxpen01:172.17.0.8"
+
+
+# Zabbix container
+zabbix:
+  image: monitoringartist/zabbix-3.0-xxl
+  hostname: goxzbx01
+  domainname: flexsolutions.local
+  container_name: goxzbx01
+  ports:
+    - "8080:80"
+    - "10051:10051"
+
+  volumes:
+    - /etc/localtime:/etc/localtime:ro
+    - /opt/goxzbx01/etc/custom-config:/etc/custom-config
+    - /opt/goxzbx01/etc/zabbix:/usr/local/share/zabbix
+
+  links:
+    - mysql:db
+
+  environment:
+    - ZS_DBHost=db
+    - ZS_DBName=zabbix
+    - ZS_DBUser=zabbixuser
+    - ZS_DBPassword=e96fec0817
+    - ZS_StartPingers=10
+    - ZS_DebugLevel=4
+    - ZS_StartPollers=20
+    - ZABBIX_ADMIN_EMAIL=barbosa@flexsolutions.com.br
+    - ZABBIX_SMTP_SERVER=smtp.gmail.com:587
+    - ZABBIX_SMTP_USER=barbosa@flexsolutions.com.br
+    - ZABBIX_SMTP_PASS=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    - SLACK_WEBHOOK=https://hooks.slack.com/services/QQ3PTH/B67THC0D3/ABCDGabcDEF124
+
+# goxnip01
+goxnip01:
+  image: coppit/no-ip
+  hostname: goxnip01
+  domainname: flexsolutions.local
+  container_name: goxnip01
+  volumes:
+    - /etc/localtime:/etc/localtime
+    - /opt/goxnip01/config:/config
+
+# goxcrm01
+goxcrm01:
+  image: barbosa/flexcrm:1.0
+  hostname: goxcrm01
+  container_name: goxcrm01
+  domainname: flexsolutions.local
+  container_name: goxcrm01
+  # net: "host"
+  ports:
+    - "8093:80"
+  links:
+    - mysql:db
+    - zabbix
+
+  volumes:
+    - /opt/goxcrm01/www/html:/var/www/html
+
+  extra_hosts:
+    - "goxdsk01.flexsolutions.local goxdsk01:172.17.0.2"
+    - "goxsql01.flexsolutions.local db mariadb:172.17.0.3"
+    - "goxzbx01.flexsolutions.local goxzbx01:172.17.0.4"
+    - "goxpgsql01.flexsolutions.local goxpgsql01:172.17.0.7"
+    - "goxpen01.flexsolutions.local goxpen01:172.17.0.8"
+
+# goxjpt01
+goxjpt01:
+  image: xblaster/tensorflow-jupyter
+  hostname: goxjpt01
+  container_name: goxjpt01
+  domainname: flexsolutions.local
+  container_name: goxjpt01
+  links:
+    - mysql:db
+    - zabbix
+
+  ports:
+    - "8888:8888"
+
+  volumes:
+    - /opt/goxjpt01/notebook:/notebook
+
+# goxsok01
+goxsok01:
+  image: jarkt/docker-remote-api
+  hostname: goxsok01
+  container_name: goxsok01
+  domainname: flexsolutions.local
+  container_name: goxsok01
+
+  ports:
+    - "2375:2375"
+
+  volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
+
+# goxspk01
+goxspk01:
+  image: flexsolutions/spark
+  hostname: goxspk01
+  container_name: goxspk01
+  domainname: flexsolutions.local
+  container_name: goxspk01
+  links:
+    - mysql:db
+
+  ports:
+    - "5222:5222"
+    - "7777:7777"
+    - "9090:9090"
+
+  volumes:
+    - /opt/goxspk01/openfire:/var/lib/openfire
+
+# goxown01
+goxown01:
+  image: owncloud:latest
+  hostname: goxown01
+  container_name: goxown01
+  domainname: flexsolutions.local
+  container_name: goxown01
+  links:
+    - mysql:db
+
+  ports:
+    - "8096:80"
+    - "8443:443"
+
+  volumes:
+    - ~/sslCert:/root/sslKeys
+    - /opt/goxown01/apps:/var/www/html/apps
+    - /opt/goxown01/config:/var/www/html/config
+    - /opt/goxown01/data:/var/www/html/data

@@ -1,0 +1,12 @@
+owncloud:
+    image: qnib/owncloud
+    hostname: owncloud
+    container_name: owncloud
+    ports:
+     - 8080:80
+     - 443:443
+    environment:
+     - OC_UID=501
+    volumes:
+     - ./data/:/data/
+     #- ./config/:/var/www/html/config

@@ -1,0 +1,46 @@
+version: '2'
+
+volumes:
+  app:
+
+services:
+  fpm:
+    build:
+      args:
+        - ACF_PRO_KEY
+      context: ./
+    depends_on:
+      - db
+    env_file:
+      - docker/env/fpm.env
+      - docker/env/db.env
+    image: simowitz.com
+    restart: always
+    volumes:
+      - app:/var/www/html
+
+  nginx:
+    depends_on:
+      - fpm
+    environment:
+      - VIRTUAL_HOST=simowitz.com,www.simowitz.com
+      - LETSENCRYPT_HOST=simowitz.com,www.simowitz.com
+      - LETSENCRYPT_EMAIL=dsimowitz@gmail.com
+    image: nginx:alpine
+    restart: always
+    volumes:
+      - app:/var/www/html
+      - ./site.conf:/etc/nginx/conf.d/site.conf
+
+  db:
+    env_file:
+      - docker/env/db.env
+    image: mariadb
+    restart: always
+    ports:
+      - 3306:3306
+
+networks:
+  default:
+    external:
+      name: nginx-proxy

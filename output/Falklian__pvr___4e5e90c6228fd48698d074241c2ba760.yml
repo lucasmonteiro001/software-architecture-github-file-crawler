@@ -1,0 +1,51 @@
+version: '2'
+
+services:
+    sabnzbd:
+        build:
+            context: .
+            dockerfile: sabnzbd.dockerfile
+        image: sabnzbd:latest
+        container_name: sabnzbd
+        hostname: sabnzbd
+        restart: always
+        ports:
+            - "8080:8080"
+        volumes:
+            - /srv/pvr/sabnzbd:/data
+            - /srv/pvr/downloads:/downloads
+            - /etc/localtime:/etc/localtime:ro
+    couchpotato:
+        build:
+            context: .
+            dockerfile: couchpotato.dockerfile
+        image: couchpotato:latest
+        container_name: couchpotato
+        hostname: couchpotato
+        restart: always
+        ports:
+            - "5050:5050"
+        volumes:
+            - /srv/pvr/couchpotato:/data
+            - /srv/pvr/downloads:/downloads
+            - /srv/pvr/movies:/movies
+            - /etc/localtime:/etc/localtime:ro
+        depends_on:
+            - sabnzbd
+    sonarr:
+        build:
+            context: .
+            dockerfile: sonarr.dockerfile
+        image: sonarr:latest
+        container_name: sonarr
+        hostname: sonarr
+        restart: always
+        ports:
+            - "8989:8989"
+        volumes:
+            - /srv/pvr/sonarr:/data
+            - /srv/pvr/downloads:/downloads
+            - /srv/pvr/tv:/tv
+            - /etc/localtime:/etc/localtime:ro
+        depends_on:
+            - sabnzbd

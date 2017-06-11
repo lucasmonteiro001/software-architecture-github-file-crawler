@@ -1,0 +1,62 @@
+dockerui:
+  image: dockerui/dockerui:0.8.0-beta
+  expose:
+    - 9000
+  ports:
+    - 9000:9000
+  volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
+
+zookeeper:
+  image: wurstmeister/zookeeper
+  ports:
+    - 2181:2181
+
+kafka:
+  image: wurstmeister/kafka:0.8.2.1
+  ports:
+    - 9092:9092
+    - 9099:9099
+  links:
+    - zookeeper:zk
+  environment:
+    KAFKA_ADVERTISED_HOST_NAME: ${DOCKER_HOST_IP}
+    JMX_PORT: 9099
+  volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
+
+kafkamanager:
+  image: sheepkiller/kafka-manager:1.2.9.10
+  expose:
+    - 9001
+  ports:
+    - 9001:9000
+  links:
+    - zookeeper:zk
+  environment:
+    ZK_HOSTS: zk:2181
+    APPLICATION_SECRET: letmein
+
+producer:
+  image: gonitro/reactive-spark-producer
+  links:
+    - kafka:kafka
+  environment:
+      PRODUCER_RATE: 10 millis
+      PRODUCER_MIN_DELAY: 8 millis
+      PRODUCER_MAX_DELAY: 10 millis
+
+sparkmaster:
+  links:
+    - zookeeper:zk
+  extends:
+    file: spark/docker-compose.yml
+    service: master
+
+sparkworker:
+  links:
+    - sparkmaster
+    - zookeeper:zk
+  extends:
+    file: spark/docker-compose.yml
+    service: worker

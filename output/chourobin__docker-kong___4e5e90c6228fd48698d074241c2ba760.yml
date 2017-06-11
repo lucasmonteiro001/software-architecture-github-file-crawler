@@ -1,0 +1,11 @@
+cassandra:
+  image: cassandra
+  ports:
+    - 9042
+kong:
+  build: kong
+  ports:
+    - 8000
+    - 8001
+  links:
+    - cassandra:cassandra

@@ -1,0 +1,10 @@
+cgod:
+    build: .
+    environment:
+      - CGOD_HOST=arrow.shortcircuit.net.au
+      - CGOD_ROOTDIR=/var/gopher
+    volumes:
+      - /home:/home
+      - /var/gopher:/var/gopher
+    ports:
+      - "70:70"

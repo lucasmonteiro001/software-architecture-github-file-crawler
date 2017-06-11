@@ -1,0 +1,35 @@
+version: '2'
+services:
+  htwbuild:
+    build: ./dev/
+    image: hiittimerweb:dev
+    command: install
+    volumes:
+      - ./:/app/
+  htwdev:
+    build: ./dev/
+    image: hiittimerweb:dev
+    command: start
+    ports:
+      - "8080:8080"
+    links:
+      - mongo_db
+    volumes:
+      - ./:/app/
+  hiittimerweb:
+    build: .
+    image: hiitimerweb:latest
+    ports:
+      - "8080:8080"
+    links:
+      - mongo_db
+  mongo_db:
+    image: mongo:latest
+    volumes_from:
+      - mongo_storage
+  mongo_storage:
+    image: alpine
+    command: /bin/true
+    volumes:
+      - /data/db
+      - $MONGO_DB_HOME:/data/db

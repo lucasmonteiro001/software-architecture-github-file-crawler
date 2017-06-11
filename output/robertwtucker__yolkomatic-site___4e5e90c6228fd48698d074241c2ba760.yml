@@ -1,0 +1,7 @@
+gh-pages:
+  image: robertwtucker/github-pages
+  container_name: yolkomatic
+  ports:
+    - "4000:4000"
+  volumes:
+    - .:/usr/src/app

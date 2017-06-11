@@ -1,0 +1,18 @@
+web:
+  build: .
+  working_dir: /var/www/docker-symfony
+  volumes:
+    - .:/var/www/docker-symfony
+  links:
+    - db
+  environment:
+    APACHE_LOG_DIR: /var/log/apache2
+    SYMFONY_ENV: dev
+  ports:
+    - "80:80"
+
+db:
+  image: mysql:5.5
+  environment:
+    MYSQL_ROOT_PASSWORD: root
+    MYSQL_DATABASE: docker-symfony

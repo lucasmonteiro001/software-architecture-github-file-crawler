@@ -1,0 +1,45 @@
+version: '2'
+
+#
+# Services definition
+#
+services:
+  nginx:
+    image: ${PROJECT_NAMESPACE}/${REPOSITORY_NAME}-nginx:latest
+    ports:
+      - "80:80"
+    volumes:
+      - ./app:/var/www
+      - ./sites:/etc/nginx/conf.d
+    networks:
+      - backend
+    depends_on:
+      - php
+  php:
+    image: ${PROJECT_NAMESPACE}/${REPOSITORY_NAME}-php:latest
+    env_file: .env
+    volumes:
+      - ./app:/var/www
+    networks:
+      - backend
+  mysql:
+    image: mysql
+    env_file: .env
+    volumes:
+      - data-mysql:/var/lib/mysql
+    networks:
+      - backend
+
+#
+# Volumes definition
+#
+volumes:  
+  data-mysql:
+    driver: local
+
+#
+# Networks definition
+#
+networks:  
+  backend:
+    driver: bridge

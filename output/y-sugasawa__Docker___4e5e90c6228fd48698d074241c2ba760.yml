@@ -1,0 +1,18 @@
+db:
+  image: mysql
+  environment:
+    - "MYSQL_ROOT_PASSWORD=root"
+  volumes:
+    - etc:/etc/
+  ports:
+    - "3306:3306"
+app:
+  build: ./ruby
+  volumes:
+    - ~/program/projects:/app/projects
+  ports:
+    - "10022:22"
+    - "3000:3000"
+  links:
+   - db
+

@@ -1,0 +1,20 @@
+dev:
+  extends:
+    file: compose-common.yml
+    service: app
+  ports:
+    - "2300:2300"
+  environment:
+    LOTUS_ENV: development
+  command: exec rackup -p 2300 --host 0.0.0.0
+  volumes:
+    - /home/core/share:/usr/src/app
+  volumes_from:
+    - bundle
+bundle:
+  extends:
+    file: compose-common.yml
+    service: app
+  command: /bin/true
+  volumes:
+    - /usr/src/bundle

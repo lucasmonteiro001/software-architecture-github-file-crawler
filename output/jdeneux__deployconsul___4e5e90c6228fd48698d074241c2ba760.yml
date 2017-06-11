@@ -1,0 +1,14 @@
+consul-client:
+  image: jdeneuxregistry.azurecr.io/consul-client
+  ports:
+    - "8500:8500"
+    - "8300:8300"
+    - "8301:8301"
+    - "8302:8202"
+    - "8400:8400"
+  net: "host"
+  environment:
+    - SERVERIPS=jujuxdesktop
+  #build:
+  #  context: .
+  #  dockerfile: Dockerfile-server

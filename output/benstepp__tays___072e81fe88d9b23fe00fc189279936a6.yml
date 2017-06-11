@@ -1,0 +1,15 @@
+version: '2'
+services:
+  postgres:
+    image: postgres
+  tays:
+    build:
+      context: '..'
+      dockerfile: 'docker/Dockerfile'
+    links:
+      - postgres
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - '..:/tays'
+      - '/tays/node_modules'

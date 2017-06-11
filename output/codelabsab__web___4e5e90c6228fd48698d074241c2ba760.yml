@@ -1,0 +1,9 @@
+codelabs-web:
+  build: ./
+  #image: codelabsab/web
+  volumes:
+    - "${CERTDIR}:/etc/letsencrypt:ro"
+    - "${SRCDIR}:/usr/share/nginx/html:ro"
+  ports:
+    - "443:443"
+    - "80:80"

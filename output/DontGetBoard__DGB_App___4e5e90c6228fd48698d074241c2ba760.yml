@@ -1,0 +1,24 @@
+node:
+  build: .
+  command: npm start | ./node_modules/.bin/bunyan
+  environment:
+    APPLICATION_ENV: development
+    APP_PORT: 3000
+  ports:
+    - "14290:3000"
+  volumes:
+    - ./src:/var/www/src
+    - ./config:/var/www/config
+    - ./package.json:/var/www/package.json
+    - ./app.js:/var/www/app.js
+    - ./.jscsrc:/var/www/.jscsrc
+    - ./.jshintrc:/var/www/.jshintrc
+    - ./.jshintignore:/var/www/.jshintignore
+    - ./newrelic.js:/var/www/newrelic.js
+  links:
+    - redis
+    - mongo
+redis:
+  image: redis:2.8
+mongo:
+  image: mongo:2.6

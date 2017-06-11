@@ -1,0 +1,51 @@
+version: '2.0'
+
+services:
+  db:
+    image: postgres
+    volumes:
+      - db:/var/lib/postgresql/data
+
+  elasticsearch:
+    image: elasticsearch:2.3
+    command: elasticsearch -Des.network.host=0.0.0.0
+    volumes:
+      - elastic:/usr/share/elasticsearch/data
+
+  kibana:
+    image: instedd/telemetry-kibana:4.5
+    env_file: docker-dev.env
+    links:
+      - elasticsearch
+
+  redis:
+    image: redis
+
+  web: &rails
+    image: instedd/nginx-rails:2.2
+    env_file: docker-dev.env
+    environment:
+      RAILS_ENV:
+    pid: host
+    volumes:
+      - .:/app
+      - bundle:/usr/local/bundle
+    depends_on:
+      - db
+      - redis
+      - elasticsearch
+      - kibana
+    command: rails server -b 0.0.0.0
+    ports:
+      - 3000:3000
+
+  sidekiq:
+    <<: *rails
+    command: sidekiq
+    ports: []
+
+volumes:
+  db:
+  elastic:
+  redis:
+  bundle:

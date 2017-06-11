@@ -1,0 +1,13 @@
+web:
+  build: 'web'
+  links:
+    - db
+  ports:
+    - "8080:80"
+db:
+  image: "mysql:latest"
+  environment:
+    - MYSQL_ROOT_PASSWORD=root
+    - MYSQL_USER=drupal
+    - MYSQL_PASSWORD=drupal
+    - MYSQL_DATABASE=drupal

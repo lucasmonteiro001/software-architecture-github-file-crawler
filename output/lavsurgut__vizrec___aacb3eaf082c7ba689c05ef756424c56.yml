@@ -1,0 +1,75 @@
+version: '2'
+
+services:
+
+### Workspace Utilities Container ###########################
+
+    workspace:
+        build:
+            context: ./workspace
+            args:
+                - INSTALL_XDEBUG=false
+                - INSTALL_MONGO=false
+                - INSTALL_NODE=true
+                - INSTALL_DRUSH=false
+                - COMPOSER_GLOBAL_INSTALL=false
+                - INSTALL_WORKSPACE_SSH=true
+                - PUID=1000
+                - PGID=1000
+        volumes_from:
+            - volumes_source
+        extra_hosts:
+            # IMPORTANT: Replace with your Docker Host IP (will be appended to /etc/hosts)
+            - "dockerhost:172.18.0.1"
+        tty: true
+        ports:
+            - "8001:8001"
+            - "4564:4564"
+        command: ["/bin/bash", "-c", "source /home/laradock/.profile && npm run dev"]
+
+    prediction:
+        build: ./prediction
+        volumes_from:
+            - volumes_source
+        ports:
+            - "8000:8000"
+            - "7070:7070"
+        links:
+            - postgres
+        command: ["/bin/bash", "-c", "PredictionIO-0.10.0-incubating/bin/pio eventserver"]
+
+    postgres:
+        build: ./postgres
+        volumes:
+            - postgres:/var/lib/postgresql/data
+        ports:
+            - "5432:5432"
+        environment:
+            POSTGRES_DB: pio
+            POSTGRES_USER: pio
+            POSTGRES_PASSWORD: pio
+
+    volumes_source:
+        build: ./volumes/application
+        volumes:
+            - ../frontend:/var/www/frontend/dev
+            # Demonstration of how to mount multiple sites
+            #- ../frontend/dist:/var/www/frontend/public
+            - ../backend:/var/www/backend/public
+            - ../vega-lite:/var/www/vega-lite/public
+            - ../compassql:/var/www/compassql/public
+            - ../scalajs-cross-compile-example:/var/www/scalajs-cross-compile-example/public
+            - ../vega-editor-compassql:/var/www/vega-editor-compassql/public
+            # - ../../site_b/:/var/www/site_b
+
+#    volumes_data:
+#        build: ./volumes/data
+#        volumes:
+#            - ./data/mysql:/var/lib/mysql
+
+volumes:
+    mysql:
+        driver: "local"
+    postgres:
+        driver: "local"
+

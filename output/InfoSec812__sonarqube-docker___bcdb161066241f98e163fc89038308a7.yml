@@ -1,0 +1,15 @@
+sonarqube:
+  image: infosec812/sonarqube:5.1.2
+  ports:
+    - "9000:9000"
+    - "9092:9092" # Only needed when using the embedded H2 database
+  name:
+    - "sonarqube"
+#  environment:
+    ## Any sonar.xxx.xxx.xxx property can be set here by replacing the dots with double underscores
+    # sonar__jdbc__url: jdbc:postgresql://192.168.1.210:5432/sonar
+    # sonar__jdbc__username: my_db_user
+    # sonar__jdbc__password: my_db_password
+  volumes:
+    - "data:/data"
+  command: /usr/bin/start

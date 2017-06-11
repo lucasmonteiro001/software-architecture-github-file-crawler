@@ -1,0 +1,102 @@
+version: '2'
+networks:
+   cookbook:
+     external: true
+services:
+  # nginx ----------------------------------------------------------------------
+  nginx:
+    restart: always
+    image: nginx
+    container_name: cookbook-dn-nginx
+    ports:
+      - '${NGINX_PORT}:${NGINX_PORT}'
+    environment:
+      - NGINX_PORT=${NGINX_PORT}
+      - DJANGO_HOST=${DJANGO_HOST}
+      - DJANGO_PORT=${DJANGO_PORT}
+      - NODEJS_HOST=${NODEJS_HOST}
+      - DJANGO_SERVER_NAME=${DJANGO_SERVER_NAME}
+      - SOCKETIO_SERVER_NAME=${SOCKETIO_SERVER_NAME}
+    volumes:
+      - ./nginx/mysite.template:/etc/nginx/conf.d/mysite.template
+    command: /bin/bash -c "envsubst '\$DJANGO_HOST \$DJANGO_PORT \$NGINX_PORT \$DJANGO_SERVER_NAME \$SOCKETIO_SERVER_NAME' < /etc/nginx/conf.d/mysite.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"
+    depends_on:
+      - django
+      - nodejs
+    networks:
+      - cookbook
+
+  # django ---------------------------------------------------------------------
+  django:
+    restart: always
+    image: cookbook/dn-django-production
+    container_name: cookbook-dn-django
+    command: /bin/sh -c "cd /opt/app; gunicorn mysite.wsgi -w 4 --max-requests 1000 --timeout 60 -b 0.0.0.0:${DJANGO_PORT}"
+    expose:
+      - '${DJANGO_PORT}'
+    environment:
+      - DJANGO_SERVER_NAME=${DJANGO_SERVER_NAME}
+      - SOCKETIO_SERVER_NAME=${SOCKETIO_SERVER_NAME}
+      - MYSQL_DATABASE_NAME=${MYSQL_DATABASE_NAME}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_HOST=${MYSQL_HOST}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+    depends_on:
+      - nodejs
+      - mysql
+      - redis
+    networks:
+        cookbook:
+            aliases:
+                - ${DJANGO_HOST}
+
+  # nodejs ---------------------------------------------------------------------
+  nodejs:
+    restart: always
+    image: cookbook/dn-nodejs-production
+    container_name: cookbook-dn-nodejs
+    command: /bin/sh -c "cd /opt/app/; node server.js"
+    expose:
+      - '${SOCKETIO_PORT}'
+    environment:
+      - NODE_PATH=/opt/node_modules/
+      - SOCKETIO_PORT=${SOCKETIO_PORT}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+    depends_on:
+      - redis
+    networks:
+        cookbook:
+            aliases:
+                - ${NODEJS_HOST}
+
+  # mysql ----------------------------------------------------------------------
+  mysql:
+    restart: always
+    image: mysql
+    container_name: cookbook-dn-mysql
+    expose:
+      - '${MYSQL_PORT}'
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE_NAME}
+    volumes:
+      - /var/lib/mysql-cookbook:/var/lib/mysql
+    networks:
+        cookbook:
+            aliases:
+                - ${MYSQL_HOST}
+
+  # redis ----------------------------------------------------------------------
+  redis:
+    restart: always
+    image: redis
+    container_name: cookbook-dn-redis
+    expose:
+      - '${REDIS_PORT}'
+    networks:
+        cookbook:
+            aliases:
+                - ${REDIS_HOST}

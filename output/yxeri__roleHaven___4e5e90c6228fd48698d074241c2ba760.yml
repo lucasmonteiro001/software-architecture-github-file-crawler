@@ -1,0 +1,13 @@
+db:
+    image: mongo
+
+roleterminal:
+    build: .
+    environment:
+        - DBHOST=db
+    links:
+        - db
+    ports:
+        - "8888:8888"
+    volumes:
+        - images:/usr/src/app/public/images

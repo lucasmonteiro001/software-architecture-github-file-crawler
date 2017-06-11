@@ -1,0 +1,78 @@
+version: '2'
+services:
+
+  proxy:
+     container_name: proxy
+     image: appserver_proxy_image
+     ports: 
+       - "80:80"
+     networks:
+       - "net"
+     volumes:
+       - "/var/run/docker.sock:/tmp/docker.sock:ro"
+
+
+  shell:
+     container_name: shell
+     image: appserver_shell_image
+     networks:
+       - "net"
+     volumes:
+       - "${APPSERVER_HOME}:/home/appserver"
+
+
+  appserverdb:
+     container_name: appserverdb
+     image: appserver_postgres_image
+     networks:
+       - "net"
+     environment:
+       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+       - PGDATA=/home/appserver/data/appserverdb/pgdata
+     volumes:
+       - "${APPSERVER_HOME}:/home/appserver"
+     command: postgres
+
+
+  rdkitdb:
+     container_name: rdkitdb
+     image: appserver_rdkit_image
+     networks:
+       - "net"
+     environment:
+       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+       - PGDATA=/home/appserver/data/rdkitdb/pgdata
+     volumes:
+       - "${APPSERVER_HOME}:/home/appserver"
+     command: postgres
+
+
+  cmsdb:
+     container_name: cmsdb
+     image: appserver_postgres_image
+     networks:
+       - "net"
+     environment:
+       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+       - PGDATA=/home/appserver/data/cmsdb/pgdata
+     volumes:
+       - "${APPSERVER_HOME}:/home/appserver"
+       - "${APPSERVER_HOME}/media/cmsdb:/home/appserver/media/cmsdb"
+     command: postgres
+
+
+  cmsindex:
+     container_name: cmsindex
+     image: appserver_elasticsearch_image
+     networks:
+       - "net"
+     volumes:
+       - "${APPSERVER_HOME}:/home/appserver"
+     environment:
+       - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+       - INDEXDIR=/home/appserver/data/cmsindex
+
+networks:
+  net:
+
+

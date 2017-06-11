@@ -1,0 +1,7 @@
+nginx :
+    build : .
+    ports : 
+        - 3232:8080
+    volumes : 
+        - ./app/:/var/www/html
+        

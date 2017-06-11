@@ -1,0 +1,57 @@
+#####################################################################################
+#                                                                                   #
+#  HDX MONITOR ANALYTICS:                                                           #
+#                                                                                   #
+#  Databases:                                                                       #
+#   - PostgreSQL                                                                    #
+#   - Redis                                                                         #
+#                                                                                   #
+#  Services:                                                                        #
+#   - SQL Collect: collects data from HDX, organizes it, and stores in database.    #
+#   - Metabase: Metabase application that connects to database.                     #
+#                                                                                   #
+#####################################################################################
+
+#
+# Databases.
+#
+redis:
+  tty: true
+  image: redis:latest
+  stdin_open: true
+
+postgres:
+  tty: true
+  image: luiscape/hdx-monitor-postgresql:latest
+  stdin_open: true
+
+#
+# Collector.
+#
+collector:
+  tty: true
+  image: luiscape/hdx-monitor-analytics-collect:v.0.1.0
+  stdin_open: true
+  ports:
+  - "5000:5000"
+  links:
+  - "postgres:postgres"
+  - "redis:redis"
+  environment:
+    CKAN_URL: https://data.hdx.rwlabs.org
+    CKAN_KEY: xxxx-xxxx-xxxxx-xxxx-xxx
+    DB_NAME: 'foo'
+    DB_USER: 'foo'
+    DB_PASSWORD: 'foo'
+
+#
+# Metabase.
+#
+metabase:
+  tty: true
+  image: metabase/metabase:latest
+  stdin_open: true
+  ports:
+  - "8400:3000"
+  links:
+  - "postgres:postgres"

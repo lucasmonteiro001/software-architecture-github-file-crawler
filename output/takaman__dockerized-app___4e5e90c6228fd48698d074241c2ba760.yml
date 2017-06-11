@@ -1,0 +1,14 @@
+database:
+  image: mongo
+
+api:
+  build: .
+  ports:
+    - "3000:80"
+  environment:
+    port: "80"
+    mongoURI: "mongodb://database/app-dev"
+  links:
+    - database
+
+

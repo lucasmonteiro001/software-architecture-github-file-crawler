@@ -1,0 +1,12 @@
+selenium-hub:
+  image: selenium/hub:2.53.0
+  ports:
+  - ${http_port}:4444
+node-chrome:
+  image: selenium/node-chrome:2.53.0
+  links:
+  - selenium-hub:hub
+node-firefox:
+  image: selenium/node-firefox:2.53.0
+  links:
+  - selenium-hub:hub

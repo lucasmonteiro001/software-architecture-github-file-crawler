@@ -1,0 +1,32 @@
+version: '3'
+
+services:
+
+  master:
+    image: thatsk/jmeter-client:v2
+    container_name: master
+    tty: true
+    networks:
+      - jmeter
+    command: /bin/bash
+    ports:
+      - "60000"   
+    volumes:
+      - ./input_data:/input_data
+      - ./logs:/logs
+      - ./scripts:/scripts
+  slave:
+    image: thatsk/jmeter-server:v2
+    tty: true
+    networks:
+      - jmeter
+    ports:
+      - "1099"
+      - "50000"
+    volumes:
+      - ./input_data:/input_data
+      - ./scripts:/scripts
+      - ./logs:/logs
+networks:
+  jmeter:
+    driver: bridge

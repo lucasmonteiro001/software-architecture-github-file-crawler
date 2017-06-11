@@ -1,0 +1,12 @@
+memcached-ui:
+  build: .
+  links:
+    - memcached
+  ports:
+    - "80:80"
+  environment:
+    WEB_PORT: 80
+    CACHE_ADDRESS: memcached
+    CACHE_PORT: 11211
+memcached:
+  image: memcached

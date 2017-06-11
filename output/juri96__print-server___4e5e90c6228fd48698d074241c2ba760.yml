@@ -1,0 +1,12 @@
+ms-email-downloader:
+  build: ./ms-email-downloader
+  ports:
+    - 8100:8080
+ms-printer-node:
+  build: ./ms-printer-node
+  ports:
+    - 8201:8080
+mongodb:
+  image: mongo:3.4.2
+  ports:
+    - "27017:27017"

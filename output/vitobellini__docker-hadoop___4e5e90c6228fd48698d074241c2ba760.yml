@@ -1,0 +1,64 @@
+version: "3"
+
+services:
+  dnsagent:
+    build:
+      context: .
+      dockerfile: Dockerfile-DNS
+    ports:
+      - "53:53"
+      - "53:53/udp"
+      - "7946:7946"
+      - "7373:7373"
+    command: bash -c "/usr/bin/supervisord -c /etc/supervisor/supervisord-dns.conf"
+
+
+
+  master:
+    build: .
+    ports:
+      - "54311:54311"
+      - "50070:50070"
+      - "9000:9000"
+      - "8030:8030"
+      - "8031:8031"
+      - "8032:8032"
+      - "8033:8033"
+      - "8088:8088"
+      - "2122:22"
+#      - "7946:7946"
+#      - "7373:7373"
+    hostname: "cluster-master"
+    command: bash -c "/root/boot_master.sh && /usr/bin/supervisord -c /etc/supervisor/supervisord-master.conf"
+    extra_hosts:
+      - "hadoop-master:192.168.1.2"
+      - "hadoop-slave1:192.168.1.3"
+      - "hadoop-slave2:192.168.1.4"
+      - "hadoop-slave3:192.168.1.5"
+      - "hadoop-slave4:192.168.1.6"
+
+
+  slave:
+    build: .
+    ports:
+      - "50075:50075"
+      - "50010:50010"
+      - "50020:50020"
+      - "35472:35472"
+      - "2120:2120"
+#      - "7946:7946"
+#      - "7373:7373"
+    hostname: "hadoop-slave2"
+    command: /usr/bin/supervisord -c /etc/supervisor/supervisord-slave.conf
+    extra_hosts:
+      - "hadoop-master:192.168.1.2"
+      - "hadoop-slave1:192.168.1.3"
+      - "hadoop-slave2:192.168.1.4"
+      - "hadoop-slave3:192.168.1.5"
+      - "hadoop-slave4:192.168.1.6"
+
+
+networks:
+  default:
+    external:
+      name: funker

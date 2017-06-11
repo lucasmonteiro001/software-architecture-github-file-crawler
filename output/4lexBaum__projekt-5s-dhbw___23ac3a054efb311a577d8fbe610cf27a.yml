@@ -1,0 +1,80 @@
+version: '2'
+
+services:
+    kafka:
+        build: ./kafka
+        ports:
+            - "2181:2181"
+            - "9092:9092"
+    # kafka2:
+    #     build: ./kafka
+    #     ports:
+    #         - "2181:2182"
+    #         - "9092:9093"
+    activemq:
+        build: ./activemq
+        ports:
+            - "61616:61616"
+            - "8161:8161"
+            - "5672:5672"
+            - "61613:61613"
+            - "1883:1883"
+            - "61614:61614"
+    taktstrasse:
+        build: ./taktstrasse
+        links:
+            - kafka
+            - activemq
+            - mongodb
+    # taktstrasse2:
+    #     build: ./taktstrasse
+    #     links:
+    #         - kafka
+    #         - activemq
+    #         - mongodb
+    # taktstrasse3:
+    #     build: ./taktstrasse
+    #     links:
+    #         - kafka
+    #         - activemq
+    #         - mongodb
+    # taktstrasse4:
+    #     build: ./taktstrasse
+    #     links:
+    #         - kafka
+    #         - activemq
+    #         - mongodb
+    # taktstrasse5:
+    #     build: ./taktstrasse
+    #     links:
+    #         - kafka
+    #         - activemq
+    #         - mongodb
+    # taktstrasse6:
+    #     build: ./taktstrasse
+    #     links:
+    #         - kafka
+    #         - activemq
+    #         - mongodb
+    spark:
+        build: ./spark
+        links:
+            - kafka
+            - mongodb
+        ports:
+            - "8080:8080"
+            - "7077:7077"
+        environment:
+            - SPARK_OPTS="--driver-memory=5g --executor-memory=5g"
+            - JAVA_OPTS=-verbose:gc -Xms1G -Xmx1G
+    node:
+        build: ./node
+        links:
+            - kafka
+            - mongodb
+        ports:
+            - "3000:3000"
+    mongodb:
+        build: ./mongodb
+        ports:
+            - "27017:27017"

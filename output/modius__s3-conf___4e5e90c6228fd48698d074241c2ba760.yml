@@ -1,0 +1,22 @@
+#The S3 keys in hear are fine to use, they only grant read-only access to the conf.yml file in s3-conf-example
+s3conf:
+  build: .
+  restart: always
+  cpu_shares: 128
+  mem_limit: 16m
+  environment:
+    - AWS_ACCESS_KEY_ID=AKIAJDOEIODYPCCCM5VA
+    - AWS_SECRET_ACCESS_KEY=yoursecret
+    - S3_BUCKET=s3-conf-example
+    - S3_CONF_SOURCE_FILE=conf.yml
+    - S3_CONF_DEST_FILE=conf.yml
+
+  volumes:
+    - ./s3-conf-test:/conf
+
+test:
+  image: alpine
+  command: sh -c 'adduser neil; sleep 10; cat /conf/conf.yml | su neil -c "ls -l /conf/* ; cat"'
+  volumes:
+    - ./s3-conf-test:/conf:ro
+

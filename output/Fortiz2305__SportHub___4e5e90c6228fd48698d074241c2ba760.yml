@@ -1,0 +1,27 @@
+version: '2'
+services:
+  database:
+    image: bitnami/mongodb:latest
+  backend:
+    image: bitnami/node:latest
+    volumes:
+      - ./backend:/app
+    entrypoint: scripts/docker-entrypoint.sh
+    command: npm start
+    ports:
+      - 3000:3000
+    environment:
+      - MONGO_HOST=database
+    depends_on:
+      - database
+  frontend:
+    image: bitnami/node:latest
+    volumes:
+      - ./frontend:/app
+    entrypoint: scripts/docker-entrypoint.sh
+    command: npm start
+    ports:
+      - 8080:8080
+    depends_on:
+      - database
+      - backend

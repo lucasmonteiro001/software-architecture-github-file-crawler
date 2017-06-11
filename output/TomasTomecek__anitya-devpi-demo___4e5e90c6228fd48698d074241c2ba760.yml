@@ -1,0 +1,8 @@
+anitya:
+  build: ./anitya/
+  net: "host"
+devpi:
+  build: ./devpi/
+  net: "host"
+  volumes:
+   - .:/project

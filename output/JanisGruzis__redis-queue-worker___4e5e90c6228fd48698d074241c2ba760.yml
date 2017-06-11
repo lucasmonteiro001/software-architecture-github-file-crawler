@@ -1,0 +1,13 @@
+node:
+    image: node:4
+    links:
+        - redis
+    volumes:
+        - ./:/var/www/redis-queue-worker
+    working_dir: /var/www/redis-queue-worker
+    command: 'tail -f /dev/null'
+
+redis:
+    image: redis
+    ports:
+        - '6379:6379'

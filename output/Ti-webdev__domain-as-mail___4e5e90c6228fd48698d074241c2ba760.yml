@@ -1,0 +1,10 @@
+appm:
+  image: 3apaxicom/generator-m-ionic:0.1.4
+  ports:
+    - "3000:3000"
+    - "3001:3001"
+  volumes:
+    - ./appm:/appm
+    - ./keys/dasm-release-key.keystore:/appm-release-key.keystore
+    - /opt/gradle-cache:/home/app/.gradle
+    - /dev/bus/usb:/dev/bus/usb

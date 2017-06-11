@@ -1,0 +1,22 @@
+app:
+  build: .
+  volumes:
+    - ./src:/usr/src/app/comcloud
+  ports:
+    - 5002:5002
+  net: "host"
+  # command: tail -f /dev/null
+  container_name: comcloud_app
+  working_dir: /usr/src/app/comcloud
+
+db:
+  image: mongo
+  net: "host"
+  ports:
+    - 27017:27017
+
+redis:
+  image: redis
+  net: "host"
+  ports:
+    - 6379:6379

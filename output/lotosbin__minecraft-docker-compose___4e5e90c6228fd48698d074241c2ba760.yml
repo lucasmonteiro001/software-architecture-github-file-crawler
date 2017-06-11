@@ -1,0 +1,7 @@
+web:
+    image: kitematic/minecraft
+    volumes:
+        - ./data:/data/
+    ports:
+        - 25565:25565
+

@@ -1,0 +1,24 @@
+version: '2'
+services:
+  dropwizard:
+    build: .
+    container_name: dropwizard
+    image: example/dropwizard
+    ports:
+       - "8081"
+    links:
+       - netuitive-agent
+
+  netuitive-agent:
+    container_name: netuitive-agent
+    image: netuitive/docker-agent
+    mem_limit: 128m
+    environment:
+      - APIKEY=netuitive-api-key
+      - APIHOST=api.app.netuitive.com:443
+      - HTTPVAR=https
+      - DOCKER_HOSTNAME=docker-host-dropwizard-test
+    volumes:
+      - /proc:/host_proc:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+  

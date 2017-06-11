@@ -1,0 +1,20 @@
+dev:
+  build: .
+  volumes:
+  - .:/go/src/github.com/speed-demon/agent
+agent:
+  build: .
+  environment:
+  - LOG_LEVEL=debug
+  - CONFIG_FILE=/go/src/github.com/speed-demon/agent/config.yml
+  volumes:
+  - .:/go/src/github.com/speed-demon/agent
+  links:
+  - collector
+  command: bin/linux/amd64/agent
+collector:
+  image: speeddemon/collector:latest
+  environment:
+  - LOG_ONLY=true
+  ports:
+  - "3000:3000"

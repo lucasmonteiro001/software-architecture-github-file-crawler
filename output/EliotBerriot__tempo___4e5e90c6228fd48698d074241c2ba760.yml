@@ -1,0 +1,41 @@
+version: '2'
+
+volumes:
+  postgres_data: {}
+  postgres_backup: {}
+
+services:
+  postgres:
+    restart: unless-stopped
+    build: ./compose/postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - postgres_backup:/backups
+    env_file: .env
+
+  django:
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: ./compose/django/Dockerfile
+    user: django
+    depends_on:
+      - postgres
+      - redis
+    command: /gunicorn.sh
+    env_file: .env
+    volumes:
+      - ./data/media:/app/media
+
+  nginx:
+    restart: unless-stopped
+    build: ./compose/nginx
+    depends_on:
+      - django
+
+    ports:
+      - "0.0.0.0:8034:80"
+
+
+  redis:
+    image: redis:latest

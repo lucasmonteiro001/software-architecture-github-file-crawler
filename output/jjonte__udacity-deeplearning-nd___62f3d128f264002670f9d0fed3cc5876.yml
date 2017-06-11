@@ -1,0 +1,12 @@
+version: '2'
+services:
+  jupyter:
+    build: .
+    ports:
+      - '8888:8888' # jupyter
+      - '6006:6006' # tensorboard
+    volumes:
+      - ./:/notebooks/shared
+#    entrypoint: /bin/bash
+#    stdin_open: true
+#    tty: true

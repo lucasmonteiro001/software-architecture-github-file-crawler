@@ -1,0 +1,8 @@
+webapp:
+  image: 'sinatra-u14'
+  restart: always
+  hostname: '192.168.99.100'
+  ports:
+    - '4567:4567'
+  volumes:
+    - './webapp:/opt/webapp'

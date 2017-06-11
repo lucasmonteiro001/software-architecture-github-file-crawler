@@ -1,0 +1,7 @@
+front-lb:
+  image: rancher/lb-service-haproxy:v0.4.2
+  ports: 
+    - "80:20000"
+  labels: 
+    io.rancher.container.agent.role: environmentAdmin
+    io.rancher.container.create_agent: 'true'

@@ -1,0 +1,35 @@
+nginx:
+  build: ./tools/docker/nginx
+  ports:
+    - "80:80"
+    - "443:443"
+  links:
+    - mysql:mysql
+    - php-fpm:php-fpm
+  volumes:
+    - .:/var/www/vulah
+
+php-fpm:
+  build: ./tools/docker/php-fpm
+  ports:
+    - "9000:9000"
+  links:
+    - mysql:mysql
+  volumes:
+    - .:/var/www/vulah
+
+mysql:
+  image: mysql:5.6
+  ports:
+    - "3306:3306"
+  environment:
+    MYSQL_ROOT_PASSWORD: zxasqw12
+    MYSQL_DATABASE: vulah
+  volumes:
+     - ./tools/seed_db:/docker-entrypoint-initdb.d
+
+elasticsearch:
+  image: elasticsearch:5.0
+  ports:
+    - "9200:9200"
+    - "9300:9300"

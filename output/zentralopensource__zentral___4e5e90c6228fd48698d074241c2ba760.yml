@@ -1,0 +1,64 @@
+version: '2'
+
+services:
+  db:
+    image: postgres:9.6
+    env_file:
+      - ./conf/start/docker/postgres.env
+  rabbitmq:
+  elastic:
+    image: elasticsearch:5
+    environment:
+      ES_JAVA_OPTS: -Xms512m -Xmx512m
+    networks:
+      default:
+        aliases:
+          - elasticsearch
+  rabbitmq:
+    image: rabbitmq:3
+  promsrv:
+    build: ./conf/start/docker/prometheus/
+    volumes:
+      - prometheus_sd:/prometheus_sd
+  nginx:
+    image: nginx:mainline-alpine
+    ports:
+      - "443:443"
+    depends_on:
+      - promsrv
+      - web
+    volumes:
+      - ./conf/start/docker/nginx/conf.d/:/etc/nginx/conf.d/
+      - ./conf/start/docker/tls:/etc/nginx/tls
+      - web_static_root:/zentral_static
+  web:
+    extends:
+      file: docker-compose.common.yml
+      service: app
+    command: runserver
+    depends_on:
+      - db
+      - elastic
+      - rabbitmq
+    volumes:
+      - web_media_root:/var/zentral
+      - web_static_root:/zentral_static
+  workers:
+    extends:
+      file: docker-compose.common.yml
+      service: app
+    command: runworkers --external-hostname workers --prometheus-sd-file /prometheus_sd/workers.yml
+    depends_on:
+      - db
+      - elastic
+      - rabbitmq
+    volumes:
+      - prometheus_sd:/prometheus_sd
+
+networks:
+  default:
+
+volumes:
+  prometheus_sd:
+  web_media_root:
+  web_static_root:

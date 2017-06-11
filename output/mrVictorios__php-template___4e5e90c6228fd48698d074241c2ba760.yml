@@ -1,0 +1,25 @@
+version: '2'
+
+services:
+    web:
+        build: ./env/dc-web
+        links:
+          - db
+        ports:
+          - "80:80"
+          - "443:443"
+          - "9000:9000"
+        volumes:
+          - .:/var/www
+        environment:
+            APP_NAME:            component_template
+
+    db:
+        image: mysql
+        ports:
+            - "3306:3306"
+        environment:
+              MYSQL_ROOT_PASSWORD: mysecret
+              MYSQL_DATABASE:      component_db
+              MYSQL_USER:          user
+              MYSQL_PASSWORD:      mysecret

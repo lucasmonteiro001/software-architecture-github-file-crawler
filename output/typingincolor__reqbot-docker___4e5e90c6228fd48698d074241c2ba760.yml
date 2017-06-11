@@ -1,0 +1,33 @@
+nginx:
+  image: nginx
+  ports:
+    - "80:80"
+  volumes:
+    - ./reqbot-nginx.conf:/etc/nginx:ro
+  links:
+    - reqbot
+    - reqbotweb
+reqbot:
+  image: typingincolor/reqbot
+  ports:
+    - 8080
+  links:
+    - redis
+  environment:
+    - REQBOT_REDIS_HOST=redis
+    - SERVER_PORT=8080
+reqbotweb:
+  image: typingincolor/reqbot-web
+  ports:
+    - 8080
+  links:
+    - reqbot
+  environment:
+    - REQBOT_API_URL=http://reqbot:8080
+    - SERVER_PORT=8080
+redis:
+  image: redis
+  ports:
+    - 6379
+  volumes:
+    - ~/docker/redis:/data

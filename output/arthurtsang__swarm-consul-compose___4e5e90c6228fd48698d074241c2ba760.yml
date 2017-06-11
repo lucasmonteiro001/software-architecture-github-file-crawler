@@ -1,0 +1,36 @@
+consul:
+  image: arthurtsang/docker-consul
+  hostname: node1
+  ports:
+    - "8300:8300"
+    - "8301:8301"
+    - "8301:8301/udp"
+    - "8302:8302"
+    - "8302:8302/udp"
+    - "8400:8400"
+    - "8500:8500"
+    - "53:8600"
+    - "53:8600/udp"
+  environment:
+    - SERVICE_IGNORE=true
+  command: agent -config-dir /opt/config -advertise node1.ip -bootstrap-expect 2 -retry-join node1 -retry-join node2
+
+join:
+  image: swarm
+  command: join --addr=node1:2375 consul://172.17.0.1:8500/swarm
+
+manage:
+  image: swarm
+  ports: 
+    - "8888:2375"
+  command: manage consul://172.17.0.1:8500/swarm
+
+registrator:
+  image: gliderlabs/registrator
+  net: host
+  volumes:
+    - /var/run/docker.sock:/tmp/docker.sock
+  command: consul://localhost:8500
+  security_opt:
+    - label:type:docker_t
+

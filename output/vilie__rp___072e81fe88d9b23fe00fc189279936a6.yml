@@ -1,0 +1,14 @@
+bot:
+    build: bot
+    links:
+        - mongo
+webserv:
+    build: webserv
+    ports:
+        - "5000:5000"
+    links:
+        - mongo
+mongo:
+    build: mongo
+    ports:
+        - "27017:27017"

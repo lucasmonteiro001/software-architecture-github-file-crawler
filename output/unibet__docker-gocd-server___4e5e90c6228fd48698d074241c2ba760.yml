@@ -1,0 +1,24 @@
+version: '2'
+services:
+  gocd-server:
+    build: .
+    ports:
+      - 8153:8153
+      - 8154:8154
+    volumes:
+      - ./go-data/etc:/etc/go
+      - ./go-data/lib:/var/lib/go-server
+      - ./go-data/log:/var/log/go-server
+    environment:
+      - AGENT_KEY=VERYSECRETGOAGENTKEY
+      - GOCD_API_USERNAME=apiuser
+      - GOCD_API_PASSWORD=secret
+
+  gocd-agent:
+    image: unibet/gocd-agent
+    environment:
+      - GO_SERVER_URL=https://gocd-server:8154/go/
+      - AGENT_KEY=VERYSECRETGOAGENTKEY
+      - AGENT_RESOURCES=docker
+      - AGENT_ENVIRONMENTS=prod
+      - AGENT_HOSTNAME=deploy-agent-01

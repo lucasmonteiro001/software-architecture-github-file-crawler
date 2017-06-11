@@ -1,0 +1,10 @@
+version: '2'
+services:
+  naganodeeplearning:
+    image: stealthinu/alpine-py3-tensorflow-jupyter-datasets:latest
+    ports:
+      - 8888:8888
+    volumes:
+      - ./notebook:/root/notebook/my_notes
+    environment:
+      - PASSWORD=foobar

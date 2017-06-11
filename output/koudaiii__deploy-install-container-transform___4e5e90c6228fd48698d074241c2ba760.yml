@@ -1,0 +1,5 @@
+base:
+  image: ubuntu 
+  cpu_shares: 512
+  mem_limit: 536870912b
+  command: echo "hellow world!"

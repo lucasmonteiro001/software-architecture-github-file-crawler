@@ -1,0 +1,42 @@
+dynamicdns:
+  image: ryanfox1985/docker-dynamicdns
+  volumes:
+    - ./ddclient/etc:/etc/ddclient
+
+sync:
+  image: bittorrent/sync
+  ports:
+    - 8888:8888
+  volumes:
+   - ./sync:/mnt/sync
+  privileged: true
+  restart: always
+
+sickrage:
+  image: ryanfox1985/docker-sickrage
+  ports:
+    - 8081:8081
+  volumes:
+   - ./sickrage/config:/config
+   - ./sickrage/series:/series
+  privileged: true
+  restart: always
+
+couchpotato:
+  image: ryanfox1985/docker-couchpotato
+  ports:
+    - 8082:5050
+  volumes:
+   - ./couchpotato/config:/config
+  privileged: true
+  restart: always
+
+deluge:
+  image: aostanin/deluge
+  ports:
+    - 8112:8112
+    - 58846:58846
+  volumes:
+    - ./deluge/data:/data
+    - ./deluge/downloads:/downloads
+  restart: always

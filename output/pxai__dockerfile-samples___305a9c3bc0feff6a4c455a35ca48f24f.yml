@@ -1,0 +1,24 @@
+version: '2'
+services:
+  mongocontainer:
+    container_name: my_mongo_container
+    build: ./mongo
+  nodecontainer1:
+    container_name: my_node_container1
+    build: ./node
+    ports: 
+      - "8300:3000"
+    depends_on:
+      - mongocontainer
+#          condition: service_started
+  nginxcontainer:
+    container_name: my_nginx_container
+    build: ./nginx
+    ports: 
+      - "8888:80"
+    links:
+      - nodecontainer1
+#     - nodecontainer2
+#     - nodecontainer3
+    depends_on:
+      - nodecontainer1

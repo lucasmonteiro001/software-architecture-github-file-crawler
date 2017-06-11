@@ -1,0 +1,85 @@
+version: '2'
+
+services:
+  postgresql:
+    restart: always
+    image: postgres:alpine
+    expose:
+      - "5432"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    env_file:
+      - variables.env
+
+  phppgadmin:
+    restart: always
+    image: zhajor/docker-phppgadmin
+    depends_on:
+      - postgresql
+    ports:
+      - "8080:80"
+    env_file:
+      - variables.env
+
+  tailor:
+    restart: always
+    image: node:alpine
+    command: node .
+    working_dir: /project
+    expose:
+      - "3000"
+    depends_on:
+      - frontend
+      - backend
+    volumes:
+      - ./tailor:/project
+
+  skipper:
+    restart: always
+    build: skipper
+    expose:
+      - "9090"
+    ports:
+      - "80:9090"
+    depends_on:
+      - tailor
+    volumes:
+      - ./skipper/routes:/routes
+
+  frontend:
+    build: frontend
+    restart: always
+    working_dir: /project
+    expose:
+      - "80"
+    ports:
+      - "8100:80"
+    volumes:
+      - ./frontend:/project
+      - ./conf/php/cli.ini:/etc/php/7.0/cli/conf.d/100-custom.ini
+      - ./conf/php/fpm.ini:/etc/php/7.0/fpm/conf.d/100-custom.ini
+    env_file:
+      - variables.env
+
+  backend:
+    build: backend
+    restart: always
+    working_dir: /project
+    expose:
+      - "80"
+    ports:
+      - "8101:80"
+    volumes:
+      - ./backend:/project
+      - ./conf/php/cli.ini:/etc/php/7.0/cli/conf.d/100-custom.ini
+      - ./conf/php/fpm.ini:/etc/php/7.0/fpm/conf.d/100-custom.ini
+    depends_on:
+      - postgresql
+    env_file:
+      - variables.env
+
+volumes:
+  postgres:
+    driver: local

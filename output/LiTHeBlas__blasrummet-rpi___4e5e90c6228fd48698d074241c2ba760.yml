@@ -1,0 +1,34 @@
+clock:
+  build: clock
+  devices:
+    - /dev/gpiomem
+  environment:
+    CLOCK_GPIO_PIN: 13
+    CLOCK_PULSE_DURATION: 0.5
+  restart: always
+
+door:
+  build: door
+  devices:
+    - /dev/gpiomem
+  environment:
+    LOCK_GPIO_PIN: 11
+    UNLOCK_DURATION: 10
+    SECRET_KEY: abc
+    ALLOWED_IPS: "130.236.254.82,130.236.254.229"
+    OPBEAT_ORGANIZATION_ID: 08d8d0275bf94d98b4d3f7f0a802f6d7
+    OPBEAT_APP_ID: 37531498e9
+  ports:
+    - "5000:5000"
+  restart: always
+
+jukebox:
+  build: jukebox
+  devices:
+    - /dev/snd
+  environment:
+    SPOTIFY_USERNAME: "litheblas"
+  ports:
+    - "6600:6600"
+    - "6680:6680"
+  restart: always

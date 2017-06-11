@@ -1,0 +1,49 @@
+cat << EOF
+# GitLab
+gitlabdb:
+  image: sameersbn/postgresql:9.6-2
+  env_file:
+    - ./.env
+  environment:
+    - DB_EXTENSION=pg_trgm
+    - DB_USER=${GITLAB_DB_USER}
+    - DB_PASS=${GITLAB_DB_PASS}
+    - DB_NAME=${GITLAB_DB_NAME}
+
+gitlabredis:
+  image: sameersbn/redis:latest
+  env_file:
+    - ./.env
+
+gitlab:
+  image: sameersbn/gitlab:9.2.2
+  env_file:
+    - ./.env
+  dns: ${DNS_ADDRESS}
+  environment:
+    - GITLAB_SSH_PORT=${GITLAB_SSH_PORT}
+    - LDAP_ENABLED=${GITLAB_LDAP_ENABLED}
+    - LDAP_UID=${LDAP_ATTR_LOGIN}
+    - LDAP_METHOD=${GITLAB_LDAP_METHOD}
+    - LDAP_ACTIVE_DIRECTORY=${GITLAB_LDAP_ACTIVE_DIRECTORY}
+    - SMTP_ENABLED=${GITLAB_SMTP_ENABLED}
+    - SMTP_DOMAIN=${GITLAB_SMTP_DOMAIN}
+    - SMTP_HOST=${GITLAB_SMTP_HOST}
+    - SMTP_PORT=${GITLAB_SMTP_PORT}
+    - GITLAB_EMAIL=${GITLAB_MAIL_ADDRESS}
+    - DB_ADAPTER=postgresql
+    - DB_HOST=gitlabdb
+    - DB_USER=${GITLAB_DB_USER}
+    - DB_PASS=${GITLAB_DB_PASS}
+    - DB_NAME=${GITLAB_DB_NAME}
+    - REDIS_HOST=gitlabredis
+    - REDIS_PORT=6379
+  ports:
+    - "${GITLAB_SSH_PORT}:22"
+  links:
+    - gitlabredis:redisio
+    - gitlabdb:postgresql
+  volumes:
+    - ${POCCI_LOG_DIR}/gitlab:/var/log/gitlab
+
+EOF

@@ -1,0 +1,20 @@
+
+version: '2'
+services:
+  nodejs:
+    build: .
+    image: nikita_arch_nodejs
+    volumes:
+      - ../..:/nikita
+    depends_on:
+      - krb5
+    environment:
+      MECANO_TEST: /nikita/docker/archlinux/test.coffee
+    cap_add:
+      - SYS_ADMIN # Required to use `mount`
+  krb5:
+    image: sequenceiq/kerberos
+    volumes:
+      - /dev/urandom:/dev/random
+    environment:
+      BOOTSTRAP: 1

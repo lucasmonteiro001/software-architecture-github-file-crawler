@@ -1,0 +1,6 @@
+web:
+  build: .
+  volumes:
+    - "./lib:/src/lib"
+  ports:
+    - "80:8080"

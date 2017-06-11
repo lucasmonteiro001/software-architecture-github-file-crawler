@@ -1,0 +1,22 @@
+postgresql:
+  build: .
+  environment:
+    - PG_CLUSTER_REINITIAL=true
+    - PG_USER=someuser
+    - PG_PASSWD=somepasswd
+    - PG_DB=mydatabase
+
+  volumes:
+    # [REQUIRED] using a docker volume: postgresql-volume,
+    # which is created by `scripts/init-docker.sh`
+    # you may create it yourself `docker volumn create --name pg-volume-name`
+    # then use it instead
+    - postgresql-volume:/var/lib/postgresql
+
+    # config files `pg_hba.conf`, `postgresql.conf` .etc
+    # must be volumed to `/srv/postgresql/confs`
+    - ./confs:/srv/postgresql/confs
+
+    # init scripts like *.sql, *.sh
+    # must be volumed to `/srv/postgresql/init.d`
+    - ./init.d:/srv/postgresql/init.d

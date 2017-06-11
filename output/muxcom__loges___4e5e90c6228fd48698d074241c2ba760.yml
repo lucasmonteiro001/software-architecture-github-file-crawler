@@ -1,0 +1,18 @@
+elasticsearch:
+    image: elasticsearch
+    volumes:
+        - loges-elasticsearch/elasticsearch_data:/usr/share/elasticsearch/data
+    command: elasticsearch -Des.node.name="loges" -Des.cluster.name="loges"
+kibana:
+    image: kibana
+    ports:
+        - "5602:5601"
+    links:
+        - elasticsearch
+logstash:
+    build: ./loges-logstash
+    links:
+        - elasticsearch
+    command: logstash -f /config-dir/logstash.conf
+    volumes:
+        - loges-logstash:/config-dir

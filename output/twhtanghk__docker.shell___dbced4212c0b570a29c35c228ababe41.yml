@@ -1,0 +1,19 @@
+version: '2'
+services:
+  mysql:
+    image: mariadb
+    ports:
+      - 3306
+    cap_add:
+      - SYS_ADMIN
+    devices:
+      - /dev/fuse
+    volumes:
+      - ./entrypoint.sh:/newEntrypoint.sh
+    entrypoint: /newEntrypoint.sh
+    command: mysqld
+    env_file:
+      - ../.env
+      - ./.env
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD=yes

@@ -1,0 +1,21 @@
+version: '2'
+
+services:
+
+  mqtt-srv:
+    build: ../server/
+    image: fgori/rpi-mosquitto-server:1.0
+    ports:
+      - "1883:1883"
+      
+  mqtt-cli1:
+    build: ../client/
+    image: fgori/rpi-mosquitto-client:1.0
+    links:
+      - mqtt-srv
+
+  mqtt-cli2:
+    build: ../client/
+    image: fgori/rpi-mosquitto-client:1.0
+    links:
+      - mqtt-srv

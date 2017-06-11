@@ -1,0 +1,208 @@
+version: '2'
+# MediaKraken
+
+# Volumes are HOST directory and then CONTAINER directory
+
+services:
+  # Main app server which controls the show
+  appserver:
+    image: mediakraken/mkserver:latest
+    environment:
+      - POSTGRES_DB=${DBDATABASE}
+      - POSTGRES_USER=${DBUSER}
+      - POSTGRES_PASSWORD=${DBPASS}
+    container_name: mkserver
+    depends_on:
+      - pgbounce
+      - rabbit
+    entrypoint: ./wait-for-it-ash.sh -h pgbounce -p 6432 -t 30 -- python main_server.py
+    ports:
+      - "8903:8903"
+    volumes:
+      - /var/log/mediakraken:/mediakraken/log
+      - /var/opt/mediakraken/devices:/mediakraken/devices
+      - /home/mediakraken:/mediakraken/mnt
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - mediakraken_network
+      - mediakraken_dbnetwork
+    restart: unless-stopped
+    # to allow mount nfs/cifs
+    cap_add:
+      - SYS_ADMIN
+      - DAC_READ_SEARCH
+
+  # start broadcast server (so clients can find server)
+  broadcast:
+    image: mediakraken/mkbroadcast:latest
+    container_name: mkbroadcast
+    entrypoint: python subprogram_broadcast.py
+    ports:
+      - "9101:9101"
+    network_mode: host
+    restart: unless-stopped
+
+  # Postgresql server
+  database:
+    image: mediakraken/mkdatabase:latest
+    environment:
+      - POSTGRES_DB=${DBDATABASE}
+      - POSTGRES_USER=${DBUSER}
+      - POSTGRES_PASSWORD=${DBPASS}
+    container_name: mkdatabase
+    volumes:
+      - /var/lib/postgresql:/var/lib/postgresql
+    networks:
+      - mediakraken_dbnetwork
+    restart: unless-stopped
+
+  # pgbouncer
+  pgbounce:
+    image: mediakraken/mkpgbounce:latest
+    environment:
+      - DB_HOST=${DBHOST}
+      - DB_USER=${DBUSER}
+      - DB_PASSWORD=${DBPASS}
+      - POOL_MODE=transaction
+      - MAX_CLIENT_CONN=500
+      - DEFAULT_POOL_SIZE=85
+      - SERVER_RESET_QUERY=DISCARD ALL
+    container_name: mkpgbounce
+    depends_on:
+      - database
+    entrypoint: ./wait-for-it-ash.sh -h database -p 5432 -t 30 -- ./entrypoint.sh
+    networks:
+      - mediakraken_dbnetwork
+    restart: unless-stopped
+
+  # scan for new hardware devices
+  devicescan:
+    image: mediakraken/mkdevicescan:latest
+    container_name: mkdevicescan
+    entrypoint: python main_hardware_discover.py
+    volumes:
+      - /var/log/mediakraken:/mediakraken/log
+      - /var/opt/mediakraken/devices:/mediakraken/devices
+    network_mode: host
+
+  # runs the server to fetch/process all metadata
+  metadata:
+    image: mediakraken/mkmetadata:latest
+    environment:
+      - POSTGRES_DB=${DBDATABASE}
+      - POSTGRES_USER=${DBUSER}
+      - POSTGRES_PASSWORD=${DBPASS}
+    container_name: mkmetadata
+    depends_on:
+      - pgbounce
+    entrypoint: ./wait-for-it-ash.sh -h pgbounce -p 6432 -t 30 -- python main_server_metadata_api.py
+    volumes:
+      - /var/log/mediakraken:/mediakraken/log
+      - /home/mediakraken:/mediakraken/mnt
+      - /var/opt/mediakraken/images:/mediakraken/web_app/MediaKraken/static/meta/images
+    networks:
+      - mediakraken_network
+      - mediakraken_dbnetwork
+    restart: unless-stopped
+
+  # musicbrainz replicator
+#  brainz:
+#    image: mediakraken/mkbrainz:latest
+#    environment:
+#      - BRAINZCODE=${BRAINZCODE}
+#    container_name: mkbrainz
+#    networks:
+#      - mediakraken_network
+#    restart: unless-stopped
+
+  # runs the nginx proxy service
+#  nginx:
+#    image: mediakraken/mknginx:latest
+#    container_name: mknginx
+#    ports:
+#      - "443:443"
+#    networks:
+#      - mediakraken_network
+#    restart: unless-stopped
+
+  # runs the openldap
+#  openldap:
+#    image: mediakraken/mkopenldap:latest
+#    container_name: mkopenldap
+#    ports:
+#      - "389:389"
+#      - "636:636"
+#    networks:
+#      - mediakraken_network
+#    restart: unless-stopped
+
+  # runs the redis service for flask
+  redis:
+    image: mediakraken/mkredis:latest
+    container_name: mkredis
+    ports:
+      - "6379:6379"
+    networks:
+      - mediakraken_network
+    restart: unless-stopped
+
+  # Runs the web service for the main server application
+  webserver:
+    image: mediakraken/mkwebapp:latest
+    environment:
+      - POSTGRES_DB=${DBDATABASE}
+      - POSTGRES_USER=${DBUSER}
+      - POSTGRES_PASSWORD=${DBPASS}
+    container_name: mkwebapp
+    depends_on:
+      - pgbounce
+      - rabbit
+      - redis
+#      - nginx
+    entrypoint: ./wait-for-it-ash.sh -h pgbounce -p 6432 -t 30 -- uwsgi --socket 0.0.0.0:8080 --protocol http --chdir=./web_app --ini ./web_app/mediakraken_uwsgi_alpine.ini
+    ports:
+      - "8900:8080"
+    volumes:
+      - /var/log/mediakraken:/mediakraken/log
+      - /home/mediakraken:/mediakraken/mnt
+      - /var/opt/mediakraken/images:/mediakraken/web_app/MediaKraken/static/meta/images
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - mediakraken_network
+      - mediakraken_dbnetwork
+    restart: unless-stopped
+
+  # rabbit
+  # https://github.com/maryvilledev/alpine-rmq
+  rabbit:
+    image: mediakraken/mkrabbitmq:latest
+    container_name: mkrabbitmq
+    ports:
+#      - "5671:5671"
+      - "5672:5672"
+#      - "15671:15671"
+#      - "15672:15672"
+    restart: unless-stopped
+    networks:
+      - mediakraken_network
+
+  # runs portainer
+  dockmanage:
+    image: portainer/portainer:latest
+    container_name: mkportainer
+    ports: 
+      - "9000:9000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/opt/mediakraken/data:/data
+    restart: unless-stopped
+
+# Docker private networks
+networks:
+  # Twisted and AMQP communications network
+  mediakraken_network:
+    driver: bridge
+  # Database communications network
+  mediakraken_dbnetwork:
+    driver: bridge
+

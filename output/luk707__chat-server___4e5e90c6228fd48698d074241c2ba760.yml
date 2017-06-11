@@ -1,0 +1,17 @@
+version: '2'
+services:
+    mongo:
+        image: 'mongo:latest'
+        ports:
+            - "27017:27017"
+    redis:
+        image: 'redis:latest'
+    web:
+        build: .
+        ports:
+            - '3000:3000'
+        links:
+            - mongo
+            - redis
+        env_file:
+            - config.env

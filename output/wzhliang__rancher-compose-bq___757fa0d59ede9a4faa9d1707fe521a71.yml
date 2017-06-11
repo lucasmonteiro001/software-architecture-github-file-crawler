@@ -1,0 +1,11 @@
+registry:
+  image: registry:2
+  ports:
+  - ${http_port}:5000
+  volumes:
+  - /var/lib/registry:/var/lib/registry
+  stdin_open: true
+  tty: true
+  labels:
+    io.rancher.container.pull_image: always
+    io.rancher.scheduler.affinity:host_label: ${schedule_host_label}=${schedule_host_label_value}

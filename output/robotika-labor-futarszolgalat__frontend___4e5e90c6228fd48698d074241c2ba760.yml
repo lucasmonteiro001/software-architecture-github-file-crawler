@@ -1,0 +1,7 @@
+frontend:
+    build: .
+    volumes:
+    - .:/frontend
+    net: "host"
+    ports:
+    - "5000:5000"

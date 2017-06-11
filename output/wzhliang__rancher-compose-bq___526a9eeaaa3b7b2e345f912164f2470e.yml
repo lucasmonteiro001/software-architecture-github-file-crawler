@@ -1,0 +1,14 @@
+389ds:
+  ports:
+  - 389:389/tcp
+  image: jtgasper3/389ds-basic
+  stdin_open: true
+phpldapadmin:
+  ports:
+  - ${public_port}:443/tcp
+  environment:
+    PHPLDAPADMIN_LDAP_HOSTS: '389ds'
+  image: osixia/phpldapadmin:0.6.11
+  stdin_open: true
+  links:
+    - 389ds:389ds

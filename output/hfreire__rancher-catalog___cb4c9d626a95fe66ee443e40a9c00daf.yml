@@ -1,0 +1,72 @@
+flume:
+  tty: true
+  image: hfreire/flume
+  environment:
+    - CORE_CONF_fs_defaultFS=hdfs://namenode:8020
+    - FLUME_AGENT_NAME=${flume_agent_name}
+    - FLUME_CONF_${flume_agent_name}_sources=source1 source2
+    - FLUME_CONF_${flume_agent_name}_sinks=sink1 sink2
+    - FLUME_CONF_${flume_agent_name}_channels=channel1 channel2
+
+    - FLUME_CONF_${flume_agent_name}_sources_source1_type=org.apache.flume.source.kafka.KafkaSource
+    - FLUME_CONF_${flume_agent_name}_sources_source1_kafka_bootstrap_servers=broker:9092
+    - FLUME_CONF_${flume_agent_name}_sources_source1_kafka_topics=dialogs
+    - FLUME_CONF_${flume_agent_name}_sources_source1_interceptors=i11
+    - FLUME_CONF_${flume_agent_name}_sources_source1_interceptors_i11_type=sh.exec.flume.interceptor.JsonInterceptor$$Builder
+    - FLUME_CONF_${flume_agent_name}_sources_source1_interceptors_i11_extractProperties=company_id,user_id,timestamp
+    - FLUME_CONF_${flume_agent_name}_sources_source1_channels=channel1
+
+    - FLUME_CONF_${flume_agent_name}_sinks_sink1_type=hdfs
+    - FLUME_CONF_${flume_agent_name}_sinks_sink1_hdfs_minBlockReplicas=1
+    - FLUME_CONF_${flume_agent_name}_sinks_sink1_hdfs_idleTimeout=1200
+    - FLUME_CONF_${flume_agent_name}_sinks_sink1_hdfs_path=hdfs://namenode/dialogs/%{company_id}/%{user_id}
+    - FLUME_CONF_${flume_agent_name}_sinks_sink1_hdfs_rollInterval=0
+    - FLUME_CONF_${flume_agent_name}_sinks_sink1_hdfs_rollSize=0
+    - FLUME_CONF_${flume_agent_name}_sinks_sink1_hdfs_rollCount=0
+    - FLUME_CONF_${flume_agent_name}_sinks_sink1_hdfs_filePrefix=%{user_id}
+    - FLUME_CONF_${flume_agent_name}_sinks_sink1_hdfs_fileSuffix=.dialog
+    - FLUME_CONF_${flume_agent_name}_sinks_sink1_hdfs_fileType=DataStream
+    - FLUME_CONF_${flume_agent_name}_sinks_sink1_channel=channel1
+
+    - FLUME_CONF_${flume_agent_name}_channels_channel1_type=memory
+    - FLUME_CONF_${flume_agent_name}_channels_channel1_capacity=1000
+    - FLUME_CONF_${flume_agent_name}_channels_channel1_transactionCapacity=100
+
+    - FLUME_CONF_${flume_agent_name}_channels_channel2_type=memory
+    - FLUME_CONF_${flume_agent_name}_channels_channel2_capacity=1000
+    - FLUME_CONF_${flume_agent_name}_channels_channel2_transactionCapacity=100
+
+    - FLUME_CONF_${flume_agent_name}_sources_source2_type=com.plumbee.flume.source.sqs.SQSSource
+    - FLUME_CONF_${flume_agent_name}_sources_source2_url=https://sqs.eu-west-1.amazonaws.com/922985933972/ebba-emails
+    - FLUME_CONF_${flume_agent_name}_sources_source2_recvBatchSize=10
+    - FLUME_CONF_${flume_agent_name}_sources_source2_recvTimeout=20
+    - FLUME_CONF_${flume_agent_name}_sources_source2_batchSize=100
+    - FLUME_CONF_${flume_agent_name}_sources_source2_nbThreads=1
+    - FLUME_CONF_${flume_agent_name}_sources_source2_flushInterval=30
+    - FLUME_CONF_${flume_agent_name}_sources_source2_awsAccessKeyId=
+    - FLUME_CONF_${flume_agent_name}_sources_source2_awsSecretKey=
+    - FLUME_CONF_${flume_agent_name}_sources_source2_interceptors=i21 i22
+    - FLUME_CONF_${flume_agent_name}_sources_source2_interceptors_i21_type=sh.exec.flume.interceptor.JsonInterceptor$Builder
+    - FLUME_CONF_${flume_agent_name}_sources_source2_interceptors_i21_extractBodyProperty=Sns.Message
+    - FLUME_CONF_${flume_agent_name}_sources_source2_interceptors_i22_type=sh.exec.flume.interceptor.JsonInterceptor$Builder
+    - FLUME_CONF_${flume_agent_name}_sources_source2_interceptors_i22_extractBodyProperty=content
+    - FLUME_CONF_${flume_agent_name}_sources_source2_interceptors_i22_extractHeaderProperties=mail.extraHeaders.mailFrom mail.extraHeaders.companyId mail.extraHeaders.timestamp mail.extraHeaders.thread
+    - FLUME_CONF_${flume_agent_name}_sources_source2_channels=channel2
+
+    - FLUME_CONF_${flume_agent_name}_sinks_sink2_type=hdfs
+    - FLUME_CONF_${flume_agent_name}_sinks_sink2_hdfs_minBlockReplicas=1
+    - FLUME_CONF_${flume_agent_name}_sinks_sink2_hdfs_idleTimeout=0
+    - FLUME_CONF_${flume_agent_name}_sinks_sink2_hdfs_path=hdfs://namenode/emails/%{companyId}/%{thread}
+    - FLUME_CONF_${flume_agent_name}_sinks_sink2_hdfs_rollInterval=0
+    - FLUME_CONF_${flume_agent_name}_sinks_sink2_hdfs_rollSize=0
+    - FLUME_CONF_${flume_agent_name}_sinks_sink2_hdfs_rollCount=1
+    - FLUME_CONF_${flume_agent_name}_sinks_sink2_hdfs_filePrefix=%{thread}
+    - FLUME_CONF_${flume_agent_name}_sinks_sink2_hdfs_fileSuffix=.email
+    - FLUME_CONF_${flume_agent_name}_sinks_sink2_hdfs_fileType=DataStream
+    - FLUME_CONF_${flume_agent_name}_sinks_sink2_channel=channel2
+  external_links:
+    - ${kafka_link}:broker
+    - ${hdfs_link}:namenode
+  labels:
+    io.rancher.scheduler.affinity:container_label_soft_ne: io.rancher.stack_service.name=$${stack_name}/$${service_name}
+    io.rancher.container.hostname_override: container_name

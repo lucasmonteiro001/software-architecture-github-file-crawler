@@ -1,0 +1,38 @@
+web:
+    image: 'httpd-c6'
+#    restart: always
+    command: /run/start.sh
+    ports:
+        - '80:80'
+    links:
+        - www
+        - t1
+        - t2
+    volumes:
+        - './run:/run:ro'
+t1:
+    image: 'httpd-c6'
+    command: /run/start-t1.sh
+    expose:
+        - "80"
+    volumes:
+        - './run:/run:ro'
+        - './t1:/app:ro'
+t2:
+    image: 'httpd-c6'
+#    hostname: t2.test.com
+    command: /run/start-t1.sh
+    expose:
+        - "80"
+    volumes:
+        - './run:/run:ro'
+        - './t2:/app:ro'
+www:
+    image: 'httpd-c6'
+#    hostname: t2.test.com
+    command: /run/start-t1.sh
+    expose:
+        - "80"
+    volumes:
+        - './run:/run:ro'
+        - './web:/app:ro'

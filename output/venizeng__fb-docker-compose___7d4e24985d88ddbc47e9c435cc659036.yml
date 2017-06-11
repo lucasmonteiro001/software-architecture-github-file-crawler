@@ -1,0 +1,10 @@
+  version: "2"
+  services: 
+    mongodb: 
+      image: "192.168.50.126:5000/mongo:3.2.4"
+      ports: 
+        - "27017:27017"
+        - "28017:28017"
+      restart: always 
+      volumes: 
+        - "/home/lifeix/mongo_data:/data/db"

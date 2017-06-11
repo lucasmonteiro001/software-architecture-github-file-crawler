@@ -1,0 +1,12 @@
+reveal.js:
+  image: rvdmei/reveal.js
+  ports:
+    - "8000:8000"
+  volumes:
+    - ../css:/usr/src/app/css
+    - ../images:/usr/src/app/images
+    - ../js:/usr/src/app/js
+    - ../lib:/usr/src/app/lib
+    - ../markdown:/usr/src/app/markdown
+    - ../plugin:/usr/src/app/plugin
+    - ../index.html:/usr/src/app/index.html

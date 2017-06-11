@@ -1,0 +1,101 @@
+version: '2'
+services:
+  son-catalogue-repos:
+    image: son-catalogue-repos
+    container_name: son-catalogue-repos
+    links:
+     - mongo
+    ports:
+      - "4002:4011"
+    restart: always
+  
+  son-catalogue-repos-doc:
+    image: son-catalogue-repos
+    container_name: son-catalogue-repos-doc
+    ports:
+      - "8800:8808"
+    command: [rake,yard]
+    command: [yard, server, -B, 0.0.0.0]
+    restart: always
+  
+  mongodata:  
+    image: mongo:3.0.4
+    container_name: mongodata
+    volumes:
+      - /data/db
+    command: --break-mongo
+  
+  mongo:  
+    image: mongo:3.0.4
+    container_name: mongo
+    volumes_from:
+      - mongodata
+    ports:
+      - "27017"
+    command: --smallfiles --rest
+    restart: always
+  
+  mongoexpress:
+    image: knickers/mongo-express
+    container_name: mongoexpress
+    links:
+      - mongo:mongo
+    ports:
+      - "8090:8081"
+    restart: always
+  
+  son-gtkapi:
+    image: son-gtkapi
+    container_name: son-gtkapi
+    links:
+     - son-gtkpkg
+     - son-gtksrv
+    environment:
+     - RACK_ENV=integration
+    ports:
+      - "32001:5000"
+    restart: always
+
+  son-gtkpkg:
+    image: son-gtkpkg
+    container_name: son-gtkpkg
+    environment:
+      - RACK_ENV=integration
+    ports:
+      - "5100"
+    restart: always
+
+  son-gtksrv:
+    image: son-gtksrv
+    container_name: son-gtksrv
+    links:
+     - broker
+     - postgres
+    ports:
+      - "5300"
+    restart: always
+    environment:
+     - POSTGRES_PASSWORD=sonata
+     - POSTGRES_USER=sonatatest
+     - RACK_ENV=integration
+     - DATABASE_HOST=postgres
+     - DATABASE_PORT=5432
+     - MQSERVER=amqp://guest:guest@broker:5672
+    depends_on:
+     - postgres
+
+  postgres:
+    image: ntboes/postgres-uuid
+    container_name: postgres
+    ports:
+     - "5432"
+    environment:
+     - POSTGRES_PASSWORD=sonata
+     - POSTGRES_USER=sonatatest
+     - POSTGRES_DB=gatekeeper
+
+  broker:
+    image: rabbitmq:3
+    container_name: broker
+    ports:
+     - "5672"

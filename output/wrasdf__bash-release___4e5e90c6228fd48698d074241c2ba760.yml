@@ -1,0 +1,29 @@
+---
+base:
+  # there seems to be some DNS issue causing problems with accessing the S3
+  # buckets. Hardcoding to Google's DNS stops this issue.
+  dns: 8.8.8.8
+  image: imyob-docker-public.jfrog.io/ops-buildkite-deployer:0.2.7
+  volumes:
+    - "$HOME/.aws:/root/.aws"
+  environment:
+    TF_VAR_region: ap-southeast-2
+    TF_VAR_azs: '["ap-southeast-2a","ap-southeast-2b","ap-southeast-2c"]'
+    AWS_DEFAULT_REGION: ap-southeast-2
+
+shush:
+  extends:
+    service: base
+  entrypoint:
+    - shush
+
+devagents:
+  extends:
+    service: base
+  environment:
+    REMOTE_STATE_BUCKET: myob-buildkite-states
+    REMOTE_STATE_KEY: terraform.tfstate
+    TF_VAR_queue_name: cashbook
+    TF_VAR_ssh_key: BuildKiteCashbookCI
+    KMS_ENCRYPTED_TF_VAR_agent_token: AQECAHjvBM4/mcPJjO4Vc0hLmY+h3WgMDKspX1D/ab1HdqWa4AAAAJIwgY8GCSqGSIb3DQEHBqCBgTB/AgEAMHoGCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQMqZGUL5LvhS9NladmAgEQgE2XPWdFhcZA0kKkovmbiZseeG3VafAdT2ZkufrZENamdKqDDbyL51QXhEUfIEweY2SoGPutEBN9VoDyBU6yQT9iHgARN+ZOBhgiTKl5Sw==
+    KMS_ENCRYPTED_TF_VAR_api_token: AQECAHjvBM4/mcPJjO4Vc0hLmY+h3WgMDKspX1D/ab1HdqWa4AAAAIcwgYQGCSqGSIb3DQEHBqB3MHUCAQAwcAYJKoZIhvcNAQcBMB4GCWCGSAFlAwQBLjARBAzCRAUGlzEXtXPHD1ICARCAQ23njp6LdH1phx94XBFAJv9g5DsMSSntZoR7BztxQnv7wH0KrhYgomENYlFZak0lS0V9iv605buRxIHTFpebzqkO1CQ=

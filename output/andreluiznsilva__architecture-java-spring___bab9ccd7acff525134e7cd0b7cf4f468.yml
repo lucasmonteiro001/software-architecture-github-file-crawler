@@ -1,0 +1,26 @@
+mysql:
+  image: andreluiznsilva/database:mysql5.5
+  ports:
+    - "3306:3306"
+  environment:
+    - MYSQL_DATABASE=javaweb
+    - MYSQL_USER=javaweb
+    - MYSQL_PASSWORD=javaweb*123
+tomcat:
+  image: andreluiznsilva/java:tomcat7
+  ports:
+    - "8080:8080"
+    - "8000:8000"
+  environment:
+    - JAVA_OPTS=-Djava.security.egd=file:/dev/./urandom -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8000
+    - LIBS=http://central.maven.org/maven2/mysql/mysql-connector-java/5.1.35/mysql-connector-java-5.1.35.jar
+    - RESOURCES=<Resource name=\"jdbc/MySQLDS\" url=\"jdbc:mysql://mysql:3306/javaweb\" driverClassName=\"com.mysql.jdbc.Driver\" username=\"javaweb\" password=\"javaweb*123\" auth=\"Container\" type=\"javax.sql.DataSource\" maxActive=\"20\" maxIdle=\"5\" maxWait=\"10000\" />\n
+    - APP_LOG_DIR=impl/usr/local/tomcat/logs/
+    - APP_BASE_URL=http://localhost:8080
+  volumes:
+    - ./frontend/src/main/webapp:/usr/local/tomcat/webapps/frontend
+    - ./backend/src/main/webapp:/usr/local/tomcat/webapps/backend
+    - ./backend/target/classes:/usr/local/tomcat/webapps/backend/WEB-INF/classes
+    - ./backend/target/libs:/usr/local/tomcat/webapps/backend/WEB-INF/lib
+  links:
+    - mysql

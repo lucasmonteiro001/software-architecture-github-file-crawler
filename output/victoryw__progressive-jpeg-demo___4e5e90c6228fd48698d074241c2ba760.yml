@@ -1,0 +1,4 @@
+webSite:
+  image: victoryw/progressive-jpge-demo
+  ports:
+    - 8080

@@ -1,0 +1,60 @@
+postgres:
+  image: postgres
+  volumes:
+    - /data/cloudbench/postgres:/var/lib/postgresql/data
+  env_file: env.production
+
+django:
+  build: .
+  links:
+    - postgres
+    - redis
+  
+    - rabbitmq
+  
+  command: /uwsgi.sh
+  volumes:
+    - /data/cloudbench/media:/media
+    - /static
+    - /data/cloudbench/machine:/root/.docker/machine
+  env_file: env.production
+
+nginx:
+  build: ./compose/nginx
+  links:
+    - django
+  volumes_from:
+    - django
+  environment:
+    - VIRTUAL_HOST=www.cloudbench.io
+
+redis:
+  build: ./compose/redis
+  volumes:
+    - /data/cloudbench/redis:/data
+
+
+rabbitmq:
+  image: rabbitmq
+
+celeryworker:
+  build: .
+  env_file: env.production
+  links:
+   - rabbitmq
+   - postgres
+   - redis
+  command: su -m django -c "celery -A cloudbench.taskapp worker -l INFO"
+  volumes:
+    - /data/cloudbench/machine:/root/.docker/machine
+
+celerybeat:
+  build: .
+  env_file: env.production
+  links:
+    - rabbitmq
+    - postgres
+    - redis
+  command: su -m django -c "celery -A cloudbench.taskapp beat -l INFO"
+  volumes:
+    - /data/cloudbench/machine:/root/.docker/machine

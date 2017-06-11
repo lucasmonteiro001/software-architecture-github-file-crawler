@@ -1,0 +1,32 @@
+version: "2"
+
+services:
+  db:
+    image: mysql
+    ports:
+      - '3306'
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD=true
+    volumes:
+      - /var/lib/mysql
+
+  es:
+    image: elasticsearch
+    volumes:
+      - /usr/share/elasticsearch/data
+    expose:
+      - "9200"
+      - "9300"
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    command: bundle exec puma -C config/puma.rb
+    volumes:
+      - .:/app
+    ports:
+      - '3000:3000'
+    links:
+      - db
+      - es

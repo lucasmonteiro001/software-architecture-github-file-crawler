@@ -1,0 +1,19 @@
+version: '2'
+
+services:
+
+  rdb:
+    image: redis:3.2-alpine
+
+  app:
+    # image: ncareol/ruby:debian-for-rails-mariadb-2.3.3-0
+    build:
+      context: docker/app
+    volumes:
+      - ./:/app
+    ports:
+      - '3000:3000'
+      # - '28080:28080'
+    links:
+      - rdb
+    command: ./bin/rails s --bind 0.0.0.0

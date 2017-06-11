@@ -1,0 +1,22 @@
+connect:
+  image: chamunks/lilypad-connect:latest
+  expose:
+    - "5091"
+  volumes:
+    - "./connect/connect.yml:/app/connect.yml"
+  ## Restart policies can be set to anything from here https://docs.docker.com/v1.8/reference/run/#restart-policies-restart
+  restart: always
+
+proxy:
+  image: chamunks/lilypad-proxy:latest
+  ports:
+    - "25565:25565"
+  volumes:
+    - "./proxy/proxy.yml:/app/proxy.yml"
+  links:
+    - connect
+  ## Restart policies can be set to anything from here https://docs.docker.com/v1.8/reference/run/#restart-policies-restart
+  restart: always
+
+## An entire minecraft server should be added below here.
+## This will require links and things.  One day I may write an example here.

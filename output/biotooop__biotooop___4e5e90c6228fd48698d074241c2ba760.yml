@@ -1,0 +1,33 @@
+version: '2'
+
+services:
+
+  biotooop:
+    container_name: biotooop
+    image: biotooop/biotooop
+    volumes:
+      - $PWD:/usr/src/app
+      - $PWD/vendor/bundle/ruby/2.4.0:/usr/local/bundle
+    environment:
+      DB_HOST: mysql
+      DB_PASSWORD: example
+    depends_on:
+      - mysql
+    ports:
+      - 8080:8080
+
+  mysql:
+    container_name: mysql
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: example
+      MYSQL_DATABASE: biotooop
+    volumes_from:
+      - mysql-data
+    command: mysqld --character-set-server=utf8 --collation-server=utf8_unicode_ci
+
+  mysql-data:
+    container_name: mysql-data
+    image: busybox
+    volumes:
+      - /var/lib/mysql

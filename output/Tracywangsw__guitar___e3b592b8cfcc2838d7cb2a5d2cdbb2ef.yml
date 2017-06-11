@@ -1,0 +1,40 @@
+db:
+  image: postgres
+  volumes:
+    - /data/guitar:/var/lib/postgresql/data
+web:
+  environment:
+    TZ: Asia/Shanghai
+    GIT_REPO: git@github.com:fate-lovely/guitar.git
+    RAILS_SECRET_KEY_BASE: 866c1cffe7336b5d417ed130b7459fcaacfbf0a76dbc2324e96f3e12ce1a21201d93b2c34999b302a7c4879e0dd3448eeaef74ff0c5f77887807d2a1a832a0e1
+    RAILS_SERVE_STATIC_FILES: true
+    DATABASE_URL: "postgresql://postgres:@pg/guitar_development?pool=20"
+    RAILS_DATABASE: guitar_development
+    RAILS_ENV: development
+    RAILS_ROOT: /app
+    RAILS_PORT: 3000
+    RAILS_TIME_ZONE: "Beijing"
+
+    # sidekiq
+    # REDIS_HOST:
+    # REDIS_PORT:
+    # SIDEKIQ_REDIS_DB: "1"
+    # RAILS_QUEUE_ADAPTER: sidekiq
+
+    # automated nginx proxy
+    VIRTUAL_HOST: guitar.cjting.me
+    VIRTUAL_PORT: 3000
+  build: .
+  volumes:
+    - /root/.ssh:/root/.ssh
+    - /app/guitar:/app
+  ports:
+    - "3000:3000"
+  links:
+    - db:pg
+autoproxy:
+  image: jwilder/nginx-proxy
+  volumes:
+    - /var/run/docker.sock:/tmp/docker.sock
+  ports:
+    - "80:80"

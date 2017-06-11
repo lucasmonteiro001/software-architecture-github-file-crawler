@@ -1,0 +1,33 @@
+version: '2'
+services:
+    proxy:
+        image: 'hotsockets/proxy:v0.1.2'
+        ports:
+         - '8080:8080'
+    hub:
+        image: 'selenium/hub:3.0.1-germanium'
+        ports:
+         - '4444:4444'
+        links:
+         - proxy
+    node:
+        image: 'selenium/node-chrome:3.0.1-germanium'
+        depends_on:
+         - hub
+        links:
+         - proxy
+        environment:
+         - HUB_PORT_4444_TCP_ADDR=hub
+         - HUB_PORT_4444_TCP_PORT=4444
+    logger:
+        image: 'hotsockets/logger:v0.1.2'
+        ports:
+         - '8030:8030'
+    app:
+        image: 'hotsockets/app:v0.1.2'
+        ports:
+         - '8000:8000'
+        links:
+         - proxy
+         - hub
+         - logger

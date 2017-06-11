@@ -1,0 +1,45 @@
+proxy:
+    build: ./containers/proxy
+    volumes:
+        - /var/run/docker.sock:/tmp/docker.sock
+    ports:
+        - "80:80"
+
+redis:
+    build: ./containers/redis
+    volumes:
+        - ./containers/redis:/data
+    ports:
+        - "6379:6379"
+    entrypoint: ["redis-server"]
+
+rabbit:
+    image: rabbitmq:management
+    environment:
+        - RABBITMQ_DEFAULT_USER=admin
+        - RABBITMQ_DEFAULT_PASS=demo
+    ports:
+        - "5672:5672"
+        - "15672:15672"
+
+web:
+    build: ./containers/web
+    environment:
+        - VIRTUAL_HOST=demo.inet
+    links:
+        - redis:redis.inet
+        - rabbit:rabbit.inet
+    volumes:
+        - ./demo-app:/src
+    ports:
+        - "80"
+    entrypoint: ["/run.sh"]
+
+consumer:
+    build: ./containers/consumer
+    links:
+        - redis:redis.inet
+        - rabbit:rabbit.inet
+    volumes:
+        - ./demo-app:/src
+    entrypoint: ["/run.sh"]

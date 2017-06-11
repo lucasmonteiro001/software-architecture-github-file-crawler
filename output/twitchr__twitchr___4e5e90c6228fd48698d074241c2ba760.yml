@@ -1,0 +1,25 @@
+version: "3"
+services:
+  app:
+    build: .
+    command: npm run dev
+    depends_on:
+      - mongo
+    env_file: .env
+    environment:
+      - DEBUG=twitchr:*
+      - MONGODB_URL=mongodb://mongo
+      - NODE_ENV=development
+    networks:
+      - back-tier
+    ports:
+      - "3000:3030"
+    volumes:
+      - ./src:/var/app/src
+  mongo:
+    image: mongo
+    networks:
+      - back-tier
+networks:
+  back-tier:
+    driver: bridge

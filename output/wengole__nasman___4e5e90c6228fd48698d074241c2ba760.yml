@@ -1,0 +1,33 @@
+db:
+  extends:
+    file: common.yml
+    service: db
+  volumes:
+    - var/lib/postgresql/data:/var/lib/postgresql/data
+  env_file: .secret-env
+redis:
+  image: redis
+  restart: always
+web:
+  extends:
+    file: common.yml
+    service: web
+  command: python manage.py runserver 0.0.0.0:8000
+  volumes:
+    - .:/srv
+    - /:/host_root:ro
+  links:
+    - db
+    - redis
+celery:
+  image: nasman_web
+  environment:
+    - C_FORCE_ROOT=1
+  command: celery -A nasman worker -l info -Ofair -C
+  volumes_from:
+    - web
+  links:
+    - redis
+    - db
+  privileged: true
+  restart: always

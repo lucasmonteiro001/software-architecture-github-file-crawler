@@ -1,0 +1,132 @@
+feztestrunner:
+  build: ./../development/backend/fpm/
+  environment:
+    - APP_ENVIRONMENT=testing
+    - XDEBUG_CONFIG=idekey=fez
+    - PHP_IDE_CONFIG=serverName=dev-fez.library.uq.edu.au
+    - JAVA_HOME=/usr/lib/jvm/jre
+    - JHOVE_HOME=/usr/local/jhove
+    - AWS_ACCESS_KEY_ID
+    - AWS_SECRET_ACCESS_KEY
+    - AWS_CLOUDFRONT_KEY_PAIR_ID
+    - AWS_CLOUDFRONT_PRIVATE_KEY_FILE
+    - AWS_CLOUDFRONT_FILE_SERVE_URL
+    - FEZ_S3_BUCKET
+    - FEZ_S3_CACHE_BUCKET
+    - FEZ_S3_SRC_PREFIX
+  links:
+    - cache
+    - fez
+    - fedora
+    - selenium
+    - fezdb
+    - solr
+  volumes:
+    - ../../:/var/app/current
+  volumes_from:
+    - cache
+    - fedoradata
+    - logs
+
+selenium:
+  image: selenium/standalone-chrome-debug:2.53.1
+  environment:
+    - JAVA_OPTS=-Dselenium.LOGGER.level=WARNING
+  links:
+    - fez
+  ports:
+    - "4444:4444"
+    - "5900:5900"
+
+cache:
+  build: ./../development/cache/
+
+logs:
+  build: ./../development/logs/
+
+fez:
+  build: ./../development/backend/nginx/
+  links:
+    - fpm
+  environment:
+    - VIRTUAL_HOST=dev-fez.library.uq.edu.au
+  ports:
+    - "9080:80"
+  volumes_from:
+    - fpm
+    - cache
+    - fedoradata
+    - logs
+
+fpm:
+  build: ./../development/backend/fpm/
+  environment:
+    - APP_ENVIRONMENT=testing
+    - XDEBUG_CONFIG=idekey=fez
+    - PHP_IDE_CONFIG=serverName=dev-fez.library.uq.edu.au
+    - JAVA_HOME=/usr/lib/jvm/jre
+    - JHOVE_HOME=/usr/local/jhove
+    - AWS_ACCESS_KEY_ID
+    - AWS_SECRET_ACCESS_KEY
+    - AWS_CLOUDFRONT_KEY_PAIR_ID
+    - AWS_CLOUDFRONT_PRIVATE_KEY_FILE
+    - AWS_CLOUDFRONT_FILE_SERVE_URL
+    - FEZ_S3_BUCKET
+    - FEZ_S3_CACHE_BUCKET
+    - FEZ_S3_SRC_PREFIX
+  links:
+    - fezdb
+    - fedora
+    - solr
+  volumes:
+    - ../../:/var/app/current
+    - ../etc/nginx/conf.d:/etc/nginx/conf.d
+    - ../etc/nginx/rules:/etc/nginx/rules
+  volumes_from:
+    - cache
+    - fedoradata
+    - logs
+
+fezdb:
+  build: ./../development/backend/db/
+  environment:
+    - MYSQL_ROOT_PASSWORD=development
+    - MYSQL_USER=fez
+    - MYSQL_PASSWORD=fez
+    - MYSQL_DATABASE=fez
+  volumes:
+    - ../../:/var/app/current
+  volumes_from:
+    - fezdbdata
+    - logs
+
+fezdbdata:
+  build: ./../development/backend/db/data/
+
+fedora:
+  build: ./../development/fedora/
+  environment:
+    - FEDORA_HOME=/opt/fedora
+    - FEDORA_WEBAPP_HOME=/opt/fedora/tomcat/webapps/fedora
+  links:
+    - fezdb
+  privileged: true
+  volumes_from:
+    - cache
+    - fedoradata
+    - logs
+
+fedoradata:
+  build: ./../development/fedora/data/
+  volumes:
+    - ./data/fedora:/data
+
+solr:
+  build: ./../development/solr/
+  volumes_from:
+    - cache
+    - solrdata
+    - logs
+
+solrdata:
+  build: ./../development/solr/data/

@@ -1,0 +1,137 @@
+version: '2'
+services:
+  mongo:
+    image: mongo:3
+    ports:
+    - "27017:27017"
+    volumes:
+    - ./.data/mongo:/data/db
+  rabbitmq:
+    image: rabbitmq:3-management
+    hostname: osbb
+    ports:
+    - "5672:5672"
+    - "15672:15672"
+    volumes:
+    - ./.data/rabbitmq:/var/lib/rabbitmq/mnesia/rabbit@osbb
+  redis:
+    image: redis:3
+    ports:
+    - "6379:6379"
+  asyncapi:
+    image: osbb/asyncapi-service
+    ports:
+    - "3001:3001"
+    links:
+    - rabbitmq
+    depends_on:
+    - rabbitmq
+    environment:
+      RABBITMQ_URL: amqp://rabbitmq:5672
+  webui:
+    image: osbb/webui
+    ports:
+    - "3000:80"
+    links:
+    - asyncapi
+  polls:
+    image: osbb/polls-service
+    links:
+    - mongo
+    - rabbitmq
+    depends_on:
+    - mongo
+    - rabbitmq
+    environment:
+      RABBITMQ_URL: amqp://rabbitmq:5672
+      MONGO_URL: mongodb://mongo:27017
+  flats:
+    image: osbb/flats-service
+    links:
+    - mongo
+    - rabbitmq
+    depends_on:
+    - mongo
+    - rabbitmq
+    environment:
+      RABBITMQ_URL: amqp://rabbitmq:5672
+      MONGO_URL: mongodb://mongo:27017
+  houses:
+    image: osbb/houses-service
+    links:
+    - mongo
+    - rabbitmq
+    depends_on:
+    - mongo
+    - rabbitmq
+    environment:
+      RABBITMQ_URL: amqp://rabbitmq:5672
+      MONGO_URL: mongodb://mongo:27017
+  services:
+    image: osbb/services-service
+    links:
+    - mongo
+    - rabbitmq
+    depends_on:
+    - mongo
+    - rabbitmq
+    environment:
+      RABBITMQ_URL: amqp://rabbitmq:5672
+      MONGO_URL: mongodb://mongo:27017
+  cooperatives:
+    image: osbb/cooperatives-service
+    links:
+    - mongo
+    - rabbitmq
+    depends_on:
+    - mongo
+    - rabbitmq
+    environment:
+      RABBITMQ_URL: amqp://rabbitmq:5672
+      MONGO_URL: mongodb://mongo:27017
+  users:
+    image: osbb/users-service
+    links:
+    - mongo
+    - rabbitmq
+    depends_on:
+    - mongo
+    - rabbitmq
+    environment:
+      RABBITMQ_URL: amqp://rabbitmq:5672
+      MONGO_URL: mongodb://mongo:27017
+  transactions:
+    image: osbb/transactions-service
+    links:
+    - mongo
+    - rabbitmq
+    depends_on:
+    - mongo
+    - rabbitmq
+    environment:
+      RABBITMQ_URL: amqp://rabbitmq:5672
+      MONGO_URL: mongodb://mongo:27017
+  auth:
+    image: osbb/auth-service
+    links:
+    - mongo
+    - rabbitmq
+    - redis
+    depends_on:
+    - mongo
+    - rabbitmq
+    - redis
+    environment:
+      RABBITMQ_URL: amqp://rabbitmq:5672
+      MONGO_URL: mongodb://mongo:27017
+      REDIS_URL: redis://redis:6379
+  invoices-printing:
+    image: osbb/invoices-printing-service
+    links:
+    - rabbitmq
+    depends_on:
+    - rabbitmq
+    environment:
+      RABBITMQ_URL: amqp://rabbitmq:5672
+      AWS_ACCESS_KEY_ID: <your_aws_access_key_id>
+      AWS_SECRET_ACCESS_KEY: <your_aws_secret_access_key>

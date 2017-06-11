@@ -1,0 +1,17 @@
+# database container
+db:
+    restart: always
+    image: jhonny/postgresql:9.3
+    ports:
+    -    "5432:5432"
+web:
+    restart: always
+    image: jhonny/dw
+    command: su -m dw -c ./run_web.sh
+    volumes:
+    -    .:/home/jonathan/projects/webs/digital-workers/digital-works
+    ports:
+    -    "8080:8080"
+    links:
+    -    db:db
+

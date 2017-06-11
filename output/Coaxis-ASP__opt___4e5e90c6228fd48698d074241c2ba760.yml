@@ -1,0 +1,33 @@
+version: '2'
+services:
+  backend:
+    build: ./backend
+    image: coaxisopt_backend
+    container_name: coaxisopt_backend
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build: ./frontend
+    image: coaxisopt_frontend
+    container_name: coaxisopt_frontend
+    ports:
+     - "8080:8080"
+
+  nginx:
+    build: ./nginx
+    image: coaxisopt_nginx
+    container_name: coaxisopt_nginx
+    ports:
+      - "80:80"
+    volumes_from:
+      - backend
+    links:
+      - backend
+      - frontend
+
+volumes:
+  database:
+  config:

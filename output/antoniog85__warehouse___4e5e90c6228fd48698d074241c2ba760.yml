@@ -1,0 +1,35 @@
+version: '2'
+services:
+  webserver:
+    container_name: webserver
+    image: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - .:/var/www
+      - ./provision/vhost.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      # the fastcgi_pass option in vhost depends on php
+      - php
+
+  php:
+    container_name: php
+    image: php:7.0-fpm
+    volumes:
+      - .:/var/www/html
+    command: bash ./provision/bootstrap-php.sh
+    ports:
+      - "127.0.0.1:10000:9000"
+
+  db:
+    container_name: db
+    image: mysql
+    ports:
+      - "3306:3306"
+    env_file: .env
+
+  redis:
+    container_name: redis
+    image: redis:alpine
+    ports:
+      - "6379"

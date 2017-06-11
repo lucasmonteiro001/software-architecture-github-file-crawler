@@ -1,0 +1,100 @@
+version: "2"
+services: 
+  wemedia: 
+    image: "registry.c-f.com:5000/football/lifeix-football-wemedia"
+    ports: 
+      - "8082:8080"
+    extra_hosts: 
+      - "mongodb:101.201.53.128"
+      - "redis:101.201.53.128"
+    restart: always
+    environment: 
+      PROFILE_ENV: "production"
+    volumes: 
+      - "/home/lifeix/logs/wemedia:/logs"
+  admin: 
+    image: "registry.c-f.com:5000/football/lifeix-football-admin"
+    ports: 
+      - "8083:8080"
+    extra_hosts: 
+      - "mongodb:101.201.53.128"
+      - "redis:101.201.53.128"
+      - "apigateway:101.201.53.128"
+    restart: always
+    environment: 
+      PROFILE_ENV: "production"
+    volumes: 
+      - "/home/lifeix/logs/admin:/logs"
+  news: 
+    image: "registry.c-f.com:5000/football/lifeix-football-news"
+    ports: 
+      - "8084:8080"
+    extra_hosts: 
+      - "mongodb:101.201.53.128"
+      - "redis:101.201.53.128"
+    restart: always
+    environment: 
+      PROFILE_ENV: "production"
+    volumes: 
+      - "/home/lifeix/logs/news:/logs"
+  file: 
+    image: "registry.c-f.com:5000/football/lifeix-football-file"
+    ports: 
+      - "8085:8080"
+    extra_hosts: 
+      - "mongodb:101.201.53.128"
+      - "redis:101.201.53.128"
+    restart: always
+    environment: 
+      PROFILE_ENV: "production"
+    volumes: 
+      - "/home/lifeix/logs/file:/logs"
+  category: 
+    image: "registry.c-f.com:5000/football/lifeix-football-category"
+    ports: 
+      - "8086:8080"
+    extra_hosts: 
+      - "mongodb:101.201.53.128"
+      - "redis:101.201.53.128"
+    restart: always
+    environment: 
+      PROFILE_ENV: "production"
+    volumes: 
+      - "/home/lifeix/logs/category:/logs"
+  elearning: 
+    image: "registry.c-f.com:5000/football/lifeix-football-elearning"
+    ports: 
+      - "8087:8080"
+    extra_hosts: 
+      - "mongodb:101.201.53.128"
+      - "redis:101.201.53.128"
+    restart: always
+    environment: 
+      PROFILE_ENV: "production"
+    volumes: 
+      - "/home/lifeix/logs/elearning:/logs"
+  like: 
+    image: "registry.c-f.com:5000/football/lifeix-football-like"
+    ports: 
+      - "8088:8080"
+    extra_hosts: 
+      - "mongodb:101.201.53.128"
+      - "redis:101.201.53.128"
+    restart: always
+    environment: 
+      PROFILE_ENV: "production"
+    volumes: 
+      - "/home/lifeix/logs/like:/logs"
+  games: 
+    image: "registry.c-f.com:5000/football/lifeix-football-games"
+    ports: 
+      - "8089:8080"
+    extra_hosts: 
+      - "mongodb:101.201.53.128"
+      - "redis:101.201.53.128"
+      - "mysqldb:101.201.53.128"
+    restart: always
+    environment: 
+      PROFILE_ENV: "production"
+    volumes: 
+      - "/home/lifeix/logs/games:/logs"

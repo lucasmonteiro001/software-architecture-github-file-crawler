@@ -1,0 +1,8 @@
+angular:
+  build: .
+  ports:
+    - "9000:80"
+  volumes:
+    - ./dist/app:/usr/share/nginx/html
+    - ./bower_components:/usr/share/nginx/html/bower_components
+  restart: always

@@ -1,0 +1,25 @@
+version: '2'
+services:
+   reservation_mongo:
+      image: mongo
+      container_name: reservation_mongo
+      hostname: reservation_mongo
+      ports:
+        - 27017
+      volumes:
+      - /home/myroot/docker.shell/reservation/data:/data/db      
+      command: mongod --directoryperdb  
+      
+   reservation:
+      depends_on:
+        - reservation_mongo
+      image: jokyip/reservation
+      container_name: reservation
+      hostname: reservation
+      ports:
+        - 1337
+      volumes:
+       - /home/myroot/docker.shell/reservation/docker/config/server.coffee:/usr/src/app/env.coffee
+       - /etc/ssl/certs:/etc/ssl/certs       
+       - /usr/local/share/ca-certificates:/usr/local/share/ca-certificates
+   

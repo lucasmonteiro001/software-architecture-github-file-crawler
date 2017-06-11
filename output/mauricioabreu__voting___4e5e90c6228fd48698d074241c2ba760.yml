@@ -1,0 +1,15 @@
+version: '2'
+services:
+  db:
+    image: postgres
+  app:
+    build: .
+    command: uwsgi --http :8080 --wsgi-file backend/api.py --callable api
+    volumes:
+      - .:/code
+    ports:
+      - "8080:8080"
+    links:
+      - db
+    depends_on:
+      - db

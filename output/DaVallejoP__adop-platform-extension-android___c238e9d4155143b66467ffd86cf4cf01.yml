@@ -1,0 +1,34 @@
+jenkins-slave-android:
+  container_name: jenkins-slave-android
+  restart: always
+  #image: accenture/adop-jenkins-slave:0.1.4
+  build: ./jenkins-slave-android
+  net: local_network
+  privileged: true
+  environment:
+    SLAVE_LABELS: "android"
+    SWARM_PASSWORD: ${SWARM_PASSWORD}
+    SLAVE_EXECUTORS: ${SLAVE_EXECUTORS}
+    INITIAL_ADMIN_USER: ${INITIAL_ADMIN_USER}
+    INITIAL_ADMIN_PASSWORD: ${INITIAL_ADMIN_PASSWORD}
+    DOCKER_TLS_VERIFY: ${DOCKER_TLS_VERIFY}
+    DOCKER_HOST: ${DOCKER_HOST}
+    DOCKER_CLIENT_CERT_PATH: ${DOCKER_CLIENT_CERT_PATH}
+    DOCKER_NETWORK_NAME: ${CUSTOM_NETWORK_NAME}
+
+
+android-emulator:
+  container_name: android-emulator
+  privileged: true
+  build: ./android-emulator
+  net: local_network
+  ports:
+    - "5900/tcp:5900/tcp"
+  expose:
+    - "5900"
+    - "5555"
+  environment:
+    DOCKER_TLS_VERIFY: ${DOCKER_TLS_VERIFY}
+    DOCKER_HOST: ${DOCKER_HOST}
+    DOCKER_CLIENT_CERT_PATH: ${DOCKER_CLIENT_CERT_PATH}
+    DOCKER_NETWORK_NAME: ${CUSTOM_NETWORK_NAME}

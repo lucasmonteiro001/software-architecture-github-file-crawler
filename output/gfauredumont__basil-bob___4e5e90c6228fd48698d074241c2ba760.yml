@@ -1,0 +1,12 @@
+web:
+  build: .
+  volumes:
+    - .:/project_name
+  ports:
+    - "3000:3000"
+  # links:
+    # - db
+    # - mailcatcher
+  # env_file:
+  #   - '.env.web'
+  command: bash -c "rm -rf tmp/* && ruby bob_test.rb"

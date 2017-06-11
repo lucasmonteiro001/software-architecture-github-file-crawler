@@ -1,0 +1,21 @@
+version: '2'
+services:
+  world:
+    image: "openjdk:7"
+    volumes:
+      - .:/mnt
+    links:
+      - mysql
+    working_dir: /mnt
+    command: bash launcher.sh
+    ports:
+      - "8484:8484"
+      - "7575-7576:7575-7576"
+  mysql:
+    image: "mariadb"
+    volumes:
+      - ./mysql:/var/lib/mysql
+      - ./mysql/sql/lower_case.cnf:/etc/mysql/conf.d/lower_case.cnf
+      - ./mysql/sql:/docker-entrypoint-initdb.d
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD=yes

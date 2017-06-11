@@ -1,0 +1,36 @@
+data:
+  image: tianon/true
+  volumes:
+    - ./data/mysql:/var/lib/mysql
+    - ./data/redmine/files:/usr/src/redmine/files
+    - ./data/redmine/log:/usr/src/redmine/log
+    - ./data/redmine/theme:/usr/src/redmine/public/themes/chouette-coop:ro
+    - ./data/redmine/configuration.yml:/usr/src/redmine/config/configuration.yml:ro
+    - ./data/redmine/plugins/post-install.sh:/usr/src/redmine/plugins/post-install.sh:ro
+    - ./data/redmine/plugins/scrum/config/locales/fr.yml:/usr/src/redmine/plugins/scrum/config/locales/fr.yml:ro
+    - ./data/redmine//files_ckeditor:/usr/src/redmine/public/system/rich
+    - ./data/redmine/plugins/redmine_ckeditor/assets/ckeditor-contrib/skins/moono-modifie:/usr/src/redmine/plugins/redmine_ckeditor/assets/ckeditor-contrib/skins/moono-modifie
+    - ./data/redmine/plugins/redmine_ckeditor/lib/redmine_ckeditor/wiki_formatting/helper.rb:/usr/src/redmine/plugins/redmine_ckeditor/lib/redmine_ckeditor/wiki_formatting/helper.rb
+
+mysql:
+  image: mysql:5.5
+  environment:
+    - MYSQL_ROOT_PASSWORD=root
+    - MYSQL_DATABASE=redmine
+    - MYSQL_USER=redmine
+    - MYSQL_PASSWORD=password
+  volumes_from:
+    - data
+
+redmine:
+  build: ./docker
+#  log_driver: syslog
+#  log_opt:
+#    syslog-facility: user
+#    syslog-tag: "{{.ImageName}}/{{.Name}}"
+  links:
+    - mysql
+  environment:
+    - VIRTUAL_HOST=gestion.lachouettecoop.test
+  volumes_from:
+    - data

@@ -1,0 +1,18 @@
+redis:
+    build: ./redis
+    ports:
+      - "6378:6379"
+    restart: always
+logstashindexerkds:
+    build: ./logstash
+    volumes:
+        - ~/opt-kds-watcher/htdocs/Dockerfiles/logstash/kds/index.conf:/opt/logstash/conf/index.conf
+    command: logstash agent  -f /opt/logstash/conf/index.conf
+    restart: always
+filebeat:
+    build: ./filebeat
+    volumes:
+        - ~/sincedb/sincedb_kds_watcher_f:/opt/sincedb
+        - ~/opt-kds-watcher/htdocs/Dockerfiles/log:/home/ftp/logs
+        - ~/opt-kds-watcher/htdocs/Dockerfiles/filebeat/kds/filebeat.yml:/filebeat.yml
+    restart: always

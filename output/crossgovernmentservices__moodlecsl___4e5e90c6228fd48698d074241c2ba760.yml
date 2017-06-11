@@ -1,0 +1,8 @@
+---
+# docker run -d -p 80:80 moodlecsl /usr/sbin/apachectl -D FOREGROUND
+moodle:
+  image: djsd123/moodlecsl
+  container_name: moodle
+  ports:
+   - "80:80"
+  command: usr/sbin/apachectl -D FOREGROUND

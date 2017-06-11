@@ -1,0 +1,12 @@
+bridge:
+  image: maestroalubia/angular-filemanager-nodejs-bridge
+  volumes:
+    - /tmp/test:/data
+  ports:
+   - "5000:5000"
+  net: "host"
+web:
+  build: .
+  ports:
+   - "8080:8080"
+  net: "host"

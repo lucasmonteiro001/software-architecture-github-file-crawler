@@ -1,0 +1,11 @@
+ubuntu:
+  build: build-file/
+  container_name: ubuntu14php7apache2
+  volumes:
+    - /c:/c
+  environment:
+    - TERM=xterm
+  ports:
+    - 80
+    - 22
+  privileged: true

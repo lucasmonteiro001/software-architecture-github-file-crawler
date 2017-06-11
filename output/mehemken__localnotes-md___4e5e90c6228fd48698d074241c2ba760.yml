@@ -1,0 +1,10 @@
+version: '2'
+services:
+  flaskapp:
+    build: .
+    ports:
+      - "5678:5000"
+    environment:
+      - MODE=dev
+    volumes:
+      - ./app:/home/app

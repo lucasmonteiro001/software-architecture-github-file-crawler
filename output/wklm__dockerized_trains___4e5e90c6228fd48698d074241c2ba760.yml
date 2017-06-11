@@ -1,0 +1,9 @@
+web:
+  build: .
+  volumes:
+    - "app:/src/app"
+  ports:
+    - "8000:8000"
+    - "3001:3001"
+  command: npm run build
+  command: npm run serve

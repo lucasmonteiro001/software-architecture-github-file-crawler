@@ -1,0 +1,56 @@
+version: '2'
+services:
+  webserver:
+    build:
+      context: ./.docker/nginx-php
+      args:
+        - INSTALL_XDEBUG
+    ports:
+      - "80:80"
+    volumes_from:
+      - volumes_source
+    volumes:
+      - ./storage/logs/nginx/:/var/log/nginx
+      - ./config/sites/:/etc/nginx/sites-enabled/
+  mysql:
+    image: mysql:$MYSQL_VERSION
+    volumes_from:
+      - volumes_data
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: $MYSQL_DATABASE
+      MYSQL_USER: $MYSQL_USER
+      MYSQL_PASSWORD: $MYSQL_PASSWORD
+      MYSQL_ROOT_PASSWORD: $MYSQL_ROOT_PASSWORD
+
+  redis:
+      image: redis:3.0
+      volumes_from:
+          - volumes_data
+      ports:
+          - "6379:6379"
+
+  playground:
+    build:
+      context: ./.docker/playground
+      args:
+        - INSTALL_XDEBUG
+        - DOCKER_USER
+        - INSTALL_COMPOSER
+        - INSTALL_LARAVEL_INSTALLER
+        - INSTALL_SYMFONY_INSTALLER
+    volumes_from:
+      - volumes_source
+    tty: true
+
+  volumes_source:
+      image: tianon/true
+      volumes:
+          - $PROJECT_ROOT:/var/www
+
+  volumes_data:
+    image: tianon/true
+    volumes:
+      - ./storage/data/mysql:/var/lib/mysql
+      - ./storage/data/redis:/data

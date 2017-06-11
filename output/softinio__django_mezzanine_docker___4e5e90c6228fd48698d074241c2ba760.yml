@@ -1,0 +1,20 @@
+db:
+    image: postgres:9.5
+    environment:
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_USER=mezzuser
+      - POSTGRES_DB=app
+mezz:
+    build: .
+    volumes:
+      - .:/code
+    links:
+      - db:db
+    ports:
+      - "8902:80"
+    environment:
+        - DATABASE_URL=postgresql://mezzuser:password@db:5432/app
+        - DJANGO_SETTINGS_MODULE=app.settings
+        - DEBUG=True
+    env_file: .env_file
+    

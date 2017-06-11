@@ -1,0 +1,8 @@
+app:
+  container_name: app
+  image: tmueller/docker-webserver
+  ports:
+    - "8070:80"
+  volumes:
+    - .:/var/www/
+    - ./logs/:/var/log/apache2

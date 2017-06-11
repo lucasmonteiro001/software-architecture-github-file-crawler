@@ -1,0 +1,14 @@
+version: '3'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: container/dev/Dockerfile
+    container_name: portfolio
+    image: ytet5uy4/portfolio:dev
+    ports:
+      - "8080:8080"
+    volumes:
+      - .:/home/app/portfolio/
+      - /home/app/portfolio/node_modules/
+      - /home/app/portfolio/dest/

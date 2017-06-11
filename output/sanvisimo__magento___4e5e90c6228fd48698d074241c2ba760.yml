@@ -1,0 +1,48 @@
+php:
+  build: php 
+  ports:
+    - 80:80
+  links:
+    - "cache:rediscache"
+    - "sessions:redissession"
+    - "fullpagecache:redisfullpagecache"
+    - "solr:solr"
+    - "mysql:mysql"
+  volumes:
+    - ./config/php/php.ini:/usr/local/etc/php/php.ini
+    - ./logs/apache2:/var/log/apache2
+    - ./web:/var/www/html
+phpmyadmin:
+  image: phpmyadmin/phpmyadmin  
+  environment:
+    PMA_HOST: mysql
+    PMA_ARBITRARY: 1
+    MYSQL_USERNAME: root
+    MYSQL_PASSWORD: rootpass
+  restart: always
+  ports:
+    - 8080:80
+  links:
+    - "mysql:mysql"
+  volumes_from:
+    - php  
+    - mysql    
+mysql:
+  image: mysql:5.5
+  ports:
+    - "3306:3306"
+  environment:
+    MYSQL_ROOT_PASSWORD: rootpass
+    MYSQL_DATABASE: magento
+    MYSQL_USER: magento
+    MYSQL_PASSWORD: magepass
+  volumes:
+    - ./data/mysql:/var/lib/mysql
+solr:
+  image: andreaskoch/dockerized-magento-solr
+cache:
+  image: redis:latest
+fullpagecache:
+  image: redis:latest
+sessions:
+  image: redis:latest

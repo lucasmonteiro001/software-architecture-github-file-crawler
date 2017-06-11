@@ -1,0 +1,37 @@
+version: '2'
+services:
+  test_web:
+    image: openjdk:8
+    volumes:
+      - .:/app
+    depends_on:
+      - test_db
+      - test_redis
+    environment:
+      - JDBC_DATABASE_URL=jdbc:postgresql://test_db:5432/postgres?user=postgres
+      - GRADLE_USER_HOME=/app/.gradle
+    working_dir: /app
+    command: bash -c "./gradlew clean test jacocoTestReport --stacktrace"
+  dev_web:
+    image: openjdk:8
+    volumes:
+      - .:/app
+    depends_on:
+      - dev_db
+      - dev_redis
+    environment:
+      - JDBC_DATABASE_URL=jdbc:postgresql://dev_db:5432/postgres?user=postgres
+      - GRADLE_USER_HOME=/app/.gradle
+    working_dir: /app
+    command: bash -c "./gradlew clean build -x test && java -Dserver.port=5000 -jar ./build/libs/crudspring*.jar"
+    ports:
+      - "5000:5000"
+  dev_redis:
+    image: redis:3.2
+  test_redis:
+    image: redis:3.2
+
+  dev_db:
+    image: postgres:9.5
+  test_db:
+    image: postgres:9.5

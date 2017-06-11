@@ -1,0 +1,26 @@
+version: '2'
+services:
+  echo:
+    image: solsson/http-echo
+    ports: 
+      - 80
+    env_file:
+      - ../.env
+
+  sails_proxy:
+    depends_on:
+      - echo
+    image: twhtanghk/sails_proxy
+    networks:
+      - default
+      - mongo_default
+    ports:
+      - 1337:1337
+    env_file:
+      - ./.env
+      - ../.env
+
+networks:
+  default:
+  mongo_default:
+    external: true

@@ -1,0 +1,37 @@
+app:
+  image: datadoglt/base
+  command: /bin/true
+  volumes:
+    - ".:/var/www"
+
+web:
+  image: datadoglt/nginx-laravel
+  volumes_from: [app]
+  volumes: ["./docker/nginx/default.conf:/etc/nginx/sites-enabled/laravel.conf"]
+  links:
+   - php
+  ports:
+   - "80:80"
+
+php:
+  image: datadoglt/php56
+  volumes_from: [app]
+  working_dir: /var/www
+  volumes: ["./docker/init.sh:/init.sh"]
+  links:
+   - mysql
+
+mysql:
+  image: mysql:5.6
+  volumes: ["./api/storage/mysql:/var/lib/mysql"]
+  environment:
+    MYSQL_ROOT_PASSWORD: secret
+    MYSQL_DATABASE: vault
+
+webtools:
+  image: datadoglt/webtools
+  volumes_from: [app]
+  working_dir: /var/www
+  user: root
+  environment:
+    GULP_TASK: watch

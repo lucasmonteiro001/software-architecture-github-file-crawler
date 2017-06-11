@@ -1,0 +1,16 @@
+version: '2'
+services:
+  redis:
+    image: redis
+    hostname: redis
+    ports:
+      - 6379:6379
+  akka-services:
+    image: akka-services:1.0
+    hostname: akka-services
+    ports:
+      - 9000:9000
+    depends_on:
+      - redis
+    environment:
+      REDIS_HOST: redis

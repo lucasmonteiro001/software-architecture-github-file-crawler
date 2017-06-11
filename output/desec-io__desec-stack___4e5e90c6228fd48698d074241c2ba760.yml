@@ -1,0 +1,223 @@
+version: '2.1'
+
+services:
+  www:
+    build: www
+    image: desec/dedyn-www:latest
+    ports:
+    - "80:80"
+    - "443:443"
+    volumes:
+    - ${DESECSTACK_WWW_CERTS}:/etc/ssl/private:ro
+    - ./www/html:/usr/share/nginx/html:ro
+    environment:
+    - DESECSTACK_DOMAIN
+    depends_on:
+    - static
+    - api
+    mac_address: 06:42:ac:10:00:80
+    networks:
+      front:
+        ipv4_address: ${DESECSTACK_IPV4_REAR_PREFIX16}.0.128
+        ipv6_address: ${DESECSTACK_IPV6_ADDRESS}
+      rearwww:
+    logging:
+      driver: "syslog"
+      options:
+        tag: "desec/www"
+    restart: unless-stopped
+
+  static:
+    build: static
+    image: desec/dedyn-static:latest
+    networks:
+    - rearwww
+    logging:
+      driver: "syslog"
+      options:
+        tag: "desec/static"
+    restart: unless-stopped
+
+  dbapi:
+    build: dbapi
+    image: desec/dedyn-dbapi:latest
+    volumes:
+    - dbapi_mysql:/var/lib/mysql
+    environment:
+    - DESECSTACK_IPV4_REAR_PREFIX16
+    - DESECSTACK_DBAPI_PASSWORD_desec
+    networks:
+    - rearapi2
+    logging:
+      driver: "syslog"
+      options:
+        tag: "desec/dbapi"
+    restart: unless-stopped
+
+  dblord:
+    build: dblord
+    image: desec/dedyn-dblord:latest
+    volumes:
+    - dblord_mysql:/var/lib/mysql
+    environment:
+    - DESECSTACK_IPV4_REAR_PREFIX16
+    - DESECSTACK_DBLORD_PASSWORD_pdns
+    - DESECSTACK_DBLORD_PASSWORD_poweradmin
+    - DESECSTACK_DEVADMIN_PASSWORD_poweradmin
+    networks:
+    - rearlord
+    logging:
+      driver: "syslog"
+      options:
+        tag: "desec/dblord"
+    restart: unless-stopped
+
+  dbmaster:
+    build: dbmaster
+    image: desec/dedyn-dbmaster:latest
+    ports:
+    - "3306:3306"
+    volumes:
+    - ${DESECSTACK_DBMASTER_CERTS}:/etc/ssl/private:ro
+    - dbmaster_mysql:/var/lib/mysql
+    environment:
+    - DESECSTACK_IPV4_REAR_PREFIX16
+    - DESECSTACK_DBMASTER_PASSWORD_pdns
+    - DESECSTACK_DBMASTER_PASSWORD_ns1replication
+    - DESECSTACK_DBMASTER_SUBJECT_ns1replication
+    - DESECSTACK_DBMASTER_PASSWORD_ns2replication
+    - DESECSTACK_DBMASTER_SUBJECT_ns2replication
+    networks:
+    - rearmaster
+    logging:
+      driver: "syslog"
+      options:
+        tag: "desec/dbmaster"
+    restart: unless-stopped
+
+  api:
+    build: api
+    image: desec/dedyn-api:latest
+    depends_on:
+    - dbapi
+    - nslord
+    environment:
+    - DESECSTACK_DOMAIN
+    - DESECSTACK_API_ADMIN
+    - DESECSTACK_API_SEPA_CREDITOR_ID
+    - DESECSTACK_API_EMAIL_HOST
+    - DESECSTACK_API_EMAIL_HOST_USER
+    - DESECSTACK_API_EMAIL_HOST_PASSWORD
+    - DESECSTACK_API_EMAIL_PORT
+    - DESECSTACK_API_SECRETKEY
+    - DESECSTACK_DBAPI_PASSWORD_desec
+    - DESECSTACK_NSLORD_APIKEY
+    - DESECSTACK_NSMASTER_APIKEY
+    - DESECSTACK_NORECAPTCHA_SITE_KEY
+    - DESECSTACK_NORECAPTCHA_SECRET_KEY
+    networks:
+    - rearapi1
+    - rearapi2
+    - rearwww
+    logging:
+      driver: "syslog"
+      options:
+        tag: "desec/api"
+    restart: unless-stopped
+
+  nslord:
+    build: nslord
+    image: desec/dedyn-nslord:latest
+    environment:
+    - DESECSTACK_IPV4_REAR_PREFIX16
+    - DESECSTACK_DBLORD_PASSWORD_pdns
+    - DESECSTACK_NSLORD_APIKEY
+    - DESECSTACK_NSLORD_CARBONSERVER
+    - DESECSTACK_NSLORD_CARBONOURNAME
+    depends_on:
+    - dblord
+    networks:
+      rearapi1:
+        ipv4_address: ${DESECSTACK_IPV4_REAR_PREFIX16}.1.11
+      rearlord:
+    logging:
+      driver: "syslog"
+      options:
+        tag: "desec/nslord"
+    restart: unless-stopped
+
+  nsmaster:
+    build: nsmaster
+    image: desec/dedyn-nsmaster:latest
+    environment:
+    - DESECSTACK_IPV4_REAR_PREFIX16
+    - DESECSTACK_DBMASTER_PASSWORD_pdns
+    - DESECSTACK_NSMASTER_APIKEY
+    - DESECSTACK_NSMASTER_CARBONSERVER
+    - DESECSTACK_NSMASTER_CARBONOURNAME
+    depends_on:
+    - dbmaster
+    networks:
+      rearapi1:
+        ipv4_address: ${DESECSTACK_IPV4_REAR_PREFIX16}.1.12
+      rearmaster:
+    logging:
+      driver: "syslog"
+      options:
+        tag: "desec/nsmaster"
+    restart: unless-stopped
+
+volumes:
+  dbapi_mysql:
+  dblord_mysql:
+  dbmaster_mysql:
+
+networks:
+  # Note that it is required that the front network ranks lower (in lexical order)
+  # than the other networks. See https://github.com/docker/docker/issues/27101
+  front:
+    enable_ipv6: true
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+      - subnet: ${DESECSTACK_IPV4_REAR_PREFIX16}.0.0/24
+        gateway: ${DESECSTACK_IPV4_REAR_PREFIX16}.0.1
+      - subnet: ${DESECSTACK_IPV6_SUBNET}
+  # Make sure these come after the front network (lexical order). This is why we 
+  # call it rear, not back. See https://github.com/docker/docker/issues/27101
+  rearapi1:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+      - subnet: ${DESECSTACK_IPV4_REAR_PREFIX16}.1.0/24
+        gateway: ${DESECSTACK_IPV4_REAR_PREFIX16}.1.1
+  rearapi2:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+      - subnet: ${DESECSTACK_IPV4_REAR_PREFIX16}.5.0/24
+        gateway: ${DESECSTACK_IPV4_REAR_PREFIX16}.5.1
+  rearwww:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+      - subnet: ${DESECSTACK_IPV4_REAR_PREFIX16}.2.0/24
+        gateway: ${DESECSTACK_IPV4_REAR_PREFIX16}.2.1
+  rearlord:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+      - subnet: ${DESECSTACK_IPV4_REAR_PREFIX16}.3.0/24
+        gateway: ${DESECSTACK_IPV4_REAR_PREFIX16}.3.1
+  rearmaster:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+      - subnet: ${DESECSTACK_IPV4_REAR_PREFIX16}.4.0/24
+        gateway: ${DESECSTACK_IPV4_REAR_PREFIX16}.4.1

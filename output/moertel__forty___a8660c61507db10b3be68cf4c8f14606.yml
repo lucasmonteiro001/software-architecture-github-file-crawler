@@ -1,0 +1,29 @@
+version: '2'
+
+services:
+  postgres_demo_db:
+    image: postgres:9.6
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: demo_admin_user
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: forty_demo
+
+  some_app:
+    build:
+      context: .
+      dockerfile: demo_Dockerfile
+    links:
+      - postgres_demo_db
+    depends_on:
+      - postgres_demo_db
+    environment:
+      SOME_APP_POSTGRES_USER: demo_admin_user
+      SOME_APP_POSTGRES_PASSWORD: secret
+      SOME_APP_POSTGRES_DB: forty_demo
+      FORTY_MAIL_SMTP_ADDRESS: someone@example.com
+      FORTY_MAIL_SMTP_HOST: localhost
+      FORTY_MAIL_SMTP_PORT: 587
+      FORTY_MAIL_SMTP_USERNAME: someone@example.com
+      FORTY_MAIL_SMTP_PASSWORD: very_secret

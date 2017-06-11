@@ -1,0 +1,6 @@
+version: "2"
+services:
+  ubuntu:
+    build: .
+    container_name: ubuntu-base
+    mem_limit: 1g

@@ -1,0 +1,21 @@
+eis:
+  container_name: eis
+  image: robbani/eis:0.0.1
+  links:
+    - mysql
+  env_file:
+    - common.env
+    - eis.env
+  actions:
+    - create_databases:
+      - eis.env
+    - create_oidcclients:
+      - eis.env
+
+
+eisfrontend:
+  container_name: frontendeis
+  image: robbani/frontendeis:0.0.1
+  env_file:
+    - common.env
+    - eis.env

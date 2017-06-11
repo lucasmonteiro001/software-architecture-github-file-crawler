@@ -1,0 +1,34 @@
+version: '2'
+services:
+
+  db:
+    image: postgres:alpine
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=lajug
+
+  mongodb:
+    image: mongo:3.4
+    ports:
+      - "27017:27017"
+    volumes:
+      - /data/db
+
+  cassandra:
+    image: cassandra:2.1.16
+    ports:
+      - "9042:9042"
+    volumes:
+      - /var/lib/cassandra
+
+  rabbitmq:
+      image: rabbitmq:management-alpine
+      ports:
+        - "15672:15672"
+        - "5672:5672"
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"

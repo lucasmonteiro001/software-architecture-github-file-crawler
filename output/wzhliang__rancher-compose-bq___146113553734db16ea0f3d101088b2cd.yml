@@ -1,0 +1,129 @@
+wise2build-frontend:
+  image: registry.aliyuncs.com/wise2c/wisebuild-fronted:0.2.1-beta
+  stdin_open: true
+  tty: true
+  labels:
+    io.rancher.container.pull_image: always
+
+wise2build-biz:
+  image: registry.aliyuncs.com/wise2c/build-biz:0.2.1-beta
+  volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
+  labels:
+    io.rancher.container.pull_image: always
+  links:
+    - eureka-server
+    - mysql-server
+    - rabbitmq
+    - redis
+  tty: true
+  stdin_open: true
+
+wise2build-worker:
+  image: registry.aliyuncs.com/wise2c/build-worker:0.2.1-beta
+  stdin_open: true
+  tty: true
+  links:
+    - eureka-server
+    - rabbitmq
+    - mysql-server2:mysql-server
+  labels:
+    io.rancher.container.pull_image: always
+    io.rancher.scheduler.affinity:host_label: wise2worker=${worker_host_label}
+  volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
+    - /root/.jenkins/workspace:/root/.jenkins/workspace
+    - /root/.jenkins/jobs:/root/.jenkins/jobs
+
+eureka-server:
+  image: consul
+  ports:
+    - 8400:8400
+    - 8500:8500
+    - 8600:53/udp
+  command: agent -server -client=0.0.0.0 -dev -node=node0 -bootstrap-expect=1 -data-dir=/tmp/consul -bind=0.0.0.0
+
+document:
+  labels:
+    io.rancher.container.pull_image: always
+  tty: true
+  image: registry.aliyuncs.com/wise2c/document:0.2-beta
+  stdin_open: true
+
+mysql-server:
+  image: mysql:5.5
+  volumes:
+  - /var/lib//biz-data-dir:/var/lib/mysql
+  ports:
+  - 3306:3306
+  environment:
+    MYSQL_ROOT_PASSWORD: my-secret-pw
+    MYSQL_DATABASE: builderdb
+  tty: true
+  stdin_open: true
+  command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+
+mysql-server2:
+  image: mysql:5.5
+  environment:
+    MYSQL_ROOT_PASSWORD: password
+    MYSQL_DATABASE: workerdb
+  volumes:
+  - /var/lib//worker-data-dir:/var/lib/mysql
+  tty: true
+  stdin_open: true
+  command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+
+rabbitmq:
+  image: rabbitmq:3-management
+  environment:
+    - RABBITMQ_DEFAULT_USER=wise2c
+    - RABBITMQ_DEFAULT_PASS=wise2c
+
+redis:
+  image: redis
+
+postgres-server:
+  environment:
+    POSTGRES_USER: sonar
+    POSTGRES_PASSWORD: sonar
+  tty: true
+  image: postgres
+  stdin_open: true
+
+sonarqube:
+  environment:
+    SONARQUBE_JDBC_USERNAME: sonar
+    SONARQUBE_JDBC_PASSWORD: sonar
+    SONARQUBE_JDBC_URL: jdbc:postgresql://postgres-server/sonar
+  tty: true
+  image: sonarqube
+  links:
+  - postgres-server:postgres-server
+  stdin_open: true
+  ports:
+  - ${sonarqube_http_port}:9000
+  labels:
+    io.rancher.scheduler.affinity:host_label: wise2biz=${biz_host_label}
+
+artifactory:
+  labels:
+    io.rancher.scheduler.affinity:host_label: wise2biz=${biz_host_label}
+  tty: true
+  image: yunlzheng/artifactory-oss
+  stdin_open: true
+
+wise2ci-vip:
+  image: rancher/load-balancer-service
+  ports:
+  - ${http_port}:80
+  tty: true
+  links:
+  - wise2build-frontend:wise2build-frontend
+  - wise2build-biz:wise2build-biz
+  - document:document
+  labels:
+    io.rancher.scheduler.affinity:host_label: wise2biz=${biz_host_label}
+    io.rancher.loadbalancer.target.wise2build-frontend: ${http_port}=80
+    io.rancher.loadbalancer.target.document: ${http_port}/document=80
+    io.rancher.loadbalancer.target.wise2build-biz: ${http_port}/api=80, ${http_port}/sockjs=80

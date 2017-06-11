@@ -1,0 +1,45 @@
+mysql:
+  image: tutum/mysql
+  environment:
+    MYSQL_USER: "test"
+    MYSQL_PASS: "test1234"
+    ON_CREATE_DB: "mytest"
+  ports:
+    - "3306:3306"
+es:
+  build: ./elasticsearch
+  ports:
+    - "9200:9200"
+    - "9300:9300"    
+es2:
+  image: sqlinjection_es
+  ports:
+    - "9201:9200"
+    - "9301:9300"
+es3:
+  image: sqlinjection_es
+  ports:
+    - "9202:9200"
+    - "9302:9300"            
+kibana:
+  build: ./kibana
+  ports:
+      - "5600:5601"
+  links:
+    - es
+  environment:
+    - ELASTICSEARCH=http://es:9200
+web:
+  build: .
+  links:
+    - mysql
+    - es
+    - es2
+    - es3
+  volumes:
+    - ~/.m2:/root/.m2
+    - ./mysql/mysql-config.properties:/opt/sqlinjection/src/main/resources/mysql-config.properties
+    - ./ioc-es.xml:/opt/sqlinjection/src/main/resources/ioc-es.xml
+  ports:
+    - "8080:8080"
+

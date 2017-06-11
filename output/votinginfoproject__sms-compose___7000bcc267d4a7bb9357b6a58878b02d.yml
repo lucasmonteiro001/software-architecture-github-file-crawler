@@ -1,0 +1,8 @@
+web:
+  image: quay.io/votinginfoproject/sms-web:master
+  env_file: .env
+  ports:
+    - "8080:8080"
+worker:
+  image: quay.io/votinginfoproject/sms-worker:master
+  env_file: .env

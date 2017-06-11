@@ -1,0 +1,9 @@
+cat << EOF
+dns:
+  image: devries/dnsmasq:latest
+  volumes:
+    - ${CONFIG_DIR}/althosts:/etc/althosts
+  networks:
+    default:
+      ipv4_address: ${DNS_ADDRESS}
+EOF

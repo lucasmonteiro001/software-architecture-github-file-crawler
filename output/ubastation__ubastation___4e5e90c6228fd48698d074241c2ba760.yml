@@ -1,0 +1,76 @@
+version: '2'
+
+services:
+  app:
+    extends:
+      file: docker-compose.common.yml
+      service: app
+    volumes:
+      - .:/app
+      - ruby-gems:/usr/local/bundle
+      - ../gems:/gems
+    environment:
+      - RAILS_ENV=$RAILS_ENV
+    depends_on:
+      - pg
+      - redis
+      - cache
+
+  web:
+    extends:
+      file: docker-compose.common.yml
+      service: web
+    volumes:
+      - .:/app
+      - ruby-gems:/usr/local/bundle
+      - ../gems:/gems
+    labels:
+      com.dnsdock.name: "ubastation"
+      com.dnsdock.image: ""
+    depends_on:
+      - pg
+      - redis
+      - cache
+
+  resque:
+    extends:
+      file: docker-compose.common.yml
+      service: resque
+    volumes:
+      - .:/app
+      - ruby-gems:/usr/local/bundle
+      - ../gems:/gems
+    depends_on:
+      - pg
+      - redis
+      - cache
+
+  pg:
+    extends:
+      file: docker-compose.common.yml
+      service: pg
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+
+  redis:
+    extends:
+      file: docker-compose.common.yml
+      service: redis
+    volumes:
+      - redis-data:/data
+
+  cache:
+    extends:
+      file: docker-compose.common.yml
+      service: cache
+
+volumes:
+  ruby-gems:
+    external:
+      name: gems-ruby2
+
+  pg-data:
+    driver: local
+
+  redis-data:
+    driver: local

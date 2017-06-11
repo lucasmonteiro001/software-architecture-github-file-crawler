@@ -1,0 +1,15 @@
+server:
+	build: ./containers/Direwolf20_17/1.9.0
+	container_name: direwolf20
+	environment:
+		- EULA=TRUE
+	ports:
+		- 25585:25565
+	volumes_from:
+		- direwolf20_data
+data:
+	build: ./containers/minecraft_datastore
+	container_name: direwolf20_data
+	volumes:
+		- /srv/direwolf20_17/world:/minecraft/world
+

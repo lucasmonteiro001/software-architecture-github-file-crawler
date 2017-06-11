@@ -1,0 +1,29 @@
+version: '2'
+services:
+  db:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: mysql
+      MYSQL_DATABASE: gate_test
+      MYSQL_USER: mysql
+      MYSQL_PASSWORD: mysql
+  redis:
+    image: redis
+  web:
+    build: .
+    command: rails s -p 3000 -b '0.0.0.0'
+    environment:
+      GATE_DB_HOST: db
+      GATE_DB_PORT: 3306
+      GATE_DB_USER: mysql
+      GATE_DB_PASSWORD: mysql
+      CACHE_HOST: redis
+      CACHE_PORT: 6379
+    env_file:
+      - .env
+    ports:
+      - "3000:3000"
+    restart: always
+    depends_on:
+      - db
+      - redis

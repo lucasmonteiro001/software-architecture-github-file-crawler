@@ -1,0 +1,53 @@
+
+distribution:
+  image: vidarl/ezplatform_distribution:1.1.0
+
+db:
+  image: mariadb:latest
+  volumes:
+   - ./resources/database_character_set.sh:/docker-entrypoint-initdb.d/database_character_set.sh
+  environment:
+   - MYSQL_ROOT_PASSWORD=mysecretrootpassword
+   - MYSQL_USER=ezp
+   - MYSQL_PASSWORD=youmaychangethis
+   - MYSQL_DATABASE=ezp
+   - TERM=dumb
+
+phpfpm1:
+  image: ezsystems/php:7.0
+  links:
+   - db:db
+  volumes_from:
+   - distribution
+  environment:
+   - SYMFONY__SYMFONYSECRET=ThisTokenIsNotSoSecretChangeIt
+   - SYMFONY__LOCALE__FALLBACK=en
+   - SYMFONY__MAILER__TRANSPORT=smtp
+   - SYMFONY__MAILER__HOST=null
+   - SYMFONY__MAILER__USER=null
+   - SYMFONY__MAILER__PASSWORD
+   - SYMFONY__DATABASE__DRIVER=pdo_mysql
+   - SYMFONY__DATABASE__HOST=db
+   - SYMFONY__DATABASE__PORT=null
+   - SYMFONY__DATABASE__NAME=ezp
+   - SYMFONY__DATABASE__USER=ezp
+   - SYMFONY__DATABASE__PASSWORD=youmaychangethis
+   - SYMFONY__SEARCH__ENGINE=legacy
+   - SYMFONY__SOLR__DSN="http://localhost:8983/solr"
+   - SYMFONY_ENV=prod
+
+web1:
+  image: nginx
+  links:
+   - phpfpm1:php_fpm
+  volumes_from:
+   - distribution
+  ports:
+   - "8080:80"
+  environment:
+   - SYMFONY_ENV=prod
+   - BASEDIR=/var/www
+   - MAX_BODY_SIZE=20
+   - FASTCGI_PASS=php_fpm:9000
+   - TIMEOUT=190
+  command: /bin/bash -c "cd /var/www && bin/vhost.sh --template-file=/var/www/doc/nginx/vhost.template > /etc/nginx/conf.d/default.conf && cp -a /var/www/doc/nginx/ez_params.d /etc/nginx/ez_params.d && nginx -g 'daemon off;'"

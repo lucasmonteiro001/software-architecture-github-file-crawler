@@ -1,0 +1,37 @@
+drupal:
+  image: maxexcloo/data
+  volumes:
+   - ./drupal:/data
+
+dbdata:
+  image: maxexcloo/data
+  volumes:
+   - ./db:/data
+
+db:
+  image: maxexcloo/mariadb
+  volumes_from:
+   - dbdata
+  environment:
+   - MARIADB_USER=root
+   - MARIADB_PASS=pass
+
+phpmyadmin:
+  image: maxexcloo/phpmyadmin
+  links:
+   - db:mariadb
+  environment:
+   - VIRTUAL_HOST=phpmyadmin.localhost
+  ports:
+   - "8000:80"
+
+nginx:
+  image: maxexcloo/nginx-php
+  links:
+   - db:db
+  volumes_from:
+   - drupal
+  environment:
+   - VIRTUAL_HOST=drupal.localhost
+  ports:
+   - "8080:80"

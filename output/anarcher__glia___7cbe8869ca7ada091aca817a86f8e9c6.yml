@@ -1,0 +1,11 @@
+version: '2'
+services:
+    gmond:
+        build: ./gmond/
+        ports:
+            - "8649:8649/tcp"
+            - "8666:8666/udp"
+    carbon:
+        build: ./udp_server/
+        ports:
+            - "2013:2013/udp"

@@ -1,0 +1,9 @@
+mysql:
+    image: 'mysql-c6'
+#    restart: always
+    command: /run/start.sh
+    ports:
+        - '3306:3306'
+    volumes:
+        - './run:/run'
+#        - './mysql:/var/lib/mysql'

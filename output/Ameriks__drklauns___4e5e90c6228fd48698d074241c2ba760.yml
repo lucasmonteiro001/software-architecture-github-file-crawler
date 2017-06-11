@@ -1,0 +1,13 @@
+version: '2'
+
+services:
+  django:
+    build:
+      context: .
+      dockerfile: ./compose/django/Dockerfile
+    image: ameriks/project_drklauns
+    env_file: .env
+    ports:
+      - "172.17.42.1:10012:5000"
+    volumes:
+        - .:/app

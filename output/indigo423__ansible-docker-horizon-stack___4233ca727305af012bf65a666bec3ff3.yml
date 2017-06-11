@@ -1,0 +1,50 @@
+version: '2'
+volumes:
+  data-postgres:
+    driver: "local"
+  data-opennms:
+    driver: "local"
+services:
+  database:
+    image: postgres:{{ postgres_image_version }}
+    container_name: opennms-postgresql
+    environment:
+      - TZ={{ timezone }}
+      - POSTGRES_HOST=database
+      - POSTGRES_PORT={{ postgres_port }}
+      - POSTGRES_USER={{ postgres_user }}
+      - POSTGRES_PASSWORD={{ postgres_password }}
+    ports:
+      - "{{ postgres_port_expose }}"
+    volumes:
+      - data-postgres:/var/lib/postgresql/data
+  opennms:
+    image: opennms/horizon-core-web:{{ opennms_image_version }}
+    container_name: opennms-horizon-core-web
+    cap_add:
+      - NET_ADMIN
+    environment:
+      - TZ={{ timezone }}
+      - OPENNMS_DBNAME={{ opennms_dbname }}
+      - OPENNMS_DBUSER={{ opennms_dbuser }}
+      - OPENNMS_DBPASS={{ opennms_dbpass }}
+      - OPENNMS_HOME={{ opennms_home }}
+      - OPENNMS_DB_CONFIG={{ opennms_db_config }}
+      - POSTGRES_HOST=database
+      - POSTGRES_PORT={{ postgres_port }}
+      - POSTGRES_USER={{ postgres_user }}
+      - POSTGRES_PASSWORD={{ postgres_password }}
+    depends_on:
+      - database
+    volumes:
+      - data-opennms:/opennms-data
+      - {{ opennms_volume_etc }}
+    command: ["-s"]
+    ports:
+      - "{{ opennms_webui_port_expose }}"
+      - "{{ opennms_jmx_port_expose }}"
+      - "{{ opennms_rmi_port_expose }}"
+      - "{{ opennms_karaf_port_expose }}"
+      - "{{ opennms_activemq_port_expose }}"
+      - "{{ opennms_eventd_port_expose }}"
+      - "{{ opennms_trap_port_expose }}"

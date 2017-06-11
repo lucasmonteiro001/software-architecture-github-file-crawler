@@ -1,0 +1,25 @@
+proxy:
+    build: ./containers/proxy
+    volumes:
+        - /var/run/docker.sock:/tmp/docker.sock
+    ports:
+        - "80:80"
+web:
+    build: ./containers/web
+    volumes:
+        - ./code:/app
+    ports:
+        - "80"
+    environment:
+        - "VIRTUAL_HOST=demoapp.inet"
+    links:
+        - db:db.inet
+db:
+    image: mysql
+    ports:
+        - "3306:3306"
+    environment:
+        - MYSQL_ROOT_PASSWORD=123456
+        - MYSQL_DATABASE=demoapp
+    volumes:
+        - ./containers/db:/etc/mysql/conf.d

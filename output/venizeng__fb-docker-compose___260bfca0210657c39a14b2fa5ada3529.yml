@@ -1,0 +1,10 @@
+www: 
+  image: "registry.cn-hangzhou.aliyuncs.com/football/www:qa"
+  ports: 
+    - "80:80"
+    - "443:443"
+  extra_hosts:
+    - "prerender.c-f.com:192.168.1.17"
+  restart: "always"
+  volumes: 
+    - "/home/lifeix/logs/www/:/var/log/nginx"

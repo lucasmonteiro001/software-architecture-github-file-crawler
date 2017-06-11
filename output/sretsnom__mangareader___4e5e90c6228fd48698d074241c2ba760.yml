@@ -1,0 +1,6 @@
+selfservice:
+  image: docker.uacf.io/idm-self-service-tooling/selfservice:master
+  expose:
+    - 8080
+  ports:
+    - 8080:8080

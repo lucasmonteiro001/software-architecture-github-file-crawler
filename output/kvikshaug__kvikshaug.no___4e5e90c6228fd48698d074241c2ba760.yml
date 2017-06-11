@@ -1,0 +1,22 @@
+version: '2'
+
+services:
+  app:
+    build: app/
+    image: kvikshaug/kvikshaug.no-app
+    volumes:
+    - ./app:/app
+    - ./static/dist/css:/app/static/src/css
+    ports:
+    - "80:80"
+    environment:
+      DJANGO_SETTINGS_MODULE: "project.settings"
+      CONFIGURATION: "development"
+    command: ./manage.py runserver 0.0.0.0:80
+
+  builder:
+    build: static/scss/
+    image: kvikshaug/kvikshaug.no-builder
+    volumes:
+    - ./static:/static
+    command: sass --scss --watch --no-cache scss:dist/css

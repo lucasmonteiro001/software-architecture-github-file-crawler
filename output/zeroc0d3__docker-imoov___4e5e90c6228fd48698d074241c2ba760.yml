@@ -1,0 +1,178 @@
+version: '2'
+
+services:
+
+### Applications Code Container #############################
+
+    zeroc0d3_apps:
+      image: tianon/true
+      volumes:
+        - ${APPLICATION}:/var/www
+
+### Workspace Utilities Container ###########################
+
+    workspace:
+      build:
+        context: ./workspace
+        args:
+          - INSTALL_XDEBUG=${WORKSPACE_INSTALL_XDEBUG}
+          - INSTALL_NODE=${WORKSPACE_INSTALL_NODE}
+          - INSTALL_YARN=${WORKSPACE_INSTALL_YARN}
+          - INSTALL_DRUSH=${WORKSPACE_INSTALL_DRUSH}
+          - COMPOSER_GLOBAL_INSTALL=${WORKSPACE_COMPOSER_GLOBAL_INSTALL}
+          - INSTALL_WORKSPACE_SSH=${WORKSPACE_INSTALL_WORKSPACE_SSH}
+          - INSTALL_LARAVEL_ENVOY=${WORKSPACE_INSTALL_LARAVEL_ENVOY}
+          - INSTALL_DEPLOYER=${WORKSPACE_INSTALL_LARAVEL_ENVOY}
+          - INSTALL_LINUXBREW=${WORKSPACE_INSTALL_LARAVEL_ENVOY}
+          - INSTALL_MC=${WORKSPACE_INSTALL_MC}
+          - PUID=${WORKSPACE_PUID}
+          - PGID=${WORKSPACE_PGID}
+          - NODE_VERSION=${WORKSPACE_NODE_VERSION}
+          - YARN_VERSION=${WORKSPACE_TIMEZONE}
+          - TZ=${WORKSPACE_TIMEZONE}
+      volumes_from:
+          - zeroc0d3_apps
+      extra_hosts:
+          - "dockerhost:${DOCKER_HOST_IP}"
+      ports:
+         - "${WORKSPACE_SSH_PORT}:22"
+      tty: true
+
+### PHP-FPM Container #######################################
+
+    php-fpm:
+      build:
+        context: ./php-fpm
+        args:
+          - INSTALL_XDEBUG=${PHP_FPM_INSTALL_XDEBUG}
+          - INSTALL_ZIP_ARCHIVE=${PHP_FPM_INSTALL_ZIP_ARCHIVE}
+          - INSTALL_BCMATH=${PHP_FPM_INSTALL_BCMATH}
+          - INSTALL_OPCACHE=${PHP_FPM_INSTALL_OPCACHE}
+          - INSTALL_EXIF=${PHP_FPM_INSTALL_EXIF}
+          - INSTALL_MYSQLI=${PHP_FPM_INSTALL_MYSQLI}
+          - INSTALL_TOKENIZER=${PHP_FPM_INSTALL_TOKENIZER}
+          - INSTALL_INTL=${PHP_FPM_INSTALL_INTL}
+        dockerfile: ${PHP_FPM_DOCKER_FILE}
+      volumes_from:
+        - zeroc0d3_apps 
+      expose:
+        - "9000"
+      depends_on:
+        - workspace
+      extra_hosts:
+        - "dockerhost:${DOCKER_HOST_IP}"
+      environment:
+        - PHP_IDE_CONFIG=${PHP_IDE_CONFIG}
+
+### Nginx Server Container ##################################
+
+    nginx:
+      build:
+        context: ./nginx
+        args:
+          - PHP_UPSTREAM=php-fpm
+      volumes_from:
+          - zeroc0d3_apps
+      volumes:
+          - ${NGINX_HOST_LOG_PATH}:/var/log/nginx
+          - ${NGINX_SITES_PATH}:/etc/nginx/sites-available
+      ports:
+          - "${NGINX_HOST_HTTP_PORT}:80"
+          - "${NGINX_HOST_HTTPS_PORT}:443"
+      depends_on:
+          - php-fpm
+
+### Apache Server Container #################################
+
+    # apache2:
+    #   build:
+    #     context: ./apache2
+    #     args:
+    #       - PHP_SOCKET=${PHP_SOCKET}
+    #   volumes_from:
+    #     - zeroc0d3_apps 
+    #   volumes:
+    #     - ${APACHE_HOST_LOG_PATH}:/var/log/apache2
+    #   ports:
+    #     - "${APACHE_HOST_HTTP_PORT}:80"
+    #     - "${APACHE_HOST_HTTPS_PORT}:443"
+    #   depends_on:
+    #     - php-fpm
+
+### HHVM Container ##########################################
+
+    hhvm:
+      build: ./hhvm
+      volumes_from:
+        - zeroc0d3_apps 
+      expose:
+        - "9000"
+      depends_on:
+        - workspace
+
+### Minio Container #########################################
+
+    # minio:
+    #   build: ./minio
+    #   volumes:
+    #     - minio:/export
+    #   ports:
+    #     - "${MINIO_PORT}:9000"
+    #   environment:
+    #     MINIO_ACCESS_KEY: access
+    #     MINIO_SECRET_KEY: secretkey
+
+### MySQL Container #########################################
+
+    # mysql:
+    #   build:
+    #     context: ./mysql
+    #     args:
+    #       - MYSQL_DATABASE=${MYSQL_DATABASE}
+    #       - MYSQL_USER=${MYSQL_USER}
+    #       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+    #       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    #   volumes:
+    #     - mysql:/var/lib/mysql
+    #   ports:
+    #     - "${MYSQL_PORT}:3306"
+
+### MariaDB Container #######################################
+
+    mariadb:
+      build: ./mariadb
+      volumes:
+        - mariadb:/var/lib/mysql
+      ports:
+        - "${MARIADB_PORT}:3306"
+      environment:
+        - MYSQL_DATABASE=${MARIADB_DATABASE}
+        - MYSQL_USER=${MARIADB_USER}
+        - MYSQL_PASSWORD=${MARIADB_PASSWORD}
+        - MYSQL_ROOT_PASSWORD=${MARIADB_PORT}
+
+### phpMyAdmin Container ####################################
+
+    phpmyadmin:
+      build: ./phpmyadmin
+      environment:
+        - PMA_ARBITRARY=1
+        - MYSQL_USER=${PMA_USER}
+        - MYSQL_PASSWORD=${PMA_PASSWORD}
+        - MYSQL_ROOT_PASSWORD=${PMA_ROOT_PASSWORD}
+      ports:
+        - "${PMA_PORT}:80"
+      depends_on:
+        - "${PMA_DB_ENGINE}"
+
+### Volumes Setup ###########################################
+
+volumes:
+    # mysql:
+    #     driver: "local"
+    mariadb:
+        driver: "local"
+    # minio:
+    #     driver: "local"
+    phpmyadmin:
+        driver: "local"

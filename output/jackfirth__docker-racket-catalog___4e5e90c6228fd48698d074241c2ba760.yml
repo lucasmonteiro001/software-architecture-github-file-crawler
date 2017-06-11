@@ -1,0 +1,27 @@
+proxy:
+  image: tgolson/nginx-spa
+  ports:
+    - "8080:8080"
+  volumes_from:
+    - client
+  links:
+    - "catalog:api"
+
+client:
+  build: ./client-app
+
+catalog:
+  build: ./catalog
+  ports:
+    - "8000:8000"
+  links:
+    - redis
+  command: ./main
+
+test:
+  build: ./integration-test
+  links:
+    - catalog
+
+redis:
+  image: redis

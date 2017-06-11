@@ -1,0 +1,20 @@
+queue:
+  build: .
+
+#test:
+#  build: testclient/
+#  command: bash -xec "a=$(curl http://${QUEUE_PORT_8080_TCP_ADDR}:${QUEUE_PORT_8080_TCP_PORT}/ping/1 | tr -d '\r') ; [[ $a == 'pong 1' ]]"
+#  links:
+#     - queue
+
+test2:
+  build: testclient/
+  links:
+     - queue
+  command: /bin/test_script.sh && echo "TESTS SUCCEEDED"
+
+#test3:
+#  build: testclient/
+#  command: bash -c "curl http://${QUEUE_PORT_8080_TCP_ADDR}:${QUEUE_PORT_8080_TCP_PORT}/execute/google.com/?q=hello "
+#  links:
+#     - queue

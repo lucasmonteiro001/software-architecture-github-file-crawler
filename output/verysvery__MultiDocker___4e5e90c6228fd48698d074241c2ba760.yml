@@ -1,0 +1,17 @@
+##############################
+######### CopyRights(c) 2015 VerysVery.com  #########
+######### Released under the MIT License #########
+######### http://opensource.org/licenses/mit-license.php #########
+##############################
+
+######### Django Tutorial :8080 #########
+
+dreamsvsv:
+  build: ./DreamsVsV
+  command: python manage.py runserver 0.0.0.0:8080
+  volumes:
+    - ./DreamsVsV:/DreamsVsV
+  ports:
+    - "80:8080"
+
+  

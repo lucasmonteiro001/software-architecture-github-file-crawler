@@ -1,0 +1,19 @@
+pact_db:
+  image: postgres
+  hostname: pact_db
+  ports:
+    - "5432:5432"
+
+pact_broker:
+  image: dius/pact_broker
+  links:
+    - pact_db:pact_db
+  hostname: pact_broker
+  environment:
+    - PACT_BROKER_DATABASE_USERNAME=postgres
+    - PACT_BROKER_DATABASE_PASSWORD=postgres
+    - PACT_BROKER_DATABASE_NAME=postgres
+    - PACT_BROKER_DATABASE_HOST=pact_db
+  ports:
+    - "80:80"
+

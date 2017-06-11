@@ -1,0 +1,46 @@
+version: '2'
+volumes:
+  moodle-conf:
+  moodledata:
+  moodle-db-data:
+  cache-data:
+
+services:
+  db:
+    image: postgres:9.6
+    restart: always
+    environment:
+      POSTGRES_DB: moodle
+      POSTGRES_USER: moodle
+      POSTGRES_PASSWORD: moodle
+      PGPASSWORD: moodle
+    volumes:
+     - moodle-db-data:/var/lib/postgresql/data
+
+  server:
+    image: gcavalcante8808/moodle
+    restart: always
+    build: .
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: moodle
+      DB_PASS: moodle
+      DB_NAME: moodle
+      MOODLE_VERSION: 32
+      MOODLE_PLUGINS: 1
+      VIRTUAL_HOST: localhost
+    ports:
+     - "80:80"
+    volumes:
+     - moodle-conf:/var/www/html
+     - moodledata:/var/www/moodledata
+    depends_on:
+     - db
+
+  cache:
+    image: redis:3.2
+    restart: always
+    volumes:
+     - cache-data:/data
+    

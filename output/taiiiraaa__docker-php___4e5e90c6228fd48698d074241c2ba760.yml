@@ -1,0 +1,34 @@
+version: '2'
+
+services:
+    http:
+        build: ./docker/nginx
+        ports:
+            - '8080:80'
+        volumes:
+            - ./app:/var/www/html
+        command: nginx -g 'daemon off;'
+        networks:
+            - app-tier
+    php:
+        build: ./docker/php
+        volumes:
+            - ./app:/var/www/html
+        networks:
+            - app-tier
+    database:
+        image: mysql:5.7
+        volumes:
+            - database-volume:/var/lib/mysql
+            - ./docker/mysql/dump:/docker-entrypoint-initdb.d #auto import data file .sh, .sql and .sql.gz
+        environment:
+            - MYSQL_ROOT_PASSWORD=root
+        ports:
+            - '32776:3306'
+        networks:
+            - app-tier
+networks:
+    app-tier:
+        driver: bridge
+volumes:
+    database-volume:

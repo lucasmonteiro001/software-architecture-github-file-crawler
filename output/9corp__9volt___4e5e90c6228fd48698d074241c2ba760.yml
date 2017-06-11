@@ -1,0 +1,42 @@
+version: '2'
+services:
+  9volt1:
+    depends_on: 
+      - etcd
+    image: 9corp/9volt:latest
+    ports:
+      - "8081:8080"
+    links: 
+     - etcd
+    environment:
+      - NINEV_ETCD_MEMBERS=http://etcd:2379
+      - NINEV_DEBUG=true
+  9volt2:
+    depends_on: 
+      - etcd
+    image: 9corp/9volt:latest
+    ports:
+      - "8082:8080"
+    links: 
+     - etcd
+    environment:
+      - NINEV_ETCD_MEMBERS=http://etcd:2379
+      - NINEV_DEBUG=true
+      - NINEV_MEMBER_TAGS=foo
+  9volt3:
+    depends_on: 
+      - etcd
+    image: 9corp/9volt:latest
+    ports:
+      - "8084:8080"
+    links: 
+     - etcd
+    environment:
+      - NINEV_ETCD_MEMBERS=http://etcd:2379
+      - NINEV_DEBUG=true
+      - NINEV_MEMBER_TAGS=foo, bar
+  etcd:
+    image: quay.io/coreos/etcd:v3.1.2
+    ports:
+      - "2379:2379"
+    command: /usr/local/bin/etcd -advertise-client-urls http://0.0.0.0:2379 -listen-client-urls http://0.0.0.0:2379

@@ -1,0 +1,17 @@
+version: '2'
+
+services:
+    transmission:
+        image: justin8/transmission
+        network_mode: "service:vpn"
+        depends_on:
+            - vpn
+        volumes:
+            - /tmp/transmission:/config:rw
+    vpn:
+        image: justin8/openvpn-client
+        privileged: true
+        ports:
+            - "9091:9091"
+        volumes:
+            - /tmp/vpn:/config:ro

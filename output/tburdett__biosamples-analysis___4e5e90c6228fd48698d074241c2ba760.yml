@@ -1,0 +1,101 @@
+version: '2'
+
+services:
+  collate-attributes:
+    build: 
+      context: ./collate-attributes
+    volumes:
+      - ./data:/data
+
+  collate-ontologies:
+    build:
+      context: ./collate-ontologies
+    volumes:
+      - ./data:/data
+
+  #takes about 45min
+  create-csv:
+    build: 
+      context: ./create-csv
+    volumes:
+      - ./data:/data
+
+  populate-neo4j:
+    build: 
+      context: ./populate-neo4j
+    volumes:
+      - ./data:/data
+    
+  neo4j-server-local:
+    build:
+        context: ./neo4j-server-local
+    volumes:
+        - ./data:/data
+        - ./neo4j-server-local/conf:/conf
+        - ./neo4j-server-local/logs:/logs
+    ports:
+        - "7473:7473"
+        - "7474:7474"
+        - "7687:7687"
+#    command: dump-config
+    
+  neo4j-server-local-dev:
+    build:
+        context: ./neo4j-server-local
+    volumes:
+        - ./data_dev:/data
+        - ./neo4j-server-local/conf:/conf
+    
+  neo4j-server-local-prod:
+    build:
+        context: ./neo4j-server-local
+    volumes:
+        - ./data_prod:/data
+        - ./neo4j-server-local/conf:/conf
+
+  #to run this container use a command like:
+  #docker-compose run --service-ports neo4j-analysis [ARGS]
+  neo4j-analysis:
+    build: 
+      context: ./neo4j-analysis
+    volumes:
+      - ./neo4j-analysis:/neo4j-analysis
+    depends_on:
+      - neo4j-server-local
+    entrypoint:
+      - ./wait-for-it.sh
+      - neo4j-server-local:7474
+      - --
+      - python
+      - -u
+      - neo4j-analysis/neo4j-analysis.py
+
+  neo4j-correct:
+    build:
+      context: ./neo4j-correct
+    volumes:
+      - ./neo4j-analysis:/neo4j-analysis
+      - ./neo4j-correct:/neo4j-correct
+    depends_on:
+      - neo4j-server-local
+    entrypoint:
+      - ./wait-for-it.sh
+      - neo4j-server-local:7473
+      - neo4j-server-local:7474
+      - neo4j-server-local:7687
+      - --
+      - python
+      - -u
+      - neo4j-correct/neo4j-correct.py
+
+  zooma-confidence:
+    build:
+      context: ./zooma-confidence
+
+#allowing docker-compose to create a new network can break internal connectivty on host
+networks:
+  #need to move default network to a different subnet to avoid conflict with local subnet
+  default:
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16

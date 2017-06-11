@@ -1,0 +1,99 @@
+version: '2'
+volumes:
+  database:
+
+services:
+  # tellform:
+  #     image: havengrc-docker.jfrog.io/tellform/production:no_subdomains
+  #     environment:
+  #       - REDIS_URL=redis://redis-db:6379
+  #       - MONGODB_URI=mongodb://mongo-db:27017/mean
+  #       - CREATE_ADMIN_ACCOUNT=TRUE
+  #       - SUBDOMAINS_DISABLED=TRUE
+  #       - BASE_URL=localhost
+  #       - SOCKET_URL=localhost
+  #       - SOCKET_PORT=5555
+  #     links:
+  #       - redis:redis-db
+  #       - mongo:mongo-db
+  #     ports:
+  #       - "3000:3000"
+  #       - "5555:5555"
+  # mongo:
+  #     image: havengrc-docker.jfrog.io/mongo
+  #     ports:
+  #       - "27017:27017"
+  # redis:
+  #     image: havengrc-docker.jfrog.io/redis
+  #     ports:
+  #       - "6379:6379"
+  # marketing:
+  #   volumes:
+  #     - ./marketing/public:/public
+  #   build:
+  #     context: .
+  #     dockerfile: ./marketing/Dockerfile
+  #   ports:
+  #     - "5000:2015"
+  keycloak:
+    image: havengrc-docker.jfrog.io/jboss/keycloak-postgres:3.0.0.Final
+    environment:
+      - POSTGRES_DATABASE=mappamundi_dev
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_PORT_5432_TCP_ADDR=postgres
+      - KEYCLOAK_USER=admin
+      - KEYCLOAK_PASSWORD=admin
+    ports:
+      - "8080:8080"
+    links:
+      - db:postgres
+    volumes:
+      - ./keycloak:/keycloak
+  sqitch:
+    build:
+      context: .
+    working_dir: /src
+    volumes:
+      - .:/src
+    links:
+      - db
+  api:
+    image: havengrc-docker.jfrog.io/begriffs/postgrest:v0.4.0.0
+    command: [postgrest, "/config"]
+    ports:
+      - "3001:3000"
+    links:
+      - db
+    env_file: .env
+    volumes:
+      - ./postgrest/config:/config
+  swagger:
+    image: havengrc-docker.jfrog.io/swaggerapi/swagger-ui:v3.0.2
+    ports:
+      - "3002:8080"
+    volumes:
+      - ./swagger/index.html:/usr/share/nginx/html/index.html
+  db:
+    image: postgres:9.6.2
+    ports:
+      - "5434:5432"
+    environment:
+      - POSTGRES_DB=mappamundi_dev
+    volumes:
+      - ./postgresql-data:/var/lib/postgresql
+  webui:
+    working_dir: /code
+    volumes:
+      - ./web:/code
+      - /code/node_modules
+    build:
+      context: .
+      dockerfile: ./web/Dockerfile-hotreload
+    links:
+      - api
+      - keycloak
+    ports:
+      - "2015:2015"
+    command: [/code/installrun.sh]
+    env_file: .env

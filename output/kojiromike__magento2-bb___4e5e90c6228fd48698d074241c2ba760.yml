@@ -1,0 +1,37 @@
+dbfs:
+    image: mysql:5
+    command: echo 'Providing data volume for mysql data'
+db:
+    image: mysql:5
+    environment:
+        - MYSQL_ROOT_PASSWORD=mage
+        - MYSQL_USER=mage
+        - MYSQL_PASSWORD=mage
+        - MYSQL_DATABASE=mage
+    volumes_from:
+        - dbfs
+fs:
+    image: tianon/true
+    volumes:
+        - /var/www/html
+web:
+    build: web
+    environment:
+        - MAGE_MODE=developer
+    env_file: .env
+    links:
+        - db
+    ports:
+        - "80"
+    volumes_from:
+        - fs
+    entrypoint:
+        - bootstrap
+edit:
+    build: edit
+    ports:
+        - "9000:9000"
+    user: editor
+    volumes_from:
+        - fs
+    working_dir: /var/www/html

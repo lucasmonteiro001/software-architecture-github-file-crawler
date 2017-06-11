@@ -1,0 +1,20 @@
+version: '2'
+
+services:
+  nginx-proxy:
+    image: 'jwilder/nginx-proxy'
+    container_name: 'nginx-proxy'
+    environment:
+      - DEFAULT_HOST=app.service
+    ports:
+      - '8088:80'
+    volumes:
+      - '/var/run/docker.sock:/tmp/docker.sock:ro'
+  app:
+    build: app
+    environment:
+      - VIRTUAL_HOST=app.service
+      - VIRTUAL_PORT=8888
+      - PORT=8888
+    expose:
+      - '8888'

@@ -1,0 +1,11 @@
+wether:
+  build: .
+  # command: node_modules/.bin/nodemon index.js
+  command: npm start
+  environment:
+    NODE_ENV: development
+  ports:
+    - '3000:3000'
+  volumes:
+    - .:/home/app/wether
+    - /home/app/wether/node_modules

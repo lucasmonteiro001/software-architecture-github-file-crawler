@@ -1,0 +1,27 @@
+version: '2'
+services:
+db:
+ image: postgres
+ volumes:
+     - "./.pgdata/db:/var/lib/postgresql/data"
+ restart: always
+ #ports:
+ #- "5432:5432"
+
+ environment:
+         POSTGRES_PASSWORD: toor
+         POSTGRES_USER: owncloud
+         POSTGRES_DB: owncloud
+
+owncloud:
+ image: owncloud
+ ports:
+    - 80:80
+ depends_on:
+    - db
+ links:
+    - db
+ volumes:
+   - "./config:/var/www/html/configi/"
+   - "./data:/var/www/html/data/"
+ restart: always

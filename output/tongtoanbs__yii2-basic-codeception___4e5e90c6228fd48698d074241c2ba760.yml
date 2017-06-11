@@ -1,0 +1,17 @@
+yii2-codeception:
+  build: .
+  links:
+    - phantomjs
+  command: php -S 0.0.0.0:8000 -t web
+  volumes:
+    - .:/yii2-codeception
+  ports:
+    - '8000:8000'
+
+phantomjs:
+  image: wernight/phantomjs:2.1.1
+  ports:
+    - '4444:4444'
+  entrypoint:
+    - phantomjs
+    - --webdriver=4444

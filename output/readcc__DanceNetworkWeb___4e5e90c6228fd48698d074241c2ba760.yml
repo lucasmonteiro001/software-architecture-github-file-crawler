@@ -1,0 +1,25 @@
+version: '2'
+
+services:
+  mysql_db:
+    image: mysql:5.7
+    volumes:
+      - db_data:/var/lib/mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: dnroot
+      MYSQL_DATABASE: dndb
+      MYSQL_USER: dnusr
+      MYSQL_PASSWORD: dnpassword
+
+  spring_boot_rest:
+    depends_on:
+     - mysql_db
+    image: nginx:latest
+    ports:
+      - "80:80"
+    volumes:
+      - /srv/docker/nginx/sites-enabled:/etc/nginx/sites-enabled
+    restart: always
+volumes:
+    db_data:

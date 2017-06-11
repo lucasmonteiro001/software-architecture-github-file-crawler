@@ -1,0 +1,26 @@
+version: '2'
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/home/app
+      - /node_modules
+    environment:
+      NODE_ENV: 'development'
+    env_file: .env.local
+    tty: true
+    command: npm run dev
+    depends_on:
+      - mongodb
+    ports:
+      - "8080:8080"
+  mongodb:
+    image: mongo:3.2
+    tty: true
+    volumes:
+      - ./db/mongo:/data/db
+    ports:
+      - "27017:27017"

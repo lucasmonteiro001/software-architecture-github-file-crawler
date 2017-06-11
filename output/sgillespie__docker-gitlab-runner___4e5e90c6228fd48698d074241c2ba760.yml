@@ -1,0 +1,37 @@
+version: '2'
+
+volumes:
+  gitlab_config:
+  gitlab_data:
+  gitlab_logs:
+
+services:
+  gitlab:
+    image: gitlab/gitlab-ce:latest
+    container_name: gitlab
+    hostname: gitlab
+    network_mode: bridge
+    ports:
+      - "443:443"
+      - "80:80"
+      - "9922:22"
+    volumes:
+      - gitlab_config:/etc/gitlab
+      - gitlab_data:/var/opt/gitlab
+      - gitlab_logs:/var/log/gitlab
+        
+  gitlab_runner:
+    build: .
+    container_name: gitlab-runner
+    environment:
+      CI_SERVER_URL: http://gitlab/ci
+      DOCKER_IMAGE: alpine
+      REGISTRATION_TOKEN: ${REGISTRATION_TOKEN}
+      RUNNER_EXECUTOR: docker
+      RUNNER_TAG_LIST: docker
+    image: sgillespie/gitlab-runner
+    network_mode: bridge
+    links:
+      - gitlab:gitlab
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock

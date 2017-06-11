@@ -1,0 +1,45 @@
+zookeeper:
+  image: "cantireinnovations/zookeeper:3.4.6"
+  expose:
+    - "2181"
+  restart: "always"
+
+kafka:
+  image: "cantireinnovations/kafka:0.9.0.0"
+  ports:
+    - "9092:9092"
+  links:
+    - "zookeeper"
+  environment:
+    DEV: 'true'
+    KAFKA_ADVERTISED_HOST_NAME: "${DEV_DOCKER_HOST_NAME}"
+    KAFKA_ADVERTISED_PORT: "9092"
+    KAFKA_BROKER_ID: "1"
+    KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+  restart: "always"
+
+schemaRegistry:
+  image: "cantireinnovations/confluent-schema-registry:2.0.0"
+  expose:
+    - "8081"
+  links:
+    - "kafka"
+    - "zookeeper"
+  environment:
+    ZOOKEEPER_CONNECT: "zookeeper:2181"
+  restart: "always"
+
+kafkaRest:
+  image: "cantireinnovations/confluent-kafka-rest:2.0.0"
+  ports:
+    - "8082:8082"
+  links:
+    - "kafka"
+    - "schemaRegistry"
+    - "zookeeper"
+  environment:
+    KAFKA_REST_NODE_ID: "666666"
+    ZOOKEEPER_CONNECT: "zookeeper:2181"
+    SCHEMA_REGISTRY_URL: "http://schemaRegistry:8081"
+    ADVERTISED_HOST: "${DEV_DOCKER_HOST_NAME}"
+  restart: "always"

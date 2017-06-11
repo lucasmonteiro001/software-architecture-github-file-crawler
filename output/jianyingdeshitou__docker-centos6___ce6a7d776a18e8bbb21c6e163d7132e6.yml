@@ -1,0 +1,9 @@
+sshd:
+    image: httpd-c6
+#    restart: always
+    command: /run/start.sh
+    ports:
+        - "1080:80"
+    volumes:
+        - ./run/:/run/
+        - ./app/:/app/

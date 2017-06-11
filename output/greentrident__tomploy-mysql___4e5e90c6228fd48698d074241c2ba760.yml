@@ -1,0 +1,30 @@
+tomcat:
+  container_name: tomcat
+  image: tomcat
+  links:
+    - db:mysql
+  ports:
+    - 8585:8080
+  volumes:
+    - ./target/test.war:/usr/local/tomcat/webapps/test.war
+
+db:
+  container_name: db
+  image: mysql
+  ports:
+      - 3636:3306
+  environment:
+    MYSQL_ROOT_PASSWORD: ${PASSWD}
+  volumes:
+    - ./db/dumplatest.sql:/docker-entrypoint-initdb.d/dumplatest.sql
+phpmyadmin:
+  container_name: phpmyadmin
+  image: phpmyadmin/phpmyadmin
+  links:
+    - db:mysql
+  ports:
+    - 8689:80
+  environment:
+    MYSQL_USERNAME: ${USERNAME}
+    MYSQL_ROOT_PASSWORD: ${PASSWD}
+    PMA_HOST: mysql

@@ -1,0 +1,111 @@
+master:
+  image: thomasquiviger/spark-elk
+  command: bash -c "/etc/init.d/filebeat start && bin/spark-class org.apache.spark.deploy.master.Master -h master"
+  hostname: master
+  environment:
+    MASTER: spark://master:7077
+    SPARK_CONF_DIR: /conf
+    SPARK_PUBLIC_DNS: localhost
+  links:
+    - logstash
+  expose:
+    - 7001
+    - 7002
+    - 7003
+    - 7004
+    - 7005
+    - 7006
+    - 7077
+    - 6066
+  ports:
+    - 4040:4040
+    - 6066:6066
+    - 7077:7077
+    - 8080:8080
+  volumes:
+    - ./conf/master:/conf
+    - ~/Work/spark-raptor/:/tmp/spark-raptor
+    - ~/Work/spark-raptor/code/target/scala-2.11:/jar
+
+worker1:
+  image: thomasquiviger/spark-elk
+  command: bash -c "/etc/init.d/filebeat start && bin/spark-class org.apache.spark.deploy.worker.Worker spark://master:7077"
+  hostname: worker1
+  environment:
+    SPARK_CONF_DIR: /conf
+    SPARK_WORKER_CORES: 2
+    SPARK_WORKER_MEMORY: 3g
+    SPARK_WORKER_PORT: 8881
+    SPARK_WORKER_WEBUI_PORT: 8081
+    SPARK_PUBLIC_DNS: localhost
+  links:
+    - master
+    - logstash
+  expose:
+    - 7012
+    - 7013
+    - 7014
+    - 7015
+    - 7016
+    - 8881
+  ports:
+    - 8081:8081
+    - 4041:4040
+  volumes:
+    - ./conf/worker:/conf
+    - ~/Work/spark-raptor/:/tmp/spark-raptor
+    - ~/Work/spark-raptor/code/target/scala-2.11:/jar
+worker2:
+  image: thomasquiviger/spark-elk
+  command: bash -c "/etc/init.d/filebeat start && bin/spark-class org.apache.spark.deploy.worker.Worker spark://master:7077"
+  hostname: worker2
+  environment:
+    SPARK_CONF_DIR: /conf
+    SPARK_WORKER_CORES: 2
+    SPARK_WORKER_MEMORY: 3g
+    SPARK_WORKER_PORT: 8881
+    SPARK_WORKER_WEBUI_PORT: 8081
+    SPARK_PUBLIC_DNS: localhost
+  links:
+    - master
+    - logstash
+  expose:
+    - 7012
+    - 7013
+    - 7014
+    - 7015
+    - 7016
+    - 8881
+  ports:
+    - 8082:8081
+    - 4042:4040
+  volumes:
+    - ./conf/worker:/conf
+    - ~/Work/spark-raptor/:/tmp/spark-raptor
+    - ~/Work/spark-raptor/code/target/scala-2.11:/jar
+elasticsearch:
+  image: elasticsearch:latest
+  command: elasticsearch -Enetwork.host=0.0.0.0
+  ports:
+    - "9200:9200"
+    - "9300:9300"
+
+logstash:
+  build: logstash/
+  command: logstash -f /etc/logstash/conf.d/logstash.conf
+  volumes:
+    - ./logstash/config:/etc/logstash/conf.d
+    - ~/Work/data/logstash:/data
+  ports:
+    - "5000:5000"
+    - "5044:5044"
+  links:
+    - elasticsearch
+kibana:
+  build: kibana/
+  volumes:
+    - ./kibana/config/:/opt/kibana/config/
+  ports:
+    - "5601:5601"
+  links:
+    - elasticsearch

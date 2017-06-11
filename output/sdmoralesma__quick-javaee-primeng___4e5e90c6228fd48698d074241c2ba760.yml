@@ -1,0 +1,11 @@
+version: '2'
+services:
+  payara:
+    image: "airhacks/payara-micro"
+    ports:
+      - "8080:8080"
+      - "5900:5900"
+    environment:
+       - ARCHIVE_NAME=target/poc.war
+    volumes:
+       - ./target/poc.war:/opt/target/poc.war

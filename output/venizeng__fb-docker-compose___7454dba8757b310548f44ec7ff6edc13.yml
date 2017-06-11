@@ -1,0 +1,12 @@
+category: 
+   image: "registry.c-f.com:5000/football/lifeix-football-category"
+   ports: 
+     - "8086:8080"
+   extra_hosts: 
+     - "mongodb:101.201.53.128"
+     - "redis:101.201.53.128"
+   restart: always
+   environment: 
+     PROFILE_ENV: "production"
+   volumes: 
+     - "/home/lifeix/logs/category:/logs"

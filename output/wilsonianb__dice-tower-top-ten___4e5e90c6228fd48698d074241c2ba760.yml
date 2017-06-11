@@ -1,0 +1,8 @@
+webapp:
+  build: .
+  ports:
+    - "1337:1337"
+  links:
+    - postgres
+postgres:
+  image: postgres

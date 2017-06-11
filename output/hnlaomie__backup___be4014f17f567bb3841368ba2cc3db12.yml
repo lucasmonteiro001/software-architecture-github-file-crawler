@@ -1,0 +1,30 @@
+version: '3'
+services:
+  master:
+    build: .
+    image: hadoop
+    command: ["sh", "-c", "chmod +x init-master; sh init-master.sh; tail -f /dev/null"]
+    hostname: master
+    networks:
+      dev-net:
+        ipv4_address: 172.19.0.101
+    ports:
+      - "50070:50070"
+      - "8088:8088"
+      - "19888:19888"
+    volumes:
+      - ./config/init-master.sh:/root/init-master.sh
+      - ./workspace:/root/workspace
+  slave:
+    build: .
+    image: hadoop
+    command: ["sh", "-c", "chmod +x init-slave.sh; sh init-slave.sh; tail -f /dev/null"]
+    hostname: slave
+    networks:
+      dev-net:
+        ipv4_address: 172.19.0.102
+    volumes:
+      - ./config/init-slave.sh:/root/init-slave.sh
+networks:
+  dev-net:
+    external: true

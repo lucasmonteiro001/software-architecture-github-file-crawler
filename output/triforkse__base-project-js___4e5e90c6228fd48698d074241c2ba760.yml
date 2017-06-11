@@ -1,0 +1,22 @@
+api:
+  build: ./api
+  ports:
+    - "3000:3000"
+
+client:
+  build: ./client
+  links:
+    - api
+  ports:
+    - "3001:3001"
+  environment:
+    # You can set this to the VirtualBox VM IP if you are running
+    # docker on Mac. This allows you to test the client and API
+    # together in Docker on Mac.
+    - API_ADDR
+
+e2e:
+  build: ./e2e
+  links:
+    - client
+    - api

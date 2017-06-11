@@ -1,0 +1,22 @@
+# docker-compose up
+version: '2'
+services:
+  workstation:
+    build: 
+      context: ../workstation-container/
+    ports:
+     - "9999:9999" 
+     - "18888:8888"
+    depends_on:
+     - spark-base
+    image: workstation-container
+    volumes:
+     - $HOME/my_project1:/usr/local/develop
+     - $HOME/.ssh:/root/.ssh
+     - $HOME/.aws:/root/.aws
+     - $HOME/.config:/root/.config
+     - $HOME/.gitconfig:/root/.gitconfig
+  spark-base:
+    build:
+      context: ../base-container/
+    

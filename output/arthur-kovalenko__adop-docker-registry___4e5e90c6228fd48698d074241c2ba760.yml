@@ -1,0 +1,14 @@
+registry:
+  container_name: registry
+  restart: always
+  #image: gogodi91/adop-registry:0.0.1
+  build: .
+  net: ${CUSTOM_NETWORK_NAME}
+  ports:
+    - "5500:5000"
+  volumes:
+    - /data/registry/:/data
+    - /etc/docker:/data/certs
+  environment:
+    - "REGISTRY_HTTP_TLS_CERTIFICATE=/registry_certs/registry.crt"
+    - "REGISTRY_HTTP_TLS_KEY=/registry_certs/registry.key"

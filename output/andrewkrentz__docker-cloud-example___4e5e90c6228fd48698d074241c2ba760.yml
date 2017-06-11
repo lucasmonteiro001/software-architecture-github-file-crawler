@@ -1,0 +1,21 @@
+web-app:
+  build: ./web-app
+  restart: always
+  expose:
+    - "5000"
+  volumes:
+    - /usr/src/app/static
+  env_file: .env
+  command: python app.py
+
+nginx:
+  restart: always
+  build: ./nginx
+  ports:
+    - "80:80"
+  volumes:
+    - /www/static
+  volumes_from:
+    - web-app
+  links:
+    - web-app:web-app

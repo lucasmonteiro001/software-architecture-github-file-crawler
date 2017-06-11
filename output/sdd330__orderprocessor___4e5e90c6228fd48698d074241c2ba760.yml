@@ -1,0 +1,56 @@
+version: '2'
+
+services:
+
+   loadbalancer:
+      build:
+        context: ./src/main/docker/loadbalancer
+        dockerfile: Dockerfile
+      image: sdd330/loadbalancer
+      ports:
+        - 9000:80
+      depends_on: 
+         - processor1
+         - processor2
+         
+   processor1:
+      build:
+        context: ./
+        dockerfile: ./src/main/docker/Dockerfile
+      image: sdd330/orderprocessor
+      links:
+         - rabbitmq
+         - mysql
+      depends_on:
+         - rabbitmq
+         - mysql
+      container_name: processor1
+      
+   processor2:
+      image: sdd330/orderprocessor
+      links:
+         - rabbitmq
+         - mysql
+      depends_on:
+         - processor1
+      container_name: processor2
+   
+   rabbitmq:
+      image: rabbitmq:3-management
+      ports:
+        - 5672:5672
+        - 15672:15672
+      environment:
+        - RABBITMQ_DEFAULT_USER=guest
+        - RABBITMQ_DEFAULT_PASS=guest
+   
+   mysql:
+      image: mysql
+      ports:
+        - 3306:3306
+      environment:
+        - MYSQL_ROOT_PASSWORD=guest
+        - MYSQL_DATABASE=orderdb
+        - MYSQL_USER=guest
+        - MYSQL_PASSWORD=guest
+        

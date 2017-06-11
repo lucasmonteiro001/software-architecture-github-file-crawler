@@ -1,0 +1,20 @@
+version: '2'
+services:
+  python: &defaults
+    build: .
+    volumes:
+      - .:/usr/src/app
+
+  test:
+    <<: *defaults
+    entrypoint: ['/usr/local/bin/py.test']
+
+  travis:
+    image: tomasbasham/travis:1.8.8
+    volumes:
+      - travis-data:/root/.travis
+      - .:/usr/src/app
+
+volumes:
+  travis-data:
+    external: true

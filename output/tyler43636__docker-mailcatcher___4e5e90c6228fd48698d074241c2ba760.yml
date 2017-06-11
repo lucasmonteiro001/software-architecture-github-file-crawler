@@ -1,0 +1,5 @@
+mailcatcher:
+  image: tyler43636/docker-mailcatcher
+  ports:
+    - "1080:1080"
+    - "1025:1025"

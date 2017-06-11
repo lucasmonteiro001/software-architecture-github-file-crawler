@@ -1,0 +1,39 @@
+#################################
+# PostgreSQL Container          #
+#################################
+
+db:
+    image: postgres
+    #volumes:
+    #    - data:/usr/src/data
+    expose:
+        - "5432"
+
+#################################
+# Flask Container               #
+#################################
+
+web:
+    build: ./web
+    volumes:
+        - web:/code
+        - data:/data
+    expose: 
+        - "8000"
+    links: 
+       - db:db
+    working_dir: /code
+    command: /usr/local/bin/gunicorn -w 2 -b :8000 app:app
+
+#################################
+# nginx Container               #
+#################################
+nginx:
+  restart: always
+  build: ./nginx/
+  ports:
+    - "80:80"
+  volumes_from:
+    - web
+  links:
+    - web:web

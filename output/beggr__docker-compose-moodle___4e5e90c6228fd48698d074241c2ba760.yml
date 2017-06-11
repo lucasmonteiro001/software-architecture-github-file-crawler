@@ -1,0 +1,39 @@
+version: '2'
+
+services:
+
+  mysql_data:
+    image: busybox
+    volumes:
+     - /var/lib/mysql
+
+  mysql:
+    image: mysql/mysql-server
+    volumes_from:
+     - mysql_data
+    environment:
+     - MYSQL_USER=moodle
+     - MYSQL_PASSWORD=moodle
+     - MYSQL_ROOT_PASSWORD=moodle
+     - MYSQL_DATABASE=moodle
+    depends_on:
+     - mysql_data
+    ports:
+     - "3306:3306"
+
+  moodle:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        MOODLE_VERSION: $MOODLE_VERSION
+    container_name: apache-moodle-$MOODLE_VERSION
+    depends_on:
+     - mysql
+    links:
+     - mysql
+    ports:
+     - "8080:80"
+    environment:
+     - MOODLE_URL=$MOODLE_URL
+

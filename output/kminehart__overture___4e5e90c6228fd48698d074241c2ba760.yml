@@ -1,0 +1,4 @@
+memcached:
+    image: memcached
+    ports:
+      - "11212:32769"

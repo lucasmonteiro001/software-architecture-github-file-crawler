@@ -1,0 +1,17 @@
+version: '2'
+services:
+  memo:
+    build: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mongo
+    volumes:
+      - ./dest/:/app/dest/
+      - ./server.js:/app/server.js
+    container_name: memo
+    image: memo
+
+  mongo:
+    image: mongo
+    container_name: memo-mongo

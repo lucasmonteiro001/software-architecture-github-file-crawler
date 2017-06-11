@@ -1,0 +1,36 @@
+version: '2'
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: npm run dev
+    volumes:
+      - .:/usr/src/app
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - HTTP_PORT=3000
+      - ACCESS_KEY=
+      - MONGODB_URI=mongodb://mongodb:27017/db-messages
+    depends_on:
+      - mongodb
+
+  mongodb:
+    image: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./databases:/data/db
+
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: npm run test
+    volumes:
+      - .:/usr/src/app
+    environment:
+      - NODE_ENV=test
+      - HTTP_PORT=3000

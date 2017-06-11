@@ -1,0 +1,201 @@
+lb-wemedia:
+  expose:
+  - 8082:8080/tcp
+  labels:
+    io.rancher.scheduler.global: 'true'
+    io.rancher.scheduler.affinity:host_label: env=gray
+  tty: true
+  image: rancher/load-balancer-service
+  links:
+  - wemedia:wemedia
+  stdin_open: true
+redis-aliyun:
+  image: rancher/external-service
+lb-elearning:
+  expose:
+  - 8087:8080/tcp
+  labels:
+    io.rancher.scheduler.global: 'true'
+    io.rancher.scheduler.affinity:host_label: env=gray
+  tty: true
+  image: rancher/load-balancer-service
+  links:
+  - elearning:elearning
+  stdin_open: true
+app:
+  environment:
+    PROFILE_ENV: production
+  labels:
+    io.rancher.scheduler.global: 'true'
+    io.rancher.container.pull_image: always
+    io.rancher.container.start_once: 'true'
+    io.rancher.scheduler.affinity:host_label: env=gray
+  tty: true
+  image: registry.cn-hangzhou.aliyuncs.com/football/lifeix-football-app:42
+  links:
+  - redis-aliyun:redis
+  volumes:
+  - /home/lifeix/logs/app:/logs
+  stdin_open: true
+games:
+  environment:
+    PROFILE_ENV: production
+  labels:
+    io.rancher.scheduler.global: 'true'
+    io.rancher.container.pull_image: always
+    io.rancher.container.start_once: 'true'
+    io.rancher.scheduler.affinity:host_label: env=gray
+  tty: true
+  image: registry.cn-hangzhou.aliyuncs.com/football/lifeix-football-games:15
+  links:
+  - redis-aliyun:redis
+  volumes:
+  - /home/lifeix/logs/games:/logs
+  stdin_open: true
+news:
+  environment:
+    PROFILE_ENV: production
+  labels:
+    io.rancher.container.pull_image: always
+    io.rancher.container.start_once: 'true'
+    io.rancher.scheduler.affinity:host_label: env=gray
+  tty: true
+  image: registry-internal.cn-hangzhou.aliyuncs.com/football/lifeix-football-news:44
+  links:
+  - redis-aliyun:redis
+  - 'mongodb:'
+  volumes:
+  - /home/lifeix/logs/news:/logs
+  stdin_open: true
+wemedia:
+  environment:
+    PROFILE_ENV: production
+  labels:
+    io.rancher.scheduler.global: 'true'
+    io.rancher.container.start_once: 'true'
+    io.rancher.scheduler.affinity:host_label: env=gray
+  tty: true
+  image: registry.cn-hangzhou.aliyuncs.com/football/lifeix-football-wemedia:69
+  links:
+  - redis-aliyun:redis
+  volumes:
+  - /home/lifeix/logs/wemedia:/logs
+  stdin_open: true
+mongodb:
+  image: rancher/external-service
+like:
+  environment:
+    PROFILE_ENV: production
+    apigateway: 114.55.174.164
+  labels:
+    io.rancher.scheduler.global: 'true'
+    io.rancher.container.pull_image: always
+    io.rancher.container.start_once: 'true'
+    io.rancher.scheduler.affinity:host_label: env=gray
+  tty: true
+  image: registry.cn-hangzhou.aliyuncs.com/football/lifeix-football-like:24
+  links:
+  - redis-aliyun:redis
+  volumes:
+  - /home/lifeix/logs/like:/logs
+  stdin_open: true
+apigateway:
+  ports:
+  - 8000:8000/tcp
+  - 8001:8001/tcp
+  environment:
+    DATABASE: postgres
+  labels:
+    io.rancher.scheduler.global: 'true'
+    io.rancher.container.pull_image: always
+    io.rancher.scheduler.affinity:host_label: env=gray
+  tty: true
+  image: registry.cn-hangzhou.aliyuncs.com/football/kong:0.8.3
+  links:
+  - lb-app:app
+  - lb-games:games
+  - lb-like:like
+  - kong-database:kong-database
+  - lb-elearning:elearning
+  - lb-wemedia:wemedia
+  - lb-file:file
+  - news:news
+  volumes:
+  - /home/lifeix/logs/kong:/usr/local/kong/logs
+  stdin_open: true
+lb-file:
+  expose:
+  - 8085:8080/tcp
+  labels:
+    io.rancher.scheduler.global: 'true'
+    io.rancher.scheduler.affinity:host_label: env=gray
+  tty: true
+  image: rancher/load-balancer-service
+  links:
+  - file:file
+  stdin_open: true
+lb-games:
+  expose:
+  - 8089:8080/tcp
+  labels:
+    io.rancher.scheduler.global: 'true'
+    io.rancher.scheduler.affinity:host_label: env=gray
+  tty: true
+  image: rancher/load-balancer-service
+  links:
+  - games:games
+  stdin_open: true
+elearning:
+  environment:
+    PROFILE_ENV: production
+  labels:
+    io.rancher.scheduler.global: 'true'
+    io.rancher.container.pull_image: always
+    io.rancher.container.start_once: 'true'
+    io.rancher.scheduler.affinity:host_label: env=gray
+  tty: true
+  image: registry.cn-hangzhou.aliyuncs.com/football/lifeix-football-elearning:33
+  links:
+  - redis-aliyun:redis
+  volumes:
+  - /home/lifeix/logs/elearning:/logs
+  stdin_open: true
+lb-app:
+  expose:
+  - 8086:8080/tcp
+  labels:
+    io.rancher.scheduler.global: 'true'
+    io.rancher.scheduler.affinity:host_label: env=gray
+  tty: true
+  image: rancher/load-balancer-service
+  links:
+  - app:app
+  stdin_open: true
+kong-database:
+  image: rancher/external-service
+file:
+  environment:
+    PROFILE_ENV: production
+  labels:
+    io.rancher.scheduler.global: 'true'
+    io.rancher.container.pull_image: always
+    io.rancher.container.start_once: 'true'
+    io.rancher.scheduler.affinity:host_label: env=gray
+  tty: true
+  image: registry.cn-hangzhou.aliyuncs.com/football/lifeix-football-file:20
+  links:
+  - redis-aliyun:redis
+  volumes:
+  - /home/lifeix/logs/file:/logs
+  stdin_open: true
+lb-like:
+  expose:
+  - 8088:8080/tcp
+  labels:
+    io.rancher.scheduler.global: 'true'
+    io.rancher.scheduler.affinity:host_label: env=gray
+  tty: true
+  image: rancher/load-balancer-service
+  links:
+  - like:like
+  stdin_open: true

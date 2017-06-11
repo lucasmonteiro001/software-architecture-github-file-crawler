@@ -1,0 +1,15 @@
+cat << EOF
+# nginx
+nginx:
+  image: nginx:1.13.0-alpine
+  env_file:
+    - ./.env
+  dns: ${DNS_ADDRESS}
+  links: [ ${POCCI_PUBLIC_CONTAINERS} ]
+  volumes:
+   - ./nginx:/etc/nginx/conf.d
+  ports:
+    - "80:80"
+    - "443:443"
+
+EOF

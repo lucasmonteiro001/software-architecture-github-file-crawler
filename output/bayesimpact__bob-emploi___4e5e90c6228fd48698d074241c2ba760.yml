@@ -1,0 +1,101 @@
+version: "2"
+services:
+  data-analysis-notebook:
+    image: docker.bayesimpact.org/bob-emploi/notebooks
+    build:
+      context: data_analysis
+      dockerfile: Dockerfile.notebooks
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./data_analysis/data:/home/jovyan/work/data:rw
+      - ./data_analysis/bob_emploi:/opt/conda/lib/python3.5/bob_emploi:ro
+      - ./data_analysis/bob_emploi:/home/jovyan/work/bob_emploi:ro
+      - ./data_analysis/notebooks:/home/jovyan/work/notebooks
+    environment:
+      DATA_FOLDER: '/home/jovyan/work/data'
+  data-analysis-prepare:
+    image: docker.bayesimpact.org/bob-emploi/data-analysis-prepare
+    build:
+      context: data_analysis
+      dockerfile: Dockerfile.prepare
+    volumes:
+      - ./data_analysis:/data_analysis
+      - ./data_analysis/data:/data_analysis/data
+      - ./.pep8:/data_analysis/.pep8:ro
+      - ./.pylintrc:/data_analysis/.pylintrc:ro
+      - ./frontend/server/companies.py:/data_analysis/bob_emploi/frontend/companies.py:ro
+      - ./frontend/server/proto.py:/data_analysis/bob_emploi/frontend/proto.py:ro
+      - ./frontend/server/scoring.py:/data_analysis/bob_emploi/frontend/scoring.py:ro
+      - ./frontend/server/api:/data_analysis/bob_emploi/frontend/api
+    environment:
+      EMPLOI_STORE_CLIENT_ID:
+      EMPLOI_STORE_CLIENT_SECRET:
+    tty: true
+  frontend-db:
+    build: frontend/server/db
+    ports:
+      - "27016:27017"
+  frontend-dev:
+    image: nginx
+    links:
+      - frontend-flask
+      - frontend-dev-webpack
+    volumes:
+      - ./frontend/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./frontend/nginx_start.sh:/usr/bin/nginx_start.sh:ro
+    command: /usr/bin/nginx_start.sh
+    ports:
+      - "3000:80"
+  frontend-dev-webpack:
+    image: bayesimpact/bob-emploi-dev-webpack
+    build: frontend
+    command: npm start
+    entrypoint: ./entrypoint.sh
+    volumes:
+      - ./frontend/cfg:/usr/app/cfg:ro
+      - ./frontend/src:/usr/app/src
+      - ./frontend/download.js:/usr/app/download.js:ro
+      - ./frontend/entrypoint.sh:/usr/app/entrypoint.sh:ro
+      - ./frontend/package.json:/usr/app/package.json:ro
+      - ./frontend/server/api:/usr/app/bob_emploi/frontend/api
+      # For linting.
+      - ./.eslintrc.json:/usr/app/.eslintrc.json:ro
+      - ./.eslintignore:/usr/app/.eslintignore:ro
+      # For testing.
+      - ./frontend/test:/usr/app/test:ro
+      - ./frontend/karma.conf.js:/usr/app/karma.conf.js:ro
+      # For releasing.
+      - ./frontend/dist:/usr/app/dist
+      # This is actually part of the frontend-db, but it makes it way easier to
+      # lint with the same rules.
+      - ./frontend/server/db:/usr/app/server/db:ro
+    tty: true
+  frontend-flask:
+    build:
+      context: frontend/server
+      args:
+        - GIT_SHA1
+    image: bayesimpact/bob-emploi-frontend-server
+    environment:
+      MONGO_URL: 'mongodb://frontend-db/test'
+      DEBUG: '1'
+      SERVER_VERSION: local-dev
+      EMPLOI_STORE_CLIENT_ID:
+      EMPLOI_STORE_CLIENT_SECRET:
+      FACEBOOK_APP_SECRET:
+      MAILJET_SECRET:
+    links:
+      - frontend-db
+  frontend-flask-test:
+    build:
+      context: .
+      dockerfile: frontend/server/Dockerfile.test
+    image: bayesimpact/bob-emploi-frontend-server-test
+    depends_on:
+      - frontend-flask
+    environment:
+      MONGO_URL: 'mongodb://frontend-db/test'
+      DEBUG: '1'
+      SERVER_VERSION: local-test
+    tty: true

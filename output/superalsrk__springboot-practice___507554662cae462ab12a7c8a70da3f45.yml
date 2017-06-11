@@ -1,0 +1,12 @@
+version: "2"
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: superalsrk/springboot-demo-logback
+    volumes:
+      - /tmp
+    ports:
+      - "8080:8080"

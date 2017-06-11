@@ -1,0 +1,73 @@
+version: '2'
+
+services:
+  web-lb:
+    build: ./web-lb
+    ports:
+      - 8000:80
+      - 8100:81
+    links:
+      - web-1
+      - web-2
+
+  web-1:
+    build: ./web-1
+    expose:
+      - 80
+      - 81
+    volumes_from:
+      - content
+    links:
+      - php-fpm-1
+    environment:
+      PHP_FPM_HOST: 'php-fpm-1'
+
+  web-2:
+    build: ./web-2
+    expose:
+      - 80
+      - 81
+    volumes_from:
+      - content
+    links:
+      - php-fpm-2
+    environment:
+      PHP_FPM_HOST: 'php-fpm-1'
+
+  php-fpm-1:
+    build: ./php-fpm
+    environment:
+      DOCKER_CONTEXT: 'development'
+      XDEBUG_CONFIG: remote_host=192.168.99.1
+    volumes_from:
+      - content
+    links:
+      - memcached
+      - db
+
+  php-fpm-2:
+    build: ./php-fpm
+    environment:
+      DOCKER_CONTEXT: 'development'
+      XDEBUG_CONFIG: remote_host=192.168.99.1
+    volumes_from:
+      - content
+    links:
+      - memcached
+      - db
+
+  memcached:
+    image: memcached
+
+  db:
+    image: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: mfw
+      MYSQL_USER: mfw
+      MYSQL_PASSWORD: mfw
+
+  content:
+    image: tianon/true
+    volumes:
+      - ../:/usr/share/nginx/html

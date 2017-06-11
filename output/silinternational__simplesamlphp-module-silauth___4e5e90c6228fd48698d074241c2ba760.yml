@@ -1,0 +1,79 @@
+version: "2"
+
+services:
+
+  web:
+    image: silintl/ssp-base:develop
+    ports:
+      - "80:80"
+      - "9000:9000"
+    volumes:
+      - ./:/silauth
+      - ./auth.json:/root/.composer/auth.json
+      - ./development/enable-debug.sh:/data/enable-debug.sh
+      - ./development/run-dev.sh:/data/run-dev.sh
+      - ./development/run-tests.sh:/data/run-tests.sh
+      - ./development/symlink.sh:/data/symlink.sh
+      - ./src:/data/src
+    env_file:
+      - ./common.env
+      - ./local.env
+    environment:
+      MYSQL_HOST: db
+      MYSQL_DATABASE: silauth
+      MYSQL_USER: silauth
+      MYSQL_PASSWORD: silauth
+    links:
+      - db
+    command: ["/data/run-dev.sh"]
+
+  tests:
+    image: silintl/ssp-base:develop
+    volumes_from:
+      - web
+    volumes:
+      - ./composer.json:/data/composer.json
+      - ./composer.lock:/data/composer.lock
+      - ./development/run-tests.sh:/data/run-tests.sh
+      - ./features:/data/features
+      - ./vendor:/data/vendor
+    env_file:
+      - ./common.env
+      - ./local.env
+    environment:
+      MYSQL_HOST: testdb
+      MYSQL_DATABASE: test
+      MYSQL_USER: silauth
+      MYSQL_PASSWORD: silauth
+      IDP_DOMAIN_NAME: fake.example.com
+    links:
+      - testdb
+    working_dir: /data
+    command: ["/data/run-tests.sh"]
+
+  db:
+    image: silintl/mariadb:latest
+    ports:
+      - "3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: r00tp@ss!
+      MYSQL_DATABASE: silauth
+      MYSQL_USER: silauth
+      MYSQL_PASSWORD: silauth
+
+  testdb:
+    image: silintl/mariadb:latest
+    ports:
+      - "3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: r00tp@ss!
+      MYSQL_DATABASE: test
+      MYSQL_USER: silauth
+      MYSQL_PASSWORD: silauth
+
+  dbadmin:
+    image: silintl/phpmyadmin:latest
+    ports:
+      - "8080:80"
+    environment:
+      MYSQL_HOST: db

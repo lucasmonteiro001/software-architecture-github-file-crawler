@@ -1,0 +1,31 @@
+logs:
+  image: cogniteev/echo
+  volumes:
+    - /var/log/containers
+
+app1:
+  build: app
+  environment:
+    NAME: app1
+  volumes_from:
+    - logs
+
+app2:
+  build: app
+  environment:
+    NAME: app2
+  volumes_from:
+    - logs
+
+logstash:
+  build: logstash
+  command: logstash -e 'input { syslog { port => 514 } } output { stdout { } }'
+  expose:
+    - 514
+
+rsyslog:
+  image: cogniteev/rsyslogstash
+  volumes_from:
+    - logs
+  links:
+    - logstash:logstash

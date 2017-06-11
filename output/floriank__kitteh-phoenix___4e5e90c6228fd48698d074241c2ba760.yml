@@ -1,0 +1,52 @@
+version: "2"
+services:
+  # the database image
+  db:
+    image: "postgres:9.4"
+    environment:
+      POSTGRES_USER: kitteh
+      POSTGRES_PASSWORD: kitteh
+      POSTGRES_DB: kitteh_prod
+    ports:
+      # maintenance port
+      - "5433:5432"
+    volumes:
+      - dbdata:/var/lib/postgres
+
+  # for serving uploads
+  uploads:
+    build:
+      context: "."
+      dockerfile: "./Dockerfile.uploads"
+    volumes:
+      - uploads:/var/uploads
+    ports:
+      - "4001:80"
+
+  # for serving the assets
+  assets:
+    image: "kitteh/assets:0.0.1"
+    ports:
+      - "4002:80"
+
+  # the main image, this is the application
+  web:
+    image: "kitteh/web:0.0.1"
+    environment:
+      PORT: "4000"
+      MIX_ENV: "prod"
+    ports:
+      - "4000:4000"
+    links:
+      - "db:db"
+    volumes:
+      - uploads:/var/uploads
+
+volumes:
+  # for persistance of database data
+  dbdata:
+    driver: local
+
+  # for keeping uploads
+  uploads:
+    driver: local

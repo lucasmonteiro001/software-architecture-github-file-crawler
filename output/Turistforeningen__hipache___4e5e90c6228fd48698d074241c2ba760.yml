@@ -1,0 +1,32 @@
+logs:
+  # image: tianon/true:latest (docker/fig#919)
+  image: busybox:latest
+  volumes:
+    - /var/log/hipache
+    - /var/log/nginx
+  command: /bin/echo
+
+data:
+  # image: tianon/true:latest (docker/fig#919)
+  image: busybox:latest
+  volumes:
+    - /data
+  command: /bin/echo
+
+redis:
+  image: redis:2.8
+  volumes_from:
+    - data
+  command: redis-server --appendonly yes
+  restart: always
+
+www:
+  build: .
+  links:
+    - redis
+  volumes_from:
+    - logs
+  ports:
+    - "80:8080"
+    - "443:4430"
+  restart: always

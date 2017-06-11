@@ -1,0 +1,15 @@
+version: '2'
+
+services:
+    mysql:
+        image: mysql:latest
+        volumes:
+            - ./.data/mysql:/var/lib/mysql
+            - ./.logs/mysql:/var/log/mysql
+        ports:
+            - "3388:3306"
+        environment:
+            MYSQL_DATABASE: wedding
+            MYSQL_USER: external
+            MYSQL_PASSWORD: external
+            MYSQL_ROOT_PASSWORD: external

@@ -1,0 +1,94 @@
+version: '2'
+
+services:
+
+  devel:
+    image: devel:0.0.1
+    build:
+      context: .
+      dockerfile: ./store/devel/Dockerfile
+    container_name: devel-0.0.1
+    volumes:
+      - "./data/www:/var/www/html"
+      - "./data/phpmyadmin:/var/www/phpmyadmin"
+    networks:
+      - front
+      - back
+    links:
+      - debian
+      - mysql55
+      - php5_fpm
+      - nginx
+  nginx:
+    image: nginx:0.0.1
+    build:
+      context: .
+      dockerfile: ./store/nginx/Dockerfile
+    container_name: nginx-0.0.1
+    command: nginx -g 'daemon off;'
+    restart: always
+    volumes:
+      - "./data/www:/var/www/html"
+    ports:
+      - "80:80"
+    networks:
+      - front
+      - back
+    links:
+      - debian
+  php5_fpm:
+    image: php5-fpm:0.0.1
+    build:
+      context: .
+      dockerfile: ./store/php5-fpm/Dockerfile
+    container_name: php5-fpm-0.0.1
+    command: /usr/sbin/php5-fpm -F --fpm-config /etc/php5/fpm/php-fpm.conf
+    restart: always
+    volumes:
+      - "./data/www:/var/www/html"
+    expose: 
+      - 9000
+    networks:
+      - back
+    links:
+      - debian
+      - mysql55
+  mysql55:
+    image: mysql55:0.0.1
+    build:
+      context: .
+      dockerfile: ./store/mysql55/Dockerfile
+      args:
+        MYSQL_ROOT_PASSWORD: root2017
+        MYSQL_USER: jojo
+        MYSQL_PASSWORD: jojo2017
+        MYSQL_DATABASE: website
+    container_name: mysql55-0.0.1
+    expose: 
+      - 3306 
+    networks:
+      - back
+    links:
+      - debian
+  debian:
+    image: debian-dev:0.0.1
+    build:
+      context: .
+      dockerfile: ./store/debian/Dockerfile
+    container_name: debian-0.0.1
+    networks:
+      - back
+
+networks:
+  front:
+    ipam:
+      config:
+        - subnet: 172.50.0.0/16
+          ip_range: 172.50.5.0/24
+          gateway: 172.50.5.254
+  back:
+    ipam:
+      config:
+        - subnet: 172.100.0.0/16
+          ip_range: 172.100.5.0/24
+          gateway: 172.100.5.254

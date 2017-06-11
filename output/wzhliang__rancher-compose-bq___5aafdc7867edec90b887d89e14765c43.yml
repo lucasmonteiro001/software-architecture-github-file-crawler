@@ -1,0 +1,10 @@
+mysql:
+  image: mysql:5.5
+  ports:
+    - ${mysql_public_port}:3306
+  environment:
+    - MYSQL_ALLOW_EMPTY_PASSWORD=${mysql_allow_empty_password}
+    - MYSQL_USER=${mysql_user}
+    - MYSQL_PASSWORD=${mysql_password}
+    - MYSQL_DATABASE=${mysql_database}
+  command: mysqld --character-set-server=${server_character} --collation-server=${server_collation}

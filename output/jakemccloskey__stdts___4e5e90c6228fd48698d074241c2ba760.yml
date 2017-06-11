@@ -1,0 +1,10 @@
+version: "2"
+services:
+  main:
+    stdin_open: true
+    tty: true
+    build:
+      context: "."
+      dockerfile: "Dockerfile"
+    volumes:
+      - ".:/opt/app"

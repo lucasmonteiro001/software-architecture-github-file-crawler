@@ -1,0 +1,30 @@
+web:
+  image: 'gitlab/gitlab-ce:latest'
+  restart: always
+  hostname: 'gitlab.sanajong.net'
+  environment:
+    GITLAB_OMNIBUS_CONFIG: |
+      external_url 'https://gitlab.sanajong.net'
+      ## Prevent Postgres from trying to allocate 25% of total memory
+      postgresql['shared_buffers'] = '1MB'
+    ports:
+    - '80:80'
+    - '443:443'
+    - '33:22'
+   volumes:
+    - '/srv/gitlab/config:/etc/gitlab'
+    - '/srv/gitlab/logs:/var/log/gitlab'
+    - '/srv/gitlab/data:/var/opt/gitlab'
+   dns_search:
+    - sanajong.net
+  recources:
+    limits:
+      cpus: '0.001'
+      memory: 2048M
+    reservations:
+      cpus: '0.001'
+      memory: 1024m
+  logging:
+    driver: syslog
+    options:
+      syslog-address: "tcp://syslog.sanajong.net:514"

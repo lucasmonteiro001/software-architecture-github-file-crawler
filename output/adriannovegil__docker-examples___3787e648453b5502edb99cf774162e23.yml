@@ -1,0 +1,10 @@
+data:
+ build: gitlab-data
+
+master:
+ build: gitlab
+ volumes_from:
+  - data
+ ports:
+  - "80:80"
+  - "443:443"

@@ -1,0 +1,16 @@
+  version: "2"
+  services: 
+    rancher:
+      container_name:rancher-server
+      image: "192.168.50.126:5000/rancher/server:latest"
+      ports: 
+        - "8080:8080"
+      volumes: 
+        - "/var/run/docker.sock:/var/run/docker.sock"
+      restart: always
+      environment: 
+        CATTLE_DB_CATTLE_MYSQL_HOST: "192.168.50.224"
+        CATTLE_DB_CATTLE_MYSQL_PORT: "3306"
+        CATTLE_DB_CATTLE_MYSQL_NAME: "rancher"
+        CATTLE_DB_CATTLE_USERNAME: "root"
+        CATTLE_DB_CATTLE_PASSWORD: "Lifeix2016"

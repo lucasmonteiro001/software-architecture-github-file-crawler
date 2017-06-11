@@ -1,0 +1,16 @@
+elasticsearch:
+  image: elasticsearch
+  ports:
+    - "9200:9200"
+  volumes:
+    - "/usr/share/elasticsearch/data:/usr/share/elasticsearch/data"
+
+zeppelin:
+  image: saidie/zeppelin:0.6.0
+  ports:
+    - "8080:8080"
+  links:
+    - elasticsearch
+  volumes:
+    - "/usr/share/zeppelin/notebook:/usr/share/zeppelin/notebook"
+    - "/usr/share/zeppelin/logs:/usr/share/zeppelin/logs"

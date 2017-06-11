@@ -1,0 +1,30 @@
+# create a docker-compose.yml file
+version: "2"
+services:
+  authentication:
+    build: .
+    volumes:
+      - ./:/authentication
+    ports:
+      - "8088:8088"
+    depends_on:
+      - authentication-db
+    environment:
+        WEB_PORT: "8088" # this is optional, allows express to use process.env.PORT instead
+        DB_HOST: "192.168.1.100"
+        DB_PORT: "27018"
+        DB_NAME: "authentication"
+        HOST_NAME: "localhost"
+
+    networks:
+      - all
+
+  authentication-db:
+    image: mongo
+    ports:
+        - "27018:27017"
+    command: "mongod --smallfiles"
+    networks:
+      - all
+networks:
+  all:

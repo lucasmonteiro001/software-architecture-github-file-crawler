@@ -1,0 +1,11 @@
+db:
+  image: postgres
+
+web:
+  image: bartoffw/rails5
+  ports:
+    - 3000:3000
+  volumes:
+    - '.:/app'
+  links:
+    - db

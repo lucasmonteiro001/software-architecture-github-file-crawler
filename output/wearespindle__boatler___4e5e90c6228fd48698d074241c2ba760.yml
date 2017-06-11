@@ -1,0 +1,28 @@
+main:
+    build: .
+    volumes:
+        # Workspace dir for running builds. Must be owned by user:group 1000:1000.
+        - /var/workspace:/var/workspace
+        # Mount Docker in Jenkins, to use Docker management in this service.
+        # Since Docker is using dynamic linking, we also need some libs.
+        # (Needless to say, this is quite hackish, but it will do for now).
+        - /var/run/docker.sock:/var/run/docker.sock:ro
+        - /usr/bin/docker:/usr/bin/docker:ro
+        - /lib/x86_64-linux-gnu/libapparmor.so.1:/lib/x86_64-linux-gnu/libapparmor.so.1
+    volumes_from:
+        - data
+nginx:
+    build: nginx
+    links:
+        - main
+    ports:
+        - "80:80"
+nginxssl:
+    build: nginxssl
+    links:
+        - main
+    ports:
+        - "80:80"
+        - "443:443"
+data:
+    build: data

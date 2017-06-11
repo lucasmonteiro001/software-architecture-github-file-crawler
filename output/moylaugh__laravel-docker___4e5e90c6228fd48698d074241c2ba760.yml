@@ -1,0 +1,26 @@
+version: '2'
+
+services:
+
+### PHP-FPM Container #######################################
+
+    php-fpm:
+        build:
+            context: ./php-fpm
+        expose:
+            - "9000"
+
+### Nginx Server Container ##################################
+
+    nginx:
+        build:
+            context: ./nginx
+            args:
+                - PHP_UPSTREAM=php-fpm
+        volumes:
+            - ./log/nginx/:/var/log/nginx
+            - ./nginx/sites/:/etc/nginx/sites-available
+        ports:
+            - "80:80"
+            - "443:443"
+

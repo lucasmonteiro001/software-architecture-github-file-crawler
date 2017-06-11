@@ -1,0 +1,62 @@
+version: "2"
+services: 
+  wemedia: 
+    image: "registry.aliyuncs.com/football/lifeix-football-wemedia"
+    ports: 
+      - "8082:8080"
+    extra_hosts: 
+      - "mongodb:101.201.53.128"
+      - "redis:redis"
+    environment: 
+      PROFILE_ENV: "production"
+    volumes: 
+      - "/home/lifeix/logs/wemedia:/logs"
+  category: 
+    image: "registry.aliyuncs.com/football/lifeix-football-category"
+    ports: 
+      - "8086:8080"
+    extra_hosts: 
+      - "mongodb:101.201.53.128"
+      - "redis:redis"
+    environment: 
+      PROFILE_ENV: "production"
+    volumes: 
+      - "/home/lifeix/logs/category:/logs"
+  elearning: 
+    image: "registry.aliyuncs.com/football/lifeix-football-elearning"
+    ports: 
+      - "8087:8080"
+    extra_hosts: 
+      - "mongodb:101.201.53.128"
+      - "redis:redis"
+    environment: 
+      PROFILE_ENV: "production"
+    volumes: 
+      - "/home/lifeix/logs/elearning:/logs"
+  like: 
+    image: "registry.aliyuncs.com/football/lifeix-football-like"
+    ports: 
+      - "8088:8080"
+    extra_hosts: 
+      - "mongodb:101.201.53.128"
+      - "redis:redis"
+    environment: 
+      PROFILE_ENV: "production"
+    volumes: 
+      - "/home/lifeix/logs/like:/logs"
+  games: 
+    image: "registry.aliyuncs.com/football/lifeix-football-games"
+    ports: 
+      - "8089:8080"
+    extra_hosts: 
+      - "mongodb:101.201.53.128"
+      - "redis:redis"
+      - "mysqldb:101.201.53.128"
+    environment: 
+      PROFILE_ENV: "production"
+    volumes: 
+      - "/home/lifeix/logs/games:/logs"
+  redis: 
+     image: "registry.aliyuncs.com/football/redis:3.0"
+     ports: 
+       - "6379:6379"

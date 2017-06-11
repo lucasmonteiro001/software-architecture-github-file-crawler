@@ -1,0 +1,26 @@
+nginx:
+  image: nginx
+  links:
+    - web:web
+  volumes:
+    - ./nginx.conf:/etc/nginx/nginx.conf
+    - ./priv/static:/app/public
+  ports:
+    - "80:80"
+    - "443:443"
+web:
+  build: .
+  dockerfile: ./dockerfiles/Dockerfile.web
+  volumes:
+    - ./web:/var/app/web
+    - ./config:/var/app/config
+    - ./priv:/var/app/priv
+    - ./lib:/var/app/lib
+  links:
+    - postgres:db
+postgres:
+  image: postgres
+  environment:
+    POSTGRES_PASSWORD: password
+  volumes_from:
+    - pg_data

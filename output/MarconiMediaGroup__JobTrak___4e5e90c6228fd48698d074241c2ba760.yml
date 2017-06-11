@@ -1,0 +1,31 @@
+version: '2'
+
+services:
+
+  db:
+    container_name: db
+    image: postgres
+    volumes:
+      - vol_db:/run
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_NAME=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+
+  web:
+    container_name: web
+    build: web
+    command: python /app/code/manage.py runserver_plus 0.0.0.0:80
+    volumes:
+      - ./web/code:/app/code
+      - ./web/support:/app/support
+      - ./web/site-packages:/usr/local/lib/python2.7/site-packages
+    ports:
+      - "8012:80"
+    depends_on:
+      - db
+
+volumes:
+  vol_db:
+    driver: local

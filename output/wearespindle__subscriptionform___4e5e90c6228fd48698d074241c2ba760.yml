@@ -1,0 +1,24 @@
+db:
+  image: mariadb:latest
+  ports:
+    # ext:int port.
+    - "3302:3306"
+  environment:
+    # This is obviously not a safe configuration usage in production.
+    - MYSQL_DATABASE=subscriptionform
+    - MYSQL_USER=subscriptionform
+    - MYSQL_PASSWORD=subscriptionform
+    - MYSQL_ROOT_PASSWORD=subscriptionform
+
+web:
+  build: .
+  # command: python manage.py runserver 0:8000
+  command: uwsgi --ini uwsgi.ini # For production.
+  volumes:
+    - .:/home/docker/subscriptionform
+  ports:
+    # ext:int port.
+    - "8005:8000"
+  links:
+    # Define all containers for easy running of development setup.
+    - db

@@ -1,0 +1,24 @@
+---
+version: '2'
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:3.0.1
+    network_mode: host
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 32181
+      ZOOKEEPER_TICK_TIME: 2000
+    volumes:
+      - /Users/graham/Development/var/kafka/zk-data:/var/lib/zookeeper/data
+      - /Users/graham/Development/var/kafka/zk-txn-logs:/var/lib/zookeeper/log
+
+  kafka:
+    image: confluentinc/cp-kafka:3.0.1
+    network_mode: host
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: localhost:32181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:29092
+    volumes:
+      - /Users/graham/Development/var/kafka/kafka-data:/var/lib/kafka/data

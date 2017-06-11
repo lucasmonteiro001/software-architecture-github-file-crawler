@@ -1,0 +1,35 @@
+version: '2'
+
+volumes:
+  goroot: {}
+
+services:
+  test:
+    build: .
+    command: bash -c "ASSET_FLAGS=-debug make asset; go test -cover -v ./..."
+    volumes:
+      - .:/go/src/github.com/pagarme/teleport/
+    depends_on:
+      - postgres
+
+  source:
+    build: .
+    command: bash -c "ASSET_FLAGS=-debug make asset; go run main.go -config source_config.yml"
+    volumes:
+      - .:/go/src/github.com/pagarme/teleport/
+    ports:
+      - 3000:3000
+
+  target:
+    build: .
+    command: bash -c "ASSET_FLAGS=-debug make asset; go run main.go -config target_config.yml"
+    volumes:
+      - .:/go/src/github.com/pagarme/teleport/
+    ports:
+      - 3001:3001
+
+  # Databases
+  postgres:
+    image: postgres:9.2.16
+    volumes:
+        - .:/code

@@ -1,0 +1,36 @@
+version: '2'
+services:
+  srv:
+    image: uroshercog/golang:dumb-init
+    command: bash -c "go build api.go && mkdir -p /opt/web && cp ./api /opt/web && cp .env /opt/web && cd /opt/web && ./api"
+    working_dir: /go/src/github.com/uroshercog/kanban-board-backend
+    environment:
+      - GOPATH=/go
+      - VIRTUAL_HOST=api.kanban.local
+    volumes:
+      - $GOPATH:/go
+      - .:/go/src/github.com/uroshercog/kanban-board-backend
+    depends_on:
+      - db
+    networks:
+      - proxy_default
+      - kanban_db
+    expose:
+      - 80
+
+  db:
+    image: docker.io/postgres:9.5
+    hostname: db
+    networks:
+      - kanban_db
+    expose:
+      - 5432
+    ports:
+      - "0.0.0.0:5432:5432"
+networks:
+  proxy_default:
+    external:
+      name: proxy_default
+  kanban_db:
+    driver: bridge
+

@@ -1,0 +1,16 @@
+version: '2'
+services:
+  encfs:
+    image: twhtanghk/encfs
+    privileged: true
+    volumes:
+      - /lib/modules:/lib/modules
+      - ./raw:/raw
+    ports:
+      - 22
+    environment:
+      - MOUNT_SOURCE=/raw
+      - MOUNT_TARGET=/data
+    env_file:
+      - ./.env
+      - ../.env

@@ -1,0 +1,29 @@
+version: "2"
+services:
+  web:
+    build: .
+    ports:
+      - 8080:80
+    volumes:
+      - .:/usr/src/app
+    links:
+      - redis
+      - mongo
+    depends_on:
+      - redis
+      - mongo
+  worker:
+    build: .
+    command: rq worker --url redis://redis:6379
+    volumes:
+      - .:/usr/src/app
+    links:
+      - redis
+      - mongo
+    depends_on:
+      - redis
+      - mongo
+  redis:
+    image: redis
+  mongo:
+    image: mongo

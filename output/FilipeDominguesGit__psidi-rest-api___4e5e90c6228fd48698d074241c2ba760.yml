@@ -1,0 +1,26 @@
+version: '2'
+services:
+  db:
+    image: mongo
+    expose:
+    - 27017
+    ports:
+    - 27017:27017
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: node_modules/.bin/nodemon -L --exec npm start
+    environment:
+      NODE_ENV: development
+      MONGODB_URI: "mongodb://db:27017/psidi"
+      SWAGGER_FILE: "http://localhost:3001/swagger/spec/v1/dev.swagger.json"
+    ports:
+      - 3001:3001
+    depends_on:
+      - db
+    links: 
+      - db
+    volumes:
+     - .:/home/app
+     - /home/app/node_modules

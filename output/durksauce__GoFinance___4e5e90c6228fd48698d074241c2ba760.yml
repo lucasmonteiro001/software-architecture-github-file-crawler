@@ -1,0 +1,19 @@
+version: '2'
+services:
+  gofinace:
+    build: .
+    ports:
+      - "8080:8080"
+    links:
+      - mysql
+
+  mysql:
+    image: mysql
+    container_name: mysql-gofinance
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: '2k&dyO%*wI4jfqDx3wq9'
+      MYSQL_DATABASE: gofinance
+      MYSQL_USER: gofinance_user
+      MYSQL_PASSWORD: '2k&dyO%*wI4jfqDx3wq9'

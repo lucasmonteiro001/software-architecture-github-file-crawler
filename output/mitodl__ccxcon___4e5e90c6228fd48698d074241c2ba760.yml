@@ -1,0 +1,57 @@
+db:
+  image: postgres
+  ports:
+    - "5432"
+redis:
+  image: redis
+  ports:
+    - "6379"
+web:
+  build: .
+  command: >
+    /bin/bash -c '
+    sleep 3 &&
+    python manage.py migrate --noinput &&
+    python manage.py runsslserver 0.0.0.0:8077 --certificate=cert/fullchain.pem --key=cert/privkey.pem'
+  volumes:
+    - .:/src
+  environment:
+    DEBUG: 'True'
+    CCXCON_LOG_LEVEL: DEBUG
+    DJANGO_LOG_LEVEL: INFO
+    PORT: 8077
+    DATABASE_URL: postgres://postgres@db:5432/postgres
+    CCXCON_DB_DISABLE_SSL: 'True'
+    ALLOWED_HOSTS:
+    CCXCON_USE_CAS:
+    CCXCON_ADMIN_EMAIL:
+    CCXCON_CAS_URL:
+    TOX_WORK_DIR: .tox
+    COVERAGE_DIR: htmlcov
+    CCXCON_SECURE_SSL_REDIRECT: 'False'
+    CELERY_ALWAYS_EAGER: 'False'
+    STATUS_TOKEN: 'test-token'
+    CELERY_RESULT_BACKEND: redis://redis:6379/4
+    BROKER_URL: redis://redis:6379/4
+  ports:
+    - "8077:8077"
+  links:
+    - db
+    - redis
+celery:
+  image: ccxcon_web
+  command: >
+    /bin/bash -c '
+    sleep 3;
+    celery -A ccxcon worker -l debug'
+  volumes_from:
+    - web
+  environment:
+    DJANGO_LOG_LEVEL: INFO
+    DATABASE_URL: postgres://postgres@db:5432/postgres
+    CCXCON_DB_DISABLE_SSL: 'True'
+    BROKER_URL: redis://redis:6379/4
+    CELERY_RESULT_BACKEND: redis://redis:6379/4
+  links:
+    - db
+    - redis

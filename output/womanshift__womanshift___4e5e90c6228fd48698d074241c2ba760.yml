@@ -1,0 +1,25 @@
+version: "2"
+
+services:
+  web:
+    build: .
+    volumes:
+      - .:/opt/womanshift
+    ports:
+      - "8080:80"
+    links:
+      - db
+    depends_on:
+      - db
+    environment:
+      - FUEL_ENV=development
+      - WOMANSHIFT_DEFAULT_MYSQL_URL=db;dbname=womanshift
+      - WOMANSHIFT_DEFAULT_MYSQL_PASSWORD=password
+
+  db:
+    image: mysql
+    volumes:
+      - ./initdb.d:/docker-entrypoint-initdb.d
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=womanshift

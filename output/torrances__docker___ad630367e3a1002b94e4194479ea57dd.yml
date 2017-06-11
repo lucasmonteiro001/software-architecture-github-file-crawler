@@ -1,0 +1,10 @@
+solr:
+  build: .
+  ports:
+    - "8983:8983"
+  volumes:
+    - /home/craig/solr_data/:/opt/solr/server/solr/books 
+  hostname:
+    solr
+  privileged:
+    true

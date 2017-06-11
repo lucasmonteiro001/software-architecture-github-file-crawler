@@ -1,0 +1,17 @@
+version: "2"
+services:
+    management_db:
+      image: mysql:5.6
+      environment:
+          - MYSQL_ROOT_PASSWORD=test
+          - MYSQL_DATABASE=management
+      ports:
+          - "3400:3306"
+
+    target_db:
+      image: mysql:5.6
+      environment:
+          - MYSQL_ROOT_PASSWORD=test
+          - MYSQL_DATABASE=test
+      ports:
+          - "3500:3306"

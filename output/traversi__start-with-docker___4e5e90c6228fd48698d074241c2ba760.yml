@@ -1,0 +1,33 @@
+web:
+  build: .
+  command: python manage.py runserver 0.0.0.0:8080
+  environment:
+    # Comment the next line out for using Sqlite db
+    DATABASE_URL: "postgres://postgres:@db:5432/postgres"
+    BROKER_URL: "amqp://guest:guest@rabbitmq:5672/"
+  ports:
+   - "8080:8080"
+  volumes:
+   - .:/base
+  links:
+   - db
+   - rabbitmq
+   - redis
+
+rabbitmq:
+  image: "rabbitmq:management"
+  hostname: "rabbitmq"
+  ports:
+   - "5672:5672"
+   - "15672:15672"
+
+db:
+  # use hstore image. Install the latest postgresql version.
+  image: aidanlister/postgres-hstore
+  environment:
+    PGDATA: "/pgdata"
+  volumes:
+   - "/pgdata/:/pgdata/"
+
+redis:
+  image: "redis" 

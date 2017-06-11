@@ -1,0 +1,62 @@
+version: '2'
+
+services:
+    db:
+        image: mysql
+        volumes:
+            - "./.data/db:/var/lib/mysql"
+        environment:
+            MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+            MYSQL_DATABASE: ${MYSQL_DATABASE}
+            MYSQL_USER: ${MYSQL_USER}
+            MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    php:
+        build: php71-fpm
+        ports:
+            - 9000:9000
+        links:
+            - db:mysqldb
+        volumes:
+            - ${WEB_APP_PATH}:/var/www/html/
+            - ./logs/app:/var/www/html/logs
+        links:
+            - redis
+            - rabbitmq
+            - memcached
+    nginx-server:
+        build: nginx-server
+        ports:
+            - 80:80
+            - 443:443
+        links:
+            - php
+        volumes_from:
+            - php
+        volumes:
+            - ./logs/nginx/:/var/log/nginx
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin
+        ports:
+            - "8081:80"
+        links:
+            - db
+    solr:
+        image: solr
+        ports:
+            - "8983:8983"
+        links:
+            - db
+    scala:
+        image: williamyeh/scala
+        links:
+            - rabbitmq
+    redis:
+        image: redis:alpine
+        ports:
+            - 6379:6379
+    rabbitmq:
+        image: rabbitmq
+    memcached:
+        build: memcached
+    selenuim:
+        image: selenium/standalone-firefox

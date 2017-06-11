@@ -1,0 +1,21 @@
+version: "2"
+services:
+  web:
+    image: $WEB_IMAGE
+    entrypoint: [npm]
+    command: [start]
+    ports:
+      - "3000"
+    volumes:
+      - ./src:/usr/src/app
+  db:
+    image: $MONGODB_IMAGE
+    ports:
+      - "27018"
+      - "28018"
+    environment:
+      - MONGODB_USER=admin
+      - MONGODB_DATABASE=commentapp
+      - MONGODB_PASS=admin
+    volumes:
+      - ./db_data:/data/db

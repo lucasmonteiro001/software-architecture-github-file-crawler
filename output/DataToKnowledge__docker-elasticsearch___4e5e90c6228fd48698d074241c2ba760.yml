@@ -1,0 +1,11 @@
+db:
+  build: .
+  ports:
+    - "9200:9200"
+    - "9300:9300"
+  environment:
+    - ES_HEAP_SIZE=1g
+    - ES_MIN_MEM=1g
+    - ES_MAX_MEM=1g
+  name: elastic1
+  command: elasticsearch

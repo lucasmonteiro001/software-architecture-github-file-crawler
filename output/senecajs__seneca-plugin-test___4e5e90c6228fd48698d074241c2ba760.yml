@@ -1,0 +1,4 @@
+travis:
+  image: quay.io/travisci/travis-node-js
+  volumes:
+    - .:/seneca-plugin-test

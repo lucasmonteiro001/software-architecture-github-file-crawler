@@ -1,0 +1,6 @@
+passbook:
+  container_name: passbook
+  build: .
+  hostname: passbook
+  ports:
+   - 80:80

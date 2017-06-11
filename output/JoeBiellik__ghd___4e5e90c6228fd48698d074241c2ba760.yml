@@ -1,0 +1,30 @@
+version: '2'
+
+services:
+  production:
+    image: joebiellik/ghd:latest
+    restart: always
+    environment:
+     - ASPNETCORE_URLS=http://0.0.0.0:5000
+    volumes:
+     - ./settings.json:/app/settings.json
+    ports:
+     - "localhost:5000:5000"
+
+  debug:
+    image: microsoft/dotnet:latest
+    entrypoint: bash -c "dotnet restore && dotnet run"
+    working_dir: /app
+    volumes:
+     - .:/app
+     - .nuget:/root/.nuget
+    ports:
+     - "5000:5000"
+
+  publish:
+    image: microsoft/dotnet:latest
+    entrypoint: bash -c "dotnet restore && dotnet publish -c Release -r centos.7-x64"
+    working_dir: /app
+    volumes:
+     - .:/app
+     - .nuget:/root/.nuget

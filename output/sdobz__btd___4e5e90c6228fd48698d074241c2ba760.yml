@@ -1,0 +1,22 @@
+version: "2"
+
+volumes:
+  bitcoin: {}
+
+services:
+  bitcoin:
+    restart: "no"
+    build: ./bitcoind
+    environment:
+      BITCOIN_CONF_DIR: /etc/bitcoin/
+    volumes:
+      - bitcoin:/var/bitcoin
+      - ./bitcoind/listener:/opt/listener
+      - ./varbtd/:/var/btd/
+    ports:
+      - "8333"
+      - "18333"
+    expose:
+      - "8332"
+      - "18332"
+      - "8330"

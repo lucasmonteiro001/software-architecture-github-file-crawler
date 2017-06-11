@@ -1,0 +1,12 @@
+version: '2'  
+services:  
+
+  web:
+    image: dariogt/docker-carra
+    container_name: dz01
+    tty: true
+    stdin_open: true
+    volumes:
+      - /home/dario/Docker/carra/db.sqlite3:/db.sqlite3
+    ports:
+      - "8000:8000"

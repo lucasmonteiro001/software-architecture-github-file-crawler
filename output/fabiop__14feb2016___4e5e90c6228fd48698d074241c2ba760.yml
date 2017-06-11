@@ -1,0 +1,23 @@
+app1:
+  image: chef
+  #image: chef-apt-updated
+  hostname: app1
+  volumes:
+     - /vagrant/chef/:/chef/ 
+  command: /chef/app.sh
+app2:
+  image: chef
+  #image: chef-apt-updated
+  hostname: app2
+  volumes:
+     - /vagrant/chef/:/chef/ 
+  command: /chef/app.sh
+web:
+  image: chef
+  #image: chef-apt-updated
+  volumes:
+     - /vagrant/chef/:/chef/ 
+  ports:
+     - "80:80"
+  command: /chef/web.sh
+  links: ["app1", "app2"]

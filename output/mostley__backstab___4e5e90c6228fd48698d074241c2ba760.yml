@@ -1,0 +1,18 @@
+backstab-web:
+  image: 'mostley/backstab'
+  ports:
+    - "3000:3000"
+  volumes:
+    - backstab-uploads:/usr/src/app/uploads
+  links:
+    - backstab-db:mongo
+  environment:
+    - SESSION_SECRET=whydidyoubackstabus
+    - GOOGLE_ID=<google_client_id>
+    - GOOGLE_SECRET=<google_client_secret>
+    - GITHUB_ID=<github_client_id>
+    - GITHUB_SECRET=<github_client_secret>
+    - MONGODB_URI=mongodb://mongo:27017/backstab
+
+backstab-db:
+  image: 'mongo'

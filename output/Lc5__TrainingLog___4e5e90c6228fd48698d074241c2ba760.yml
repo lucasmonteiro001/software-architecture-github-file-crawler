@@ -1,0 +1,30 @@
+version: '2'
+
+services:
+
+    app:
+        image: php
+        volumes:
+            - ./:/var/www/html
+
+    db:
+        environment:
+            MYSQL_DATABASE: training_log
+            MYSQL_PASSWORD: password
+            MYSQL_ROOT_PASSWORD: password
+            MYSQL_USER: user
+
+        image: mysql
+        ports:
+            - 3306:3306
+        volumes:
+            - /var/lib/mysql
+
+    php:
+        build: ./docker/php
+        links:
+            - db
+        ports:
+            - 80:80
+        volumes_from:
+            - app

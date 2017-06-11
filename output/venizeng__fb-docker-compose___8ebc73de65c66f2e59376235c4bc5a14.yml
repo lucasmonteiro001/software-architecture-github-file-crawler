@@ -1,0 +1,14 @@
+version: "2"
+services: 
+  like: 
+    image: "registry.c-f.com:5000/football/lifeix-football-like"
+    ports: 
+      - "8088:8080"
+    extra_hosts: 
+      - "mongodb:192.168.50.154"
+      - "redis:192.168.50.154"
+    restart: always
+    environment: 
+      PROFILE_ENV: "qa"
+    volumes: 
+      - "/home/lifeix/logs/like:/logs"

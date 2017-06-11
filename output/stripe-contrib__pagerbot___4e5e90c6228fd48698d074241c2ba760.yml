@@ -1,0 +1,22 @@
+version: '2'
+services:
+  mongo:
+    image: mongo:3
+    ports:
+      - "27017:27017"
+  pagerbot-admin:
+    build: .
+    links:
+      - mongo
+    ports:
+      - "4567:4567"
+    volumes:
+      - .:/pagerbot
+    command: rerun -b -- ruby lib/pagerbot.rb admin
+  pagerbot:
+    build: .
+    links:
+      - mongo
+    volumes:
+      - .:/pagerbot
+    command: rerun -b -- ruby lib/pagerbot.rb

@@ -1,0 +1,12 @@
+ghost:
+  image: ghost
+  ports:
+    - '2368:2368'
+  restart: always
+  volumes:
+    - .:/var/lib/ghost/themes/igem-stockholm
+    - /var/lib/ghost/themes/igem-stockholm/.git
+    - ./temp:/var/lib/ghost/data
+  environment:
+    - NODE_ENV=development
+    - GHOST_URL=http://localhost

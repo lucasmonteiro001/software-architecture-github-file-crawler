@@ -1,0 +1,17 @@
+db:
+  image: mysql
+  environment:
+    - MYSQL_ROOT_PASSWORD=root
+    - MYSQL_DATABASE=wrench
+    - MYSQL_USER=wrench
+    - MYSQL_PASSWORD=wrench
+
+web:
+  build: .
+  command: python manage.py runserver 0.0.0.0:8000
+  volumes:
+    - .:/usr/src/wrench
+  ports:
+    - "8000:8000"
+  links:
+    - db

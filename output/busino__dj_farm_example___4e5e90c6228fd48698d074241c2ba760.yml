@@ -1,0 +1,27 @@
+version: '3'
+services:
+  db:
+    build: mysql
+    volumes:
+      - /data/mysql:/var/lib/mysql
+  web:
+    build: web
+    command: /usr/local/bin/gunicorn farm.wsgi:application -w 2 -b :8008
+    volumes:
+      - ./farm:/src
+    working_dir: /src
+    ports:
+      - "8008:8008"
+    expose:
+      - "8008"
+    depends_on:
+      - db
+  nginx:
+    image: nginx:stable-alpine
+    volumes:
+      - ./farm/static:/static
+      - ./nginx/conf.d:/etc/nginx/conf.d
+    ports:
+      - "80:80"
+    depends_on:
+      - web

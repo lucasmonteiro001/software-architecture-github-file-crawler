@@ -1,0 +1,17 @@
+version: '2'
+services:
+  a:
+    build: web
+    ports:
+    - 81:80
+# TODO: Removed until docker supports named .dockerignore files.
+# Containers built from the same directory with different ignore options is a rare edge case. We just don't support
+# it for now.
+
+# https://github.com/docker/docker/issues/12886
+#  b:
+#    build: web
+#    labels:
+#      dork.hotcode: ''
+#    ports:
+#    - 82:80

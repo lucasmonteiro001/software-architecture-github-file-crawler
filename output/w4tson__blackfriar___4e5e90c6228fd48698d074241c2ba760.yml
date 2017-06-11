@@ -1,0 +1,12 @@
+db:
+  build: ./docker/oracle
+  ports:
+    - "1521:1521"
+
+rabbitmq:
+  build: ./docker/rabbitmq
+  hostname: rabbit
+  ports:
+   - "15672:15672"
+   - "5671:5671"
+   - "5672:5672"

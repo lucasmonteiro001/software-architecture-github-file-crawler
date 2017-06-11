@@ -1,0 +1,35 @@
+front:
+  build: images/mynginx
+  ports:
+    - "8080:80"
+    - "9000:9000"
+  links:
+    - mysql:mysql
+  volumes:
+    - ./sites:/etc/nginx/sites-enabled
+  volumes_from:
+      - www
+
+www:
+  build: .
+  volumes:
+    - ./public_html:/var/www/default
+
+mysql:
+  image: tutum/mysql:5.6
+  volumes_from:
+      - data
+  ports:
+    - "3306:3306"
+  environment:
+    MYSQL_USER: fabrik
+    MYSQL_PASS: fabrikABC123!
+    STARTUP_SQL:
+    ON_CREATE_DB: fabrik
+
+
+data:
+  image: busybox
+  volumes:
+    - /var/lib/mysql
+  command: echo Data Volume for db

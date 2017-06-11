@@ -1,0 +1,12 @@
+caddy:
+  ports:
+  - 443:443/tcp
+  - 80:80/tcp
+  labels:
+    io.rancher.container.pull_image: always
+  tty: true
+  image: abiosoft/caddy
+  volumes:
+  - ${SITES_ROOT}:/srv:ro
+  - ${CADDYFILE}:/etc/Caddyfile
+  - ${DOTCADDY}/.caddy:/root/.caddy

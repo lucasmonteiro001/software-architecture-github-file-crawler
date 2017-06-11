@@ -1,0 +1,86 @@
+# Start with a single host which will bootstrap the cluster.
+# In production we'll want to use an HA cluster.
+consul:
+    image: progrium/consul:latest
+    restart: always
+    mem_limit: 128m
+    ports:
+      - 8500 # expose only Consul's UI on the public IP
+    dns:
+      - 127.0.0.1
+    labels:
+      - triton.cns.services=tb-consul
+    command: -server -bootstrap -ui-dir /ui
+
+
+# The first instance will automatically bootstrap the Couchbase cluster.
+# Scale this tier and each additional instance will automatically
+# self-configure as a member of the cluster
+couchbase:
+    image: autopilotpattern/couchbase:enterprise-4.0.0-r3
+    restart: always
+    mem_limit: 4096m
+    ports:
+      - 8091
+      - 8092
+      - 8093
+    links:
+      - consul:consul
+    env_file: _env
+    environment:
+      - CONSUL=consul
+    labels:
+      - triton.cns.services=tb-couchbase
+
+
+# the main application
+touchbase:
+    image: autopilotpattern/touchbase
+    restart: always
+    mem_limit: 1g
+    ports:
+      - 3000
+    links:
+      - consul:consul
+    env_file: _env
+    labels:
+      - triton.cns.services=tb-touchbase
+    command: >
+      /opt/containerpilot/containerpilot
+      -config file:///opt/containerpilot/touchbase.json
+      node /usr/local/lib/node_modules/Couch411/app.js
+
+
+# Nginx as a load-balancing tier and reverse proxy
+nginx:
+    image: autopilotpattern/touchbase-demo-nginx
+    restart: always
+    mem_limit: 512m
+    ports:
+      - 80
+    links:
+      - consul:consul
+    env_file: _env
+    environment:
+      - CONTAINERPILOT=file:///opt/containerpilot/nginx.json
+    labels:
+      - triton.cns.services=tb-nginx
+    command: >
+      /opt/containerpilot/containerpilot
+      nginx -g "daemon off;"
+
+
+# Prometheus server to gather telemetry
+prometheus:
+    image: autopilotpattern/prometheus
+    mem_limit: 1g
+    restart: always
+    labels:
+      - triton.cns.services=tb-prometheus
+    ports:
+      - 9090
+    links:
+      - consul:consul
+    env_file: _env
+    environment:
+      - CONSUL=consul

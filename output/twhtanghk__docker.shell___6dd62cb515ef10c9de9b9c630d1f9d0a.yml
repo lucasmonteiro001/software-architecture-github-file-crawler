@@ -1,0 +1,12 @@
+version: '2'
+services:
+  bind:
+    image: sameersbn/bind
+    ports:
+      - 10000/tcp
+      - ${INTRANETIP}:53:53/tcp
+      - ${INTRANETIP}:53:53/udp
+    volumes:
+      - ${COMPOSEROOT}/dns/data:/data
+    env_file:
+      - ../.env

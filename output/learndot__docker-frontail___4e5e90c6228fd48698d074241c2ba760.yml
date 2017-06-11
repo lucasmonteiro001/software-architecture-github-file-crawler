@@ -1,0 +1,7 @@
+fronttail:
+  build: .
+  command: "/var/log/test.log"
+  volumes:
+    - "test.log:/var/log/test.log"
+  ports:
+    - "9001:9001"

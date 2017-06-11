@@ -1,0 +1,14 @@
+version: '2'
+services:
+  app:
+    image: dgmora/example:latest
+    volumes:
+      - app_code:/home/app
+  linter:
+    depends_on: 
+      - app
+    image: dgmora/pronto
+    volumes:
+      - app_code:/usr/src/app
+volumes:
+  app_code:

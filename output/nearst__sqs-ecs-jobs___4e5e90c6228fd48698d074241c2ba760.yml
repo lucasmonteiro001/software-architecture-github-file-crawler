@@ -1,0 +1,26 @@
+version: '2'
+services:
+  consume:
+    build: .
+    volumes:
+      - .:/app
+      - ./node_modules:/app/node_modules
+    env_file: .env
+    command: yarn run consume
+    ports:
+      - 9229:9229
+  watch:
+    build: .
+    volumes:
+      - .:/app
+      - ./node_modules:/app/node_modules
+    env_file: .env
+    command: yarn run watch
+    ports:
+      - 9228:9228
+  test:
+    build: .
+    volumes:
+      - .:/app
+      - ./node_modules:/app/node_modules
+    command: yarn test

@@ -1,0 +1,4 @@
+app:
+    image: liudonghua123/jdk9_docker
+    restart: always
+

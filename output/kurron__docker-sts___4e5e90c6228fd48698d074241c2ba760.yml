@@ -1,0 +1,10 @@
+sts:
+    build: .
+    container_name: "sts"
+    net: "host"
+    volumes:
+        - /tmp/.X11-unix:/tmp/.X11-unix
+        - /home/vagrant:/home/developer
+    environment:
+        DISPLAY: unix:0.0
+    user: 1000:1000

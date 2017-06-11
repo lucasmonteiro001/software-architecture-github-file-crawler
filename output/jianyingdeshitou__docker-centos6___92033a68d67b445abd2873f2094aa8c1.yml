@@ -1,0 +1,9 @@
+php:
+    image: 'php-httpd-c6'
+    command: /run/start.sh
+    ports:
+        - '1080:80'
+    volumes:
+        - './app:/app'
+        - './run:/run'
+

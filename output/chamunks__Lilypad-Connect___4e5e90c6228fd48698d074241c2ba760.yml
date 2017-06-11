@@ -1,0 +1,7 @@
+connect:
+  image: chamunks/lilypad-connect:1.7.10
+  ports:
+    - "5091:5091"
+  volumes:
+    - "./connect/connect.yml:/app/connect.yml"
+  restart: always

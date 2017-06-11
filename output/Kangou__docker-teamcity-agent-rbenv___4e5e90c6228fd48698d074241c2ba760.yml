@@ -1,0 +1,17 @@
+version: '2'
+
+services:
+  agent:
+    image: kangou/docker-teamcity-agent-rbenv
+    restart: always
+    volumes:
+      - teamcity_agent_rbenv_conf:/data/teamcity_agent/conf
+    env_file: .env
+    depends_on:
+      - db
+  db:
+    image: postgres
+    env_file: .env
+
+volumes:
+  teamcity_agent_rbenv_conf:

@@ -1,0 +1,243 @@
+# See https://docs.docker.com/compose/compose-file/
+version: '2'
+
+services:
+
+  nginx:
+    container_name: lingdb_nginx
+    build: ./nginx
+    image: lingdb/nginx
+    depends_on:
+      - cobl
+      - sndcomp
+    links:
+      - cobl
+      - sndcomp
+    volumes:
+      - ${DOCKER_BASE}/nginx/sound:/sound
+      - /tmp/ielexStatic:/ielexStatic
+    ports:
+      - 80:80
+    network_mode: "bridge"
+    restart: unless-stopped
+    logging:
+      driver: journald
+
+  cobl:
+    container_name: lingdb_cobl
+    build: ./CoBL
+    image: lingdb/cobl
+    depends_on:
+      - postgres
+    links:
+      - postgres
+    environment:
+      SECRET_KEY: '${DJANGO_SECRET}'
+      DB_NAME: 'ielexdb201510'
+      DB_USER: 'ielexuser'
+      DB_PASSWORD: '${POSTGRES_PASSWORD}'
+      DB_HOST: 'postgres'
+      DB_PORT: '5432'
+      DEBUG: 'False'
+    volumes:
+       - /tmp/ielexStatic:/copyStatic
+    network_mode: "bridge"
+    restart: unless-stopped
+    logging:
+      driver: journald
+
+  cobl_nexus:
+    container_name: lingdb_cobl_nexus
+    build: ./CoBL/nexus
+    image: lingdb/cobl_nexus
+    depends_on:
+      - postgres
+    links:
+      - postgres
+    environment:
+      SECRET_KEY: '${DJANGO_SECRET}'
+      DB_NAME: 'ielexdb201510'
+      DB_USER: 'ielexuser'
+      DB_PASSWORD: '${POSTGRES_PASSWORD}'
+      DB_HOST: 'postgres'
+      DB_PORT: '5432'
+      DEBUG: 'False'
+    network_mode: "bridge"
+    restart: unless-stopped
+
+  cobl_debug:
+    container_name: lingdb_cobl_debug
+    build: ./CoBL/debug
+    image: lingdb/cobl_debug
+    depends_on:
+      - postgres
+    links:
+      - postgres
+    environment:
+      SECRET_KEY: '${DJANGO_SECRET}'
+      DB_NAME: 'ielexdb201510'
+      DB_USER: 'ielexuser'
+      DB_PASSWORD: '${POSTGRES_PASSWORD}'
+      DB_HOST: 'postgres'
+      DB_PORT: '5432'
+      DEBUG: 'True'
+    network_mode: "bridge"
+    ports:
+      - 80:5000
+
+  postgres:
+    container_name: lingdb_postgres
+    build: ./postgres
+    image: lingdb/postgres
+    environment:
+      POSTGRES_PASSWORD: '${POSTGRES_PASSWORD}'
+      POSTGRES_USER: 'ielexuser'
+    network_mode: "bridge"
+    restart: unless-stopped
+    logging:
+      driver: journald
+
+  postgres_backup:
+    container_name: lingdb_postgres_backup
+    build: ./postgres/backup
+    image: lingdb/postgres_backup
+    depends_on:
+      - postgres
+    links:
+      - postgres
+    environment:
+      PGPASSWORD: '${POSTGRES_PASSWORD}'
+    volumes:
+      - ${DOCKER_BASE}/postgres/backup:/backup
+    network_mode: "bridge"
+    restart: unless-stopped
+
+  postgres_create:
+    container_name: lingdb_postgres_create
+    build: ./postgres/create
+    image: lingdb/postgres_create
+    depends_on:
+      - postgres
+    links:
+      - postgres
+    environment:
+      PGPASSWORD: '${POSTGRES_PASSWORD}'
+    volumes:
+      - ${DOCKER_BASE}/postgres/create:/create
+    network_mode: "bridge"
+
+  sndcomp:
+    container_name: lingdb_sndcomp
+    build: ./sndcomp.php
+    image: lingdb/sndcomp.php
+    depends_on:
+      - mariadb
+    links:
+      - mariadb
+    volumes:
+      - ${DOCKER_BASE}/nginx/sound:/var/www/html/sound
+    environment:
+      DEPLOYED: 'true'
+      MYSQL_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+      MYSQL_USER: "root"
+      MYSQL_SERVER: 'mariadb'
+      MYSQL_DATABASE: 'v4'
+    network_mode: "bridge"
+    restart: unless-stopped
+    logging:
+      driver: journald
+
+  # Container for sndcomp development:
+  sndcomp_devel:
+    container_name: lingdb_sndcomp_devel
+    build: ./sndcomp.php
+    image: lingdb/sndcomp.php
+    depends_on:
+      - mariadb
+    links:
+      - mariadb
+    volumes:
+      - ${DOCKER_BASE}/sndcomp.php/src:/var/www/html
+      - ${DOCKER_BASE}/nginx/sound:/var/www/html/sound
+    network_mode: "bridge"
+    ports:
+      - 8000:80
+    restart: "no"
+    environment:
+      MYSQL_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+      MYSQL_USER: "root"
+      MYSQL_SERVER: 'mariadb'
+      MYSQL_DATABASE: 'v4'
+
+  # Export needs link against mapnik
+  sndcomp_export:
+    container_name: lingdb_sndcomp_export
+    build: ./sndcomp.php
+    image: lingdb/sndcomp.php
+    depends_on:
+      - mariadb
+      - mapnik
+    links:
+      - mariadb
+      - mapnik
+    volumes:
+      - ${DOCKER_BASE}/sndcomp.php/src:/var/www/html
+      - ${DOCKER_BASE}/nginx/sound:/var/www/html/sound
+    environment:
+      DEPLOYED: 'true'
+      MYSQL_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+      MYSQL_USER: "root"
+      MYSQL_SERVER: 'mariadb'
+      MYSQL_DATABASE: 'v4'
+    network_mode: "bridge"
+    restart: "no"
+
+  mariadb:
+    container_name: lingdb_mariadb
+    build: ./mariadb
+    image: lingdb/mariadb
+    environment:
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+      MYSQL_DATABASE: 'v4'
+    network_mode: "bridge"
+    restart: unless-stopped
+    logging:
+      driver: journald
+
+  mariadb_backup:
+    container_name: lingdb_mariadb_backup
+    build: ./mariadb/backup
+    image: lingdb/mariadb_backup
+    depends_on:
+      - mariadb
+    links:
+      - mariadb
+    environment:
+      MYSQL_ROOT_PASSWORD: '${MYSQL_ROOT_PASSWORD}'
+    volumes:
+      - ${DOCKER_BASE}/mariadb/backup:/backup
+    network_mode: "bridge"
+    restart: unless-stopped
+
+  mariadb_create:
+    container_name: lingdb_mariadb_create
+    build: ./mariadb/create
+    image: lingdb/mariadb_create
+    depends_on:
+      - mariadb
+    links:
+      - mariadb
+    environment:
+      MYSQL_ROOT_PASSWORD: '${MYSQL_ROOT_PASSWORD}'
+    volumes:
+      - ${DOCKER_BASE}/mariadb/create:/create
+    network_mode: "bridge"
+
+  mapnik:
+    container_name: lingdb_mapnik
+    image: klokantech/tileserver-mapnik
+    labels:
+      lingdb: mapnik
+    volumes:
+      - ${DOCKER_BASE}/mapnik:/data
+    network_mode: "bridge"

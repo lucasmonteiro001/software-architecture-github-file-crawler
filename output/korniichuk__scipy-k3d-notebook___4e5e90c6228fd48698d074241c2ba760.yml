@@ -1,0 +1,15 @@
+proxy:
+  image: jupyter/configurable-http-proxy
+  net: "host"
+  environment:
+   - CONFIGPROXY_AUTH_TOKEN=5879f3780c920dc76456360e23ef2421929b010af2440970f0f3e3ee6cca
+  command: --default-target http://127.0.0.1:9999
+
+tmpnb:
+  image: jupyter/tmpnb
+  net: "host"
+  environment:
+   - CONFIGPROXY_AUTH_TOKEN=5879f3780c920dc76456360e23ef2421929b010af2440970f0f3e3ee6cca
+  volumes:
+   - /var/run/docker.sock:/docker.sock
+  command: python orchestrate.py --image='korniichuk/scipy-k3d-notebook:0.2' --command="ipython notebook --NotebookApp.base_url={base_path} --ip=0.0.0.0 --port {port}"

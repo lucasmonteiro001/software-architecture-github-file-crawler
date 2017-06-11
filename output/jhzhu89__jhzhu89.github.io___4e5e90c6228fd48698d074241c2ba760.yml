@@ -1,0 +1,7 @@
+minimal:
+  image: jiahaozhu89/jekyll-minimal-mistakes:v1
+  command: bundle exec jekyll serve --host 0.0.0.0 --watch --incremental --drafts
+  ports:
+    - 4000:4000
+  volumes:
+    - .:/src/minimal-mistakes

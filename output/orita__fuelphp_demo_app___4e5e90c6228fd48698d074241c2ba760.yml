@@ -1,0 +1,13 @@
+db:
+  image: mysql
+  environment:
+   - MYSQL_ROOT_PASSWORD=mysecretpassword
+   - MYSQL_DATABASE=fuel_intro
+web:
+  build: Dockerfile/fuelphp-apache
+  links:
+   - db
+  ports:
+   - "3000:80"
+  volumes:
+   - .:/var/www/demo_app

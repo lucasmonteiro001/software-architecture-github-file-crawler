@@ -1,0 +1,16 @@
+zookeeper:
+  image: dockerkafka/zookeeper
+  ports:
+   - "2181:2181"
+   - "2888:2888"
+   - "3888:3888"
+   - "5000:5000"
+
+kafka:
+  build: .
+  ports:
+    - "9092:9092"
+  links:
+    - zookeeper:zookeeper
+  volumes:
+    - ./image/conf:/opt/kafka/config

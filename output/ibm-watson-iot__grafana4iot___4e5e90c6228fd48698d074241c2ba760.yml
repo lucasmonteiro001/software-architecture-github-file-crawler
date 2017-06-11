@@ -1,0 +1,26 @@
+version: '2'
+
+services:
+  grafana:
+    image: grafana4iot
+    build: github.com/ibm-watson-iot/grafana4iot.git
+    volumes:
+      - "/mnt/whisper:/opt/graphite/storage/whisper"
+      - "/mnt/grafana:/opt/grafana/data"
+    ports: 
+      - "80:80"
+    mem_limit: 512M
+    restart: always
+  
+  connector:
+    image: connector-statsd
+    build: github.com/ibm-watson-iot/connector-statsd.git
+    links:
+      - grafana:graphite
+    environment:
+      - GRAPHITE_HOST=graphite
+      - GRAPHITE_PORT=2003
+      - IOT_API_KEY=${IOT_API_KEY}
+      - IOT_API_TOKEN=${IOT_API_TOKEN}
+    mem_limit: 256M
+    restart: always

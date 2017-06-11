@@ -1,0 +1,11 @@
+redis:
+  image: redis
+web:
+  build: .
+  command: npm start
+  volumes:
+    - "app:/src/app"
+  links:
+    - redis
+  ports:
+    - "3000:3000"

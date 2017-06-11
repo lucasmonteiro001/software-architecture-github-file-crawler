@@ -1,0 +1,24 @@
+db:
+  image: postgres
+
+appsvr:
+  build: ./app
+  volumes:
+    - ./app:/src/app/
+  links:
+    - db
+  environment:
+    - ENVIRONMENT=development
+    - SECRET_KEY="B6LyzKZ$$\"D64&,CawS0_F<o'8\"ixxglSE91|@?opd}/J\/dTodBQUVUkq-H*<?AXWI_.EYo18q05H:]+i'^NvXJL:(*YL$TqKE!l"
+    - ALLOWED_HOST=localhost
+  command: bash -c "sleep 10 && python /src/app/manage.py migrate && uwsgi --ini /src/app/uwsgi.ini"
+
+nginx:
+  restart: always
+  build: ./nginx
+  ports:
+    - "8000:8000"
+  volumes:
+    - ./app:/src/app/
+  links:
+    - appsvr

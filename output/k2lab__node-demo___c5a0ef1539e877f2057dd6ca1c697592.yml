@@ -1,0 +1,14 @@
+first:
+  build: first-draft
+  ports:
+    - "8001:8001"
+
+second:
+  build: second-draft
+  ports:
+    - "8002:8002"
+
+third:
+  build: third-draft
+  ports:
+    - "8003:8003"

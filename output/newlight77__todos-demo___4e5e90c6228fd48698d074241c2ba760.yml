@@ -1,0 +1,9 @@
+backend:
+  build: backend-node-mongo 
+  ports:
+    - "8002:8002"
+
+frontend:
+  build: frontend-node-angular
+  ports:
+    - "8001:8001"

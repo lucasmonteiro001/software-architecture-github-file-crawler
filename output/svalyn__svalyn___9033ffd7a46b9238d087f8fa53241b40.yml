@@ -1,0 +1,22 @@
+version: '2'
+services:
+  neo4j:
+    image: neo4j:latest
+    volumes:
+      - ${NEO4J_VOLUME}
+    ports:
+      - ${NEO4J_HTTP_PORT}
+      - ${NEO4J_HTTPS_PORT}
+      - ${NEO4J_BOLT_PORT}
+    environment:
+      - NEO4J_AUTH=${NEO4J_AUTH}
+    restart: always
+  svalyn:
+    image: svalyn/svalyn-server:latest
+    depends_on:
+      - neo4j
+    ports:
+      - ${SVALYN_HTTP_PORT}
+    environment:
+      - NEO4J_URI=${NEO4J_URI}
+    restart: always

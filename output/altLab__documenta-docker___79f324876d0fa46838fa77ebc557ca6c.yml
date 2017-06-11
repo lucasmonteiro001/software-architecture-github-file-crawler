@@ -1,0 +1,30 @@
+
+version: '2'
+
+services:
+  frontend:
+    build: ./documenta
+    ports:
+      - 80:80
+    volumes_from:
+      - backend:ro
+  backend:
+    image: rootlogin/nextcloud
+    ports:
+      - 8080:80
+    links:
+      - db
+  db:
+    image: mariadb:10
+    environment:
+      MYSQL_DATABASE: altcloud
+      MYSQL_USER: altcloud
+      MYSQL_PASSWORD: altcloud
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+
+  cron:
+    build: link-update
+    volumes_from:
+      - frontend
+      - backend
+  

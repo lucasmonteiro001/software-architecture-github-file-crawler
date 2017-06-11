@@ -1,0 +1,28 @@
+elasticsearch:
+  image: elasticsearch:2.0.0
+  command: elasticsearch -Des.network.host=0.0.0.0
+  volumes:
+    - ./elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+    - ./data:/usr/share/elasticsearch/data
+logstash:
+  image: logstash:2.0.0-1
+  command: logstash -f /etc/logstash/conf.d/logstash.conf
+  volumes:
+    - ./logstash:/etc/logstash/conf.d
+  ports:
+    - "5000:5000"
+  links:
+    - elasticsearch
+kibana:
+  image: kibana:4.2.0
+  links:
+    - elasticsearch
+nginx:
+  image: nginx:1.9.6
+  ports:
+    - "8000:80"
+  links:
+    - kibana
+  volumes:
+  - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+  - ./nginx/htpasswd:/etc/nginx/htpasswd

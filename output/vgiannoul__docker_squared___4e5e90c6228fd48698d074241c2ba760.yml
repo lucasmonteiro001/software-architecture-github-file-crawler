@@ -1,0 +1,55 @@
+front:
+  build: .
+  ports:
+    - "80:80"
+    - "443:443"
+    - "9000:9000"
+  links:
+    - mysql:mysql
+#    - mongo:mongo
+#  - memcached:memcached
+#    - redis:redis
+#    - elasticsearch:elasticsearch
+  volumes_from:
+    - wwwdata
+
+wwwdata:
+  image: busybox
+  volumes:
+    - ./www:/var/www
+    - ./sites:/etc/nginx/conf.d
+    - ./logs:/var/log/supervisor
+dbdata:
+  image: busybox
+  volumes:
+    - /var/lib/mysql
+mysql:
+  image: mysql
+  ports:
+    - "3306:3306"
+  volumes_from:
+    - dbdata
+  environment:
+    MYSQL_ROOT_PASSWORD: 123
+    MYSQL_DATABASE: drupal
+
+#mongo:
+#  image: mongo
+#  ports:
+#    - "27017:27017"
+
+#memcached:
+#  image: memcached
+#  ports:
+#    - "11211:11211"
+
+#redis:
+#  image: redis
+#  ports:
+#    - "6379:6379"
+
+#elasticsearch:
+#  image: elasticsearch
+#  ports:
+#    - "9200:9200"
+#    - "9300:9300"

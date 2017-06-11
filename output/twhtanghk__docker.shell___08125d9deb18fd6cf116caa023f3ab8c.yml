@@ -1,0 +1,13 @@
+version: '2'
+services:
+  dev:
+    image: docker:dind
+    container_name: dev
+    hostname: dev
+    privileged: true
+    volumes:
+      - ${COMPOSEROOT}/docker/image:/var/lib/docker
+      - ${COMPOSEROOT}:/root
+    ports:
+      - 2375
+    command: --cluster-store=consul://localhost:8500 --cluster-advertise=eth0:2375

@@ -1,0 +1,8 @@
+version: '2'
+
+services:
+    php:
+        image: jorge07/alpine-php:7-dev
+        container_name: bowling_kata_php
+        volumes:
+            - "$PWD:/app"

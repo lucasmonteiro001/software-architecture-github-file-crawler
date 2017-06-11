@@ -1,0 +1,14 @@
+api:
+  build: .
+  ports:
+   - "80:80"
+  links:   
+   - oauth
+   - database
+   - cache
+oauth:
+  image: mysql:5.7
+database:
+  image: mongo:3.1.6
+cache:
+  image: memcached:1.4

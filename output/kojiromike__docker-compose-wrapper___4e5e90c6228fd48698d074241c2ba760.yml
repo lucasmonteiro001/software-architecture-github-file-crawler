@@ -1,0 +1,29 @@
+dvc:
+    image: busybox
+    command: echo 'Volume container'
+    volumes:
+        - /test/dvc
+testin:
+    image: busybox
+    volumes:
+        - .:/test/vol
+    volumes_from:
+        - dvc
+    command: sh -c '
+        echo writing files to shared volume &&
+        rm -f /test/dvc/data /test/vol/data &&
+        dd if=/dev/urandom bs=1M count=1 | tee /test/dvc/data > /test/vol/data &&
+        sha256sum /test/dvc/data /test/vol/data'
+testout:
+    image: busybox
+    volumes:
+        - .:/test/vol
+    volumes_from:
+        - dvc
+    command: sh -c '
+        echo GIVEN two containers sharing a volume container &&
+        echo WHEN one container writes files to the shared volume &&
+        echo THEN the other container should be able to read those same files &&
+        sleep 10 &&
+        sha256sum /test/dvc/data /test/vol/data &&
+        du -hs /test/dvc/data /test/vol/data'

@@ -1,0 +1,35 @@
+# Elasticsearch with exposed port and custom heap size
+elasticsearch:
+  image: elasticsearch:2.0.0
+  command:
+    - "elasticsearch"
+    - "--network.host"
+    - "0.0.0.0"
+  environment:
+    ES_HEAP_SIZE: 1G
+
+logstash:
+  image: quay.io/cogniteev/oncrawl-elk-logstash:1.1
+  links:
+    - elasticsearch
+  volumes:
+    - ./logs:/logs
+
+# Kibana index initializer
+kibana-config:
+  image: quay.io/cogniteev/oncrawl-elk-kibana-config:1.1
+  links:
+    - elasticsearch
+
+# Kibana with modified entry point to wait for index initialization
+kibana:
+  image: quay.io/cogniteev/oncrawl-elk-kibana:1.1
+  links:
+    - elasticsearch
+
+web-client:
+  image: quay.io/cogniteev/oncrawl-elk-web-client:1.1
+  links:
+    - kibana
+  ports:
+    - "9000:80"

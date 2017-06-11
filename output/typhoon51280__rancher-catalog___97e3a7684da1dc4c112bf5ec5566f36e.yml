@@ -1,0 +1,14 @@
+version: '2'
+services:
+  nfs-server:
+    image: itsthenetwork/nfs-server-alpine
+    privileged: true
+    tty: true
+    stdin_open: true
+    network_mode: "host"
+    environment:
+      - SHARED_DIRECTORY=/nfsshare
+    volumes:
+      - /home/rancher/nfsshare:/nfsshare
+    labels:
+      io.rancher.container.pull_image: "always"

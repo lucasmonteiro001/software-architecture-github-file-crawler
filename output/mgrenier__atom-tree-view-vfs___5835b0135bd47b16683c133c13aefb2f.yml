@@ -1,0 +1,13 @@
+version: "2"
+
+services:
+
+  mysql:
+    image: aexea/proftpd:latest
+    network_mode: "host"
+    expose:
+      - "20"
+      - "21"
+    environment:
+      - USERNAME=test
+      - PASSWORD=test

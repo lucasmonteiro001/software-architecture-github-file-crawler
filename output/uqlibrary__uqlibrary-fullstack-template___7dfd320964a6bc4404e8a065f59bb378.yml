@@ -1,0 +1,37 @@
+appname:
+  image: uqlibrary/docker-nginx:2
+  links:
+    - fpm
+  ports:
+    - "8100:80"
+  volumes_from:
+    - fpm
+
+fpm:
+  environment:
+    - APP_ENVIRONMENT=development
+    - XDEBUG_CONFIG=idekey=fbs
+    - PHP_IDE_CONFIG=serverName=dev-appname.library.uq.edu.au
+  image: uqlibrary/docker-fpm-drupal:latest
+  links:
+    - appnamedb
+  volumes:
+    - ../../:/var/app/current
+    - ~/.aws/:/root/.aws
+    - ./data/shared:/data/shared
+    - ../etc/nginx/conf.d:/etc/nginx/conf.d
+
+appnamedb:
+  environment:
+    - MYSQL_ROOT_PASSWORD=development
+    - MYSQL_USER=appname
+    - MYSQL_PASSWORD=appname
+    - MYSQL_DATABASE=appname
+  image: mysql:5.6
+  ports:
+    - "8101:3306"
+  volumes:
+    - ./data/mysql:/var/lib/mysql
+    - ../../bin:/build
+    - ./data/shared:/data/shared
+

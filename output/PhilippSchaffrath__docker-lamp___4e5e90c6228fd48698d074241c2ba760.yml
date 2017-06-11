@@ -1,0 +1,19 @@
+web:
+  build: .
+  volumes:
+    # make sure to mount your htdocs as /var/www/html, for example:
+    # - /c/Users/username/development/www:/var/www/html
+  environment:
+      XDEBUG_CONFIG: remote_host=192.168.99.1
+  ports:
+    - "80:80"
+    - "443:443"
+    - "10022:22"
+  links:
+      - database
+
+database:
+  image: "mysql:5"
+  environment:
+    MYSQL_ROOT_PASSWORD: root
+    MYSQL_DATABASE: application

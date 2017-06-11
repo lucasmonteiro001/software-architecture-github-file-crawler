@@ -1,0 +1,15 @@
+kong: 
+  image: "registry.aliyuncs.com/football/kong:0.8.3"
+  ports: 
+    - "8000:8000"
+    - "8443:8443"
+    - "8001:8001"
+    - "7946:7946"
+    - "7946:7946/udp"
+  environment: 
+    DATABASE: "postgres"
+  external_links: 
+    - "kong-database:kong-database"
+  extra_hosts: 
+    - "api.c-f.com:101.201.53.128"
+    - "kong-database:101.201.53.128"

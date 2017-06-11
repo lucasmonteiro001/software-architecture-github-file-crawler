@@ -1,0 +1,21 @@
+version: '2'
+
+services:
+  db:
+    image: postgres:9.5
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=langtrainer
+    volumes:
+      - pg:/var/lib/postgresql/data
+  dev:
+    build: .
+    links:
+      - db
+    volumes:
+      - .:/home/apps/app
+      - ~/data/gems-2.3:/.gem
+
+volumes:
+  pg:

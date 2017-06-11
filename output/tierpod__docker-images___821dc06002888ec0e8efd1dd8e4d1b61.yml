@@ -1,0 +1,8 @@
+firefox:
+  build: .
+  name: firefox
+  volumes:
+    - /tmp/.X11-unix:/tmp/.X11-unix
+    - ./docker-home:/root/:z
+  environment:
+    - DISPLAY=unix:0.0

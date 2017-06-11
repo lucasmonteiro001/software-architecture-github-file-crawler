@@ -1,0 +1,40 @@
+nginx:
+  image: "nginx:1.9"
+  ports:
+    - "80:80"
+  links:
+    - dockerui:dockerui
+    - drupal-acme-portal:drupal-acme-portal
+    - drupal-daas-portal:drupal-daas-portal
+    - drupal-test-portal:drupal-test-portal
+    - camunda-bpm:camunda-bpm
+  volumes:
+    - /var/docker/digitizeitstash-docker-images-dev/docker-compose/auth/:/etc/nginx/conf.d
+    - /var/docker/digitizeitstash-docker-images-dev/docker-compose/data/html:/usr/share/nginx/html
+
+drupal-acme-portal:
+  image: "digitizeitstash/drupal-drush-acme-portal"
+  volumes:
+    - /var/docker/images/docker-drupal-acme-portal/site_backup:/backup
+
+drupal-test-portal:
+  image: "digitizeitstash/drupal-drush-test-portal"
+  volumes:
+    - /var/docker/digitizeitstash-docker-images-dev/drupal-test-portal/site_backup:/backup
+    - /var/docker/digitizeitstash-docker-images-dev/docker-compose/data/drupal-test-portal/themes:/var/www/html/sites/all/themes
+
+drupal-daas-portal:
+  image: "digitizeitstash/drupal-drush-daas-portal"
+  volumes:
+    - /var/docker/images/docker-drupal-daas-portal/site_backup:/backup
+
+camunda-bpm:
+  image: "elegoev/camunda-bpm"
+  ports:
+    - "8080:8080"
+
+dockerui:
+  image: dockerui/dockerui
+  privileged: true
+  volumes:
+    - /var/run/docker.sock:/var/run/docker.sock

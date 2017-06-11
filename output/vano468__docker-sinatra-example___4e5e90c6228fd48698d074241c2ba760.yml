@@ -1,0 +1,19 @@
+web:
+  build: .
+  dockerfile: Dockerfile.web
+  command: ruby app.rb
+  ports:
+    - '3000:3000'
+  volumes:
+    - .:/usr/src/app
+  links:
+    - db
+
+db:
+  image: sameersbn/postgresql:9.4-3
+  ports:
+    - '5432'
+  environment:
+    - DB_USER=sinatra
+    - DB_PASS=sinatra
+    - DB_NAME=sinatra

@@ -1,0 +1,22 @@
+version: "3"
+
+
+services:
+    app:
+        image: cje3295/paraphernalia/personal_website:app
+        volumes:
+            - ${PERSONAL_WEBSITE_DIRECTORY}:/var/www/personal_website
+            - personal_website_volume:/tmp
+
+    nginx:
+        image: cje3295/paraphernalia/personal_website:nginx
+        volumes:
+            - personal_website_volume:/tmp
+        ports:
+            - "80:80"
+            - "443:443"
+        depends_on:
+            - app
+
+volumes:
+    personal_website_volume:

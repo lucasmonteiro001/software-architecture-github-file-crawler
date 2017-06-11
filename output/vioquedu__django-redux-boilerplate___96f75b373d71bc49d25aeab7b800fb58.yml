@@ -1,0 +1,45 @@
+version: '2'
+
+services:
+  # PostgreSQL as databse
+  db:
+    image: postgres:9.4
+    hostname: db
+    environment:
+      - POSTGRES_USER={{cookiecutter.db_user}}
+      - POSTGRES_PASSWORD={{cookiecutter.db_pwd}}
+      - POSTGRES_DB={{cookiecutter.db_name}}
+    ports:
+      - "{{cookiecutter.db_port}}:5432"
+      
+
+  # Django web server
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    hostname: web
+    command: ./run_web.sh
+    volumes: 
+      - .:/web_app
+    ports:
+      - "{{cookiecutter.web_port}}:8000"
+    links:
+      - db
+    depends_on:
+      - db
+
+  # Node container
+  node:
+    build: 
+      context: .
+      dockerfile: Dockerfile.node
+    hostname: node
+    volumes:
+      - ./{{cookiecutter.project_name}}/frontend/:/web_app/
+    links:
+      - web
+    ports:
+      "3000:3000"
+  
+      

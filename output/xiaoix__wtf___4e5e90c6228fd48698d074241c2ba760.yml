@@ -1,0 +1,20 @@
+web:
+    image: nginx:latest
+    ports:
+        - "13371:80"
+    volumes:
+        - .:/code
+        - ./env/docker-nginx.conf:/etc/nginx/conf.d/site.conf
+        - ../logs:/var/log/wtf
+    links:
+        - php
+php:
+    image: php:7-fpm
+    volumes:
+        - .:/code
+cli:
+    build: .
+    dockerfile: docker/Dockerfile-php-cli
+    volumes:
+        - .:/code
+    command: bash -c "sleep 10;/code/bin/wtf-tool migrate"

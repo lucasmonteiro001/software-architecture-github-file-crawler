@@ -1,0 +1,19 @@
+zookeeper:
+  image: mesoscloud/zookeeper
+  ports:
+    - "2181"
+    - "5111"
+
+kafka:
+  image: ches/kafka
+  ports:
+    - "9092"
+  links:
+    - zookeeper
+
+write-service:
+  image: 87debc346845
+  ports:
+    - "8000:8000"
+  links:
+    - kafka

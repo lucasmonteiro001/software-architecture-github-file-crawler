@@ -1,0 +1,12 @@
+version: "3"
+services:
+  nginx:
+
+  api:
+    container_name: api
+    image: byronmejia/code_network_api:latest
+    links:
+      - db
+  db:
+    container_name: database
+    image: postgres:latest

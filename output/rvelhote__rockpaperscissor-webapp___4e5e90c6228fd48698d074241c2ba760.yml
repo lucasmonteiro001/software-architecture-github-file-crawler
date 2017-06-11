@@ -1,0 +1,52 @@
+version: "2"
+services:
+#  node:
+#    container_name: rockpaperscissor-webapp-node
+#    image: rockpaperscissor-webapp-node
+#    ports:
+#      - "3000:3000"
+#    volumes:
+#      - ./frontend:/opt/application
+
+  apache:
+    container_name: rockpaperscissor-webapp-apache
+    image: rockpaperscissor-webapp-apache
+    ports:
+      - "80:80"
+    volumes:
+      - .:/opt/application
+    links:
+      - php
+#    depends_on:
+#      - node
+
+  php:
+    container_name: rockpaperscissor-webapp-php
+    image: rockpaperscissor-webapp-php
+    ports:
+      - "9000:9000"
+      - "22:22"
+    volumes:
+      - .:/opt/application
+    links:
+      - db
+      - mailhog
+
+  db:
+    container_name: rockpaperscissor-webapp-database
+    image: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./.database:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=development
+      - POSTGRES_PASSWORD=x
+      - POSTGRES_DB=rockpaperscissors-webapp
+
+  mailhog:
+    container_name: rockpaperscissor-webapp-mailhog
+    image: mailhog/mailhog
+    ports:
+      - "1025:1025"
+      - "8025:8025"

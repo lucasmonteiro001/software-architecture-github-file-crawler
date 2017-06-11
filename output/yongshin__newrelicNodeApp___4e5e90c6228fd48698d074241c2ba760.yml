@@ -1,0 +1,47 @@
+weba:
+  image: yongshin/newrelic-node
+  links:
+   - db
+  expose:
+    - 3000
+
+webb:
+  image: yongshin/newrelic-node
+  links:
+   - db
+  expose:
+    - 3000
+
+webc:
+  image: yongshin/newrelic-node
+  links:
+   - db
+  expose:
+    - 3000
+
+db:
+  restart: always
+  image: mongo:3.2
+  ports:
+   - "27017:27017"
+  volumes:
+   - db:/data/db
+
+haproxy:
+  image: dockercloud/haproxy
+  environment:
+   - DOCKER_TLS_VERIFY
+   - DOCKER_HOST
+   - DOCKER_CERT_PATH
+  volumes:
+   - $DOCKER_CERT_PATH:$DOCKER_CERT_PATH
+  links:
+   - weba
+   - webb
+   - webc
+  ports:
+   - "80:80"
+   - "70:70"
+  expose:
+   - "80"
+   - "70"

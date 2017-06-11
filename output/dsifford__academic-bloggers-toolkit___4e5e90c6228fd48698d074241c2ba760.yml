@@ -1,0 +1,26 @@
+version: '2'
+services:
+    wordpress:
+        image: visiblevc/wordpress
+        ports:
+            - 8080:80
+            - 443:443
+        volumes:
+            - ./dist:/app/wp-content/plugins/academic-bloggers-toolkit
+        environment:
+            DB_NAME: wordpress
+            DB_PASS: root
+            WP_DEBUG: 'true'
+            WP_VERSION: nightly
+            PLUGINS: >-
+                [local]academic-bloggers-toolkit,
+                co-authors-plus,
+                query-monitor,
+            # piglatin,
+            # relative-url,
+    db:
+        image: mariadb:10
+        ports:
+            - 3306:3306
+        environment:
+            MYSQL_ROOT_PASSWORD: root

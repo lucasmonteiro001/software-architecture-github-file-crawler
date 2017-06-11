@@ -1,0 +1,30 @@
+convoy-dev:
+  labels:
+    io.rancher.container.create_agent: 'true'
+#    io.rancher.scheduler.global: 'true'
+    io.rancher.scheduler.affinity:host_label: convoy=true
+  privileged: true
+  pid: host
+  entrypoint: /launch
+  stdin_open: true
+  tty: true
+  volumes:
+    - /lib/modules:/lib/modules:ro
+    - /proc:/host/proc
+    - /var/run:/host/var/run
+#    - /run:/host/run
+    - /etc/docker/plugins:/etc/docker/plugins
+    - /dev:/dev
+    - /var/lib/rancher/convoy:/var/lib/rancher/convoy
+  image: ymian/convoy-agent
+  command: volume-agent-devicemapper
+
+convoy-dev-storagepool:
+  labels:
+    io.rancher.container.create_agent: 'true'
+    io.rancher.scheduler.affinity:host_label: convoy=true
+  image: ymian/convoy-agent
+  volumes:
+    - /var/run:/host/var/run
+    - /run:/host/run
+  command: storagepool-agent

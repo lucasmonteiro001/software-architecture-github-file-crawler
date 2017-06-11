@@ -1,0 +1,7 @@
+  version: "2"
+  services: 
+    redis: 
+      image: "192.168.50.126:5000/redis:3.0"
+      ports: 
+        - "6379:6379"
+      restart: always

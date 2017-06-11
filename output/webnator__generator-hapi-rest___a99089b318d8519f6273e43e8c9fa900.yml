@@ -1,0 +1,17 @@
+<%= appName %>:
+  container_name: <%= appName %>
+  command: "<%= appName %>/loc"
+  image: "<%= dockerRepo %>/framework/<%= appName %>:0.0.1"
+  links:
+    - mongo
+  ports:
+    - "9000:9000"
+  environment:
+    CONSUL: <%= consulRepo %>
+
+mongo:
+  container_name: mongo
+  command: '--smallfiles --dbpath=/tmp'
+  ports:
+    - "27000:27017"
+  image: <%= dockerRepo %>/mongo:latest

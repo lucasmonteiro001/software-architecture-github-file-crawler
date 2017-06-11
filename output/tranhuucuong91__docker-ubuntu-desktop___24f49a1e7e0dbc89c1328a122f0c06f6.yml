@@ -1,0 +1,22 @@
+#
+# Connect to ubuntu-mate:
+#     vncviewer 127.0.0.1:5900
+
+ubuntu:
+    image: tranhuucuong91/ubuntu:mate-vnc
+    environment:
+        - VNC_PASSWORD=coc@123
+    ports:
+        - "5900:5900"
+    volumes:
+        - data/:/data/
+    hostname: desktop
+    domainname: coclab.lan
+    cpu_shares: 512             # 0.5 CPU
+    mem_limit: 536870912        # 512 MB RAM
+    #memswap_limit: 0           # 0 MB SWAP
+    #privileged: true
+    #restart: always
+    #stdin_open: true
+    tty: true
+

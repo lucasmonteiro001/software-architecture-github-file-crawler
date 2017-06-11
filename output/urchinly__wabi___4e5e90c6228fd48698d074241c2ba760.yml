@@ -1,0 +1,129 @@
+#
+# Wabi-Sabi DAM solution
+# Open source Digital Asset Management platform of great simplicity and beauty.
+# Copyright (C) 2016 Urchinly <wabi-sabi@urchinly.uk>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+version: "2"
+
+services:
+
+  ingest:
+    image: urchinly/wabi-ingest
+    environment:
+      - WABI_SHARE=/data/vault
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATA_MONGODB_URI=mongodb://wabi_mongo_1/wabi
+      - SPRING_RABBITMQ_ADDRESSES=wabi_rabbitmq_1,wabi_rabbitmq_2,wabi_rabbitmq_3
+    ports:
+      - "8081"
+    volumes:
+      - /tmp
+      - shared-volume:/data/vault
+    depends_on:
+      - rabbitmq
+      - mongo
+    networks:
+      - wabi-tier
+
+  expose:
+    image: urchinly/wabi-expose
+    environment:
+      - WABI_SHARE=/data/vault
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATA_MONGODB_URI=mongodb://wabi_mongo_1/wabi
+      - SPRING_RABBITMQ_ADDRESSES=wabi_rabbitmq_1,wabi_rabbitmq_2,wabi_rabbitmq_3
+    ports:
+      - "8082"
+    volumes_from:
+      - ingest:rw
+    depends_on:
+      - rabbitmq
+      - mongo
+    networks:
+      - wabi-tier
+
+  search:
+    image: urchinly/wabi-search
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_RABBITMQ_ADDRESSES=wabi_rabbitmq_1,wabi_rabbitmq_2,wabi_rabbitmq_3
+      - SPRING_ELASTICSEARCH_ADDRESSES=wabi_elasticsearch_1:9300
+    ports:
+      - "8088"
+    volumes:
+      - /tmp
+    depends_on:
+      - rabbitmq
+      - elasticsearch
+    networks:
+      - wabi-tier
+
+  rabbitmq:
+    image: urchinly/wabi-rabbitmq
+    environment:
+# broken - RABBITMQ_NODENAME=wabi
+      - RABBITMQ_ERLANG_COOKIE=wabi
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+      - RABBITMQ_DEFAULT_VHOST=/
+    ports:
+      - "15671:15671"
+      - "15672:15672"
+      - "25672:25672"
+      - "4369:4369"
+      - "5671:5671"
+      - "5672:5672"
+    volumes:
+      - rabbitmq-volume:/var/lib/rabbitmq/mnesia/wabi
+    networks:
+      - wabi-tier
+
+  elasticsearch:
+    image: urchinly/wabi-elasticsearch
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - elasticsearch-volume:/usr/share/elasticsearch/data
+    networks:
+      - wabi-tier
+
+  mongo:
+    image: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-volume:/data/db
+    networks:
+      - wabi-tier
+    labels:
+      - "uk.urchinly.tech=data"
+
+volumes:
+  shared-volume:
+    driver: local
+  rabbitmq-volume:
+    driver: local
+  mongo-volume:
+    driver: local
+  elasticsearch-volume:
+    driver: local
+
+networks:
+  wabi-tier:
+    driver: bridge
+

@@ -1,0 +1,18 @@
+version: "2"
+
+services:
+  restart: always
+  db-mysql:
+    image: mysql
+    environment :
+      - MYSQL_ROOT_PASSWORD=password
+    volumes:
+      - ./data/mysql:/var/lib/mysql
+
+  app-wordpress:
+    image: wordpress
+    environment:
+      - WORDPRESS_DB_HOST=db-mysql:3306
+      - WORDPRESS_DB_PASSWORD=password
+    ports:
+      - 10180:80

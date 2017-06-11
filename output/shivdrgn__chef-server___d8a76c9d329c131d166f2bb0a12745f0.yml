@@ -1,0 +1,13 @@
+version: '2'
+
+services:
+  server:
+    build: .
+    ports:
+      - "8181:443"
+      - "2222:22"
+  client:
+    image: tutum/ubuntu
+    ports:
+      - "222:22"
+

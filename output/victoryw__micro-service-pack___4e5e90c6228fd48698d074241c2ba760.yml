@@ -1,0 +1,19 @@
+version: '2'
+services:
+  mysql:
+    image: tianyawy/consumer-pact-db
+    container_name: consumer-pact-db
+    ports:
+      - "3307:3306"
+    environment:
+        - MYSQL_ROOT_PASSWORD=TWr0ys1ngh4m
+  web:
+    image: tianyawy/consumer-pact
+    container_name: consumer-pact-service
+    ports:
+      - "8082:9000"
+    depends_on:
+      - mysql
+
+
+    

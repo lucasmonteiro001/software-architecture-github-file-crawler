@@ -1,0 +1,94 @@
+version: '2'
+
+services:
+  mongodb:
+      image: mongo:3.4
+      ports:
+      - "27017"
+      
+  registry:
+    image: miguelfc/marble-registry
+    ports:
+     - "1111:1111"
+
+  core:
+    image: miguelfc/marble-core
+    ports:
+     - "8080:8080"
+    depends_on:
+     - registry
+     - mongodb
+    links:
+     - registry
+     - mongodb
+    volumes:
+     - './core-config:/config'
+     
+  preprocessor-simple:
+    image: miguelfc/marble-preprocessor-simple
+    ports:
+     - "8080"
+    depends_on:
+     - registry
+    links:
+     - registry
+
+  processor-simple:
+    image: miguelfc/marble-processor-simple
+    ports:
+     - "8080"
+    depends_on:
+     - registry
+     - mongodb
+    links:
+     - registry
+     - mongodb
+     
+  processor-stanford:
+    image: miguelfc/marble-processor-stanford
+    ports:
+     - "8080"
+    depends_on:
+     - registry
+     - mongodb
+    links:
+     - registry
+     - mongodb
+     
+  plotter-simple:
+    image: miguelfc/marble-plotter-simple
+    ports:
+     - "8080"
+    depends_on:
+     - registry
+     - mongodb
+    links:
+     - registry
+     - mongodb
+
+  processor-nltk:
+    image: miguelfc/marble-processor-nltk
+    ports:
+     - "8080"
+    depends_on:
+     - registry
+    links:
+     - registry
+
+  processor-sklearn:
+    image: miguelfc/marble-processor-sklearn
+    ports:
+     - "8080"
+    depends_on:
+     - registry
+    links:
+     - registry
+  
+  plotter-dous:
+    image: miguelfc/marble-plotter-dous
+    ports:
+     - "8080"
+    depends_on:
+     - registry
+    links:
+     - registry

@@ -1,0 +1,17 @@
+  version: "2"
+  services: 
+    jenkins: 
+      image: "192.168.50.126:5000/jenkins"
+      ports: 
+        - "20001:8080"
+	- "50000:50000"
+      restart: always
+      environment: 
+        PROFILE_ENV: "qa"
+      volumes: 
+        - "/var/run/docker.sock:/var/run/docker.sock"
+	- "$(which docker):/usr/bin/docker"
+	- "/lib64/libdevmapper.so.1.02:/usr/lib/libdevmapper.so.1.02"
+	- "/lib64/libsystemd-id128.so.0:/usr/lib/libsystemd-id128.so.0"
+	- "/usr/lib/x86_64-linux-gnu/libapparmor.so.1.1.0:/lib/x86_64-linux-gnu/libapparmor.so.1"
+	- "/home/lifeix/jenkins_data:/var/jenkins_home"

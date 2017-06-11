@@ -1,0 +1,8 @@
+sshd:
+    image: sshd-c6
+#    restart: always
+    command: /run/start.sh
+    ports:
+        - "1022:22"
+    volumes:
+        - ./run/:/run/

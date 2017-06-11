@@ -1,0 +1,12 @@
+one:
+  command: socat TCP-L:7022,fork,reuseaddr EXEC:'sqlite /opt/sqlite/live',pty
+  image: schivei/spatialite-server
+  volumes:
+  - /tmp/sqlitedbs/live:/opt/sqlite/live
+two:
+  command: socat TCP-L:7002,fork,reuseaddr TCP:one:7022
+  image: schivei/spatialite-server
+  links:
+  - one:one
+  ports:
+  - 7002:7002

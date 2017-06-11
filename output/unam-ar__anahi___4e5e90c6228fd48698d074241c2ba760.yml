@@ -1,0 +1,49 @@
+pgdata:
+  image: postgres:9.4
+  command: "true"
+  volumes:
+   - ./docker-data/pgdata:/var/lib/postgresql/data
+   - ./docker-data/instalacion:/var/local/anahi/docker-data/instalacion
+
+web:
+  image: siutoba/docker-toba
+  container_name: web
+  ports:
+   - "2020:80"
+  env_file: docker.env
+  environment:
+    TOBA_DIR: /var/local/anahi/vendor/siu-toba/framework
+    TOBA_INSTALACION_DIR: /var/local/anahi/docker-data/instalacion
+    TOBA_PROYECTO                     : anahi
+    TOBA_BASE_NOMBRE                  : toba
+    TOBA_PROYECTO_DIR                 : /var/local/anahi
+    TOBA_PROYECTO_ALIAS               : /anahi
+    TOBA_PROYECTO_INSTALAR            : "True"
+    TOBA_PROYECTO_INSTALAR_PARAMETROS : --base-nombre anahi
+  links:
+   - pg
+#   - jasper
+  volumes_from:
+   - pgdata
+  volumes:
+   - ./:/var/local/anahi
+
+# no esta andando, hay que levantarlo a mano en web
+#jasper:
+#  image: siutoba/docker-guarani-jasper
+#  container_name: jasper
+#  links:
+#   - pg
+#  volumes:
+#   - ./vendor/siu-toba/framework:/var/local/gestion/lib/toba
+
+pg:
+  image: postgres:9.4
+  container_name: pg
+  ports:
+   - "5555:5432"
+  environment:
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: postgres
+  volumes_from:
+   - pgdata

@@ -1,0 +1,19 @@
+version: '2'
+
+services:
+  toguru:
+    build:
+      dockerfile: Dockerfile.Local
+      context: .
+    volumes:
+       - .:/code
+    ports:
+      - "9000:9000"
+      - "1199:1199"
+      - "5005:5005"
+    stdin_open: true
+
+  postgres:
+    build:
+      dockerfile: Dockerfile.Postgres
+      context: .

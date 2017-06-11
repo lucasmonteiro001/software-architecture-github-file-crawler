@@ -1,0 +1,4 @@
+juniper:
+    build: .
+    container_name: "juniper"
+    net: "host"

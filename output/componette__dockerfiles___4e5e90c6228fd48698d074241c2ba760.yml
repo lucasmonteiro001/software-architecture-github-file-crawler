@@ -1,0 +1,66 @@
+proxy:
+  image: traefik:v1.2.1
+  restart: always
+
+  volumes:
+   - ./data/traefik/traefik.toml:/etc/traefik/traefik.toml
+   - ./data/traefik/acme.json:/etc/traefik/acme.json
+
+  ports:
+   - 80:80
+   - 443:443
+   - 8888:8888
+
+  links:
+    - varnish
+    - nginx
+
+varnish:
+  image: componette/dockerfiles:varnish
+  restart: always
+
+  volumes_from:
+    - data
+
+  links:
+    - nginx
+
+nginx:
+  image: componette/dockerfiles:nginx
+  restart: always
+
+  volumes_from:
+    - data
+
+  links:
+   - php
+ 
+php:
+  image: componette/dockerfiles:php
+  restart: always
+
+  volumes_from:
+   - data
+
+  links:
+   - db
+
+db:
+  image: mariadb:latest
+  restart: always
+
+  environment:
+   - MYSQL_ROOT_PASSWORD=dockerroot
+   - MYSQL_DATABASE=docker
+   - MYSQL_USER=docker
+   - MYSQL_PASSWORD=docker
+
+  volumes:
+   - ./data/mysql:/var/lib/mysql
+
+data:
+  image: busybox
+
+  volumes:
+   - ~/:/srv/app/stable
+   - ~/:/srv/app/dev

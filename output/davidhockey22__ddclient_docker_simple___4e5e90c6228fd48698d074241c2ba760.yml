@@ -1,0 +1,8 @@
+ddclient:
+  restart: always
+  image: davidhockey22/ddclient_docker_simple
+# environment:
+#   - CONFIG_PATH "/etc/ddclient"
+#   - CONFIG_FILE "ddclient.conf"
+  volumes:
+    - ${PWD}/config/:/etc/ddclient/

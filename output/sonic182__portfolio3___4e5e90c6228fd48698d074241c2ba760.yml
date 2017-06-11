@@ -1,0 +1,19 @@
+version: '2'
+services:
+  #  db:
+  #    image: postgres
+  web:
+    build: .
+    #  command: python manage.py runserver 0.0.0.0:8000
+    restart: always
+    volumes:
+      - ./db:/app/db
+      - ./public/static:/app/public/static
+      - ./public/media:/app/public/media
+      - ./log:/app/log
+    env_file:
+    - .env
+    ports:
+      - "8000:8000"
+      #  depends_on:
+      #    - db

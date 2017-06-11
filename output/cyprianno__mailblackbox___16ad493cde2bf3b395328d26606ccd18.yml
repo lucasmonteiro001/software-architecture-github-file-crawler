@@ -1,0 +1,20 @@
+mysql:
+  image: mysql:5.6
+  ports:
+    - "3306:3306"
+  env_file:
+    - ./mysql.env
+  volumes_from:
+    - data
+#  volumes:
+#    - "./config/mysql:/etc/mysql/conf.d"
+mailcatcher:
+  image: schickling/mailcatcher
+  ports:
+    - "1080:1080"
+    - "1025:1025"
+  command: mailcatcher -f -v --ip=0.0.0.0
+data:
+  build: mbb_data
+  volumes:
+    - ".:/opt"

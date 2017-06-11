@@ -1,0 +1,19 @@
+---
+version: '2'
+services:
+  app:
+    build: .
+    environment:
+      RABBITMQ_PORT_5672_TCP_ADDR: rabbitmq
+      RABBITMQ_PORT_5672_TCP_PORT: 5674
+      VOTE_BY_MAIL_WORKS_VOTER_APPLY_THREADS: 2
+      VOTE_BY_MAIL_WORKS_FORM_GENERATE_THREADS: 2
+      NEW_RELIC_LICENSE_KEY: ''
+    depends_on:
+      - rabbitmq
+  rabbitmq:
+    image: rabbitmq:3.6.5-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    hostname: rabbitmq

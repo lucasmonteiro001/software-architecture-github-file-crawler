@@ -1,0 +1,11 @@
+version: '2'
+
+services:
+  db:
+    image: 'postgresql-cstore_fdw:latest'
+    mem_limit: 8192m
+    ports:
+      - '5432:5432'
+    volumes:
+      - '.data:/var/lib/postgresql/data'
+      - '.tmp:/tmp/host_tmp'

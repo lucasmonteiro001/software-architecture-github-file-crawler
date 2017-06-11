@@ -1,0 +1,72 @@
+version: '2.0'
+services:
+    influxdb:
+        image: 'influxdb:alpine'
+        restart: always
+        ports:
+            - "8083:8083"
+            - "8086:8086"
+        volumes:
+            - ./lib/influxdb/data:/var/lib/influxdb/data
+            - ./lib/influxdb/meta:/var/lib/influxdb/meta
+            - ./lib/influxdb/wal:/var/lib/influxdb/wal
+            - ./etc/influxdb.conf:/etc/influxdb/influxdb.conf:ro
+        environment:
+            - PRE_CREATE_DB=telegraf
+
+    telegraf:
+        image: 'telegraf:alpine'
+        restart: always
+        links:
+            - influxdb
+        volumes:
+            - /sys:/rootfs/sys:ro
+            - /proc:/rootfs/proc:ro
+            - /var/run/docker.sock:/var/run/docker.sock:ro
+            - ./etc/telegraf.conf:/etc/telegraf/telegraf.conf:ro
+        environment:
+            - HOST_SYS=/rootfs/sys
+            - HOST_PROC=/rootfs/proc
+
+    grafana:
+        image: 'grafana/grafana:latest' 
+        restart: always
+        ports:
+            - '3000:3000'
+        volumes:
+            - ./lib/grafana:/var/lib/grafana 
+        environment:
+            - GF_USERS_ALLOW_SIGN_UP=false
+            - GF_USERS_ALLOW_ORG_CREATE=false
+            - GF_SECURITY_ADMIN_USER=admin
+            - GF_SECURITY_ADMIN_PASSWORD=secret
+        links:
+            - influxdb
+
+    chronograf:
+        image: 'chronograf:latest'
+        restart: always
+        links:
+            - influxdb
+        ports:
+            - '10000:10000'
+        volumes:
+            - ./lib/chronograf:/var/lib/chronograf
+
+    kapacitor:
+        image: 'kapacitor:alpine'
+        restart: always
+        ports:
+            - "9092:9092"
+        volumes:
+            - ./etc/kapacitor.conf:/etc/kapacitor/kapacitor.conf:ro
+
+    nginx:
+        image: 'nginx:stable-alpine'
+        restart: always
+        ports:
+            - '80:80'
+        volumes:
+            - ./etc/nginx.conf:/etc/nginx.conf:ro
+            - ./etc/nginx.default:/etc/nginx/conf.d/default
+            - ./www:/usr/share/nginx/html

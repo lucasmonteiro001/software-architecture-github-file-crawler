@@ -1,0 +1,37 @@
+version: "2"
+
+volumes:
+    db_data: {}
+
+services:
+    db:
+        image: postgres:9.5
+        volumes:
+            - db_data:/var/lib/postgresql/data
+
+    redis:
+        image: redis:3.0
+
+    celery:
+        build: .
+        command: celery -A mums worker -l info
+        depends_on:
+            - db
+            - redis
+        volumes:
+            - ".:/app"
+        environment:
+            - DJANGO_SETTINGS_MODULE=mums.settings.base
+
+    web:
+        build: .
+        command: python manage.py runserver 0.0.0.0:8000
+        ports:
+            - "8000:8000"
+        depends_on:
+            - db
+            - redis
+        volumes:
+            - ".:/app"
+        environment:
+            - DJANGO_SETTINGS_MODULE=mums.settings.base

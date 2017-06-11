@@ -1,0 +1,4 @@
+site:
+  build: ./docker/
+  ports:
+    - 9089:2015

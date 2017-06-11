@@ -1,0 +1,21 @@
+# docker-compose.yml
+mysqlcontainer:
+  image: mysql
+  container_name: my_mysql_container
+  ports:
+    - 3306:3306
+  environment:
+    MYSQL_ROOT_PASSWORD: root
+    MYSQL_DATABASE: sampledb
+    MYSQL_USER: sampleuser
+    MYSQL_PASSWORD: secret
+apachephpcontainer:
+  image: nimmis/apache-php5
+  container_name: my_php_apache_container
+  ports:
+    - "8888:80"
+    - "8443:443"
+  volumes:
+    - ./public:/var/www/html
+  links:
+    - mysqlcontainer

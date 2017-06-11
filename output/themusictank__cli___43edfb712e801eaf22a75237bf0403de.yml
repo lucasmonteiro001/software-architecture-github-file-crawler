@@ -1,0 +1,23 @@
+version: '3'
+services:
+  # An actual instance of the Postgres Musicbrainz database
+  db:
+    image: postgres:9.6-alpine
+    container_name: tmt_postgres
+    # This seems to fail on Windows (https://github.com/docker/compose/issues/2548)
+    # It is however the correct setting.
+    volumes:
+      - datavolume:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+  # A linux container containing maintenance scripts for the
+  # database. This is to prevent a user from installing python
+  # and other packages one may, or may not, want.
+  mbslave:
+    build: ./containers/mbslave
+    image: tmt_mbslave
+    container_name: tmt_mbslave
+    ports:
+      - "2222:22"
+volumes:
+  datavolume:

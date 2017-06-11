@@ -1,0 +1,4 @@
+web:
+  image: chudo1
+  ports:
+   - "8000:80"

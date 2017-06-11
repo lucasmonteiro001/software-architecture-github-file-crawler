@@ -1,0 +1,14 @@
+nodered:
+  image: nieleyde/rpi2-nodered
+  command: flows.json
+  volumes:
+    - /home/pi/node-red:/root/.node-red
+  ports: 
+    - "1880:1880"
+  links:
+    - piball
+
+piball:
+  image: vergissberlin/piball-docker
+  ports:
+    - "1883:1883"

@@ -1,0 +1,50 @@
+version: '2'
+services:
+  web:
+    build: ./web
+    ports:
+      - "5000:5000"
+    links:
+      - postgresql
+      - rabbitmq
+      - redis
+    volumes:
+      - ./web:/usr/src
+    command:
+      ./manage.py run --host 0.0.0.0 --debugger --reload
+
+  postgresql:
+    build: ./postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=secretpassword
+      - POSTGRES_USER=postgres
+
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
+
+  rabbitmq:
+    image: rabbitmq:3
+    ports:
+      - "5672:5672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=rabbitmq
+      - RABBITMQ_DEFAULT_PASS=secretpassword
+
+  worker:
+    build: ./web
+    links:
+      - postgresql
+      - rabbitmq
+      - redis
+    volumes:
+      - /usr/src/app/static
+    command: celery -A app.celery worker
+    environment:
+      - SERVER_NAME=localhost:5000
+      - MAIL_SERVER=${MAIL_SERVER}
+      - MAIL_USERNAME=${MAIL_USERNAME}
+      - MAIL_PASSWORD=${MAIL_PASSWORD}

@@ -1,0 +1,13 @@
+mail:
+  # image: tvial/docker-mailserver
+  build: .
+  hostname: mail
+  domainname: my-domain.com
+  ports:
+  - "25:25"
+  - "143:143"
+  - "587:587"
+  - "993:993"
+  volumes:
+  - ./spamassassin:/tmp/spamassassin/
+  - ./postfix:/tmp/postfix/

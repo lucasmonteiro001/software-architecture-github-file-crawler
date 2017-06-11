@@ -1,0 +1,46 @@
+clair:
+  container_name: clair_clair
+  image: quay.io/coreos/clair
+  labels:
+    io.rancher.scheduler.global: 'true'
+    #io.rancher.scheduler.affinity:host_label_soft: ${HOST_LABEL}
+    io.rancher.sidekicks: postgres, clair-config-volume
+  depends_on:
+    - postgres
+  links:
+    - postgres
+  ports:
+    - "6060-6061:6060-6061"
+
+  environment:
+    - QUEUE_NAME=${QUEUE_NAME}
+
+  command: [-config, /config/config.yaml]
+  volumes:
+    - /tmp:/tmp
+    - /etc/localtime:/etc/localtime:ro
+  volumes_from:
+    - clair-config-volume
+
+postgres:
+    container_name: clair_postgres
+    image: postgres:latest
+    restart: always
+    tty: true
+    net: none
+    stdin_open: true
+    labels:
+      io.rancher.container.hostname_override: container_name
+      io.rancher.container.start_once: true
+    environment:
+      POSTGRES_PASSWORD: password
+
+clair-config-volume:
+  net: none
+  labels:
+    io.rancher.container.hostname_override: container_name
+    io.rancher.container.start_once: true
+  volumes:
+    - /config
+  entrypoint: /bin/true
+  image: youyu/clair-config

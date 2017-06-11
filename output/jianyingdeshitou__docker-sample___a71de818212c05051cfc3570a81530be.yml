@@ -1,0 +1,15 @@
+www:
+    image: 'apache2-u14'
+    command: apache2 -D FOREGROUND
+    ports:
+        - '80:80'
+    volumes_from:
+        - blog_vol
+blog_vol:
+    build: ./jekyll
+    command: jekyll build --destination=/var/www/html
+    working_dir: /data
+    volumes:
+        - './blog:/data'
+        - '/var/www/html'
+

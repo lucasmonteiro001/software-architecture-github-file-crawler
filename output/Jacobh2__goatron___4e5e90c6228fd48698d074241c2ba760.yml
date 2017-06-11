@@ -1,0 +1,18 @@
+version: '2'
+services:
+  goatron:
+    build: .
+    ports:
+     - "8080:8080"
+    depends_on:
+      - mysql
+    restart: always
+  mysql:
+    image: "mysql:8.0.0"
+    environment: 
+      - MYSQL_USER=todo
+      - MYSQL_PASSWORD=1234
+      - MYSQL_DATABASE=todo
+      - MYSQL_ROOT_PASSWORD=1234
+    volumes: 
+      - //c/Users/IceMan/mysql_temp:/var/lib/mysql

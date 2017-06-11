@@ -1,0 +1,53 @@
+# docker-compose.yml
+# Prometheus, Grafana, Alertmanager, Pushgateway
+# 11/2016
+#
+version: '2'
+
+services:
+  prometheus:
+    image: prom/prometheus
+    container_name: pbu-prometheus
+    volumes:
+        - '${PBU_MONITORING_DIR}/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml'
+        - '${PBU_MONITORING_DIR}/prometheus/database:/var/prometheus'
+        - '${PBU_MONITORING_DIR}/prometheus/alert.rules:/etc/prometheus/alert.rules'
+        - '${PBU_MONITORING_DIR}/prometheus/recording.rules:/etc/prometheus/recording.rules'
+    command:
+        - '-config.file=/etc/prometheus/prometheus.yml'
+        - '-storage.local.path=/var/prometheus'
+        - '-web.external-url=http://localhost:9090'
+        - '-alertmanager.url=http://${PBU_ALERTMANAGER}:9093'
+    ports:
+        - "9090:9090"
+  grafana:
+    image: grafana/grafana
+    container_name: pbu-grafana
+    volumes:
+        - '${PBU_MONITORING_DIR}/grafana:/var/lib/grafana'
+    environment:
+        - 'GF_SERVER_ROOT_URL=http://grafana.server.name'
+        - 'GF_SECURITY_ADMIN_PASSWORD=admin'      
+        - 'GF_AUTH_ANONYMOUS_ENABLED=true'
+    ports:
+      - "3000:3000"
+    restart: always
+  alertmanager:
+    image: prom/alertmanager
+    container_name: pbu-alertmanager
+    volumes:
+        - '${PBU_MONITORING_DIR}/alertmanager/alertmanager.yml:/alertmanager.yml'
+    command:
+        - '-config.file=/alertmanager.yml'
+    ports:
+        - '9093:9093'
+    restart: always
+  pushgateway:
+    image: prom/pushgateway
+    container_name: pbu-pushgateway
+    command:
+        - '-persistence.file=/tmp/persistence'
+        - '-log.level=debug'
+    ports:
+        - '9091:9091'
+    restart: always

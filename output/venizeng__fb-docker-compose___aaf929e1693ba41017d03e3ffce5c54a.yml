@@ -1,0 +1,14 @@
+version: "2"
+services: 
+  admin: 
+    image: "registry.c-f.com:5000/football/lifeix-football-admin"
+    ports: 
+      - "8083:8080"
+    extra_hosts: 
+      - "mongodb:192.168.50.154"
+      - "redis:192.168.50.154"
+    restart: always
+    environment: 
+      PROFILE_ENV: "qa"
+    volumes: 
+      - "/home/lifeix/logs/admin:/logs"

@@ -1,0 +1,110 @@
+version: '2'
+services:
+  web-client:
+    image: node:6.5.0
+    network_mode: host
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./web-client:/usr/src/app
+      - ./assets:/usr/src/app/assets
+    command: "/bin/bash -c \"cd /usr/src/app && npm start\""
+    depends_on:
+      - web-api
+  web-api:
+    image: node:6.5.0
+    network_mode: host
+    env_file: development.env
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./web-api:/usr/src/app
+      - ./assets:/usr/src/app/assets
+    command: "/bin/bash -c \"cd /usr/src/app && sleep 3 && npm start\""
+    depends_on:
+      - postgres
+      - redis
+  ml-predictor:
+    image: node:6.5.0
+    network_mode: host
+    env_file: development.env
+    volumes:
+      - ./ml-predictor:/usr/src/app
+    working_dir: /usr/src/app
+    command: "/bin/bash -c \"cd /usr/src/app && sleep 3 && npm start\""
+    depends_on:
+      - rabbitmq
+      - redis
+  postgres:
+    image: postgres
+    network_mode: host
+    volumes:
+      - ./dbdata:/var/lib/postgresql/data
+  redis:
+    image: redis:alpine
+    network_mode: host
+    ports:
+      - "6379:6379"
+  survey-training-preprocessor:
+    image: python:3.5
+    network_mode: host
+    environment:
+      PYTHONUSERBASE: /usr/src/app/vendor
+      PYTHONPATH: ./survey-training-preprocessor
+    volumes:
+      - ./assets:/usr/src/app/assets
+      - ./survey-training-preprocessor:/usr/src/app
+    command: "/bin/bash -c \"cd /usr/src/app && python -u preprocessor.py\""
+    depends_on:
+      - postgres
+      - redis
+      - rabbitmq
+    env_file: development.env
+  rabbitmq:
+    image: rabbitmq:3-management
+    network_mode: host
+    env_file: development.env
+    ports:
+      - "5672:5672"
+      - "15672:15672" # RabbitMQ GUI server
+      - "25672:25672"
+  nginx:
+    image: nginx
+    network_mode: host
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - web-client
+      - web-api
+  college-training-preprocessor:
+    image: python:2.7
+    network_mode: host
+    environment:
+      PYTHONUSERBASE: /usr/src/app/vendor
+      PYTHONPATH: ./college-training-preprocessor
+    volumes:
+      - ./assets:/usr/src/app/assets
+      - ./college-training-preprocessor:/usr/src/app
+    command: "/bin/bash -c \"cd /usr/src/app && python -u college_preprocessor.py\""
+    depends_on:
+      - postgres
+      - redis
+      - rabbitmq
+    env_file: development.env
+  predictor-preprocessor:
+    image: python:3.5
+    network_mode: host
+    environment:
+      PYTHONUSERBASE: /usr/src/app/vendor
+      PYTHONPATH: ./college-training-preprocessor
+    volumes:
+      - ./assets:/usr/src/app/assets
+      - ./predictor-preprocessor:/usr/src/app
+    command: "/bin/bash -c \"cd /usr/src/app && python -u predictor-preprocessor.py\""
+    depends_on:
+      - redis
+      - rabbitmq
+      - survey-training-preprocessor
+      - ml-predictor

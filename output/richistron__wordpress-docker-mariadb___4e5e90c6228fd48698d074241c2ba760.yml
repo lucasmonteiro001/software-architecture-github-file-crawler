@@ -1,0 +1,18 @@
+wp:
+  build: .
+  ports:
+   - "8000:80"
+  volumes:
+    - ./wordpress:/var/www/html
+  environment:
+    WP_DB: wp
+    WP_DB_USER: root
+    WP_DB_PASS: wp123
+    WP_DB_HOST: db
+  links:
+    - db
+db:
+  image: mariadb
+  environment:
+    MYSQL_DATABASE: wp
+    MYSQL_ROOT_PASSWORD: wp123

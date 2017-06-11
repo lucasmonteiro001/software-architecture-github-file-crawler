@@ -1,0 +1,9 @@
+tracy-ui:
+  image: joaovicente/tracy-ui
+  ports:
+    - 8000:8000
+
+tws:
+  image: joaovicente/tws
+  ports:
+    - 8080:8080

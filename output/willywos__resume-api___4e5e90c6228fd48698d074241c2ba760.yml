@@ -1,0 +1,17 @@
+version: '2'
+services:
+  db:
+    image: postgres
+  api:
+    build: .
+    command: node /src/lib/server.js
+    volumes:
+      - .:/src
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      - DB_HOST=db
+      - DB_DATABASE=postgres
+      - DB_USER=postgres

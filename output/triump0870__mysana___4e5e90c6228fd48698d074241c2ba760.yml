@@ -1,0 +1,69 @@
+version: '2'
+services:
+  mysana-uwsgi:
+    image: mysana-uwsgi
+    container_name: mysana-uwsgi
+    depends_on:
+      - mysana-postgres
+    ports:
+      - "8080:8000"
+      - "5000:15672"
+    links:
+      - mysana-postgres
+    volumes:
+      - .:/app/
+    env_file: ./src/mysana/settings/local.env
+    networks:
+      - ${AWS_NETWORK}
+
+  mysana-nginx:
+    image: mysana-nginx
+    container_name: mysana-nginx
+    depends_on:
+      - mysana-uwsgi
+#    ports:               # Uncomment it to use in Dev
+#      - "80:80"
+    links:
+      - "mysana-uwsgi:mysana-uwsgi"
+    volumes:
+      - ./static:/app/static
+      - ./media:/app/media
+    env_file: ./src/mysana/settings/local.env
+    environment:
+      - UWSGI_URI=mysana-uwsgi:30000
+      - "SERVER_NAME=${WEB_HOST}"
+      - "VIRTUAL_HOST=${WEB_HOST}"
+    networks:
+      - ${AWS_NETWORK}
+
+  mysana-postgres:
+    image: mysana-postgres
+    container_name: mysana-postgres
+    ports:
+      - "5435:5435"
+    volumes_from:
+      - mysana-postgres-data
+    depends_on:
+      - mysana-postgres-data
+    env_file: ./src/mysana/settings/local.env
+    networks:
+      - ${AWS_NETWORK}
+
+
+  mysana-postgres-data:
+    image: postgres:9.5
+    container_name: mysana-postgres-data
+    volumes:
+      - ${AWS_STORAGE}:/var/lib/postgresql
+    entrypoint: /bin/bash
+    privileged: true
+    networks:
+      - ${AWS_NETWORK}
+
+volumes:
+  {{AWS_STORAGE}}:
+    external: true
+
+networks:
+  {{AWS_NETWORK}}:
+    external: true

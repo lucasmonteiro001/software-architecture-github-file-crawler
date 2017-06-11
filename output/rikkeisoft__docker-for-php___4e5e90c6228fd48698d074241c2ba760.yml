@@ -1,0 +1,64 @@
+version: "3"
+
+services:
+  # MySQL 5.7.x
+  db:
+    restart: always
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE:      homestead
+      MYSQL_USER:          homestead
+      MYSQL_PASSWORD:      secret
+      TERM:                linux
+    volumes:
+      - ./data/database:/var/lib/mysql
+      - ./data/logs/mysql:/var/log/mysql
+    networks:
+      - internal
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+
+  # PHP-FPM 7.0.x
+  php7:
+    restart: always
+    build: ./services/php7.0-fpm
+    image: rikkeisoft/docker-for-php:latest
+    environment:
+      TERM:          linux
+      SSH_AUTH_SOCK: /ssh-agent
+    volumes:
+      - ./services/php7.0-fpm/php.ini:/etc/php.ini:ro
+      - ./services/php7.0-fpm/php-fpm.conf:/usr/local/etc/php-fpm.conf:ro
+      - ./data/logs/php:/var/log/php-fpm
+      - ./app:/app
+      - $SSH_AUTH_SOCK:/ssh-agent # Forward SSH Agent to Docker container
+    networks:
+      - external
+      - internal
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+
+  # Nginx 1.10.x
+  web:
+    restart: always
+    image: nginx:stable-alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ./services/nginx/site.conf:/etc/nginx/conf.d/site.conf:ro
+      - ./data/logs/nginx:/var/log/nginx
+      - ./app:/app
+    networks:
+      - external
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+
+networks:
+  external:
+    driver: bridge
+  internal:
+    driver: bridge

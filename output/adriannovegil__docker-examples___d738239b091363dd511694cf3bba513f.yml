@@ -1,0 +1,23 @@
+web:
+  build: ./web
+  command: /local/git/docker-python/run.sh
+  ports:
+    - "8000:8000"
+  environment:
+   - VMHOST=127.0.0.1
+  links:
+   - rest
+
+rest:
+  build: ./rest
+  command: /local/git/docker-maven-tomcat/run.sh
+  ports:
+    - "8080:8080"
+  links:
+    - db
+
+db:
+  build: mongo
+  command: mongod
+  ports:
+    - "27017:27017"

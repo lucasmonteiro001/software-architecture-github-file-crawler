@@ -1,0 +1,29 @@
+data:
+  image: busybox
+  volumes:
+   - /var/lib/mysql
+   - db/mysql/:/temp/mysql/
+   - .:/var/www/html/
+web:
+  build: Dockerfiles/php-apache/
+  environment:
+    IS_DOCKER: true
+    BEHAT_TEST: false
+  ports:
+    - "80:80"
+    - "9000:9000"
+  dns: 8.8.8.8
+  links:
+    - db
+  volumes_from:
+    - data
+db:
+  build: Dockerfiles/mysql/
+  ports:
+    - "3306:3306"
+  volumes_from:
+   - data
+  environment:
+    MYSQL_DATABASE: wordpress_db
+    MYSQL_ROOT_PASSWORD: root
+    STARTUP_SQL: /temp/mysql/titanium_wp_db_v2.sql

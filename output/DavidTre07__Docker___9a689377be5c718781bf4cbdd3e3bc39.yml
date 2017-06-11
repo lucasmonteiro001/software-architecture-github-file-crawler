@@ -1,0 +1,27 @@
+version: '2'
+services:
+  domoticz:
+    build:
+      context: ./Domoticz-beta
+      dockerfile: Dockerfile
+      args:
+        date: "`date +%Y%m%d`"
+    image: david07/domoticz-beta:latest
+    ports:
+      - "8080:8080"
+      - "443:443"
+    volumes:
+      - /config/domoticz:/config:rw
+      - /etc/localtime:/etc/localtime:ro
+      - /config/data:/data:rw
+  gcalcli:
+    build:
+      context: ./Gcalcli
+      dockerfile: Dockerfile
+    image: david07/gcalcli:latest
+    volumes:
+      - /config/gcalcli/.gcalcli_oauth:/root/.gcalcli_oauth:rw
+      - /config/gcalcli:/config:rw
+      - /etc/localtime:/etc/localtime:ro
+      - /config/data:/data:rw
+

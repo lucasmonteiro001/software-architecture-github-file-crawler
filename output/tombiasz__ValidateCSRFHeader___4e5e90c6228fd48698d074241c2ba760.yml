@@ -1,0 +1,8 @@
+version: '2'
+services:
+    php-5.6-apache:
+        build: .
+        volumes:
+          - .:/var/www/html
+        ports:
+          - 8080:80

@@ -1,0 +1,28 @@
+# The first level it the "name" of your service (docker container)
+web:
+    build: ./nginx.docker # this says to build the Docker in that directory
+    ports: # this is basically just port forwarding
+        - 8080:80 # 8080 on the outside, 80 on the inside
+    volumes: # files system mapping
+        - ./src:/usr/share/nginx/html # ./src on the outside, ... on the inside
+    links: # link services together
+        # the "php" service below is tcp://php_server inside
+        # it creates the hosts file entry and everything
+        # like magic :D
+        - php:php_server
+php:
+    build: ./php.docker
+    volumes:
+        - ./src:/usr/share/nginx/html
+    links:
+        - db:database
+db:
+    image: mysql:5.6 # this will pull the image from dockerhub
+    # set environment vars inside the container
+    environment:
+        MYSQL_ROOT_PASSWORD: docker
+        MYSQL_DATABASE: wordpress
+        MYSQL_USER: username
+        MYSQL_PASSWORD: password
+    volumes:
+        - ./mysql.docker/data:/var/lib/mysql

@@ -1,0 +1,61 @@
+version: '2.1'
+
+services:
+  local:
+    image: node:7.7.1-onbuild
+    command: bash -c "npm run server:dev"
+    volumes:
+      - .:/usr/src/app
+    ports:
+      - 3000:3000
+    environment:
+      NODE_ENV: test
+      HTTP_PORT: 3000
+      # HTTP_HOST: '0.0.0.0'
+      DB_HOST: postgres
+    depends_on:
+      - chat
+      - postgres
+
+  chat:
+    image: node:7.7.1-onbuild
+    command: bash -c "npm run client:dev:run"
+    volumes:
+      - .:/usr/src/app
+    ports:
+      - 8081:8081
+    environment:
+      DB_HOST: postgres
+
+  ci:
+    build: .
+    command: npm run server:test
+    volumes:
+      - ./:/usr/src/app
+    ports:
+      - 3000:3000
+    environment:
+      NODE_ENV: test
+      HTTP_PORT: 3000
+      HTTP_HOST: '0.0.0.0'
+      DB_HOST: postgres_ci
+    depends_on:
+      - postgres_ci
+    links:
+      - postgres_ci
+
+  postgres:
+    image: postgres
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_PASSWORD: sql
+      POSTGRES_DB: webchat
+
+  postgres_ci:
+    image: postgres
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_PASSWORD: sql
+      POSTGRES_DB: webchat_test

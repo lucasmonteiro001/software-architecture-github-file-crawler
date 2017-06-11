@@ -1,0 +1,23 @@
+version: '2'
+services:
+    db:
+        container_name: db
+        image: jdanlewis/postgres
+        build: ./db
+        volumes:
+            - postgres_data:/var/lib/postgres/data/pgdata
+        environment:
+            - PGDATA=/var/lib/postgresql/data/pgdata
+    bot:
+        container_name: yobot
+        image: jdanlewis/yobot
+        build: ./bot
+        links:
+            - db:database
+        volumes:
+            - chatterbot_data:/var/lib/yobot
+volumes:
+    postgres_data:
+        driver: local
+    chatterbot_data:
+        driver: local

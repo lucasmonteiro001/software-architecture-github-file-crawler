@@ -1,0 +1,33 @@
+version: "2"
+
+services:
+  cardigann:
+    build: .
+    volumes:
+    - .:/.config/cardigann
+    environment:
+      - CARDIGANN_PASSPHRASE
+      - CARDIGANN_HOSTNAME=cardigann
+    command: ["server", "--debug"]
+    ports:
+    - 5060:5060
+
+  couchpotato:
+    image: linuxserver/couchpotato
+    environment:
+      - ADVANCED_DISABLEUPDATES=1
+      - PUID=0
+      - PGID=0
+    ports:
+      - 5050:5050
+
+  sonarr:
+    image: linuxserver/sonarr
+    environment:
+      - ADVANCED_DISABLEUPDATES=1
+      - PUID=0
+      - PGID=0
+    links:
+      - cardigann
+    ports:
+      - 8989:8989

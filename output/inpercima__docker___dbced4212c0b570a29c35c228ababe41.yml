@@ -1,0 +1,27 @@
+version: "2"
+services:
+  mysql:
+    image: mysql:5.7
+    container_name: mysql
+    mem_limit: 1g
+    ports:
+      - "3306:3306"
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+    volumes:
+      - data-mysql:/var/lib/mysql
+    command: mysqld --lower_case_table_names=1 --max_allowed_packet=100M
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    mem_limit: 1g
+    restart: unless-stopped
+    environment:
+      - PMA_HOSTS=mysql
+    ports:
+      - "80:80"
+    depends_on:
+      - mysql
+volumes:
+  data-mysql:

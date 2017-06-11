@@ -1,0 +1,4 @@
+aws-stack-test:
+  image: ufoscout/aws-stack-test
+  ports:
+    - 8080:8080

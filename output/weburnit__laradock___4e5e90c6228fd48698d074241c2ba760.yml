@@ -1,0 +1,108 @@
+sources:
+  build: images/sources
+  volumes:
+    - .:/var/www/html/apiapps
+
+rabbitmq:
+  image: rabbitmq:3-management
+  environment:
+    RABBITMQ_DEFAULT_USER: paulaan
+    RABBITMQ_DEFAULT_PASS: "@86"
+  ports:
+    - "15672:15672"
+
+database:
+  build: images/sources
+
+php:
+  extends:
+    file: php-compose.yml
+    service: application
+  ports:
+    - "2222:22" # phpunit DEV mode
+  volumes_from:
+      - sources
+  entrypoint: "/run.sh"
+  links:
+    - rabbitmq
+    - cache
+    - redis
+    - mysql
+  environment:
+    APPLICATION_LIVE: 0
+    ENV_VARIABLE: 123512341325987
+phpslaver:
+  extends:
+    file: php-compose.yml
+    service: application
+  volumes_from:
+      - sources
+  entrypoint: "/slaver.sh"
+  links:
+    - rabbitmq
+    - cache
+    - redis
+    - mysql
+  environment:
+    APPLICATION_LIVE: 0
+
+cron:
+  extends:
+    file: php-compose.yml
+    service: application
+  volumes_from:
+      - sources
+  working_dir: /var/www/html/apiapps
+  entrypoint: "/cron.sh"
+  links:
+    - rabbitmq
+    - cache
+    - redis
+    - mysql
+    - laravel.local
+    - selenium
+  environment:
+    XDEBUG_CONFIG: remote_host=192.168.99.100
+    APPLICATION_LIVE: 0
+
+cache:
+  image: memcached
+  ports:
+    - "11211:11211"
+    - "9030:9000"
+
+redis:
+  image: redis
+  ports:
+    - "6379:6379"
+
+
+mysql:
+  build: images/percona
+  hostname: db_master
+  environment:
+    MYSQL_ROOT_PASSWORD: db_pass
+    MYSQL_DATABASE: db_name
+    MYSQL_USER: db_user
+    MYSQL_PASSWORD: db_pass
+  ports:
+    - "3306:3306"
+
+laravel.local:
+  build: images/nginx
+  volumes_from:
+    - sources
+    - phpslaver
+    - php
+  command: nginx -g "daemon off;"
+  links:
+    - phpslaver
+    - php
+    - sources
+  ports:
+    - "80:88"
+
+selenium:
+  image: selenium/standalone-chrome
+  links:
+    - laravel.local

@@ -1,0 +1,50 @@
+service-guestbook-api-server-blue:
+  labels:
+    io.rancher.scheduler.affinity:container_label_soft_ne: io.rancher.stack_service.name=$${stack_name}/$${service_name}
+  tty: true
+  command:
+  - /app/run-java.sh
+  - --guestbook.backend.redis.read.vip=redis-slave
+  - --guestbook.backend.redis.write.vip=redis-master
+  image: looztra/guestbook-rest-service-server:v0.0.1
+  links:
+  - redis-master:redis-master
+  - redis-slave:redis-slave
+  stdin_open: true
+service-guestbook-frontend-blue:
+  labels:
+    io.rancher.scheduler.affinity:container_label_soft_ne: io.rancher.stack_service.name=$${stack_name}/$${service_name}
+    io.rancher.container.pull_image: always
+  tty: true
+  image: looztra/guestbook-frontend:v0.0.7-hack
+  links:
+  - alias-guestbook-api-server:guestbook-rest-server
+  stdin_open: true
+alias-guestbook-api-server:
+  image: rancher/dns-service
+  links:
+  - service-guestbook-api-server-blue:service-guestbook-api-server-blue
+redis-slave:
+  labels:
+    io.rancher.container.pull_image: always
+    io.rancher.scheduler.affinity:container_label_soft_ne: io.rancher.stack_service.name=$${stack_name}/$${service_name}
+  tty: true
+  command:
+  - redis-server
+  - --slaveof
+  - redis-master
+  - '6379'
+  image: redis:3-alpine
+  links:
+  - redis-master:redis-master
+  stdin_open: true
+redis-master:
+  labels:
+    io.rancher.container.pull_image: always
+  tty: true
+  image: redis:3-alpine
+  stdin_open: true
+alias-guestbook-frontend:
+  image: rancher/dns-service
+  links:
+  - service-guestbook-frontend-blue:service-guestbook-frontend-blue

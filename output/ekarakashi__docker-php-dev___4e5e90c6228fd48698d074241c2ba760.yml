@@ -1,0 +1,45 @@
+version: '2'
+services:
+
+  web:
+    build: ./nginx
+    image: erald/nginx
+    ports:
+      - "80:80"
+    volumes:
+      # default site
+      - ./www/default/site:/var/www/default
+      - ./www/default/config/vhost.conf:/etc/nginx/sites-enabled/default-vhost.conf
+
+      # wordpress
+      - ./www/wordpress/site:/var/www/wordpress
+      - ./www/wordpress/config/vhost.conf:/etc/nginx/sites-enabled/wordpress-vhost.conf
+    
+      # melt
+      - ./www/melt/site/web:/var/www/melt
+      - ./www/melt/config/vhost.conf:/etc/nginx/sites-enabled/melt-vhost.conf 
+    links:
+      - php
+
+  php:
+    image: nmcteam/php56
+    volumes:
+      - ./fpm/config/php-fpm.conf:/etc/php5/fpm/php-fpm.conf
+      - ./fpm/config/php.ini:/etc/php5/fpm/php.ini
+      - ./www/default/site:/var/www/default
+      - ./www/wordpress/site:/var/www/wordpress
+      - ./www/melt/site:/var/www/melt
+    links:
+      - mysql
+
+  mysql:
+    image: mysql:5.6.33
+    volumes:
+      - ./db/mysql:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: dev
+      MYSQL_PASSWORD: 123456

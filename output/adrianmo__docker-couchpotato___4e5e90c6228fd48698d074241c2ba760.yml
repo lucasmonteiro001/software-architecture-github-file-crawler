@@ -1,0 +1,9 @@
+couchpotato:
+  image: adrianmo/couchpotato
+  ports:
+   - "5050:5050"
+  volumes:
+   - /path/to/movies:/movies
+   - /path/to/config:/config
+  privileged: true
+  restart: always

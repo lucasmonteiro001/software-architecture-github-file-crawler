@@ -1,0 +1,16 @@
+app:
+  build: ../
+  dockerfile: Dockerfile
+
+  volumes:
+    - ./../:/go/src/github.com/tsuru/riakapi
+
+  command: "/bin/true"
+
+riak:
+  build: images/riak
+  dockerfile: Dockerfile
+  ports:
+    - "8087"
+    - "8098"
+    - "22"

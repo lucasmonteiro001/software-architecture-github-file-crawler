@@ -1,0 +1,12 @@
+vdr:
+   image: qnib/vdr
+   hostname: vdr
+   container_name: vdr
+   privileged: true
+   command: tail -f /dev/null
+   environment:
+   - COLLECT_METRICS=false
+   - DC_NAME=dc1
+   - VDR_DEVICE=1
+   volumes:
+   - /video/:/video/

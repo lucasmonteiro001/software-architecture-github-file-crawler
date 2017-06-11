@@ -1,0 +1,34 @@
+version: '2'
+
+services:
+  app: &app_base
+    build: .
+    command: rails server -p 3000 -b '0.0.0.0'
+    env_file:
+      - .app.env
+    volumes:
+      - .:/app
+      - data:/bundle
+    ports:
+      - "3000:3000"
+      - "35729:35729"
+    links:
+      - db
+      - redis
+
+  db:
+    image: postgres:9.5
+    ports:
+      - "54320:5432"
+    volumes:
+      - data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=83J7kbz5ylcq
+      - POSTGRES_USER=diablo
+  redis:
+    image: redis:latest
+
+volumes:
+  data:
+    external:
+      name: diablo_vol

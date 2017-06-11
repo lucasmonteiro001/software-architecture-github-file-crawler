@@ -1,0 +1,11 @@
+version: '2'
+
+services:
+  ecd:
+    build: .docker/
+    entrypoint: bash
+    working_dir: /usr/share/app
+    volumes:
+      - ~/.aws:/root/.aws
+      - ~/.cache/yarn:/root/.cache/yarn
+      - ./:/usr/share/app

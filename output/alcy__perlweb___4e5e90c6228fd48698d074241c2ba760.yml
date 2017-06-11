@@ -1,0 +1,24 @@
+perlweb:
+  image: perlweb
+  ports: 
+    - "8230:8230"
+  volumes:
+    - .:/home/pw/perlweb
+    - ./logs:/home/pw/perlweb/logs
+  working_dir: /home/pw/perlweb
+  environment:
+    CBROOTLOCAL: /home/pw/perlweb
+    CBROOT: /home/pw/perlweb/combust
+    CBCONFIG: /home/pw/perlweb/combust.docker.conf
+  command: combust/bin/httpd
+
+rss_cron:
+  image: perlweb
+  volumes_from: 
+    - perlweb
+  working_dir: /home/pw/perlweb
+  environment:
+    CBROOTLOCAL: /home/pw/perlweb
+    CBROOT: /home/pw/perlweb/combust
+    CBCONFIG: /home/pw/perlweb/combust.docker.conf
+  command: bin/cron_hourly

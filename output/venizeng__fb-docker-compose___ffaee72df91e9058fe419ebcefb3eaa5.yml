@@ -1,0 +1,28 @@
+kong-database: 
+  image: "registry.c-f.com:5000/football/postgresql:9.5"
+  ports: 
+    - "5432:5432"
+  restart: "always"
+  volumes: 
+    - "/home/lifeix/postgresql_data:/var/lib/postgresql/data"
+  environment: 
+    POSTGRES_USER: "kong"
+    POSTGRES_DB: "kong"
+kong: 
+  image: "registry.c-f.com:5000/football/kong:0.8.3"
+  ports: 
+    - "8000:8000"
+    - "8443:8443"
+    - "8001:8001"
+    - "7946:7946"
+    - "7946:7946/udp"
+  environment: 
+    DATABASE: "postgres"
+  links: 
+    - "kong-database:kong-database"
+  extra_hosts: 
+    - "api.c-f.com:192.168.1.17" 
+kong-dashboad: 
+  image: "registry.c-f.com:5000/football/kong-dashboard:0.8.0"
+  ports: 
+    - "10000:8080"

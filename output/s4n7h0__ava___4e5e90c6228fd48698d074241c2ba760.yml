@@ -1,0 +1,57 @@
+
+##
+## IMPORTANT NOTE
+##
+## This compose file is configured for bootstrapping AVA developers
+## quickly. It is not appropriate for production or staging deployments
+## of AVA.
+##
+## This configuration uses hard-coded passwords, Django in DEBUG mode,
+## and the Django integrated development server, none of these things
+## are appropriate for a production environment.
+
+## Support Servers/Services
+db:
+  image: postgres:9.3
+  environment:
+    ## This password is obviously committed to version control. It would be
+    ## ill-advised to use it on any accessible deployment (seriously).
+    - POSTGRES_PASSWORD=T7mKAQOhMmo6hv0zOmm7
+redis:
+  image: redis:2.8
+elasticsearch:
+  image: elasticsearch
+
+## AVA Application Server
+web:
+  build: .
+  command: bin/in-container/run-devserver.sh
+  volumes:
+    - .:/code
+  ports:
+    - "8000:8000"
+  links:
+    - db
+    - redis
+    - elasticsearch
+  environment:
+    - DJANGO_SETTINGS_MODULE=ava.settings.base
+    - USE_MOCK_LDAP=true
+    - USE_MOCK_GOOGLE=true
+  env_file:
+    - secrets.env
+
+## AVA Asynchronous Task Worker
+worker:
+  build: .
+  command: bin/in-container/run-celery-worker.sh
+  volumes:
+    - .:/code
+  links:
+    - db
+    - redis
+    - elasticsearch
+  environment:
+    - DJANGO_SETTINGS_MODULE=ava.settings.base
+  env_file:
+    - secrets.env

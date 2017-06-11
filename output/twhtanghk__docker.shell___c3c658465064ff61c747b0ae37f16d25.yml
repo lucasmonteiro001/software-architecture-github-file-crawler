@@ -1,0 +1,9 @@
+version: '2'
+services:
+  floodlight:
+    image: pierrecdn/floodlight
+    container_name: floodlight
+    hostname: floodlight
+    ports:
+      - 6653:6653
+      - 3000:8080

@@ -1,0 +1,22 @@
+web:
+    image: 'lamp-c6'
+#    restart: always
+    command: /run/start.sh
+    ports:
+        - '80:80'
+    volumes:
+        - './run:/run'
+        - './backup:/backup'
+    volumes_from:
+        - db
+        - app
+db:
+    image: 'mysql-c6'
+    command: echo 'drupal7 mysql-vol start' 
+    volumes:
+        - drupal7_db:/var/lib/mysql
+app:
+    image: 'httpd-c6'
+    command: echo 'drupal7 app-vol start'
+    volumes:
+        - drupal7_app:/app

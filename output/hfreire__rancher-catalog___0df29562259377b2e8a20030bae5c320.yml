@@ -1,0 +1,30 @@
+redis-master:
+  image: redis:3.2.4
+  labels:
+    io.rancher.container.hostname_override: container_name
+  ports:
+    - "6379:6379"
+
+redis-slave:
+  image: redis:3.2.4
+  labels:
+    io.rancher.container.hostname_override: container_name
+  command: redis-server --slaveof redis-master 6379
+  links:
+    - redis-master:redis-master
+  ports:
+    - "6379:6379"
+
+redis-sentinel:
+  image: hfreire/redis-sentinel:3.2.4
+  labels:
+    io.rancher.container.hostname_override: container_name
+  environment:
+    - SENTINEL_QUORUM=${redis_sentinel_quorum}
+    - SENTINEL_DOWN_AFTER=${redis_sentinel_down_after}
+    - SENTINEL_FAILOVER=${redis_sentinel_failover_timeout}
+  links:
+    - redis-master:redis-master
+    - redis-slave
+  ports:
+      - "26379:26379"

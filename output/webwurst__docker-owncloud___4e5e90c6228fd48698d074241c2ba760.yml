@@ -1,0 +1,20 @@
+owncloud:
+  build: .
+  ports:
+    - "8001:80"
+  volumes:
+    - docker_volumes/data:/var/www/html/data
+  links:
+    - mysql
+
+mysql:
+  image: mysql
+  expose:
+    - "3306"
+  environment:
+    MYSQL_DATABASE: owncloud
+    MYSQL_USER: owncloud
+    MYSQL_PASSWORD: password
+    MYSQL_ROOT_PASSWORD: BFPTkyq8IRfP-random
+  volumes:
+    - docker_volumes/mysql:/var/lib/mysql

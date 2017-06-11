@@ -1,0 +1,27 @@
+version: '2'
+
+services:
+  redis:
+    image: redis
+    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+
+  planetsubjects:
+    build: ./
+    volumes:
+      - ./:/planetary-response-network
+    ports:
+      - "3736:3736"
+    environment:
+      - "NODE_ENV=staging"
+      - "PLANET_API_KEY"
+      - "AMAZON_ACCESS_KEY_ID"
+      - "AMAZON_SECRET_ACCESS_KEY"
+      - "AMAZON_S3_BUCKET"
+      - "ZOONIVERSE_USERNAME"
+      - "ZOONIVERSE_PASSWORD"
+      - "SESSION_SECRET"
+      - "PANOPTES_API_APPLICATION"
+      - "PANOPTES_API_SECRET"
+      - "PRN_HOST"

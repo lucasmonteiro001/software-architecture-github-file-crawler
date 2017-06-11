@@ -1,0 +1,12 @@
+APP1:
+  image: ubuntu
+  environment:
+    A: 1
+  command: sleep 5
+APP2:
+  image: ubuntu
+  environment:
+    B: 1
+  command: env
+  links:
+    - "APP1"

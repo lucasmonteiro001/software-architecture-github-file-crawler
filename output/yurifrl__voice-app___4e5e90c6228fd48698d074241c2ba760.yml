@@ -1,0 +1,9 @@
+# App name
+voice-app:
+  build: .
+  command: ember server --watcher 
+  volumes:
+    - .:/voice-app
+  ports:
+    - "4200:4200"
+    - "49152:49152"

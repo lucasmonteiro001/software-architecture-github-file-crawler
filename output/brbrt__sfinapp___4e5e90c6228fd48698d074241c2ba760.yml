@@ -1,0 +1,10 @@
+version: '2'
+services:
+  web:
+    build: web/.
+    ports:
+     - "4080:4080"
+  frontend:
+    build: frontend/.
+  service:
+    build: service/.

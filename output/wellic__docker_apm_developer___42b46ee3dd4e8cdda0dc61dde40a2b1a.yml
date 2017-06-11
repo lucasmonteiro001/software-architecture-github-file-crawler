@@ -1,0 +1,28 @@
+php53:
+    build: php-build/
+#    container_name: php53
+    ports:
+        - "80:80"
+    links:
+        - mysql
+    volumes:
+        - $PWD/src/www/:/var/www/
+        - $PWD/etc/apache2/sites-enabled/:/etc/apache2/sites-enabled/
+        - $PWD/logs/xdebug.log:/tmp/xdebug.log
+mysql:
+    image: mysql:5.5
+#    container_name: mysql
+    ports:
+        - "33055:3306"
+    volumes:
+        - $PWD/mysql_data:/var/lib/mysql
+        - $PWD/etc/mysql/conf.d:/etc/mysql/conf.d
+    environment:
+        MYSQL_ROOT_PASSWORD: "root"
+
+
+# see details https://hub.docker.com/_/mysql/
+#        MYSQL_DATABASE: "prestashop"
+#        MYSQL_USER:
+#        MYSQL_PASSWORD:
+#        MYSQL_ALLOW_EMPTY_PASSWORD:

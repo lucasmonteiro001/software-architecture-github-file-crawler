@@ -1,0 +1,17 @@
+version: '3'
+services:
+    mysqld:
+        image: oshp/database:develop
+        environment:
+          MYSQL_ROOT_PASSWORD: password
+          MYSQL_DATABASE: headers
+          MYSQL_USER: mysql
+          MYSQL_PASSWORD: password
+    app:
+        image: oshp/secureheaders:3.1.0
+        depends_on:
+          - mysqld
+        ports:
+          - 80:5000
+    redis:
+        image: redis:alpine

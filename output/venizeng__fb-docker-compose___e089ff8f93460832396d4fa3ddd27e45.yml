@@ -1,0 +1,7 @@
+h5: 
+  image: "registry.cn-hangzhou.aliyuncs.com/football/h5:qa"
+  ports: 
+    - "81:80"
+  restart: "always"
+  volumes: 
+    - "/home/lifeix/logs/h5/:/var/log/nginx"

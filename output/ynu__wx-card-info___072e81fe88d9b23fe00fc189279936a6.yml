@@ -1,0 +1,25 @@
+# Redis Server
+wx_service_center_redis:
+  image: redis
+  volumes:
+    - /mydir/database/redis/data:/data
+  restart: always
+#wechat app
+wx_service_center:
+  image: ynuae/wx_service_center
+  ports:
+    - "50002:50002"
+  links:
+    - wx_service_center_redis:redis
+  environment:
+    - QYH_CORPID
+    - QYH_SECRET
+    - PROFILE_TOKEN
+    - PROFILE_AESKEY
+    - PROFILE_AGENTID
+    - WEBSERVICE_URL
+    - WEBSERVICE_ID
+    - WEBSERVICE_KEY
+    - REDIS_HOST
+    - REDIS_PORT_MANUAL
+  restart: always

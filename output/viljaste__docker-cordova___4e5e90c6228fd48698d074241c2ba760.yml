@@ -1,0 +1,8 @@
+cordova:
+  image: viljaste/cordova:latest
+  hostname: cordova
+  privileged: true
+  ports:
+    - "8000"
+  volumes:
+    - /dev/bus/usb:/dev/bus/usb

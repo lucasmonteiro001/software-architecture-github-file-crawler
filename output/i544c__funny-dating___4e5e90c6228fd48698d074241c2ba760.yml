@@ -1,0 +1,17 @@
+version: '3'
+services:
+  django:
+    build: ./
+    ports:
+      - 8000:8000
+    volumes:
+      - ./:/mnt
+    working_dir: /mnt
+    env_file: ./db/.env
+    tty: true
+
+  postgres:
+    build: ./db
+    ports:
+        - '5432:5432'
+    env_file: ./db/.env

@@ -1,0 +1,25 @@
+version: '2'
+services:
+  nginx_img_1:
+    build:
+      context: .
+    ports:
+      - 80:80
+    volumes_from:
+      - uofantarctica
+      - gpwclark 
+    depends_on:
+      - uofantarctica
+      - gpwclark
+
+  uofantarctica:
+    build:
+      context: ./web/
+    volumes:
+      - "/home/user/uofantarctica/build"
+
+  gpwclark:
+    build:
+      context: ./gpwclark.github.io/
+    volumes:
+      - "/gpwclark.github.io/_site"

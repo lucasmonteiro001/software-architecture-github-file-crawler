@@ -1,0 +1,46 @@
+zookeeper:
+  image: jplock/zookeeper:3.4.6
+  name: zookeeper
+  hostname: zookeeper.dev
+  ports:
+    - "2181:2181"
+kafka:
+  image: wurstmeister/kafka:0.8.2.1
+  name: kafka
+  hostname: kafka.dev
+  ports:
+    - "9092:9092"
+  links:
+    - zookeeper:zk
+  environment:
+    KAFKA_ADVERTISED_HOST_NAME: "kafka.dev"
+    KAFKA_ADVERTISED_PORT: 9092
+    KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+usher:
+  build: .
+  ports:
+    - "2500:2500"
+  links:
+    - kafka:kafka.dev
+    - zookeeper:zookeeper.dev
+  environment:
+    CUSTOM_REPO: maven:https://deployment:splitsecnd@nexus.cyberphysicalsystems.io/content/groups/public
+
+
+gradlecache:
+  image: busybox
+  volumes:
+    - /root/.gradle
+
+
+
+dev:
+  image: java:8-jdk
+  working_dir: /code
+  volumes:
+   - .:/code
+  volumes_from:
+    - gradlecache
+  links:
+    - kafka:kafka.dev
+    - zookeeper:zookeeper.dev

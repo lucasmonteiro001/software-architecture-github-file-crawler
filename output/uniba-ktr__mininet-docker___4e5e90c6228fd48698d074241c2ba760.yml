@@ -1,0 +1,85 @@
+version: '2'
+
+networks:
+  controller:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.16.0/20
+
+services:
+  mn:
+    image: unibaktr/mininet-docker
+    privileged: true
+    stdin_open: true
+    tty: true
+    volumes:
+      - $PWD/data:/data
+    networks:
+      controller:
+        ipv4_address: 192.168.16.100
+    #entrypoint: /bin/bash
+    command: /data/mininetSlice.py
+    #command: --mac --switch=ovsk,protocols=OpenFlow13 --controller=remote,ip=192.168.16.10,port=6653 --topo=linear,3
+
+  ryu:
+    build:
+      context: .
+      dockerfile: DockerfileRYU
+    stdin_open: true
+    tty: true
+    networks:
+      controller:
+        ipv4_address: 192.168.16.10
+    expose:
+      - 6653
+      - 8080
+    volumes:
+      - $PWD/bugfixes/stplib.py:/ryu/ryu/lib/stplib.py
+      #- $PWD/bugfixes/bpdu.py:/ryu/ryu/lib/packet/bpdu.py
+      #- $PWD/bugfixes/ofctl_rest.py:/ryu/ryu/app/ofctl_rest.py
+      - $PWD/apps:/ryu/ryu/app/custom
+      # $PWD/ryu-starter-kit:/ryu/ryu/app/sdnhub_apps
+    #entrypoint: /bin/sh
+    command: --verbose --observe-links --observe-links ryu/app/custom/simple_switch_stp_13.py
+
+  mngui:
+    build:
+      context: .
+      dockerfile: DockerfileMNGUI
+    privileged: true
+    stdin_open: true
+    tty: true
+    volumes:
+      - $PWD/data:/data
+      - /tmp/.X11-unix:/tmp/.X11-unix:ro
+    environment:
+      - DISPLAY=:0
+
+  odl:
+    build:
+      context: .
+      dockerfile: DockerfileODL
+    ports:
+      -  162:162
+      -  179:179
+      -  1088:1088
+      -  1790:1790
+      -  1830:1830
+      -  2400:2400
+      -  2550-2552:2550-2552
+      -  4189:4189
+      -  4342:4342
+      -  5005:5005
+      -  5666:5666
+      -  6633:6633
+      -  6640:6640
+      -  6653:6653
+      -  7800:7800
+      -  8000:8000
+      -  8080:8080
+      -  8101:8101
+      -  8181:8181
+      -  8383:8383
+      -  12001:12001

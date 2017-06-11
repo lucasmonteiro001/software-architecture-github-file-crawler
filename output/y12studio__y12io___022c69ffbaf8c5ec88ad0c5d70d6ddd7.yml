@@ -1,0 +1,33 @@
+wordpress:
+    image: wordpress:4.1.2-fpm
+    links:
+        - db:mysql
+    volumes:
+        - databox/html/:/var/www/html/
+    environment:
+        - WORDPRESS_DB_PASSWORD=1234
+
+db:
+    image: mariadb:10.0.17
+    volumes:
+        - databox/mysql/:/var/lib/mysql/
+    environment:
+        - MYSQL_ROOT_PASSWORD=1234
+
+nginx:
+    build: nginx
+    links:
+        - wordpress:fpm
+    volumes_from:
+        - wordpress
+
+varnish:
+    image: benhall/docker-varnish
+    links:
+        - nginx
+    environment:
+        - VIRTUAL_HOST=blog.y12.tw
+        - VARNISH_BACKEND_PORT=80
+        - VARNISH_BACKEND_HOST=nginx
+    ports:
+        - 8080:80

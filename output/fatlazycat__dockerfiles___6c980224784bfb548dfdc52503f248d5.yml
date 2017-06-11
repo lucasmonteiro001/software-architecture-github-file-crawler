@@ -1,0 +1,41 @@
+consul1:
+  image: "fatlazycat/consul:latest"
+  container_name: "consul1"
+  hostname: "consul1"
+  ports:
+    - "8080:8080"
+  volumes:
+    - ~/Development/Environment/Consul/data/n1:/data
+    - ~/Development/Environment/Consul/config/server:/config
+    - ~/Development/Environment/Consul/ssl1:/ssl
+  command: "agent -config-dir /config -bootstrap-expect 3"
+  # command: "agent -config-dir /config"
+
+consul2:
+  image: "fatlazycat/consul:latest"
+  container_name: "consul2"
+  hostname: "consul2"
+  ports:
+    - "8081:8080"
+  volumes:
+    - ~/Development/Environment/Consul/data/n2:/data
+    - ~/Development/Environment/Consul/config/server:/config
+    - ~/Development/Environment/Consul/ssl2:/ssl
+  links:
+    - "consul1:consul1"
+  command: "agent -config-dir /config -join consul1"
+
+consul3:
+  image: "fatlazycat/consul:latest"
+  container_name: "consul3"
+  hostname: "consul3"
+  ports:
+    - "8082:8080"
+  volumes:
+    - ~/Development/Environment/Consul/data/n3:/data
+    - ~/Development/Environment/Consul/config/server:/config
+    - ~/Development/Environment/Consul/ssl3:/ssl
+  links:
+    - "consul1:consul1"
+    - "consul2:consul2"
+  command: "agent -config-dir /config -join consul1"

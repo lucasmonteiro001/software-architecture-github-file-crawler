@@ -1,0 +1,5 @@
+# For customization options see: https://docs.docker.com/compose/yml/
+app:
+  build: .
+  ports:
+    - "8080:8080"

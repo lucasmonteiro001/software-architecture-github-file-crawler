@@ -1,0 +1,53 @@
+gmissionbyuwsgi:
+    # image: chenzhao/gmission
+  image: freeznet/gmission
+  links:
+    - localmysql:docker-mysql
+    #- ssdb:docker-ssdb
+  volumes:
+    - ../:/GMission-Server
+    - /etc/localtime:/etc/localtime:ro
+  working_dir: /GMission-Server/hkust-gmission
+  command: uwsgi --ini ../docker/gmission_by_uwsgi/uwsgi.ini
+  ports:
+    - "9095:9090"
+
+#asyncjobs:
+#  image: freeznet/gmission
+#  links:
+#    - redis:docker-redis
+#    - phppush:docker-php-push
+#  volumes:
+#    - ../:/GMission-Server
+#    - /etc/localtime:/etc/localtime:ro
+#  environment:
+#    - C_FORCE_ROOT=true
+#  working_dir: /GMission-Server/services
+#  command: celery -A async_jobs.tasks worker
+
+
+localmysql:
+  build: ./mysql/
+  environment:
+    MYSQL_USER: "csp_team"
+    MYSQL_PASSWORD: "csp2014hkust"
+    MYSQL_DATABASE: "gmission_hkust"
+    MYSQL_ROOT_PASSWORD: "csp2014hkust"
+  ports:
+    - "3305:3306"
+  volumes:
+    - ./mysql/data/:/var/lib/mysql/
+    - ./mysql/my.cnf:/etc/mysql/my.cnf
+    - /etc/localtime:/etc/localtime:ro
+
+#ssdb:
+#  image: wendal/ssdb
+#  entrypoint: /usr/bin/ssdb-server -s restart /etc/ssdb.conf
+#
+#phppush:
+#  image: tutum/apache-php
+#  ports:
+#  - "9899:80"
+#  volumes:
+#    - ../PHP-push:/app
+#    - /etc/localtime:/etc/localtime:ro

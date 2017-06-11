@@ -1,0 +1,23 @@
+version: "2.0"
+services:
+  fuzi:
+    build: .
+    volumes:
+      - ./:/fuzi
+    ports:
+      - "3000:3000"
+    links:
+      - mongo
+      - redis
+  mongo:
+    image: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - /root/docker/mongodb:/data/db
+  redis:
+    image: daocloud.io/library/redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - /root/docker/redis

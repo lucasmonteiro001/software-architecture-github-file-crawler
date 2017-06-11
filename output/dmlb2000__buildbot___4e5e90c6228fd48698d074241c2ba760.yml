@@ -1,0 +1,11 @@
+master:
+  image: dmlb2000/buildbot
+slave:
+  image: dmlb2000/buildbot-slave
+mysql:
+  image: mysql
+  environment:
+     MYSQL_ROOT_PASSWORD: root
+     MYSQL_DATABASE: buildbot
+     MYSQL_USER: buildbot
+     MYSQL_PASSWORD: buildbot

@@ -1,0 +1,39 @@
+version: '2'
+
+services:
+  redis:
+    restart: always
+    image: sameersbn/redis:latest
+    command:
+    - --loglevel warning
+    volumes:
+    - {{ gitlab_container_home }}/redis:/var/lib/redis:Z
+
+  postgresql:
+    restart: always
+    image: sameersbn/postgresql:9.5-3
+    volumes:
+    - {{ gitlab_container_home }}/postgresql:/var/lib/postgresql:Z
+    env_file:
+    - ./db.env
+
+  gitlab:
+    restart: always
+    image: sameersbn/gitlab:8.12.6
+    depends_on:
+    - redis
+    - postgresql
+    ports:
+    - "10080:80"
+    - "10022:22"
+    volumes:
+    - {{ gitlab_container_home }}/gitlab:/home/git/data:Z
+    environment:
+    - DEBUG={{ gitlab_debug }}
+    env_file:
+    - ./gitlab.env
+    - ./smtp.env
+    - ./db.env
+    - ./imap.env
+    - ./oauth.env
+    - ./redis.env

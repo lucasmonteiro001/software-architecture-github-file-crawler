@@ -1,0 +1,38 @@
+version: '3'
+services:
+  web24:
+    build: ../2.4
+    volumes:
+      - .:/home/app
+      - .docker/nginx/2.4/sites-enabled:/etc/nginx/sites-enabled
+      - .docker/init.d/default/init.sh:/etc/my_init.d/init.sh
+  web23:
+    build: ../2.3
+    volumes:
+      - .:/home/app
+      - .docker/nginx/2.3/sites-enabled:/etc/nginx/sites-enabled
+      - .docker/init.d/default/init.sh:/etc/my_init.d/init.sh
+  web21:
+    build: ../2.1
+    volumes:
+      - .:/home/app
+      - .docker/nginx/2.1/sites-enabled:/etc/nginx/sites-enabled
+      - .docker/init.d/default/init.sh:/etc/my_init.d/init.sh
+  web215:
+    build: ../2.1.5
+    volumes:
+      - .:/home/app
+      - .docker/nginx/2.1.5/sites-enabled:/etc/nginx/sites-enabled
+      - .docker/init.d/default/init.sh:/etc/my_init.d/init.sh
+  web22:
+    build: ../2.2
+    volumes:
+      - .:/home/app
+      - .docker/nginx/2.2/sites-enabled:/etc/nginx/sites-enabled
+      - .docker/init.d/default/init.sh:/etc/my_init.d/init.sh
+  web215p4a2:
+    build: ../2.1.5-p4a2
+    volumes:
+      - .:/docker
+      - .docker/apache2/2.1.5-p4a2/sites-enabled:/etc/apache2/sites-enabled
+      - .docker/init.d/2.1.5-p4a2/init.sh:/etc/my_init.d/init.sh

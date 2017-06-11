@@ -1,0 +1,16 @@
+version: "2"
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: superalsrk/springboot-demo-i18n
+    volumes:
+      - /tmp
+    ports:
+      - "8080:8080"
+
+  redis:
+    image: redis:3.2.6
+    command: redis-server --requirepass redis

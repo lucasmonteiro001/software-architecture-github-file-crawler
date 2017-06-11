@@ -1,0 +1,31 @@
+kong: 
+  image: "registry.c-f.com:5000/football/kong:0.8.0"
+  ports: 
+    - "8000:8000"
+    - "8443:8443"
+    - "8001:8001"
+    - "7946:7946"
+    - "7946:7946/udp"
+  environment: 
+    DATABASE: "postgres"
+  links: 
+    - "category:category"
+    - "kong-database:kong-database"
+  extra_hosts: 
+    - "kong-database:192.168.50.154"
+    - "api-c-f.com:192.168.50.154"
+kong-dashboad: 
+  image: "registry.c-f.com:5000/football/kong-dashboard:0.8.0"
+  ports: 
+    - "10000:8080"
+category: 
+  image: "registry.c-f.com:5000/football/lifeix-football-category"
+  expose: 
+    - "8080"
+  environment: 
+    PROFILE_ENV: "qa"
+  volumes: 
+    - "/home/lifeix/logs/category:/logs"
+  extra_hosts: 
+    - "mongodb:192.168.50.154"
+    - "redis:192.168.50.154"

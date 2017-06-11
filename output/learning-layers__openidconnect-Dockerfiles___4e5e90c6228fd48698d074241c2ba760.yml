@@ -1,0 +1,23 @@
+oidcdata:
+    container_name: oidc-data
+    image: learninglayers/openidconnect-data:0.0.15
+    env_file:
+        - common.env
+        - services/openidconnect/openidconnect.env
+        - services/openldap/LDAP.env
+oidc:
+    container_name: oidc
+    image: learninglayers/openidconnect:0.0.15
+    env_file:
+        - common.env
+        - services/openidconnect/openidconnect.env
+        - services/openldap/LDAP.env
+    volumes_from:
+        - oidcdata
+    links:
+        - mysql
+        - openldap
+    volumes:
+        - /dev/urandom:/dev/random
+    actions:
+        - create_databases: [openidconnect.env]

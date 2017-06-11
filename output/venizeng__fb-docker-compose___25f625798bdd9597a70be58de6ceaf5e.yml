@@ -1,0 +1,11 @@
+  version: "2"
+  services: 
+    mysql: 
+      build: "."
+      ports: 
+        - "3309:3309"
+      environment: 
+        MYSQL_ROOT_PASSWORD: "Lifeix2016"
+        MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      volumes: 
+        - "/home/lifeix/mysql_data:/var/lib/mysql"

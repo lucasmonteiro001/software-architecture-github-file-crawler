@@ -1,0 +1,11 @@
+version: '2'
+services:
+  mongo:
+    image: mongo
+
+  rocketchat:
+    image: rocketchat/rocket.chat
+    links:
+      - mongo
+    ports:
+      - 3000

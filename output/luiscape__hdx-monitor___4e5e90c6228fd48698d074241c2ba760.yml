@@ -1,0 +1,97 @@
+##############################################################################
+# HDX MONITOR:
+#
+#  Databases:
+#   - MongoDB
+#   - Redis
+#
+#  Services:
+#   - Funnel Stats: for collecting statistics about HDX.
+#   - DataStore: for creating DataStores on HDX.
+#   - Ageing Service: for calculating the age of datasets on HDX.
+#
+#  UI Wrapper:
+#   - Server: connects to all services and provides a unified experience.
+#
+##############################################################################
+
+#
+# Databases.
+#
+redis:
+  tty: true
+  image: redis:latest
+  stdin_open: true
+
+mongo:
+  tty: true
+  image: luiscape/hdx-monitor-mongo:latest
+  stdin_open: true
+  volumes:
+  - ./data:/data
+  environment:
+    MONGODB_USER_NAME: foo
+    MONGODB_USER_PASSWORD: bar
+    MONGODB_DATABASE: baz
+
+
+#
+# Supporting services.
+#
+org-stats:
+  tty: true
+  stdin_open: true
+  image: luiscape/hdx-monitor-org-stats:v.0.4.0
+  environment:
+    DEFAULT_API_KEY: xxxxxx-xxxxxx-xxxxx-xxxxxx  # sysadmin API key
+
+datastore:
+  tty: true
+  image: luiscape/hdx-monitor-datastore:v.0.1.6
+  stdin_open: true
+  environment:
+    DEFAULT_API_KEY: xxxxxx-xxxxxx-xxxxx-xxxxxx  # sysadmin API key
+
+ageing-service:
+  tty: true
+  image: luiscape/hdx-monitor-ageing-service:v.0.6.1
+  stdin_open: true
+  links:
+  - 'redis:redis'
+  volumes:
+  - ./ageing_service_data:/hdx-monitor-ageing-service/data
+  ports:
+  - '3000:3000'
+  environment:
+    CKAN_API_KEY: xxxxxx-xxxxxx-xxxxx-xxxxxx  # sysadmin API key
+    CKAN_REMOTE_URL: https://data.hdx.rwlabs.org
+    CKAN_PROD_URL: https://data.hdx.rwlabs.org
+    CKAN_USER_AGENT: AgeingService0.3.5
+
+# funnel-stats:
+#   tty: true
+#   image: luiscape/hdx-monitor-funnel-stats:v.0.1.0
+#   volumes:
+#   - ********:/hdx-monitor-funnel-stats/secrets
+#   stdin_open: true
+
+
+#
+# User interface.
+#
+server:
+  tty: true
+  image: luiscape/hdx-monitor-server:v.0.1.6
+  links:
+  # - 'funnel-stats:'
+  - 'datastore:datastore'
+  - 'mongo:mongo'
+  - 'ageing-service:age'
+  - 'org-stats:org_stats'
+  stdin_open: true
+  ports:
+  - '80:8080'
+  environment:
+    MONGODB_USER_NAME: foo
+    MONGODB_USER_PASSWORD: bar
+    MONGODB_DATABASE: baz

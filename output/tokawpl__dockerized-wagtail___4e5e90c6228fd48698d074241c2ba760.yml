@@ -1,0 +1,73 @@
+version: '2'
+
+volumes:
+  postgres_data: {}
+  elasticsearch_data: {}
+
+services:
+
+    traefik:
+        build: ./config/traefik
+        container_name: app_traefik
+        command: --configFile=/etc/traefik/traefik.toml
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        ports:
+            - "8080:8080"
+            - "80:80"
+
+    web:
+        build: ./config/web
+        container_name: app_web
+        volumes:
+            - ./src:/code/src
+        environment:
+            - "TERM=xterm"
+            - "WAIT_FOR=postgres:5432,elasticsearch:9200,pgadmin:5050"
+        ports:
+            - "8000:8000"
+        links:
+            - postgres
+            - elasticsearch
+        labels:
+            - "traefik.backend=web"
+            - "traefik.frontend.rule=Host:web.app.loc"
+            - "traefik.frontend.entryPoints=http"
+
+    postgres:
+        build: ./config/postgres
+        container_name: app_db
+        volumes:
+          - postgres_data:/var/lib/postgresql/data
+          - ./backups:/backups
+        environment:
+          - POSTGRES_USER=admin
+          - POSTGRES_PASSWORD=admin
+          - POSTGRES_DB=wagtail
+        expose:
+            - "5432"
+
+    elasticsearch:
+        image: elasticsearch:5.1.2-alpine
+        container_name: app_es
+        volumes:
+          - elasticsearch_data:/usr/share/elasticsearch/data
+        expose:
+            - "9200"
+            - "9300"
+        labels:
+            - "traefik.backend=elasticsearch"
+            - "traefik.frontend.rule=Host:es.app.loc"
+            - "traefik.frontend.entryPoints=http"
+
+    pgadmin:
+        build: ./config/pgadmin
+        container_name: app_pgadmin
+        links:
+          - postgres
+        ports:
+          - "5050:5050"
+        labels:
+            - "traefik.backend=pgadmin"
+            - "traefik.frontend.rule=Host:pgadmin.app.loc"
+            - "traefik.frontend.entryPoints=http"

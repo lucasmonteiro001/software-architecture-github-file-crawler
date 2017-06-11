@@ -1,0 +1,28 @@
+version: "2"
+services:
+  test:
+    build: .
+    user: user
+    working_dir: /usr/src
+    volumes:
+      - ./bower.json:/usr/src/bower.json
+      - ./src:/usr/src/src
+      - ./test:/usr/src/test
+    command: sh -c "bower install && pulp build --censor-lib && pulp test"
+  docs:
+    build: .
+    user: user
+    working_dir: /usr/src
+    volumes:
+      - ./bower.json:/usr/src/bower.json
+      - ./src:/usr/src/src
+      - ./test:/usr/src/test
+      - ./docs:/usr/src/docs
+    command: sh -c "bower install && pulp docs"
+  publish:
+    build: .
+    user: user
+    working_dir: /usr/src
+    volumes:
+      - ./.git:/usr/src/.git
+    command: sh -c "git checkout . && bower install --silent && git status && psc-publish"

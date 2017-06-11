@@ -1,0 +1,170 @@
+version: "2"
+services:
+  user: 
+    image: "registry.cn-hangzhou.aliyuncs.com/football/lifeix-football-user"
+    ports: 
+      - "8081:8080"
+    extra_hosts: 
+      - "mongodb:192.168.1.17"
+      - "redis:192.168.1.17"
+      - "apigateway:192.168.1.17"
+    restart: always
+    environment: 
+      PROFILE_ENV: "qa"
+    volumes: 
+      - "/home/lifeix/logs/user:/logs"
+  wemedia: 
+    image: "registry.cn-hangzhou.aliyuncs.com/football/lifeix-football-wemedia"
+    ports: 
+      - "8082:8080"
+    extra_hosts: 
+      - "mongodb:192.168.1.17"
+      - "redis:192.168.1.17"
+      - "apigateway:192.168.1.17"
+    restart: always
+    environment: 
+      PROFILE_ENV: "qa"
+    volumes: 
+      - "/home/lifeix/logs/wemedia:/logs"
+  news: 
+    image: "registry.cn-hangzhou.aliyuncs.com/football/lifeix-football-news"
+    ports: 
+      - "8084:8080"
+    extra_hosts: 
+      - "mongodb:192.168.1.17"
+      - "redis:192.168.1.17"
+      - "apigateway:192.168.1.17"
+    restart: always
+    environment: 
+      PROFILE_ENV: "qa"
+    volumes: 
+      - "/home/lifeix/logs/news:/logs"
+  file: 
+    image: "registry.cn-hangzhou.aliyuncs.com/football/lifeix-football-file"
+    ports: 
+      - "8085:8080"
+    extra_hosts: 
+      - "mongodb:192.168.1.17"
+      - "redis:192.168.1.17"
+      - "apigateway:192.168.1.17"
+    restart: always
+    environment: 
+      PROFILE_ENV: "qa"
+    volumes: 
+      - "/home/lifeix/logs/file:/logs"
+  app: 
+    image: "registry.cn-hangzhou.aliyuncs.com/football/lifeix-football-app-node"
+    ports: 
+      - "8086:8080"
+    environment: 
+      PROFILE_ENV: "qa"
+    restart: always
+  bookmark: 
+    image: "registry.cn-hangzhou.aliyuncs.com/football/lifeix-football-bookmark-node"
+    ports: 
+      - "8090:8080"
+    environment: 
+      PROFILE_ENV: "qa"
+    volumes: 
+      - "/home/lifeix/logs/bookmark:/logs"
+    restart: always
+  timer: 
+    image: "registry.cn-hangzhou.aliyuncs.com/football/lifeix-football-timer-node"
+    environment: 
+      PROFILE_ENV: "qa"
+    restart: always
+  elearning: 
+    image: "registry.cn-hangzhou.aliyuncs.com/football/lifeix-football-elearning"
+    ports: 
+      - "8087:8080"
+    extra_hosts: 
+      - "mongodb:192.168.1.17"
+      - "redis:192.168.1.17"
+      - "apigateway:192.168.1.17"
+    restart: always
+    environment: 
+      PROFILE_ENV: "qa"
+    volumes: 
+      - "/home/lifeix/logs/elearning:/logs"
+  like: 
+    image: "registry.cn-hangzhou.aliyuncs.com/football/lifeix-football-like"
+    ports: 
+      - "8088:8080"
+    extra_hosts: 
+      - "mongodb:192.168.1.17"
+      - "redis:192.168.1.17"
+      - "apigateway:192.168.1.17"
+    restart: always
+    environment: 
+      PROFILE_ENV: "qa"
+    volumes: 
+      - "/home/lifeix/logs/like:/logs"
+  games: 
+    image: "registry.cn-hangzhou.aliyuncs.com/football/lifeix-football-games"
+    ports: 
+      - "8089:8080"
+    extra_hosts: 
+      - "mongodb:192.168.1.17"
+      - "redis:192.168.1.17"
+      - "mysqldb:192.168.1.17"
+      - "apigateway:192.168.1.17"
+    restart: always
+    environment: 
+      PROFILE_ENV: "qa"
+    volumes: 
+      - "/home/lifeix/logs/games:/logs"
+  decision: 
+    image: "registry.cn-hangzhou.aliyuncs.com/football/lifeix-football-decision"
+    ports: 
+      - "8091:8080"
+    extra_hosts: 
+      - "mongodb:192.168.1.17"
+      - "redis:192.168.1.17"
+      - "apigateway:192.168.1.17"
+    restart: always
+    environment: 
+      PROFILE_ENV: "qa"
+    volumes: 
+      - "/home/lifeix/logs/decision:/logs"
+  api-test: 
+    image: "registry.cn-hangzhou.aliyuncs.com/football/lifeix-football-api-test"
+    extra_hosts: 
+      - "mongodb:192.168.1.17"
+      - "redis:192.168.1.17"
+      - "apigateway:192.168.1.17"
+    restart: always
+    environment: 
+      PROFILE_ENV: "qa"
+    volumes: 
+      - "/home/lifeix/logs/api-test:/logs"
+  console: 
+    image: "registry.cn-hangzhou.aliyuncs.com/football/lifeix-football-console"
+    ports: 
+      - "8200:8080"
+    extra_hosts: 
+      - "mongodb:192.168.1.17"
+      - "redis:192.168.1.17"
+      - "mysqldb:192.168.1.17"
+      - "apigateway:192.168.1.17"
+      - "elearning.c-f.com:192.168.1.17"
+      - "decision.c-f.com:192.168.1.17"
+      - "games.c-f.com:192.168.1.17"
+      - "wemedia.c-f.com:192.168.1.17"
+      - "news.c-f.com:192.168.1.17"
+      - "file.c-f.com:192.168.1.17"
+      - "app.c-f.com:192.168.1.17"
+      - "user.c-f.com:192.168.1.17"
+    links: 
+      - "elearning:elearning.c-f.com"
+      - "decision:decision.c-f.com"
+      - "games:games.c-f.com"
+      - "wemedia:wemedia.c-f.com"
+      - "news:news.c-f.com"
+      - "file:file.c-f.com"
+      - "app:app.c-f.com"
+      - "user:user.c-f.com"
+    restart: always
+    environment: 
+      PROFILE_ENV: "qa"
+    volumes: 
+      - "/home/lifeix/logs/console:/logs"

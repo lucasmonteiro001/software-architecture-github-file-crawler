@@ -1,0 +1,20 @@
+# Run with `docker-compose up -d`
+# XXX We should activate MongoDB oplog for better performance.
+wekan_prod:
+  image: meteorhacks/meteord:onbuild
+  links:
+    - wekandb_prod
+  environment:
+    - MONGO_URL=mongodb://wekandb_prod/wekan
+    - ROOT_URL=http://localhost:80
+    - BUNDLE_URL=https://www.dropbox.com/s/ox84l7hkcilw3bk/CollaBoard.tar.gz?raw=1
+    - METEOR_SETTINGS={ "authToken":"" }
+  ports:
+    - 80:80
+
+wekandb_prod:
+   image: mongo
+   ports:
+     - 27017
+   volumes:
+     - /wekan/mongo/data/db./:/data/db

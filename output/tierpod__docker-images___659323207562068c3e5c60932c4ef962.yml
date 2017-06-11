@@ -1,0 +1,7 @@
+pidgin:
+  build: .
+  volumes:
+    - /tmp/.X11-unix:/tmp/.X11-unix
+    - ./docker-home:/root/
+  environment:
+    - DISPLAY=unix:0.0

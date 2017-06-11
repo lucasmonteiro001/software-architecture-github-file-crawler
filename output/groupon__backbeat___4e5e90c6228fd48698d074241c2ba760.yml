@@ -1,0 +1,21 @@
+ci:
+  extends:
+    file: docker/common.yml
+    service: app
+  command: bin/run-tests.sh
+  restart: never
+  environment:
+    RACK_ENV: ci
+  links:
+    - database
+    - redis
+
+database:
+  extends:
+    file: docker/common.yml
+    service: database
+
+redis:
+  extends:
+    file: docker/common.yml
+    service: redis

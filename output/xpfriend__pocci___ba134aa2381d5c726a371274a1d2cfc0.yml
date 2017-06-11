@@ -1,0 +1,35 @@
+cat << EOF
+# Redmine
+redminedb:
+  image: sameersbn/postgresql:9.6-2
+  env_file:
+    - ./.env
+  environment:
+    - DB_USER=${REDMINE_DB_USER}
+    - DB_PASS=${REDMINE_DB_PASS}
+    - DB_NAME=${REDMINE_DB_NAME}
+
+redmine:
+  image: sameersbn/redmine:3.3.2-1
+  env_file:
+    - ./.env
+  dns: ${DNS_ADDRESS}
+  environment:
+    - SMTP_ENABLED=${REDMINE_SMTP_ENABLED}
+    - SMTP_DOMAIN=${REDMINE_SMTP_DOMAIN}
+    - SMTP_HOST=${REDMINE_SMTP_HOST}
+    - SMTP_PORT=${REDMINE_SMTP_PORT}
+    - SMTP_OPENSSL_VERIFY_MODE=none
+    - DB_ADAPTER=postgresql
+    - DB_HOST=redminedb
+    - DB_USER=${REDMINE_DB_USER}
+    - DB_PASS=${REDMINE_DB_PASS}
+    - DB_NAME=${REDMINE_DB_NAME}
+  links:
+    - redminedb:postgresql
+  volumes_from:
+    - gitlab
+  volumes:
+    - ${POCCI_LOG_DIR}/redmine:/var/log/redmine
+
+EOF

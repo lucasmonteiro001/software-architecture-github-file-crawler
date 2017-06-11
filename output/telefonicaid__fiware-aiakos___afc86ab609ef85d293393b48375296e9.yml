@@ -1,0 +1,25 @@
+fiware-aiakos:
+  image: fiware-aiakos
+  ports:
+   - 3001:3001
+  environment: 
+   - ADM_PASSWORD
+   - ADM_USERNAME
+   - ADM_TENANT_NAME
+   - ADM_TENANT_ID
+   - KEYSTONE_IP
+   - OS_USER_DOMAIN_NAME
+   - OS_PROJECT_DOMAIN_NAME
+fiware-aiakos-acceptance:
+  image: fiware-aiakos-acceptance
+  links:
+  -  fiware-aiakos
+  environment:
+   - ADM_PASSWORD
+   - ADM_USERNAME
+   - ADM_TENANT_NAME
+   - ADM_TENANT_ID
+   - OS_USER_DOMAIN_NAME
+   - OS_PROJECT_DOMAIN_NAME
+   - KEYSTONE_IP
+   - Region1

@@ -1,0 +1,72 @@
+version: '2'
+services:
+  listener:
+    # build: rust-consumer
+    image: cstorey/rust-consumer
+    restart: always
+    env_file: all.env
+    environment:
+      - RUST_LOG=stomp_listener=info,warn
+    volumes:
+      - ../data:/data
+    networks:
+      - default
+    links:
+      - postgresql
+
+  pgarchiver:
+    # build: rust-consumer
+    image: cstorey/pgarchiver
+    restart: always
+    environment:
+      - RUST_LOG=pg_to_baldr=info,warn
+    volumes:
+      - ../data:/data
+    networks:
+      - default
+    links:
+      - postgresql
+
+  archiver:
+    # build: archiver
+    image: cstorey/archiver
+    restart: always
+    volumes:
+      - ../data:/data
+
+  timetable-fetcher:
+    #build: timetable-fetcher
+    image: cstorey/timetable-fetcher
+    restart: always
+    env_file: all.env
+    volumes:
+      - ../data:/data
+
+  postgresql:
+    image: postgres:9.5
+    restart: always
+    volumes:
+      - ../pgdata:/var/lib/postgresql/data
+
+  ingester:
+    image: cstorey/darwin-ingester
+    restart: always
+    links:
+      - postgresql
+    volumes:
+      - ../data:/data
+    environment:
+      - PROCESSES=8
+
+  marey:
+    image: cstorey/marley-server
+    restart: always
+    links:
+      - postgresql
+    ports:
+      - "0.0.0.0:6767:6767"
+
+networks:
+  bridge:
+    external:
+      name: bridge

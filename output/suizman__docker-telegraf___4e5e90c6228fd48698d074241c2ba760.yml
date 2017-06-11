@@ -1,0 +1,28 @@
+version: '2'
+services:
+  influxdb:
+    image: tutum/influxdb:0.10
+    network_mode: host
+    environment:
+      - PRE_CREATE_DB=telegraf
+    labels:
+      - "service=influxdb"
+
+  telegraf:
+    image: suizman/telegraf:0.12.1-1
+    network_mode: host
+    command: -config /etc/telegraf/telegraf.conf
+    volumes:
+      - ./config/telegraf.conf:/etc/telegraf/telegraf.conf:ro
+      - /sys:/rootfs/sys:ro
+      - /proc:/rootfs/proc:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    labels:
+      - "service=telegraf"
+
+  chronograf:
+    image: suizman/chronograf
+    network_mode: host
+    labels:
+      - "service=chronograf"
+

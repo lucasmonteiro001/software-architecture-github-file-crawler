@@ -1,0 +1,25 @@
+version: '2'
+
+services:
+  mongodb:
+    image: mongo
+    ports:
+      - "27017:27017"
+
+  api:
+    restart: always
+    build: ./api/
+    ports:
+        - "8001:8001"
+    depends_on:
+        - mongodb
+    links:
+        - mongodb:mongodb
+
+  client:
+    restart: always
+    build: ./client/
+    ports:
+        - "3001:3001"
+    links:
+        - api:api

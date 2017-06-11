@@ -1,0 +1,40 @@
+build:
+  container_name: ghost_build
+  image: trunk/ghost_env
+  command: "/bin/bash -l -c 'npm run build'"
+  working_dir: /ghost
+  volumes:
+    - ./:/ghost
+
+web:
+  container_name: ghost_env
+  image: trunk/ghost_env
+  command: "/bin/bash -l -c 'npm start --production'"
+  ports:
+    - 2368:2368
+  working_dir: /ghost
+  volumes:
+    - ./:/ghost
+  links:
+    - mysql
+
+  restart: always
+
+mysql:
+  container_name: ghost_mysql
+  image: dgraziotin/mysql
+  volumes:
+    - ../ghosta_database:/var/lib/mysql/
+
+  ports:
+    - "3306:3306"
+
+  environment:
+    MYSQL_ADMIN_PASS: "root"
+    MYSQL_USER_NAME: "ghost"
+    MYSQL_USER_DB: "ghost"
+    MYSQL_USER_PASS: "ghost"
+    CREATE_MYSQL_BASIC_USER_AND_DB: "true"
+
+
+  restart: always

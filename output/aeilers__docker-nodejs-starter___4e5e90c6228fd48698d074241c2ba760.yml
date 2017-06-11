@@ -1,0 +1,39 @@
+version: '3'
+services:
+  app:
+    build:
+      context: .
+      args:
+        APP_SOURCE: "."
+        NODE_ENV: "development"
+
+    # NOTE: use 'image' for development
+    image: app
+
+    # NOTE: comment this line out for Windows/Mac development
+    user: "1000"
+
+    # NOTE: add 'command' for development
+    command: npm run start:dev
+
+    # NOTE: add environment file for development
+    # env_file: ./conf/vars.env
+
+    expose:
+      - "3000"
+    ports:
+      - "3000:3000"
+
+    # NOTE: the container path must match APP_PATH above
+    # NOTE: node_modules must be added here so container uses modules from its own volume
+    volumes:
+      - .:/opt/app:rw
+      - /opt/app/node_modules
+
+    networks:
+      - app-network
+
+# networking specifics
+networks:
+  app-network:
+    driver: bridge

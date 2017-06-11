@@ -1,0 +1,27 @@
+web:
+    image: bhagwatkumar/gradle:2.9
+    ports:
+      - "8080:8080"
+    volumes:
+      - "${PWD}:/app"
+      - "${HOME}/.grails:/root/.grails"
+      - "${HOME}/.m2:/root/.m2"
+      - "${HOME}/.ivy2:/root/.ivy2"
+      - "${HOME}/.sbt:/root/.sbt"
+      - "${HOME}/.gradle:/root/.gradle"
+    working_dir: /app
+    command: ./gradlew -t bootRun
+    links:
+      - postgres
+    environment:
+      env: development
+      SPRING_PROFILES_ACTIVE:  heroku
+      "spring.datasource.url": "jdbc:postgresql://postgres/ceportal?user=neha&password=igdefault"
+      "spring.datasource.username": "neha"
+      "spring.datasource.password": "igdefault"
+postgres:
+    image: postgres:9.4
+    environment:
+      POSTGRES_DB: ceportal
+      POSTGRES_USER: neha
+      POSTGRES_PASSWORD: igdefault

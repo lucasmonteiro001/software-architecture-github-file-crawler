@@ -1,0 +1,61 @@
+version: '2'
+
+services:    
+  pipeline_input:
+    build:
+      context: ./Input
+      dockerfile: Dockerfile.centos7
+    image: pipeline/input
+    container_name: pipeline_input
+    ports:
+      - 8888:8888
+    depends_on:
+      - pipeline_display
+
+  pipeline_display:
+    build:
+      context: ./Display
+      dockerfile: Dockerfile.centos7
+    image: pipeline/display
+    container_name: pipeline_display
+    ports:
+      - 8080:3000
+      - 8081:3001
+    volumes:
+      - ./Display/angular2:/angular2
+
+  pipeline_queue:
+    build:
+      context: ./Queue
+      dockerfile: Dockerfile.centos7
+    image: pipeline/queue
+    container_name: pipeline_queue
+    hostname: kafka
+    environment:
+      ADVERTISED_HOST: kafka
+      ADVERTISED_PORT: 9092
+    ports:
+      - "9092:9092"
+      - "2181:2181"
+    depends_on:
+      - pipeline_input
+      - pipeline_display
+      - pipeline_processing
+      
+  pipeline_processing:
+    build:
+      context: ./Processing
+      dockerfile: Dockerfile.centos7
+    image: pipeline/processing
+    container_name: pipeline_processing
+    depends_on:
+      - pipeline_display
+      
+  pipeline_output:
+    build:
+      context: ./Output
+      dockerfile: Dockerfile.centos7
+    image: pipeline/output
+    container_name: pipeline_output
+    depends_on:
+      - pipeline_display

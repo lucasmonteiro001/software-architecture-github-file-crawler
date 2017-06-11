@@ -1,0 +1,23 @@
+version: '2'
+services:
+  db:
+    image: postgres:9.4.7
+    ports:
+      - "5432:5432"
+  web:
+    build:
+      context: .
+    command: bundle exec rails s -b 0.0.0.0
+    volumes:
+      - ./:/app
+    ports:
+      - "3000:3000"
+    links:
+      - db:db
+    mem_limit: 512m
+    environment:
+      PORT: 3000
+      DATAPI_READONLY_API_TOKEN: "ApiToken-dev-readonly"
+      DATAPI_READ_WRITE_API_TOKEN: "ApiToken-dev-read-write"
+      RACK_ENV: development
+      RAILS_ENV: development

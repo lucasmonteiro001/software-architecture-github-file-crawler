@@ -1,0 +1,6 @@
+x86_64-pc-linux-gnu:
+  build: x86_64-pc-linux-gnu
+i386-pc-linux-gnu:
+  build: i386-pc-linux-gnu
+x86_32-windows:
+  build: x86_32-windows

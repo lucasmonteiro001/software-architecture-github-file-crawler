@@ -1,0 +1,37 @@
+version: "2"
+services:
+
+  db:
+    image: postgres:9.6
+    environment:
+      POSTGRES_USER: docker
+      POSTGRES_PASSWORD: docker
+      POSTGRES_DB: contagement
+    volumes:
+      - contagement_db:/var/lib/postgresql/data
+
+  cdn:
+    image: nginx:stable
+    ports:
+      - "8001:80"
+    volumes:
+      - contagement_files:/usr/share/nginx/html:ro
+
+  app:
+    build: .
+    entrypoint: /docker-entrypoint.sh run
+    environment:
+      DB_HOST: db
+    depends_on:
+      - db
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/project
+      - contagement_files:/var/contagement
+
+volumes:
+  contagement_db:
+    external: true
+  contagement_files:
+    external: true

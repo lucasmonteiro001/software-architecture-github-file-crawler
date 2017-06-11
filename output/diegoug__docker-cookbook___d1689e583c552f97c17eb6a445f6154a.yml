@@ -1,0 +1,41 @@
+version: '2'
+networks:
+   cookbook:
+     external: true
+services:
+
+  # Django ---------------------------------------------------------------------
+  django:
+    image: cookbook/django-development
+    container_name: cookbook-d-django-development
+    volumes:
+      - ../../app:/opt/app
+    ports:
+      - "${DJANGO_PORT}:${DJANGO_PORT}"
+    command: /bin/sh -c "cd /opt/app; python manage.py runserver 0.0.0.0:${DJANGO_PORT}"
+    environment:
+      - MYSQL_DATABASE_NAME=${MYSQL_DATABASE_NAME}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_HOST=${MYSQL_HOST}
+      - MYSQL_PORT=${MYSQL_PORT}
+    depends_on:
+      - mysql
+    networks:
+      - cookbook
+
+  # mysql ----------------------------------------------------------------------
+  mysql:
+    image: mysql
+    container_name: cookbook-d-mysql-development
+    ports:
+      - "${MYSQL_PORT}:${MYSQL_PORT}"
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE_NAME}
+    volumes:
+      - /var/lib/mysql-cookbook:/var/lib/mysql
+    networks:
+        cookbook:
+            aliases:
+                - ${MYSQL_HOST}

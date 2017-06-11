@@ -1,0 +1,13 @@
+zlist:
+  image: whiteworld/zlist
+  ports:
+   - "7000:8080"
+  links:
+   - redis
+  environment:
+   - TZ=Asia/Shanghai
+
+redis:
+  image: redis
+  environment:
+   - TZ=Asia/Shanghai

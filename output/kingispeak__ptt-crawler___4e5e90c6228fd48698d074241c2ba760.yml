@@ -1,0 +1,23 @@
+web:
+  build: .
+  command: python runserver.py
+  ports:
+    - "5000:5000"
+  volumes:
+    - .:/app
+  links:
+    - db
+
+db:
+  image: mongo:latest
+  ports:
+    - "27017:27017"
+  volumes:
+    - ./data/mongors:/data/db
+
+jenkins:
+   build: ./jenkins
+   volumes:
+    - ./data/jenkins:/var/jenkins_home
+   ports:
+    - "8080:8080"

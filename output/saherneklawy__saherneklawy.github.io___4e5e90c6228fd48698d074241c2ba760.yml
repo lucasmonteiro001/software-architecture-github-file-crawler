@@ -1,0 +1,7 @@
+wiki:
+  image: andredumas/github-pages
+  volumes:
+    - .:/site
+  ports:
+    - "4000:4000"
+  command: serve --watch --drafts

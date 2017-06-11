@@ -1,0 +1,74 @@
+storage:
+  image: "busybox:latest"
+  volumes: [ "~/.config:/config", "~/Downloads:/data" ]
+
+dav:
+  hostname: "dav"
+  image: "flxel/dav:latest"
+  volumes_from: [ "storage" ]
+  expose: [ "80" ]
+
+proxy:
+  hostname: "proxy"
+  image: "flxel/proxy:latest"
+  command: "/locations.tmpl flxel.locations"
+  volumes: [ "/var/run/docker.sock:/tmp/docker.sock", "/etc/nginx/conf.d:/output" ]
+
+couchpotato:
+  hostname: "couchpotato"
+  image: "flxel/couchpotato:latest"
+  volumes_from: [ "storage" ]
+  expose: [ "5050" ]
+  links: [ "sabnzbd", "nzbget", "plex", "transmission" ]
+
+htpcmanager:
+  hostname: "htpcmanager"
+  image: "flxel/htpcmanager:latest"
+  volumes_from: [ "storage" ]
+  expose: [ "8085" ]
+  links: [ "couchpotato", "plex", "sabnzbd", "nzbget", "sonarr", "transmission" ]
+
+plex:
+  hostname: "plex"
+  image: "flxel/plex:latest"
+  volumes_from: [ "storage" ]
+  ports: [ "32400" ]
+
+pyload:
+  hostname: "pyload"
+  image: "flxel/pyload:latest"
+  volumes_from: [ "storage" ]
+  ports: [ "8000" ]
+
+plexwatch:
+  hostname: "plexwatch"
+  image: "flxel/plexwatch:latest"
+  volumes_from: [ "storage" ]
+  ports: [ "80" ]
+  links: [ "plex" ]
+
+sabnzbd:
+  hostname: "sabnzbd"
+  image: "flxel/sabnzbd:latest"
+  volumes_from: [ "storage" ]
+  expose: [ "8080" ]
+
+nzbget:
+  hostname: "nzbget"
+  image: "flxel/nzbget:latest"
+  volumes_from: [ "storage" ]
+  expose: [ "6789" ]
+
+sonarr:
+  hostname: "sonarr"
+  image: "flxel/sonarr:latest"
+  volumes_from: [ "storage" ]
+  expose: [ "8989" ]
+  links: [ "sabnzbd", "nzbget", "plex", "transmission" ]
+
+transmission:
+  hostname: "transmission"
+  image: "flxel/transmission:latest"
+  volumes_from: [ "storage" ]
+  environment: [ "PROXY_EXTRA_CONFIG=proxy_pass_header:X-Transmission-Session-Id" ]
+  expose: [ "9091" ]

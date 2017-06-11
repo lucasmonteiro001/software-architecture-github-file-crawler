@@ -1,0 +1,9 @@
+---
+version: '2.0'
+services: 
+  ubuntu1604:
+    build: ubuntu-16.04
+    command: ansible-playbook /tmp/test.yml 
+    hostname: user.local 
+...
+# vim: ft=ansible:

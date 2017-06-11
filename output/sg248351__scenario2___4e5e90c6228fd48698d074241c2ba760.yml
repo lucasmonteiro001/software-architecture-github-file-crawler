@@ -1,0 +1,33 @@
+version: '2'
+services:
+
+  stub:
+    build: 99_docker/iib-sc2/
+    image: sg248351/iib-sc2
+    depends_on:
+      - mq
+    ports:
+      - "4414"
+      - "7800"
+    networks:
+      sc2-net:
+        aliases:
+          - stub
+    environment:
+      - LICENSE=${LICENSE}
+
+  mq:
+    build: 99_docker/mq-sc2/
+    image: sg248351/mq-sc2
+    ports:
+      - "1414"
+    networks:
+      sc2-net:
+        aliases:
+          - mq
+    environment:
+      - LICENSE=${LICENSE}
+
+networks:
+  sc2-net:
+    driver: bridge

@@ -1,0 +1,31 @@
+version: '2'
+services:
+  db:
+    image: postgres
+  elasticsearch:
+    image: elasticsearch:2.4.1
+    command: elasticsearch -Des.network.host=0.0.0.0
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+  ruby:
+    image: alvarocantador/ruby-fiddle-exec
+    ports:
+      - "4567:4567"
+  java:
+    image: alvarocantador/java-fiddle-exec:latest
+    ports:
+      - "4568:4568"
+  web:
+    build: .
+    command: bundle exec rails s -p 8080 -b '0.0.0.0'
+    volumes:
+      - .:/usr/src/app
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+      - elasticsearch
+      - ruby
+
+

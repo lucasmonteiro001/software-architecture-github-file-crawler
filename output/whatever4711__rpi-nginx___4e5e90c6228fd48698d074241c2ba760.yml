@@ -1,0 +1,8 @@
+nginx:
+  image: whatever4711/rpi-nginx
+  ports:
+    - "80:80"
+    - "443:443"
+  volumes:
+    - /srv/docker/nginx/sites-enabled:/etc/nginx/sites-enabled
+  restart: always

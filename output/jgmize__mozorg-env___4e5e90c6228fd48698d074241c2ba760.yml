@@ -1,0 +1,23 @@
+mysql:
+  extends:
+    file: base.yml
+    service: mysql
+
+bedrock:
+  extends:
+    file: base.yml
+    service: bedrock
+  volumes:
+    - bedrock:/app
+  links:
+    - mysql
+
+apache:
+  extends:
+    file: base.yml
+    service: apache
+  volumes:
+    - apache/mozilla.com:/data/www/www.mozilla.org
+    - bedrock:/data/www/www.mozilla.org-django/bedrock
+  links:
+    - mysql

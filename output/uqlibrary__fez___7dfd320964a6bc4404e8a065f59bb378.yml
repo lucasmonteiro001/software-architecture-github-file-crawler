@@ -1,0 +1,127 @@
+fezdevelopmentrunner:
+  build: ./../development/backend/fpm/
+  environment:
+    - APP_ENVIRONMENT=development
+    - JAVA_HOME=/usr/lib/jvm/jre
+    - JHOVE_HOME=/usr/local/jhove
+    - PHP_IDE_CONFIG=serverName=dev-fez.library.uq.edu.au
+    - AWS_ACCESS_KEY_ID
+    - AWS_SECRET_ACCESS_KEY
+    - AWS_CLOUDFRONT_KEY_PAIR_ID
+    - AWS_CLOUDFRONT_PRIVATE_KEY_FILE
+    - AWS_CLOUDFRONT_FILE_SERVE_URL
+    - FEZ_S3_BUCKET
+    - FEZ_S3_CACHE_BUCKET
+    - FEZ_S3_SRC_PREFIX
+  links:
+    - cache
+    - fez
+    - fezdb
+    - selenium
+    - elasticsearch
+  volumes:
+    - ../../:/var/app/current
+  volumes_from:
+    - cache
+    - logs
+
+selenium:
+  image: selenium/standalone-chrome-debug:3.0.1-fermium
+  environment:
+    - JAVA_OPTS=-Dselenium.LOGGER.level=WARNING
+  links:
+    - fez:dev-fez.library.uq.edu.au
+  ports:
+    - "4445:4444"
+    - "5901:5900"
+
+cache:
+  build: ./cache/
+
+logs:
+  build: ./logs/
+
+fez:
+  build: ./backend/nginx/
+  environment:
+    - VIRTUAL_HOST=dev-fez.library.uq.edu.au
+  links:
+    - fpm
+  ports:
+    - 8080:8080
+  volumes_from:
+    - fpm
+    - cache
+    - logs
+
+fpm:
+  build: ./backend/fpm/
+  environment:
+    - APP_ENVIRONMENT=development
+    - XDEBUG_CONFIG
+    - PHP_IDE_CONFIG=serverName=dev-fez.library.uq.edu.au
+    - JAVA_HOME=/usr/lib/jvm/jre
+    - JHOVE_HOME=/usr/local/jhove
+    - COMMIT_HASH
+    - AWS_ACCESS_KEY_ID
+    - AWS_SECRET_ACCESS_KEY
+    - FEZ_S3_BUCKET
+    - FEZ_S3_CACHE_BUCKET
+    - FEZ_S3_SRC_PREFIX
+    - WEBCRON_TOKEN=southpark
+  links:
+    - fezdb
+    - elasticsearch
+    - dbgpproxy
+  volumes:
+    - ../../:/var/app/current
+    - ./backend/nginx/etc/nginx/conf.d:/etc/nginx/conf.d
+    - ../etc/nginx/rules:/etc/nginx/rules
+  volumes_from:
+    - cache
+    - logs
+
+dbgpproxy:
+  image: uqlibrary/docker-dbgp-proxy:2
+  ports:
+    - "9081:9001"
+
+fezdb:
+  build: ./backend/db/
+  environment:
+    - MYSQL_ROOT_PASSWORD=development
+    - MYSQL_USER=fez
+    - MYSQL_PASSWORD=fez
+    - MYSQL_DATABASE=fez
+  ports:
+    - "3306:3306"
+  volumes:
+    - ../../:/var/app/current
+  volumes_from:
+    - fezdbdata
+    - logs
+
+fezdbdata:
+  build: ./backend/db/data/
+
+elasticsearch:
+  environment:
+    - ES_JAVA_OPTS=-Xmx2g -Xms2g
+    - ES_CLUSTER_NAME=uqlfezsearch
+    - ES_NODE_MASTER=true
+    - ES_NODE_DATA=true
+  image: docker.elastic.co/elasticsearch/elasticsearch:5.4.0
+  ports:
+    - "9280:9200"
+  volumes_from:
+    - elasticsearchdata
+
+elasticsearchdata:
+  build: ./elasticsearch/data/
+
+kibana:
+  image: docker.elastic.co/kibana/kibana:5.4.0
+  ports:
+    - "5681:5601"
+  links:
+    - elasticsearch

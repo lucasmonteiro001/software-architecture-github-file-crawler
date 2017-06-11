@@ -1,0 +1,30 @@
+version: '2'
+services:
+  control:
+    build: bootstrap/control/
+    volumes: 
+      - ./ansible:/ansible:rw
+
+  target0:
+    build: bootstrap/target-host/
+    ports:
+      - "8080:8080"
+
+  target1:
+    build: bootstrap/target-host/
+    ports:
+      - "8081:8080"
+  
+  target2:
+    build: bootstrap/target-host/
+    ports:
+      - "8082:8080"
+
+  target3:
+    build: bootstrap/target-host/
+    ports:
+      - "8083:8080"
+
+volumes:
+  ansible:
+    driver: local

@@ -1,0 +1,42 @@
+phpweb:
+  build: ./php
+  ports:
+  - "8080:8080"
+  volumes:
+  - $PWD/../aai/aai_backend:/var/www/html/
+  links:
+  - redis:redis_service
+  - mysql:mysql_service
+  - beanstalkd:beanstalkd_service
+
+nodejsweb:
+  build: ./nodejs
+  ports:
+  - "3030:3030"
+  volumes:
+  - $PWD/../aai/aai_im:/nodeapp/
+  links:
+  - redis:redis_service
+  - mysql:mysql_service
+  - beanstalkd:beanstalkd_service
+
+redis:
+  build: ./redis
+  ports:
+  - "6379:6379"
+
+mysql:
+  build: ./mysql
+  environment:
+  - MYSQL_ROOT_PASSWORD=hrwork123456
+  - MYSQL_DATABASE=AAI
+  - MYSQL_USER=mysql
+  volumes:
+  - ./mysql/data:/var/lib/mysql
+  ports:
+  - "5306:3306"
+
+beanstalkd: 
+  image: schickling/beanstalkd
+  ports:
+  - "11300:11300"

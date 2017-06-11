@@ -1,0 +1,11 @@
+slushbot:
+  environment:
+    - SLACK_BOT_TOKEN=<token>
+    - SLACK_SECRET=something
+    - SLACK_SLASH_TOKEN=<yoloswag>
+    - 'SSE_API_ROOT=https://sse.rit.edu/api/v1/'
+  build: ./
+  external_links:
+    - 'redis'
+  ports:
+    - 3000:3000

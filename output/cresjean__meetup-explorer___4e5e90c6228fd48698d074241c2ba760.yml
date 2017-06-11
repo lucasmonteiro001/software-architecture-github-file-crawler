@@ -1,0 +1,26 @@
+version: '2'
+services:
+  filebeat:
+    build: filebeat
+    volumes:
+      - ./filebeat/rsvps.sample.json:/var/log/rsvps.log
+      - ./filebeat/run.sh:/opt/filebeat/run.sh
+      - ./filebeat/index_template.json:/etc/filebeat/index_template.json
+      - ./filebeat/filebeat.yml:/etc/filebeat/filebeat.yml
+      - ./filebeat/stream.py:/opt/filebeat/stream.py
+
+    command: "/opt/filebeat/run.sh"
+    links:
+      - elasticsearch
+
+  elasticsearch:
+    image: elasticsearch:5
+    ports:
+      - "9200:9200"
+
+  kibana:
+    image: kibana:5
+    ports:
+      - "5601:5601"
+    links:
+      - elasticsearch

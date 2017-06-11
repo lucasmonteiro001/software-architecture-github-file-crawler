@@ -1,0 +1,16 @@
+version: '2'
+services:
+    composer:
+        image: composer/composer:1.1
+        working_dir: /app
+        volumes:
+            - .:/app
+            - /data/composer:/root/.composer
+    cli:
+        extends: composer
+        entrypoint: bash
+    server:
+        extends: composer
+        entrypoint: php -S 0.0.0.0:80 -t tests/
+        ports:
+            - "80:80"

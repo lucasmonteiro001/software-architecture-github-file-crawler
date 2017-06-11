@@ -1,0 +1,21 @@
+version: '2'
+services:
+
+  db:
+    image: mcampbell/sqlite3
+
+  web-api:
+    build: .
+    command: nameko run banking --config /home/codebase/banking-nameko.yaml
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+
+  web-react:
+    build: .
+    command: npm run dev
+    ports:
+      - "8080:8080"
+    depends_on:
+      - web-api

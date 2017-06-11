@@ -1,0 +1,71 @@
+version: '2.1'
+services:
+  # Gitpages web server
+  gitpages-web:
+    image: gitpages/web:latest
+    command: --loglevel 0
+    ports:
+      - 8080:8080
+    links:
+      - db
+      - redis
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+  # Gitpages git SSH server
+  gitpages-gitssh:
+    image: gitpages/gitssh:latest
+    command: --loglevel 0
+    ports:
+      - 22:22
+    links:
+      - db
+      - redis
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+  # Gitpages worker builder
+  gitpages-builder:
+    image: gitpages/builder:latest
+    command: --loglevel 0
+    links:
+      - db
+      - redis
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+  db:
+    image: postgres:alpine
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    healthcheck:
+      test: "su postgres -c 'pg_isready'"
+      interval: 30s
+    environment:
+      - POSTGRES_PASSWORD=secretpassword
+      - POSTGRES_DB=gitpages
+  redis:
+    image: redis:alpine
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: "redis-cli ping"
+      interval: 30s
+  objectstore:
+    image: minio/minio:latest
+    ports:
+      - 9000:9000
+    volumes:
+      - objectstore-data:/export
+volumes:
+  pg-data:
+  redis-data:
+  objectstore-data:

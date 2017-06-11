@@ -1,0 +1,27 @@
+web:
+  build: .
+  command: 'bash -c ''./gradlew build; ./runlocal.sh'''
+  working_dir: /app/user
+  ports:
+    - '8080:80'
+  links:
+    - herokuPostgresql
+shell:
+  build: .
+  command: bash
+  working_dir: /app/user
+  environment:
+    PORT: 8080
+    JDBC_DATABASE_URL: 'postgres://postgres:@herokuPostgresql:5432/postgres'
+    JDBC_DATABASE_USERNAME: 'postgres'
+    JDBC_DATABASE_PASSWORD: '//postgres'
+  ports:
+    - '8081:8081'
+  links:
+    - herokuPostgresql
+  volumes:
+    - '.:/app/user'
+herokuPostgresql:
+  image: postgres
+  ports:
+    - '5432:5432'

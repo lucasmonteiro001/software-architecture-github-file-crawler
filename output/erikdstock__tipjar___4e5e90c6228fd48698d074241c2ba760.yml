@@ -1,0 +1,58 @@
+version: '2'
+volumes:
+  tipjar-redis:
+  tipjar-postgres:
+  tipjar-gemcache:
+
+services:
+  app:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    links:
+      - postgres
+      - redis
+    volumes:
+      - ./src:/src
+      - tipjar-gemcache:/usr/local/bundle
+    ports:
+      - '3000:3000'
+    env_file:
+      - .docker.env
+    environment:
+      - DOCKERIZED=true
+    stdin_open: true
+    tty: true
+
+  sidekiq:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: "bundle exec sidekiq -C config/sidekiq.yml"
+    links:
+      - postgres
+      - redis
+    volumes:
+      - ./src:/src
+      - tipjar-gemcache:/usr/local/bundle
+    env_file:
+      - .docker.env
+    stdin_open: true
+    tty: true
+  
+  redis:
+    image: redis:3.0.5
+    ports:
+      - '6379'
+    volumes:
+      - tipjar-redis:/var/lib/redis/data
+
+  postgres:
+    image: postgres:9.6.2
+    environment:
+      POSTGRES_USER: tipjar
+      POSTGRES_PASSWORD: yourpassword
+    ports:
+      - '5432'
+    volumes:
+      - tipjar-postgres:/var/lib/postgresql/data

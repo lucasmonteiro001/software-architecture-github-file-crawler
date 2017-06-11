@@ -1,0 +1,42 @@
+version: '3'
+
+services:
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    depends_on:
+      - site
+      - backend
+    ports:
+      - "80:80"
+    networks:
+      - web
+
+  backend:
+    env_file: ./backend/mailgun.env
+    build: ./backend
+    command: python main.py
+    volumes:
+      - ./backend:/project
+    ports:
+      - "8000:8000"
+    networks:
+      - web
+
+  site:
+    depends_on:
+      - backend
+    build: ./site
+    command: npm run dev
+    volumes:
+      - ./site/src:/site/src
+      - ./site/dist:/site/dist
+    ports:
+      - "8080:8080"
+    networks:
+      - web
+
+networks:
+  web:
+    driver: bridge

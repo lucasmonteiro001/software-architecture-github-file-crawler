@@ -1,0 +1,21 @@
+version: "3"
+services:
+  ftp:
+    image: wrfly/brute_force-ftp:latest
+    ports:
+      - 21
+    environment:
+      - FLAG=<FLAG>
+    deploy:
+      placement:
+        constraints:
+          - node.role != manager
+      resources:
+        limits:
+          cpus: '0.05'
+          memory: 5M
+    healthcheck:
+      test: ["CMD", "pgrep", "vsftpd"]
+      interval: 20s
+      timeout: 1s
+      retries: 2

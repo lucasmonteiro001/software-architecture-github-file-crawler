@@ -1,0 +1,116 @@
+zk:
+  image: bobrik/zookeeper
+  net: host
+  ports:
+    - 2181:2181
+  environment:
+    ZK_CONFIG: tickTime=2000,initLimit=10,syncLimit=5,maxClientCnxns=128,forceSync=no,clientPort=2181
+    ZK_ID: 1
+
+#registry:
+#  #restart: always
+#  image: registry:2
+#  ports:
+#    - 5000:5000
+#  #environment:
+#  #  REGISTRY_HTTP_TLS_CERTIFICATE: /certs/domain.crt
+#  #  REGISTRY_HTTP_TLS_KEY: /certs/domain.key
+#  #  REGISTRY_AUTH: htpasswd
+#  #  REGISTRY_AUTH_HTPASSWD_PATH: /auth/htpasswd
+#  #  REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
+#  volumes:
+#    - ./registry/data:/var/lib/registry
+#    - ./registry/certs:/certs
+#    - ./registry/auth:/auth
+
+master:
+  image: mesosphere/mesos-master:1.1.1
+  net: host
+  environment:
+    MESOS_ZK: zk://localhost:2181/mesos
+    MESOS_HOSTNAME: localhost
+    MESOS_IP: 127.0.0.1
+    MESOS_QUORUM: 1
+    MESOS_CLUSTER: playground
+    MESOS_WORK_DIR: /var/lib/mesos
+
+marathon:
+  image: mesosphere/marathon:v1.3.10
+  net: host
+  environment:
+    MARATHON_MASTER: zk://localhost:2181/mesos
+  volumes:
+    - ./docker/mesos-dns-config.json:/etc/mesos-dns/config.json
+
+#slave:
+#  image: hubspot/singularityexecutorslave:0.14.0
+#  command: mesos-slave
+#  net: host
+#  environment:
+#    MESOS_MASTER: zk://localhost:2181/mesos
+#    MESOS_HOSTNAME: localhost
+#    MESOS_IP: 127.0.0.1
+#    MESOS_CONTAINERIZERS: docker,mesos
+#    MESOS_ISOLATION: cgroups/cpu,cgroups/mem
+#    MESOS_EXECUTOR_REGISTRATION_TIMEOUT: 1mins
+#  volumes:
+#    - /var/run/docker.sock:/var/run/docker.sock
+#    - /cgroup:/cgroup
+#    - /sys/fs/cgroup:/sys/fs/cgroup
+
+slave:
+  image: mesosphere/mesos-slave:1.1.1
+  net: host
+  pid: host
+  environment:
+    MESOS_MASTER: zk://localhost:2181/mesos
+    MESOS_HOSTNAME: localhost
+    MESOS_IP: 127.0.0.1
+    MESOS_CONTAINERIZERS: docker,mesos
+    MESOS_ISOLATION: cgroups/cpu,cgroups/mem
+    MESOS_CGROUPS_ROOT: system.slice/mesos-slave.service
+    MESOS_CGROUPS_HIERARCHY: /sys/fs/cgroup
+    MESOS_PORT: 5051
+    #LIBPROCESS_IP: ${DOCKER_IP}
+    MESOS_WORK_DIR: /tmp/mesos
+  volumes:
+    - /sys/fs/cgroup:/sys/fs/cgroup
+    - /var/run/docker.sock:/var/run/docker.sock
+    - /cgroup:/cgroup
+    - /tmp/mesos/slaves:/tmp/mesos/slaves
+
+#scheduler:
+#  image: hubspot/singularityservice:0.14.0
+#  net: host
+#  environment:
+#    - DOCKER_HOST
+#    - LOAD_BALANCER_URI=http://localhost:8080/baragon/v2/request
+#
+#baragonservice:
+#  image: hubspot/baragonservice:0.4.0
+#  net: host
+#  environment:
+#    - DOCKER_HOST
+#    - BARAGON_PORT=8181
+#    - BARAGON_UI_BASE=/baragon/v2
+#
+#baragonagent:
+#  image: hubspot/baragonagent:0.4.0
+#  net: host
+#  environment:
+#    NGINX_PORT: 80
+#    BARAGON_PORT: 8882
+#    BARAGON_AGENT_GROUP: test
+#  volumes:
+#    - ./docker/nginx-vhost.conf:/etc/nginx/conf.d/vhost.conf
+#
+
+
+artifacts:
+  image: httpd:2.4
+  net: host
+  ports:
+    - 81:81
+  volumes:
+    - ./docker/httpd.conf:/usr/local/apache2/conf/httpd.conf
+    - ./artifacts:/usr/local/apache2/htdocs/

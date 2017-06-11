@@ -1,0 +1,61 @@
+# https://hub.docker.com/_/mysql/
+# to run a mysql shell inside the container
+# docker exec -it name_of_container /bin/mysql
+# access via mysql client
+# docker run -it --link wikidb:mysql --rm mysql sh -c 'exec mysql -h"$MYSQL_PORT_3306_TCP_ADDR" -P"$MYSQL_PORT_3306_TCP_PORT" -uroot -p"$MYSQL_ENV_MYSQL_ROOT_PASSWORD"'
+
+wikidb:
+  image: mysql:5.5
+  environment:
+    MYSQL_ROOT_PASSWORD: foo
+  volumes:
+    - /opt/docker-data-containers/wiki/mysql:/var/lib/mysql
+    - /opt/docker-data-containers/wiki/mysql_config:/etc/mysql/conf.d
+
+
+# based on https://github.com/fqxp/dockerfiles/tree/master/mediawiki, but using jessie instead of wheezy
+wiki:
+  build: ../mediawiki
+  environment:
+    MEDIAWIKI_DB_NAME:  elexis_wiki
+    MEDIAWIKI_DB_USER:  elexis
+    MEDIAWIKI_DB_PASSWORD: elexisTest
+  volumes:
+    - /opt/docker-data-containers/mediawiki/config:/srv/mediawiki/config
+    - /opt/docker-data-containers/mediawiki/images:/srv/mediawiki/images
+  links:
+    - wikidb:mysql
+  ports:
+    - "8082:80"
+
+# Differences compared to a mediawiki from Debian:
+# mysl: dbPassword is empty, dbHost is no longer localhost but mysql (a different container)
+# Stuff to do after to upgrade to a newer version of mediawiki:
+# - Adapt files/mediawiki/Dockerfile (_VERSION and versions of extensions)
+# - run manually php maintenance/update.php and check
+# - check the release notes
+# TODO: should we use a mysql database dump to initialize the database?
+
+nginx:
+  build: ../nginx
+  environment:
+  ports:
+    - "8081:80"
+    - "8443:443"
+  volumes:
+    - /opt/docker-data-containers/nginx/certs:/etc/nginx/certs
+#  links:
+#    - jenkins
+#    - wiki
+
+jenkins:
+  build: ../jenkins
+  environment:
+    JAVA_OPTS: "-Djava.awt.headless=true"
+  ports:
+    - "50000:50000"
+    - "8083:8080"
+  volumes:
+    - /opt/docker-data-containers/jenkins:/var/jenkins_home
+
+

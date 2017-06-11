@@ -1,0 +1,29 @@
+version: '2'
+services:
+  data:
+    image: busybox
+    volumes:
+      - /var/lib/mysql
+  mysql:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: pass
+      MYSQL_DATABASE: kaihua
+      MYSQL_USER: user
+      MYSQL_PASSWORD: pass
+    volumes_from:
+      - data
+    ports:
+      - "13306:3306"
+    volumes:
+      - ./misc/data:/root/data
+  web:
+    build: Dockerfiles/nginx-php7-fpm/.
+    ports:
+      - "8080:80"
+    volumes:
+      - ./:/var/www/html
+    links:
+      - mysql
+  node:
+    build: Dockerfiles/node/.

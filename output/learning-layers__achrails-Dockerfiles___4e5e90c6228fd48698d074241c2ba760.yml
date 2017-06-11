@@ -1,0 +1,31 @@
+postgres:
+    container_name: postgres
+    image: learninglayers/postgres
+achrails:
+    container_name: achrails
+    image: learninglayers/achrails
+    #volumes_from:
+    #    - achrailsdata
+    #volumes:
+    #    - .:/achrails
+    ports:
+        - "3000:3000"
+    env_file:
+        - common.env
+        - achrails.env
+    # linking is used to make sure that postgres is launched first
+    links:
+        - postgres
+        - oidc        
+    actions:
+        - create_oidcclients: [achrails.env]
+#achrails-data:
+#    build: achrails-data
+#    container_name: achrails-data
+#    env_file:
+#        - common.env
+#    volumes:
+#        - .:/achrails
+#    links:
+#        - achrails
+

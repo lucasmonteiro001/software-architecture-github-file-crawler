@@ -1,0 +1,23 @@
+version: "2"
+services:
+    database:
+        image: mysql:5.6
+        volumes:
+            -"./app/data:/var/lib/mysql"
+        restart: always
+        environment:
+            
+    app:
+        build: .
+        depends_on:
+            - database
+        links:
+            - database
+        ports:
+            - "80:80"
+            - "443:443"
+        environment:
+            APP_ENV: local
+            APP_URL: https://www.google.com
+            GIT_REPOSITORY: https://github.com/venveo/example-craft-docker-app
+            GIT_BRANCH: master

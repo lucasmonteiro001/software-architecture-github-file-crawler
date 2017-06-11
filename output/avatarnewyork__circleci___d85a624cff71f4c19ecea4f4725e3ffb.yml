@@ -1,0 +1,15 @@
+web:
+  image: docker.io/avatarnewyork/dockerenv-apache:$DOCKERENV_APACHE_TAG
+  volumes:
+    - "/home/ubuntu/$CIRCLE_PROJECT_REPONAME/public:/var/www/html"
+  ports:
+    - "8080:80"
+  links:
+    - db
+  environment:
+    POSTFIX_HOSTNAME: dev.avatarnewyork.com
+db:
+  image: docker.io/avatarnewyork/dockerenv-mysql:$DOCKERENV_MYSQL_TAG
+  ports:
+    - "3366:3306"
+    

@@ -1,0 +1,10 @@
+## This file is for quick deploy with docker
+
+version: '2'
+
+services:
+  mongodb:
+    restart: always
+    image: mongo
+    ports:
+      - 27017:27017

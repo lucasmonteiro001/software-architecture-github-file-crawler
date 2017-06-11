@@ -1,0 +1,54 @@
+version: '2'
+services:
+    redis:
+        image: 'redis:3.2-alpine'
+        volumes:
+            - ./redis/data:/data:rw
+        command: redis-server --appendonly yes
+
+    db:
+        image: 'postgres:9.5'
+        volumes:
+            - ./postgres/data:/var/lib/postgresql/data/regis_data:rw
+            - ./postgres/config:/docker-entrypoint-initdb.d:rw
+        environment:
+            - POSTGRES_DB=regis
+            - POSTGRES_USER=regis
+            - POSTGRES_PASSWORD=pg_password
+            - PGDATA=/var/lib/postgresql/data/regis_data
+
+    rabbit:
+        image: 'rabbitmq:3.6-management'
+        ports:
+            - 8081:15672
+        environment:
+            - RABBITMQ_DEFAULT_USER=admin
+            - RABBITMQ_DEFAULT_PASS=admin
+            - RABBITMQ_DEFAULT_VHOST=regis_vhost
+
+    worker:
+        build:
+            context: .
+            dockerfile: Dockerfile-web
+        depends_on:
+            - rabbit
+            - redis
+            - db
+        volumes:
+            - ..:/var/www/html
+            - ../var/ssh:/root/.ssh
+        command: './docker/wait-for-it.sh rabbit:5672 -- ./bin/console rabbitmq:consumer -vvv --env=prod webhook_github_pr_event'
+
+    web:
+        build:
+            context: .
+            dockerfile: Dockerfile-web
+        depends_on:
+            - rabbit
+            - worker
+            - db
+        ports:
+            - '8080:80'
+        volumes:
+            - ..:/var/www/html
+            - ./apache/sites-enabled:/etc/apache2/sites-enabled

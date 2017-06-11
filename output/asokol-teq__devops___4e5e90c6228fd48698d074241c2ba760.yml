@@ -1,0 +1,37 @@
+app:
+#  image: php:5.6-fpm-w_composer
+  build: ./php-fpm
+  expose:
+    - "9000"
+  volumes:
+    - /var/www/yii2/advanced:/var/www/html/
+#    - ./apache/conf/sites-enabled/:/etc/apache2/sites-enabled/
+  links:
+    - db
+  environment:
+    API_TOKEN: "5ff08e438decdb5e12cf86b13373ef3ba356a88f"
+  restart: always
+
+nginx:
+    build: ./nginx
+#    image: docker_nginx:latest
+    ports:
+        - "8080:80"
+    links:
+        - app
+    volumes_from:
+        - app
+    restart: always
+
+db:
+  image: mysql:latest
+  ports:
+    - "3306:3306"
+  expose:
+    - "3306"
+  environment:
+    MYSQL_ROOT_PASSWORD: root
+    MYSQL_DATABASE: dbtest
+    MYSQL_USER: dbuser
+    MYSQL_PASSWORD: asdf
+  restart: always

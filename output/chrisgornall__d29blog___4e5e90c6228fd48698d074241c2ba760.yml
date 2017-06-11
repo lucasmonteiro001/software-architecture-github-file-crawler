@@ -1,0 +1,11 @@
+app:
+  build: ./
+  ports:
+  - "3000:3000"
+  links:
+  - database
+  volumes:
+  - /etc/localtime:/etc/localtime:ro #keeps docker container and localhost times in sync
+  - .:/opt/app/ #allows nodemon to watch for changes
+database:
+  image: mongo:latest

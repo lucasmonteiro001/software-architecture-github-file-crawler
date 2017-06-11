@@ -1,0 +1,18 @@
+mysql:
+ image: mysql
+ ports:
+  - "3306:3306"
+ environment:
+  MYSQL_ROOT_PASSWORD: tmp
+web:
+ image: komplizierte/docker-nginx-magento
+ ports:
+  - "80:80"
+ links:
+  - mysql:db
+ volumes:
+  - .:/var/www/magento
+  - ~/Documents/modules:/modules # mapping modules folder
+  - ~/Documents/tools:/tools     # mapping tools folder(modman, composer)
+ environment:
+ # BASE_URL: http://bodyb.dev/ - change to your host

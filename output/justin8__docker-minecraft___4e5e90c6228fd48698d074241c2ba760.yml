@@ -1,0 +1,10 @@
+version: '2'
+
+services:
+    mc:
+        build: ./docker
+        ports:
+            - "25565:25565"
+        volumes:
+            - ./data:/minecraft
+        command: /entrypoint.sh

@@ -1,0 +1,18 @@
+vault:
+  image: viljaste/vault:latest
+  hostname: vault
+  restart: always
+  ports:
+    - "8200:8200"
+  volumes_from:
+    - vaultdata
+  environment:
+    - SERVER_NAME=localhost
+    - BACKEND=file
+  cap_add:
+    - IPC_LOCK
+vaultdata:
+  image: viljaste/data:latest
+  hostname: vaultdata
+  volumes:
+    - /vault

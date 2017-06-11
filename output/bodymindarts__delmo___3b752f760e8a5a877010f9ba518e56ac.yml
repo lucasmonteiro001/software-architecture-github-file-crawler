@@ -1,0 +1,27 @@
+version: '2'
+
+services:
+  proxy:
+    build: ./haproxy
+    image: webapp-proxy
+    networks:
+    - az1
+  webapp:
+    build: ./sinatra
+    image: webapp
+    networks:
+    - az1
+  webapp1:
+    build: ./sinatra
+    image: webapp
+    networks:
+    - az1
+
+  tests:
+    build: ./tests
+    image: webapp-tests
+    networks:
+    - az1
+
+networks:
+  az1:

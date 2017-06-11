@@ -1,0 +1,7 @@
+# Docker Compose file for Ember CLI, PhantomJS, and Bower
+
+# Build with:
+# docker-compose build
+
+ember:
+  build: .

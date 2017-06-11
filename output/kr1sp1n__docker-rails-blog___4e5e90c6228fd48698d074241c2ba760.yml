@@ -1,0 +1,14 @@
+app:
+  image: kr1sp1n/docker-rails-blog
+  links:
+    - db
+  ports:
+    - 3000:3000
+
+db:
+  image: postgres:9.4.4
+  ports:
+    - "5433:5432"
+  environment:
+    - POSTGRES_USER=postgres
+    - POSTGRES_PASSWORD=docker

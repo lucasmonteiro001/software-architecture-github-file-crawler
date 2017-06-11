@@ -1,0 +1,47 @@
+
+# Run all tests: `docker-compose up --abort-on-container-exit`
+# Enter console: `docker-compose run --rm --entrypoint /bin/bash nodejs` and `service sshd start`
+# Run a subset of the tests: `docker-compose run --rm nodejs test/service`
+
+# TODO: implement variable substitution once default value is implemented
+# see https://github.com/docker/compose/issues/2441
+
+version: '2'
+services:
+  nodejs:
+    build: .
+    image: nikita_centos6_nodejs
+    volumes:
+      - ../..:/nikita
+    depends_on:
+      - dind
+      - krb5
+      - postgres
+      - mysql
+    environment:
+      MECANO_TEST: /nikita/docker/centos6/test.coffee
+      DOCKER_HOST: 'tcp://dind:2375'
+      TMPDIR: '/var/tmp'
+  dind:
+    image: docker:dind
+    privileged: true
+    # detach: true
+  postgres:
+    image: postgres:9.5
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: rootme
+    expose:
+      - "5432"
+  mysql:
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: rootme
+    expose:
+      - "3306"
+  krb5:
+    image: sequenceiq/kerberos
+    volumes:
+      - /dev/urandom:/dev/random
+    environment:
+      BOOTSTRAP: 1

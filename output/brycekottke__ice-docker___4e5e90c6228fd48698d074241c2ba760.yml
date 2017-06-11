@@ -1,0 +1,19 @@
+ice:
+  build: ice
+  command: | 
+    -Djava.net.preferIPv4Stack=true
+    -Djava.net.preferIPv4Addresses
+    -Dice.s3AccessKeyId=<AWS_S3_ACCESS_KEY>
+    -Dice.s3SecretKey=<AWS_S3_SECRET_KEY>
+    run-app
+  volumes:
+    - ./ice/assets/ice.properties:/opt/ice/src/java/ice.properties
+  restart: always
+
+nginx:
+  build: nginx
+  ports:
+    - "80:80"
+  links:
+    - ice:ice
+  restart: always

@@ -1,0 +1,34 @@
+version: '2'
+services:
+  dime:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: dime
+    hostname: dime
+    ports:
+      - "3000:8080"
+      - "9000:9000"
+    links:
+      - mariadb:mysql
+    volumes:
+      - ./:/var/www/html
+      - .pub-cache:/tmp/dime-pub-cache
+    environment:
+      - VIRTUAL_HOST=localhost
+      - PUB_CACHE=/tmp/dime-pub-cache
+      - PHP_MEMLIMIT="2048M"
+      - CACHE_ROOT="/tmp/app"
+    restart: always
+
+  mariadb:
+    image: mariadb:10
+    container_name: mariadb
+    hostname: mariadb
+    ports:
+      - "3010:3306"
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD=1
+      - MYSQL_USER=dime
+      - MYSQL_PASSWORD=dime
+    restart: always

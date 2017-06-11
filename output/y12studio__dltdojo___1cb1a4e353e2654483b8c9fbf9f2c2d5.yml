@@ -1,0 +1,22 @@
+version: '2'
+services:
+  ethboot:
+    image: y12docker/dltdojo-ethgo
+    command: '/start.sh boot'
+    ports:
+        - "8545:8545"
+  ethpeer:
+    image: y12docker/dltdojo-ethgo
+    command: '/start.sh peer ethboot'
+    ports:
+        - "8546:8545"
+  ethdev:
+    image: y12docker/dltdojo-ethgo
+    command: '/start.sh dev'
+    ports:
+        - "8547:8545"
+  carexp:
+    image: y12docker/dltdojo-carexp
+    ports:
+        - "8000:8000"
+    command: '/start.sh 192.168.2.73'

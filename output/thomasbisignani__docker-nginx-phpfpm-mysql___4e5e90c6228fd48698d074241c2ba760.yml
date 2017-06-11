@@ -1,0 +1,36 @@
+version: "2"
+
+services:
+  nginx:
+    build: ./build/nginx/
+    ports:
+      - "8080:80"
+    volumes_from:
+      - phpfpm
+    links:
+      - phpfpm
+
+  phpfpm:
+    build: ./build/phpfpm/
+    working_dir: /var/www
+    volumes:
+      - ./sample:/var/www
+    links:
+       - mysql
+
+  mysql:
+    image: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: foobar
+      MYSQL_USER: myuser
+      MYSQL_PASSWORD: mypassword
+      MYSQL_DATABASE: docker
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    depends_on:
+      - mysql
+    ports:
+      - 8181:80
+    environment:
+      - PMA_HOST=mysql

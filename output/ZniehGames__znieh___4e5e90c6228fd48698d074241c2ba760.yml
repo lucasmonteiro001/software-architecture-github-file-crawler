@@ -1,0 +1,45 @@
+application:
+    build: docker/services/application
+    volumes:
+        - .:/var/www
+    ports:
+        - "80:80"
+    links:
+        - database
+        - rabbitmq
+    environment:
+        SYMFONY__BASE__URL: http://api.znieh.dev/
+        GS_URL: http://gs.znieh.dev
+
+database:
+    build: docker/services/mariadb
+    ports:
+        - "3307:3306"
+    environment:
+        MYSQL_ROOT_PASSWORD: 4m81HGxH47i31Xw
+        MYSQL_USER:          'znieh'
+        MYSQL_PASSWORD:      'znieh'
+        TERM: dumb
+    volumes_from:
+        - mariadbdata
+
+rabbitmq:
+    build: docker/services/rabbitmq
+    volumes:
+        - /var/docker/rabbit:data
+    ports:
+        - "5673:5672"
+        - "15673:15672"
+
+# adminer:
+#   image: clue/adminer
+#   links:
+#     - database
+#   ports:
+#     - "1337:80"
+
+mariadbdata:
+    image: busybox:latest
+    volumes:
+        - /var/lib/mysql
+    command: echo "I'm a data container"

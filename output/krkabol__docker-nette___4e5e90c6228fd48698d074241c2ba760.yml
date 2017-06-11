@@ -1,0 +1,126 @@
+version: '2'
+services:
+  proxy:
+    image: jwilder/nginx-proxy:alpine
+    container_name: proxy
+    links:
+      - fluentd
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        tag: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+    networks:
+    - dockernet
+
+  fluentd:
+    build: ./fluentd
+    container_name: fluentd
+    volumes:
+      - ./fluentd/conf:/fluentd/etc
+    links:
+      - "elasticsearch"
+    ports:
+      - "24224:24224"
+      - "24224:24224/udp"
+
+  kibana:
+    image: kibana
+    container_name: kibana
+    links:
+      - "elasticsearch"
+    ports:
+      - "5601:5601"
+
+  elasticsearch:
+    image: elasticsearch
+    container_name: elasticsearch
+    expose:
+      - 9200
+    ports:
+      - "9200:9200"
+
+  memcached:
+    image: memcached:alpine
+    container_name: memcached
+    ports:
+      - "11211:11211"
+    mem_limit: 1g
+
+  adminer:
+    image: adminer
+    container_name: adminer
+    logging:
+      driver: "fluentd"
+      options:
+       fluentd-address: localhost:24224
+       tag: adminer
+    links:
+    - postgres
+    - fluentd
+    environment:
+    - VIRTUAL_HOST=adminer
+
+  postgres_data:
+      image: busybox
+      volumes:
+       - /var/lib/postgresql/data
+
+  postgres:
+    build: ./postgres
+    container_name: postgres
+    links:
+      - fluentd
+    logging:
+     driver: "fluentd"
+     options:
+       fluentd-address: localhost:24224
+       tag: postgres
+    volumes_from:
+      - postgres_data
+    environment:
+        - POSTGRES_PASSWORD=nette
+        - POSTGRES_USER=nette
+
+  nette_aplication:
+    container_name: app
+    build: ./application
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        tag: apache
+    links:
+    - postgres
+    - fluentd
+    - memcached
+    volumes:
+    - ./application/htdocs:/var/www/html
+    environment:
+    - VIRTUAL_HOST=app
+    networks:
+    - dockernet
+
+
+  node:
+    image: digitallyseamless/nodejs-bower-grunt
+    container_name: node
+    command: bash -c "npm install && bower install &&  npm install grunt --save-dev && npm install --save-dev load-grunt-tasks && npm install --save-dev grunt-bower-concat && npm install --save-dev grunt-contrib-uglify && grunt buildall"
+    links:
+      - fluentd
+    logging:
+     driver: "fluentd"
+     options:
+       fluentd-address: localhost:24224
+       tag: node
+    volumes:
+      - ./application:/data
+
+
+networks:
+    dockernet:
+        external: true

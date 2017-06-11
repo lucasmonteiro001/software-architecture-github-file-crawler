@@ -1,0 +1,33 @@
+version: '2'
+services:
+  db:
+    restart: always
+    image: redis:latest
+    command: redis-server --appendonly yes
+    volumes:
+        - ./volumes/redis:/data
+
+  app:
+    restart: always
+    build: app
+    container_name: hubot
+    depends_on:
+      - db
+    ports:
+      - 8080:8080
+    volumes:
+      - ./volumes/hubot/hubot-scripts.json:/home/hubot/hubot-scripts.json:ro
+      - ./volumes/scripts:/home/hubot/scripts
+    env_file:
+      - ./matteruser.env
+    environment:
+      - REDIS_URL=redis://db:6379
+    links:
+      - db
+    networks:
+      - default
+      - mynetwork
+
+networks:
+  mynetwork:
+    external: true

@@ -1,0 +1,26 @@
+lab:
+  build: .
+  env_file: .env
+  ports:
+    - "8333:8000"
+  volumes:
+    - ./home:/home
+    - ./srv/oauthenticator:/srv/oauthenticator
+    - ./srv/jupyterhub:/srv/jupyterhub
+    - ./etc/jupyterhub:/etc/jupyterhub
+    - ./var/log:/var/log
+    - ./:/usr/src/app/
+    - ./zipline_root:/home/.zipline
+    - ./home/jupyter/custom/images:/usr/local/share/jupyter/hub/static/images
+    - ./custom_modules/toolbox:/usr/local/lib/python3.5/site-packages/toolbox
+  command: jupyterhub --no-ssl -f /etc/jupyterhub/jupyterhub_config.py
+
+# Somehow pandas==0.18.1 doesn't play nice with zipline.
+# We build a new image with 0.18.1 for ingesting data, because
+# it's way faster than 0.17.1
+ingest:
+  build: .
+  env_file: .env.sample
+  volumes_from:
+    - lab
+  command: python ingest.py

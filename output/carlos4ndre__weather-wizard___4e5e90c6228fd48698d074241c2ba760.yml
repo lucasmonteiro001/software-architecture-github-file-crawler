@@ -1,0 +1,19 @@
+version: '2'
+services:
+  weather_api:
+      build: .
+      command: python3 weather.py
+      volumes:
+        - ./weather_wizard/api:/app
+      environment:
+        - OWM_API_KEY=<YOUR_OWM_API_KEY>
+  weather_dashboard:
+      image: node
+      working_dir: /app
+      command: npm start
+      volumes:
+        - ./weather_wizard/dashboard:/app
+      ports:
+        - 80:80
+      depends_on:
+        - weather_api

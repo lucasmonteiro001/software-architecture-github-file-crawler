@@ -1,0 +1,17 @@
+mqttwarn:
+  build: docker.mqttwarn/.
+  links:
+    - mosquitto
+  volumes:
+    - /srv/docker/mqttwarn/conf:/opt/mqttwarn/conf
+  restart: always
+sigserver:
+  build: docker.sigserver/.
+  ports:
+    - "3000:3000"
+  links:
+    - mosquitto
+  restart: always
+mosquitto:
+  build: docker.mosquitto/.
+  restart: always

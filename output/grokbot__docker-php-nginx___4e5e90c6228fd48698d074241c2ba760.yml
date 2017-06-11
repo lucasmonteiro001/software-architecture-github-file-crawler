@@ -1,0 +1,15 @@
+mysql:
+  image: 'mariadb:latest'
+  environment:
+    - MYSQL_DATABASE=mydatabase
+    - MYSQL_PASSWORD=mylonguserpassword
+    - MYSQL_ROOT_PASSWORD=mylongrootpassword
+    - MYSQL_USER=myuser
+web:
+  image: grokbot/alpine-php-nginx:latest
+  ports:
+    - '8080:80'
+  links:
+    - mysql
+  volumes:
+    - './web/www:/srv/www/web'

@@ -1,0 +1,28 @@
+batiment-apache-service:
+  container_name: batiment-apache-container
+  build: image/httpd/
+  ports:
+    - "80:80"
+  volumes:
+    - ./log/httpd:/var/log/apache2
+    - ./../:/usr/local/apache2/htdocs
+  links:
+  - batiment-fpm-service:batiment-fpm-service
+batiment-fpm-service:
+  container_name: batiment-fpm-container
+  build: image/php-fpm/
+  volumes:
+    - ./log/php-fpm:/var/log/phpfpm
+    - ./../:/usr/local/apache2/htdocs
+  links:
+  - batiment-mysql-service:batiment-mysql-service
+batiment-mysql-service:
+  container_name: batiment-mysql-container
+  image: mysql:5.6
+  ports:
+   - "3306:3306"
+  environment:
+   - MYSQL_ROOT_PASSWORD=batiment
+   - MYSQL_USER=batiment
+   - MYSQL_PASSWORD=batiment
+   - MYSQL_DATABASE=batiment
