@@ -37,10 +37,11 @@ class RepositoryHelper(object):
             if file_content == "":
                 print str(RepositoryHelper.instance) + " [empty]: " + self.repo_name
             else:
-                f = open(output_path, 'w')
-                f.write(file_content)
-                f.close()
                 print str(RepositoryHelper.instance) + " [saved]: " + self.repo_name
+
+            f = open(output_path, 'w')
+            f.write(file_content)
+            f.close()
 
     def __str__(self):
         return super(RepositoryHelper, self).__str__()
