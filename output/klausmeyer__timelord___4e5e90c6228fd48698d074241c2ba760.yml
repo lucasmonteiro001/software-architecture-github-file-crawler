@@ -1,0 +1,27 @@
+version: '2'
+
+services:
+  redis:
+    image: redis:3.2
+
+  web:
+    build: .
+    # image: klausmeyer/timelord
+    command: web
+    environment:
+      - REDIS_URL=redis://redis:6379
+    ports:
+      - "8080:8080"
+    volumes:
+      - "./config/schedules:/app/config/schedules"
+
+  scheduler:
+    build: .
+    # image: klausmeyer/timelord
+    command: scheduler
+    environment:
+      - REDIS_URL=redis://redis:6379
+    volumes:
+      - "./config/schedules:/app/config/schedules"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    privileged: true

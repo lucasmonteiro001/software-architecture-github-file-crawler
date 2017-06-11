@@ -1,0 +1,54 @@
+client:
+  build: .
+  dockerfile: Dockerfile-client
+  ports:
+    - "80:80"
+  volumes:
+    - /app/client
+    - ./client:/app/client/src
+  links:
+    - api:api
+    - upload:upload
+
+gclient:
+  build: .
+  dockerfile: Dockerfile-client
+  command: gulp watch
+  environment:
+    - APP_CONF_API_URL=http://api.anixe.y
+    - APP_CONF_UPLOAD_URL=http://upload.anixe.y
+  ports:
+    - "35729:35729"
+  volumes_from:
+    - client
+
+api:
+  build: .
+  dockerfile: Dockerfile-server
+  command: gulp serveApi
+  environment:
+    - APP_CONF_KOA_JWT_KEY=PIycKSpFq6aaOlFLVTHD
+    - APP_CONF_MANDRILL_API_KEY=wpW7B9lFNAab-OCs5ftfzg
+    - APP_CONF_MANDRILL_DEBUG=true
+  volumes:
+    - ./server:/app/server/src
+    - ./static/upload:/app/static/upload
+  links:
+    - mongo:mongo
+
+upload:
+  build: .
+  dockerfile: Dockerfile-server
+  command: gulp serveUpload
+  environment:
+    - APP_CONF_KOA_JWT_KEY=PIycKSpFq6aaOlFLVTHD
+  volumes:
+    - ./server:/app/server/src
+    - ./static/upload:/app/static/upload
+  links:
+    - mongo:mongo
+
+mongo:
+  image: mongo:3.0
+  volumes:
+    - ./static/mongodb:/data/db

@@ -1,0 +1,14 @@
+db:
+  image: mongo
+  volumes:
+    - db:/data/db
+  ports:
+    - 27017
+web:
+  build: .
+  ports:
+    - 3000:8090
+  links:
+    - db
+  environment:
+    PORT: 8090
