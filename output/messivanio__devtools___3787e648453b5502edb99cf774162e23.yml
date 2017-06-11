@@ -1,0 +1,10 @@
+gitlabce:
+  image: gitlab/gitlab-ce:8.1.4-ce.0
+  ports:
+   - "8022:22"
+   - "8080:80"
+#   links: 
+#    - gitlabrunner
+
+# gitlabrunner:
+#   image: gitlab/gitlab-runner:latest

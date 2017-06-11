@@ -1,0 +1,19 @@
+version: '2'
+services:
+  web:
+    build: .
+    command: bin/debug
+    depends_on:
+      - basex
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/usr/src/app
+    environment:
+      - BASEX_HOST=basex
+      - NODE_ENV=docker
+  basex:
+    image: basex/basexhttp
+    ports:
+      - "1984:1984"
+      - "8984:8984"

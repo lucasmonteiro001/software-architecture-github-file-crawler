@@ -1,0 +1,15 @@
+version: "2"
+services:
+  rancher-reaper:
+    build: .
+    tty: true
+    environment:
+      - CATTLE_URL
+      - CATTLE_ACCESS_KEY
+      - CATTLE_SECRET_KEY
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+      - REAPER_INTERVAL_SECS
+      - REAPER_DRY_RUN
+      - REAPER_INSTANCE_ID_LABEL_NAME
+      - REAPER_AVAILABILITY_ZONE_LABEL_NAME

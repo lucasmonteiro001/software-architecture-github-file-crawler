@@ -1,0 +1,8 @@
+riak:
+  build: docker/riak
+  expose:
+    - "8087"
+store:
+  build: .
+  links:
+   - riak

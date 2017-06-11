@@ -1,0 +1,16 @@
+version: '2'
+services:
+  recursive:
+    build: recursive
+    depends_on:
+      - tld-server
+  root-server:
+    build: root-server
+  tld-server:
+    build: tld-server
+    depends_on:
+      - root-server
+  client:
+    build: client
+    depends_on:
+      - recursive

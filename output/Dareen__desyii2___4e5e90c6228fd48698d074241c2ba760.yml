@@ -1,0 +1,27 @@
+front:
+  build: images/front
+  ports:
+    - "8888:80"
+    - "9000:9000"
+  links:
+    - mysql:mysql
+    - elasticsearch:elasticsearch
+  volumes:
+    - www:/var/www
+    - sites:/etc/apache2/sites-enabled
+
+mysql:
+  image: tutum/mysql
+  ports:
+    - "3306:3306"
+  environment:
+    MYSQL_PASS: password
+    ON_CREATE_DB: yii2db
+
+elasticsearch:
+  image: tutum/elasticsearch
+  ports:
+    - "9200:9200"
+  environment:
+    ELASTICSEARCH_USER: admin
+    ELASTICSEARCH_PASS: password

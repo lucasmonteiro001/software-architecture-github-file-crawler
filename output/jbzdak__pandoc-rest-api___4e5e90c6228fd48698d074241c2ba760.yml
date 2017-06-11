@@ -1,0 +1,18 @@
+# NOTE: This is docker compose for DEVELOPEMENT
+version: '2'
+
+services:
+  webserver:
+    image: jbzdak/pandoc-rest-api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - FLASK_APP=pandoc_api.py
+      - FLASK_DEBUG=1
+    command: flask run --host 0.0.0.0 --port 5000
+
+    ports:
+      - "5000:5000"
+    volumes:
+      - ".:/app"

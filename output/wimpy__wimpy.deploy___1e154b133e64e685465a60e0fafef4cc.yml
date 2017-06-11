@@ -1,0 +1,11 @@
+version: '2'
+services:
+  {{ wimpy_application_name }}:
+    image: {{ wimpy_docker_image_name }}:{{ wimpy_release_version }}
+    ports:
+      - "{{ wimpy_application_port }}:{{ wimpy_application_port }}"
+    environment:
+      - ENVIRONMENT
+      - S3_BUCKET
+      - KMS_MASTER_KEY
+      - PORT

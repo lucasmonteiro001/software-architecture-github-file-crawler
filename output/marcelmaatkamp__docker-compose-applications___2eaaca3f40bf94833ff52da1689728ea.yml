@@ -1,0 +1,51 @@
+version: "2"
+
+services:
+
+ https-portal:
+  image: steveltn/https-portal
+  ports:
+    - "80:80"
+    - "443:443"
+  restart: always
+  volumes:
+   - data-https_portal:/var/lib/https-portal/
+   - /var/run/docker.sock:/var/run/docker.sock
+  environment:
+    DOMAINS: "hello.${IP_ADDRESS}.xip.io -> http://hello, wordpress.${IP_ADDRESS}.xip.io -> http://wordpress"
+    # STAGE: "production"
+    # FORCE_RENEW: "true"
+
+ hello:
+  image: tutum/hello-world
+  hostname: hello
+  depends_on:
+   - https-portal
+
+ wordpress:
+  image: wordpress
+  hostname: wordpress
+  depends_on:
+   - https-portal
+  links:
+   -  wordpress-db:mysql
+  volumes:
+   - data-wordpress:/var/www/html
+  environment:
+   - WORDPRESS_DB_PASSWORD=${MYSQL_ROOT_PASSWORD}
+
+ wordpress-db:
+  image: mariadb
+  restart: "always"
+  volumes:
+   - data-mysql:/var/lib/mysql
+  environment:
+   - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+   - MYSQL_USER=${MYSQL_USER}
+   - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+   - MYSQL_DATABASE=${MYSQL_DATABASE}
+
+volumes:
+ data-mysql:
+ data-https_portal:
+ data-wordpress:

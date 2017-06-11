@@ -1,0 +1,18 @@
+version: '2'
+services:
+  web:
+    tty: true
+    image: odoo:9.0
+    depends_on:
+      - db
+    ports:
+      - "8069:8069"
+    volumes:
+      # - ./.config:/etc/odoo
+      - ./:/mnt/extra-addons
+    # command: openerp-server -i pos_analytic  -d pos_analytic9
+  db:
+    image: postgres:9.4
+    environment:
+      - POSTGRES_PASSWORD=odoo
+      - POSTGRES_USER=odoo

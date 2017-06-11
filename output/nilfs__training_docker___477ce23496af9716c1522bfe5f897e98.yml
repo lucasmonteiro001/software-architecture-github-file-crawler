@@ -1,0 +1,18 @@
+# 1. replace <YOUR_URL>
+# 2. docker-compose up -d
+kibana:
+  image: kibana
+  links:
+    - elasticsearch
+  ports:
+    - 5601:5601
+
+elasticsearch:
+  image: elasticsearch
+  ports:
+    - 9200:9200
+  volumes:
+#    - $PWD/elasticsearch/config/:/usr/share/elasticsearch/config # https://github.com/dokku/dokku-elasticsearch/issues/23
+    - $PWD/elasticsearch/data/:/usr/share/elasticsearch/data
+  environment:
+    - ELASTICSEARCH_URL:"<YOUR_URL>:9200"

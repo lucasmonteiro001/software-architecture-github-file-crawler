@@ -1,0 +1,29 @@
+version: "3"
+
+services:
+  <%= application %>:
+    build:
+      context: ./context
+      args:
+        docker_engine_version: $DOCKER_ENGINE_VERSION
+        docker_compose_version: $DOCKER_COMPOSE_VERSION
+        docker_gid: $DOCKER_GID
+        docker_group: $DOCKER_GROUP
+        luban_uid: $LUBAN_UID
+        luban_user: $LUBAN_USER
+        luban_root_path: $LUBAN_ROOT_PATH
+    image: <%= build[:image_tag] %>
+    environment:
+      TZ: <%= timezone %>
+    volumes:
+      - luban_repo:$LUBAN_ROOT_PATH
+      - /var/run/docker.sock:/var/run/docker.sock
+      - $HOME/.docker:/home/$LUBAN_USER/.docker
+      - $HOME/.ssh:/home/$LUBAN_USER/.ssh
+      - $HOME/.gitconfig:/home/$LUBAN_USER/.gitconfig
+    command: /bin/bash
+    stdin_open: true
+    tty: true
+
+volumes:
+  luban_repo:

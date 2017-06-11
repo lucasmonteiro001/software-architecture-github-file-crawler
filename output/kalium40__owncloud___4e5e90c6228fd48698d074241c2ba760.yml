@@ -1,0 +1,20 @@
+version: '2'
+services:
+  db:
+    image: postgres
+    environment:
+      - POSTGRES_PASSWORD=sometestpassword
+  owncloud:
+    image: owncloud:latest
+    links:
+      - db:db
+  nginx:
+    image: nginx
+    volumes:
+      - ./conf/nginx/conf.d:/etc/nginx/conf.d
+      - ./conf/nginx/keys:/etc/nginx/keys
+    links:
+      - owncloud:owncloud
+    ports:
+      - "443:443"
+      - "80:80"

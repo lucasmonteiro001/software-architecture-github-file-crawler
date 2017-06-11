@@ -1,0 +1,27 @@
+version: "3"
+
+services:
+
+  redmine:
+    build: "./redmine"
+    ports:
+      - "80:3000"
+    volumes:
+      - "data:/usr/src/redmine/files"
+    depends_on:
+      - "db"
+    environment:
+      REDMINE_DB_MYSQL: "db"
+      REDMINE_DB_PASSWORD: "mysecret"
+
+  db:
+    build: "./db"
+    volumes:
+      - "data:/var/lib/mysql"
+    environment:
+      MYSQL_ROOT_PASSWORD: "mysecret"
+      MYSQL_DATABASE: "redmine"
+
+volumes:
+  data:
+    driver: "local"

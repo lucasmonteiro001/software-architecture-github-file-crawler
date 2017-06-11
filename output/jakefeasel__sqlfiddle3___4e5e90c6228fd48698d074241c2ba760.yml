@@ -1,0 +1,22 @@
+version: '2'
+services:
+  appServer:
+    image: sqlfiddle:appServer
+    ports:
+    - "8080:8080"
+    - "5005:5005"
+    extra_hosts:
+     - "sqlserver2014Host:192.168.99.101"
+     - "oracle11gHost:192.168.99.101"
+  appDatabase:
+    build:
+      context: ./appDatabase
+    image: sqlfiddle:appDatabase
+  postgresql93Host:
+    build:
+      context: ./postgresql93Host
+    image: sqlfiddle:postgresql93Host
+  mysql56Host:
+    build:
+      context: ./mysql56Host
+    image: sqlfiddle:mysql56Host

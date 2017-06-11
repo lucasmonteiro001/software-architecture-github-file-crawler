@@ -1,0 +1,24 @@
+web:
+  build: ./Docker/dev
+  ports:
+    - 3000:3000
+  links:
+    - redis:redis
+  volumes:
+    - .:/home/developer/app
+  environment:
+    - PORT=3000
+    - REDIS_HOST=redis
+  # log options to prevent docker from keeping too much things on the logs
+  log_driver: "json-file"
+  log_opt:
+    max-size: "0k"
+    max-file: "1"
+
+redis:
+  image: redis:2.8
+  # log options to prevent docker from keeping too much things on the logs
+  log_driver: "json-file"
+  log_opt:
+    max-size: "0k"
+    max-file: "1"

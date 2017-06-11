@@ -1,0 +1,14 @@
+version: '2'
+services:
+  db:
+    image: sqlite3
+  web:
+    build: .
+    command: bundle exec ruby /deploylog/main.rb
+    volumes:
+      - .:/deploylog
+    ports:
+      - "3000:3000"
+      - "4567:4567"
+    depends_on:
+      - db

@@ -1,0 +1,32 @@
+goserver:
+  image: gocd/gocd-server:14.4.0
+  ports:
+    - "8153:8153"
+  links:
+    - nexus:nexus
+    - gitbucket:git
+  volumes:
+    - ./ssh/:/var/go/.ssh
+  privileged: true
+goagent01:
+  image: gocd/gocd-agent:14.4.0
+  links:
+    - goserver:go-server
+    - nexus:nexus
+    - gitbucket:git
+  volumes:
+    - ./ssh:/var/go/.ssh
+  privileged: true
+nexus:
+  image: sonatype/nexus
+  ports:
+    - "8081:8081"
+gitbucket:
+  image: zerodivide1/docker-gitbucket
+  ports:
+    - "8080:8080"
+    - "29418:29418"
+  links:
+    - nexus:nexus
+  volumes:
+    - /opt/gitbucket:/data

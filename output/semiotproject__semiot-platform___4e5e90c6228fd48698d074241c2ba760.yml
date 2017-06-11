@@ -1,0 +1,96 @@
+wamprouter:
+  image: docker.semiot.ru/wamp-router
+  links:
+    - mysqlbase
+  ports:
+    - "8080:8080"
+  restart: always
+
+dataarchivingservice:
+  image: docker.semiot.ru/data-archiving-service
+  links:
+    - tsdb
+    - wamprouter
+    - deviceproxyservice
+    - triplestore
+  ports:
+    - "8787:8787"
+  #  - "8980:8980" #JMX Port
+  volumes:
+    - /semiot-platform/:/semiot-platform/
+  #environment:
+  #  SERVICE_JMX_DISABLED: "true"
+  #  SERVICE_JMX_DOMAIN: ""
+  restart: always
+
+tsdb:
+  image: cassandra:3.3
+  ports:
+    - "9042:9042"
+  volumes:
+    - /semiot-platform/tsdb:/var/lib/cassandra
+  restart: always
+
+deviceproxyservice:
+  image: docker.semiot.ru/device-proxy-service
+  links:
+    - wamprouter
+    - triplestore
+    - mysqlbase
+  ports:
+    - "8181:8181"
+    - "9500:9500/udp"
+    - "3131:3131/udp"
+  #  - "8981:8981" #JMX Port
+  volumes:
+    - /semiot-platform/felix-cache:/root/semiot-platform/device-proxy-service/felix-cache
+    - /semiot-platform/:/semiot-platform/
+  extra_hosts:
+    - "assets-cdn.github.com:151.101.12.133"
+    - "raw.githubusercontent.com:151.101.12.133"
+  #environment:
+  #  SERVICE_JMX_DISABLED: "false"
+  #  SERVICE_JMX_DOMAIN: ""
+  restart: always
+
+triplestore:
+  image: docker.semiot.ru/triplestore
+  ports:
+    - "3030:3030"
+  restart: always
+
+apigateway:
+  image: docker.semiot.ru/api-gateway
+  links:
+    - wamprouter
+    - deviceproxyservice
+    - dataarchivingservice
+    - mysqlbase
+    - triplestore
+  ports:
+    - "8383:8080"
+    - "9990:9990" #Wildfly Management and JMX Port
+  volumes:
+    - /semiot-platform/:/semiot-platform/
+  extra_hosts:
+    - "assets-cdn.github.com:151.101.12.133"
+    - "raw.githubusercontent.com:151.101.12.133"
+  restart: always
+
+frontend:
+  image: docker.semiot.ru/frontend
+  links:
+    - wamprouter
+    - deviceproxyservice
+    - apigateway
+  ports:
+    - "80:80"
+    - "443:443"
+  restart: always
+
+mysqlbase:
+  image: docker.semiot.ru/mysql
+  ports:
+    - "3306:3306"
+  restart: always
+

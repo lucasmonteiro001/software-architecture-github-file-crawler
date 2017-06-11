@@ -1,0 +1,7 @@
+wiki:
+  image: olavgg/moinmoin-wiki
+  volumes:
+      - /Users/markus/Downloads/moin:/usr/local/share/moin/data
+  ports:
+    - "443:443"
+    - "80:80"

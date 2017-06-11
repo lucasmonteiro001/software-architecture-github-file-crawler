@@ -1,0 +1,38 @@
+version: '2.1'
+
+services:
+  db:
+    image: mysql/mysql-server
+    environment:
+      - MYSQL_PASSWORD=mysql-password
+      - MYSQL_USER=mysql-user
+      - MYSQL_DATABASE=mysql-db
+      - MYSQL_ROOT_PASSWORD=root-pwd-secret
+
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+    restart: always
+
+  memcache:
+    image: memcached:alpine
+
+  web:
+    image: francipvb/consejoingenieros
+    build: .
+    
+    volumes:
+      - ./default-site.conf:/etc/apache2/sites-available/000-default.conf
+      - .:/var/www/html
+
+    restart: always
+
+    ports:
+      - 80:80
+
+    depends_on:
+      - db
+      - memcache
+
+volumes:
+  mysql-data:

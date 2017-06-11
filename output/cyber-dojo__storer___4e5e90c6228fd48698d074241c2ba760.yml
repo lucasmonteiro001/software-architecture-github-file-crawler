@@ -1,0 +1,29 @@
+
+version: '2'
+
+services:
+
+  storer_client:
+    user: nobody
+    image: cyberdojo/storer_client
+    container_name: storer_client
+    build:
+      context: client
+      args:
+        - PORT=${CYBER_DOJO_STORER_CLIENT_PORT}
+    ports:
+      - ${CYBER_DOJO_STORER_CLIENT_PORT}:${CYBER_DOJO_STORER_CLIENT_PORT}
+
+
+  storer:
+    user: root
+    image: cyberdojo/storer
+    container_name: storer_server
+    build:
+      context: server
+      args:
+        - PORT=${CYBER_DOJO_STORER_SERVER_PORT}
+    environment:
+      - CYBER_DOJO_KATAS_ROOT
+    volumes_from:
+      - container:cyber-dojo-git-kata-DATA-CONTAINER:rw

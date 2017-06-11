@@ -1,0 +1,65 @@
+services:
+  nginx-proxy:
+    image: jwilder/nginx-proxy
+    container_name: nginx-proxy
+    ports:
+      - "80:80"
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+
+  db:
+    image: mongo:latest
+    ports:
+      - "127.0.0.1:27017:27017"
+    restart: always
+    volumes:
+      - './data:/data/db'
+
+  api:
+    build: API
+    volumes:
+      - "./API:/src/app"
+      - "/src/app/node_modules"
+    restart: always
+    environment:
+      VIRTUAL_HOST: 'groupapi.rickisen.se'
+      NODE_ENV: 'production'
+      MONGO_URL: mongodb://db:27017/groupapp
+      PORT: 80
+
+  chat:
+    build: GroupChatStream
+    volumes:
+      - "./GroupChatStream:/src/app"
+      - "/src/app/node_modules"
+    restart: always
+    environment:
+      VIRTUAL_HOST: 'groupchat.rickisen.se'
+      NODE_ENV: 'production'
+      MONGO_URL: mongodb://db:27017/groupapp
+      PORT: 80
+
+  groupmaker:
+    build: GroupMaker
+    restart: always
+    volumes:
+      - "./GroupMaker:/src/app"
+      - "/src/app/node_modules"
+    environment:
+      NODE_ENV: 'production'
+      MONGO_URL: mongodb://db:27017/groupapp
+      PORT: 80
+
+  client:
+    build: ClientDistro
+    restart: always
+    volumes:
+      - "./ClientDistro:/src/app"
+      - "/src/app/node_modules"
+    environment:
+      VIRTUAL_HOST: 'groupapp.rickisen.se'
+      NODE_ENV: 'production'
+      PORT: 80
+
+version: '2'

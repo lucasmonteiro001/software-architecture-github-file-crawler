@@ -1,0 +1,58 @@
+version: '2'
+services:
+  postgres:
+    environment:
+      - POSTGRES_USER=prommgr
+      - POSTGRES_PASSWORD=prommgr
+    image: postgres
+    volumes:
+    - /tmp/pg_data:/var/lib/postgresql/data
+  prommgr:
+    build: .
+    volumes:
+    - ./app:/app
+    environment:
+    - DB_HOST=postgres
+    - DB_USER=prommgr
+    - DB_PASS=prommgr
+    - DB_NAME=prommgr
+    - SECRET_KEY=ChangeMe
+    - ALLOWED_HOSTS=prommgr.local
+    ports:
+    - "127.0.0.1:8000:8000"
+    depends_on:
+    - postgres
+  configwriter:
+    build: .
+    command: ./bin/update_prom.sh
+    volumes:
+    - ./app:/app
+    environment:
+    - DB_HOST=postgres
+    - DB_USER=prommgr
+    - DB_PASS=prommgr
+    - DB_NAME=prommgr
+    - PROM_CONFIG_PATH=/targets
+    - SECRET_KEY=ChangeMe
+    depends_on:
+    - postgres
+    volumes:
+    - "./prom/targets:/targets"
+  prom:
+    image: prom/prometheus
+    ports:
+    - "127.0.0.1:9090:9090"
+    volumes:
+    - "./prom/prometheus.yml:/etc/prometheus/prometheus.yml:ro"
+    - "./prom/targets:/targets:ro"
+    - "./prom//alert.rules:/etc/prometheus/alert.rules:ro"
+    command: -config.file=/etc/prometheus/prometheus.yml -alertmanager.url http://alertmanager:9093
+    depends_on:
+    - alertmanager
+  alertmanager:
+    image: prom/alertmanager
+    ports:
+    - "127.0.0.1:9093:9093"
+    volumes:
+    - "./prom/webhook.yml:/etc/alertmanager/webhook.yml:ro"
+    command: -config.file=/etc/alertmanager/webhook.yml

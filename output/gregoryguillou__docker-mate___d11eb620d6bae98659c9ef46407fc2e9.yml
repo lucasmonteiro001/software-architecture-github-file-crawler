@@ -1,0 +1,23 @@
+version: '2'
+services:
+  blue:
+    image: simple-api:1.0.0
+    ports:
+      - 8080
+    environment:
+      - SERVICE_TAGS=urlprefix-/simple-api
+      - SERVICE_8080_NAME=simple-api
+      - SERVICE_8080_CHECK_HTTP=/status
+      - SERVICE_8080_CHECK_INTERVAL=10s
+      - SERVICE_8080_CHECK_TIMEOUT=5s
+  green:
+    image: simple-api:2.0.0
+    ports:
+      - 8080
+    environment:
+      - SERVICE_TAGS=urlprefix-/simple-api
+      - SERVICE_8080_NAME=simple-api
+      - SERVICE_8080_CHECK_HTTP=/status
+      - SERVICE_8080_CHECK_INTERVAL=10s
+      - SERVICE_8080_CHECK_TIMEOUT=5s
+

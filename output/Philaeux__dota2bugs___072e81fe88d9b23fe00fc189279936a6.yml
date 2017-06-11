@@ -1,0 +1,34 @@
+version: "2"
+
+services:
+  dota2bugs_postgres:
+    image: dota2bugs_postgres
+    container_name: "dota2bugs_postgres"
+    restart: always
+    build:
+      context: ..
+      dockerfile: docker/postgres/Dockerfile
+    volumes:
+      - "/home/docker/dota2bugs/postgres/data:/var/lib/postgresql/data"
+    environment:
+      - POSTGRES_USER=dota2bugs
+    env_file:
+      - './postgres/conf.env'
+    network_mode: "bridge"
+
+  dota2bugs_mantis:
+    image: dota2bugs_mantis
+    container_name: "dota2bugs_mantis"
+    build:
+      context: ..
+      dockerfile: docker/mantis/Dockerfile
+    volumes:
+      - "/home/docker/dota2bugs/mantis/:/var/www/"
+    ports:
+      - "8085:80"
+    entrypoint: ./entrypoint.sh
+    network_mode: "bridge"
+    external_links:
+      - dota2bugs_postgres
+    depends_on:
+      - dota2bugs_postgres

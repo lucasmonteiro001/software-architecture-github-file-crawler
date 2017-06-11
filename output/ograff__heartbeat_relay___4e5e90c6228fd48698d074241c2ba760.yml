@@ -1,0 +1,6 @@
+heartbeat_relay:
+  build: .
+  ports:
+    - "1313:1313"
+    - "1212:1212"
+

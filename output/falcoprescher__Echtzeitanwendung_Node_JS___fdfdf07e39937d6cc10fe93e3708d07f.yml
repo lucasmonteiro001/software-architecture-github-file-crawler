@@ -1,0 +1,116 @@
+version: '2'
+
+services:
+  webclient:
+    image: node:latest
+    ports:
+      - "80:80"
+    volumes:
+      - ${WEBCLIENTDIR}:/usr/src/app:rw
+    mem_limit: 128M
+    working_dir: /usr/src/app
+    entrypoint: node index.js -p 80
+    logging:
+      driver: json-file
+    networks:
+      - front
+  websocketserver:
+    image: node:latest
+    volumes:
+      - ${SERVERDIR}:/usr/src/app:rw
+    working_dir: /usr/src/app
+    entrypoint: node index.js -p 81
+    depends_on:
+      - messagebus
+    mem_limit: 256M
+    logging:
+      driver: json-file
+    networks:
+      - back
+  proxyandloadbalancer:
+    image: nginx:latest
+    volumes:
+      - ${PROXYANDLOADBALANCERDIR}:/etc/nginx:rw
+    mem_limit: 128M
+    ports:
+      - "81:81"
+    depends_on:
+      - websocketserver
+    networks:
+      - back
+      - front
+      - client1
+      - client2
+      - client3
+      - client4
+  messagebus:
+    image: redis:latest
+    mem_limit: 512M
+    networks:
+      - back
+  consoleclient1:
+    image: node:latest
+    volumes:
+      - ${CONSOLECLIENTDIR}:/usr/src/app:rw
+    working_dir: /usr/src/app
+    entrypoint: node index.js
+    depends_on:
+      - websocketserver
+    mem_limit: 128M
+    logging:
+      driver: json-file
+    networks:
+      - client1
+  consoleclient2:
+    image: node:latest
+    volumes:
+      - ${CONSOLECLIENTDIR}:/usr/src/app:rw
+    working_dir: /usr/src/app
+    entrypoint: node index.js
+    depends_on:
+      - websocketserver
+    mem_limit: 128M
+    logging:
+      driver: json-file
+    networks:
+      - client2
+  consoleclient3:
+    image: node:latest
+    volumes:
+      - ${CONSOLECLIENTDIR}:/usr/src/app:rw
+    working_dir: /usr/src/app
+    entrypoint: node index.js
+    depends_on:
+      - websocketserver
+    mem_limit: 128M
+    logging:
+      driver: json-file
+    networks:
+      - client3
+  consoleclient4:
+    image: node:latest
+    volumes:
+      - ${CONSOLECLIENTDIR}:/usr/src/app:rw
+    working_dir: /usr/src/app
+    entrypoint: node index.js
+    depends_on:
+      - websocketserver
+    mem_limit: 128M
+    logging:
+      driver: json-file
+    networks:
+      - client4
+
+networks:
+  front:
+    driver: bridge
+  back:
+    driver: bridge
+  client1:
+    driver: bridge
+  client2:
+    driver: bridge
+  client3:
+    driver: bridge
+  client4:
+    driver: bridge

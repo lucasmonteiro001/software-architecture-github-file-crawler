@@ -1,0 +1,38 @@
+###############################################################################
+#                          Generated on phpdocker.io                          #
+###############################################################################
+
+php7-redis:
+  image: redis:3.2.6
+  container_name: php7-redis
+
+php7-mysql:
+  image: mysql:5.6
+  container_name: php7-mysql
+  environment:
+    - MYSQL_ROOT_PASSWORD=user
+    - MYSQL_DATABASE=wtb
+    - MYSQL_USER=wtb_user
+    - MYSQL_PASSWORD=wtb_password
+
+php7-webserver:
+  image: nginx:1.11.8
+  container_name: php7-webserver
+  volumes:
+      - ./work/work-tool-box:/var/www/php7/app
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+  ports:
+   - "9000:80"
+  links:
+   - php7-php-fpm
+
+php7-php-fpm:
+  build: .
+  dockerfile: php-fpm/Dockerfile
+  container_name: php7-php-fpm
+  volumes:
+    - ./work/work-tool-box:/var/www/php7/app
+    - ./php-fpm/php-ini-overrides.ini:/etc/php/7.0/fpm/conf.d/99-overrides.ini
+  links:
+    - php7-mysql
+    - php7-redis

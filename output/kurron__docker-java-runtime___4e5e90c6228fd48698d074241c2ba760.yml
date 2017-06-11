@@ -1,0 +1,7 @@
+java:
+    build: .
+    container_name: "java"
+    net: "host"
+    volumes:
+        - /home/vagrant:/home/developer
+    user: 1000:1000

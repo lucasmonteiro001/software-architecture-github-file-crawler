@@ -1,0 +1,30 @@
+dontstarvewithfriends:
+  image: thalhalla/dontstarvewithfriends:${DONTSTARVETOGETHER_BRANCH}
+  command: ${DONTSTARVETOGETHER_COMMAND}
+  environment:
+    STEAM_GID: 233780
+    IP: 0.0.0.0
+  labels:
+    io.rancher.container.hostname_override: container_name
+    io.rancher.scheduler.affinity:host_label: ${host_label}
+    io.rancher.sidekicks: dontstarvewithfriends-datavolume
+    io.rancher.container.pull_image: always
+  volumes_from:
+    - dontstarvewithfriends-datavolume
+  ports:
+    - "10999:10999"
+    - "10999:10999/udp"
+dontstarvewithfriends-datavolume:
+  labels:
+    io.rancher.container.hostname_override: container_name
+    io.rancher.scheduler.affinity:host_label: ${host_label}
+    io.rancher.container.start_once: true
+    io.rancher.container.pull_image: always
+  environment:
+    STEAM_GID: 233780
+    IP: 0.0.0.0
+  volume_driver: ${VOLUME_DRIVER}
+  volumes:
+    - ${VOLUME_NAME}:/home/steam
+  image: thalhalla/dontstarvewithfriends:${DONTSTARVETOGETHER_BRANCH}
+  command: /bin/true

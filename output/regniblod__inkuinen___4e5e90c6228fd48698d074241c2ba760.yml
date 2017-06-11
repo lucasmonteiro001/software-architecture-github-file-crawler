@@ -1,0 +1,45 @@
+version: '2'
+
+services:
+  db:
+    container_name: inkuinen-db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: inkuinen
+      MYSQL_USER: inkuinen
+      MYSQL_PASSWORD: inkuinen
+    image: mysql:5.7
+    ports:
+      - "3333:3306"
+    volumes:
+      - db-data:/var/lib/mysql
+
+  nginx:
+    container_name: inkuinen-nginx
+    image: nginx:1.11-alpine
+    depends_on:
+      - php
+    ports:
+      - "7777:80"
+    volumes:
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./web:/srv/inkuinen/web
+
+  php:
+    container_name: inkuinen-php
+    build: .
+    depends_on:
+      - db
+    environment:
+      SYMFONY_ENV: dev
+    volumes:
+      - ./:/srv/inkuinen
+      - ./var/cache:/srv/inkuinen/var/cache
+      - ./var/logs:/srv/inkuinen/var/logs
+      - ./var/sessions:/srv/inkuinen/var/sessions
+      - ./var:/srv/inkuinen/var
+      - ./vendor:/srv/inkuinen/vendor
+      - ./web:/srv/inkuinen/web
+
+volumes:
+  db-data: {}

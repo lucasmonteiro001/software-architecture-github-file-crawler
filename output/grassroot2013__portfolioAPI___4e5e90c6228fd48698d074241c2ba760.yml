@@ -1,0 +1,31 @@
+version: '2'
+
+services:
+  fpm:
+    build:
+      context: .
+      dockerfile: infrastructure/fpm/Dockerfile
+    image: realpage/lumen-starter:fpm
+    env_file: .env
+    volumes:
+      - ./:/var/www/html
+  web:
+    build:
+      context: .
+      dockerfile: infrastructure/nginx/Dockerfile
+    image: realpage/lumen-starter:nginx
+    env_file: .env
+    volumes:
+      - ./infrastructure/nginx:/etc/nginx/conf.d
+      - ./resources:/var/www/html/resources
+      - ./public:/var/www/html/public
+    ports:
+      - "80:80"
+  db:
+    image: postgres:9.5
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: service_user
+      POSTGRES_PASSWORD: P@ssw0rd
+      POSTGRES_DB: service_db

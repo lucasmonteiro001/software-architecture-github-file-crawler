@@ -1,0 +1,12 @@
+version: '2'
+
+services:
+  spary_react:
+    build: .
+    image: 'node:latest'
+    volumes:
+      - '.:/home/app'
+    ports:
+      - '4000:4000'
+    command: 'npm start'
+

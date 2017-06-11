@@ -1,0 +1,9 @@
+version: '2'
+services:
+  ocwebapp:
+    build: .
+    ports:
+     - "1337:1337"
+    volumes:
+     - ./:/app
+    command: sh yarn.sh

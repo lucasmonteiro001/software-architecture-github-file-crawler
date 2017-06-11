@@ -1,0 +1,39 @@
+version: '2'
+services:
+  go-server:
+    build: ./server
+    # Uncomment when on GCE
+    # command: server
+    ports:
+     - "3000:3000"
+    restart: always # round-about way to wait for mysql-server to start up
+    # Comment this out if deploying on GCE
+    volumes:
+     - ./server:/go/src/github.com/michaelg9/ISOC/server
+    depends_on:
+     - mysql
+     - mysql-test
+     - redis
+    environment:
+     - MYSQL_HOST=mysql
+     - MYSQL_USER=treigerm
+     - MYSQL_PWD=123
+     - TEST_MYSQL_HOST=mysql-test
+     - TEST_MYSQL_USER=root
+     - TEST_MYSQL_PWD=123
+     - REDIS_HOST=redis
+     - PORT=3000
+  mysql:
+    build: ./test_db
+  # Comment out test-db when on GCE
+  mysql-test:
+    image: mysql:latest
+    ports:
+     - "3306:3306"
+    environment:
+     - MYSQL_ROOT_PASSWORD=123
+     - MYSQL_DATABASE=test_db
+  redis:
+    image: redis
+    ports:
+     - "6379:6379"

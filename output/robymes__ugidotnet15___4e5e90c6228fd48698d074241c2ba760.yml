@@ -1,0 +1,37 @@
+version: "2"
+services:
+    mongo:
+        image: mongo:3.2
+        container_name: mongo
+        ports:
+            - "27017:27017"
+        volumes:
+            - mongodata:/data/db
+        command: --smallfiles --rest --httpinterface
+        networks:
+            - backend
+    nginx-proxy:
+        image: jwilder/nginx-proxy
+        container_name: nginx-proxy
+        ports:
+            - "80:80"
+        volumes:
+            - /var/run/docker.sock:/tmp/docker.sock:ro
+        networks:
+            - proxy
+    node-rest-srvc:
+        image: ugidotnet15/node-rest-srvc:latest
+        environment: 
+            - VIRTUAL_HOST=ugidotnet15         
+        links:
+            - mongo:mongo   
+        networks:
+            - proxy
+            - backend
+volumes:
+    mongodata:
+networks:
+    proxy:
+        external:
+            name: nginx-proxy
+    backend:

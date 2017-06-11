@@ -1,0 +1,30 @@
+db:
+  image: lyrasis/collectionspace:db
+  container_name: postgres
+  net: host
+  environment:
+    POSTGRES_PASSWORD: "654321"
+    DB_CSADMIN_PASSWORD: "123456"
+
+web:
+  image: nginx:1.7.12
+  container_name: nginx
+  net: host
+  volumes:
+    - "/${PWD}/config/app1.conf:/etc/nginx/conf.d/default.conf"
+
+app1:
+  image: lyrasis/collectionspace-app
+  container_name: collectionspace-app-app1
+  net: host
+  environment:
+    COLLECTIONSPACE-APP_DATABASE_HOST: "127.0.0.1"
+    COLLECTIONSPACE-APP_DATABASE_NAME: "collectionspace-app-app1"
+    COLLECTIONSPACE-APP_DATABASE_USERNAME: "csadmin"
+    COLLECTIONSPACE-APP_DATABASE_PASSWORD: "123456"
+    COLLECTIONSPACE_BASE_URI: "http://core.collectionspace.org/cspace-services"
+    COLLECTIONSPACE_USERNAME: "reader@core.collectionspace.org"
+    COLLECTIONSPACE_PASSWORD: "reader"
+    PORT: "3000"
+    SECRET_KEY_BASE: "abcdef123456xyz789"
+    TEST: "This is not the droid you are looking for ... move along!"

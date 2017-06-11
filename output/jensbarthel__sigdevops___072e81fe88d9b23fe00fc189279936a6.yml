@@ -1,0 +1,20 @@
+version: '2'
+services:
+  mongo:
+    image: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - db_persistence:/data/db
+      - log:/var/log
+  jenkins:
+    image: jenkins
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins:/var/jenkins_home
+volumes:
+  db_persistence:
+  log:
+  jenkins:

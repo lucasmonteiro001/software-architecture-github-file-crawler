@@ -1,0 +1,13 @@
+elasticsearch:
+  image: krystalcode/o_elasticsearch
+  container_name: qori_qollqe_elasticsearch
+  volumes:
+    - ./docker/.volumes/elasticsearch:/usr/share/elasticsearch/data
+
+kibana:
+  image: krystalcode/o_kibana
+  container_name: qori_qollqe_kibana
+  links:
+    - elasticsearch
+  environment:
+    - VIRTUAL_HOST=qoriqollqe.localhost

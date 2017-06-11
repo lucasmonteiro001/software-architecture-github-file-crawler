@@ -1,0 +1,105 @@
+version: "2"
+
+services:
+  zookeeper:
+    image: netflixoss/exhibitor:1.5.2
+    ports:
+      - "2181:2181"
+      - "2888:2888"
+      - "3888:3888"
+    environment:
+      ZK_CONFIG: tickTime=2000,initLimit=10,syncLimit=5,maxClientCnxns=128,forceSync=no,clientPort=2181
+      ZK_ID: 1
+
+  zk-ui:
+    image: qnib/zkui
+    ports:
+      - "9090:9090"
+    links:
+      - zookeeper:zk
+    environment:
+      ZKUI_ZK_SERVER: zk:2181
+    depends_on:
+      - zookeeper
+
+  mesosmaster:
+    image: mesosphere/mesos-master:1.0.0-2.0.89.ubuntu1404
+    ports:
+      - "5050:5050"
+    links:
+      - zookeeper:zk
+    environment:
+      MESOS_ZK: zk://zk:2181/mesos
+      MESOS_HOSTNAME: master
+      MESOS_LOG_DIR: /var/log/mesos
+      MESOS_WORK_DIR: /var/tmp/mesos
+      MESOS_QUORUM: 1
+      MESOS_CLUSTER: marvin
+      MESOS_REGISTRY: replicated_log
+    depends_on:
+      - zookeeper
+
+  slave-one:
+    image: mesosphere/mesos-slave:1.0.0-2.0.89.ubuntu1404
+    pid: host
+    privileged: true
+    ports:
+      - "5051:5051"
+    links:
+      - zookeeper:zk
+      - mesosmaster:master
+    environment:
+      MESOS_MASTER: zk://zk:2181/mesos
+      MESOS_CONTAINERIZERS: docker,mesos
+      MESOS_HOSTNAME: slave1
+      MESOS_EXECUTOR_REGISTRATION_TIMEOUT: 5mins
+      MESOS_LOG_DIR: /var/log/mesos
+      MESOS_WORK_DIR: /var/tmp/mesos
+      MESOS_PORT: 5051
+      MESOS_RESOURCES: ports(*):[11000-11999]
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - zookeeper
+      - mesosmaster
+
+  slave-two:
+    image: mesosphere/mesos-slave:1.0.0-2.0.89.ubuntu1404
+    ports:
+      - "5052:5052"
+    links:
+      - zookeeper:zk
+      - mesosmaster:master
+    pid: host
+    privileged: true
+    environment:
+      MESOS_MASTER: zk://zk:2181/mesos
+      MESOS_CONTAINERIZERS: docker,mesos
+      MESOS_HOSTNAME: slave2
+      MESOS_EXECUTOR_REGISTRATION_TIMEOUT: 5mins
+      MESOS_LOG_DIR: /var/log/mesos
+      MESOS_WORK_DIR: /var/tmp/mesos
+      MESOS_PORT: 5052
+      MESOS_RESOURCES: ports(*):[12000-12999]
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - zookeeper
+      - mesosmaster
+
+  marvin:
+    build: .
+    ports:
+      - "4567:4567"
+      - "14096:14096"
+    volumes:
+      - ../../../build/libs/marvin.jar:/marvin/marvin.jar
+    links:
+      - mesosmaster:master
+    environment:
+      MARVIN_MASTER: master:5050
+      MARVIN_ENV: dev
+    depends_on:
+      - mesosmaster

@@ -1,0 +1,33 @@
+version: '3'
+
+services:
+  influxdb:
+    image: influxdb:latest
+    volumes:
+      - data:/var/lib/influxdb
+    ports:
+      - "8086:8086"
+    env_file:
+      - 'env.influxdb'
+    restart: always
+  grafana:
+    image: grafana/grafana:latest
+    volumes:
+      - data:/var/lib/grafana
+    links:
+      - influxdb
+    ports:
+      - "3000:3000"
+    env_file:
+      - 'env.grafana'
+    restart: always
+  vsphere-influxdb-go:
+    image: szukalski/vsphere-influxdb-go:latest
+    volumes:
+      - ./vsphere-influxdb-go.json:/etc/vsphere-influxdb-go.json
+    links:
+      - influxdb
+    restart: always
+    
+volumes:
+  data:

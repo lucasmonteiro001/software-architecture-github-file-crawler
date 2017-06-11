@@ -1,0 +1,99 @@
+version: "2"
+
+services:
+  mongodb:
+    image: mongo:3.0.4
+    command: mongod --smallfiles
+    ports:
+      - "27017:27017"
+  neo4j:
+    image: neo4j:2.3.0
+    ports:
+      - "7474:7474"
+  eureka:
+    build: microservices-eureka/.
+    working_dir: /
+    links:
+      - config-server
+    ports:
+      - "8761:8761"
+    entrypoint: ./wait-for-it.sh config-server:8888 -t 60 --
+    command: java -Dspring.profiles.active=docker -jar /app.jar
+  authserver:
+    build: microservices-authserver/.
+    working_dir: /
+    links:
+      - config-server
+    ports:
+      - "9999:9999"
+    entrypoint: ./wait-for-it.sh config-server:8888 -t 60 --
+    command: java -Dspring.profiles.active=docker -jar /app.jar
+  hystrix:
+    build: microservices-hystrix-dashboard/.
+    working_dir: /
+    ports:
+      - "7979:7979"
+    entrypoint: ./wait-for-it.sh config-server:8888 -t 60 --
+    command: java -Dspring.profiles.active=docker -jar /app.jar
+  config-server:
+    build: microservices-config-server/.
+    working_dir: /
+    ports:
+      - "8888:8888"
+  catalog:
+    build: microservices-catalog/.
+    working_dir: /
+    links:
+      - config-server
+      - authserver
+      - eureka
+    ports:
+      - "8080:8080"
+    entrypoint: ./wait-for-it.sh config-server:8888 -t 60 --
+    command: java -Dspring.profiles.active=docker -jar /app.jar
+  reviews:
+    build: microservices-reviews/.
+    working_dir: /
+    links:
+      - config-server
+      - authserver
+      - eureka
+      - mongodb
+    ports:
+      - "8081:8081"
+    entrypoint: ./wait-for-it.sh config-server:8888 -t 60 --
+    command: java -Dspring.profiles.active=docker -jar /app.jar
+  recommendations:
+    build: microservices-recommendations/.
+    working_dir: /
+    links:
+      - config-server
+      - authserver
+      - eureka
+      - neo4j
+    ports:
+      - "8082:8082"
+    entrypoint: ./wait-for-it.sh config-server:8888 -t 60 --
+    command: java -Dspring.profiles.active=docker -jar /app.jar
+  orders:
+    build: microservices-orders/.
+    working_dir: /
+    links:
+      - config-server
+      - authserver
+      - eureka
+    ports:
+      - "8083:8083"
+    entrypoint: ./wait-for-it.sh config-server:8888 -t 60 --
+    command: java -Dspring.profiles.active=docker -jar /app.jar
+  gateway:
+    build: microservices-api-gateway/.
+    working_dir: /
+    links:
+      - config-server
+      - authserver
+      - eureka
+    ports:
+      - "9000:9000"
+    entrypoint: ./wait-for-it.sh config-server:8888 -t 60 --
+    command: java -Dspring.profiles.active=docker -jar /app.jar

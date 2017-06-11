@@ -1,0 +1,41 @@
+version: '2'
+services:
+  datastore:
+    image: busybox
+    volumes:
+      - ./docker/mysql/volumes:/var/lib/mysql
+
+  db:
+    build:
+      context: .
+      dockerfile: ./docker/mysql/Dockerfile
+    ports:
+      - '3306:3306'
+    volumes_from:
+      - datastore
+    depends_on:
+      - datastore
+    extends:
+      file: ./docker/mysql/password.yml
+      service: password
+
+  web:
+    build:
+      context: .
+      dockerfile: ./docker/rails/Dockerfile
+    command: bash -c "rm -f ./tmp/pids/server.pid && bundle exec rails s -p 3000 -b '0.0.0.0'"
+    # command: bundle exec rails s -p 3000 -b '0.0.0.0'
+    ports:
+      - '3000:3000'
+    volumes:
+      - .:/justinlab
+    volumes_from:
+      - datastore
+    links:
+      - db
+      - db:database
+    depends_on:
+      - db
+    extends:
+      file: ./docker/mysql/password.yml
+      service: password

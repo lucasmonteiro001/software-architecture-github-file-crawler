@@ -1,0 +1,17 @@
+db:
+  image: mongo
+  ports:
+    - 27017:27017
+
+web:
+  image: danieldent/meteor
+  links:
+    - db:db
+  ports:
+    - 3000:3000
+  environment:
+    - MONGO_URL=mongodb://db:27017/meteor
+    - ROOT_URL=http://meteor.local:3000
+  volumes:
+    - ./:/app
+  command: meteor

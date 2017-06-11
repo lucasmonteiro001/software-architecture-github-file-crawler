@@ -1,0 +1,32 @@
+data:
+  # The Data Volume Container used to mount a volume to store our persistent data
+  # https://docs.docker.com/userguide/dockervolumes/#creating-and-mounting-a-data-volume-container
+  image: itzg/minecraft-server
+  volumes:
+    # Mount this path as a volume to store our Minecraft files
+    - /data
+  command: /bin/true
+    # Run a trivial command to exit quickly. Volumes don't need a running container.
+
+minecraft:
+  image: itzg/minecraft-server
+
+  container_name: minecraft
+
+  volumes_from:
+    # Mount the volumes from the data container to store our Minecraft files
+    - data
+
+  ports:
+    - "25565:25565"
+
+  environment:
+    MOTD: "Rack World"
+    VERSION: LATEST
+    EULA: TRUE
+    TYPE: FORGE
+    OPS: toeindra
+
+  tty: true
+  stdin_open: true
+  restart: always

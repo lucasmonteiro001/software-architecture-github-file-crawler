@@ -1,0 +1,28 @@
+app:
+  image: tianon/true
+  volumes:
+    - ../:/code
+
+mysql:
+  image: mysql
+  environment:
+    MYSQL_ROOT_PASSWORD: pass
+    MYSQL_DATABASE: symfony
+
+php:
+  build: php
+  volumes_from:
+    - app
+  ports:
+    - 9000:9000
+  links:
+    - mysql
+
+nginx:
+  build: nginx
+  volumes_from:
+      - app
+  ports:
+      - 80:80
+  links:
+    - php

@@ -1,0 +1,10 @@
+ferm:
+    image: ${REGISTRY}/ferm
+    container_name: ferm 
+    ports: []
+    volumes: 
+        - "./ferm.conf:/etc/ferm.conf"
+    net: none
+    restart: always
+    cap_add: [NET_ADMIN]
+    

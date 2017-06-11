@@ -1,0 +1,10 @@
+version: '2'
+
+services:
+  brillioncore:
+    image: username/brillioncore
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "11300:11300"

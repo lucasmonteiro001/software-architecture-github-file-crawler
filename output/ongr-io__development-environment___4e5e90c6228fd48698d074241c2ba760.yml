@@ -1,0 +1,48 @@
+version: '2'
+services:
+  elasticsearch:
+    image: elasticsearch:2
+    volumes_from:
+      - "elasticsearch-data"
+  elasticsearch-data:
+    image: tianon/true
+    volumes:
+      - /usr/share/elasticsearch/data
+  nginx:
+    image: ongr/nginx
+    links:
+      - fpm
+    ports:
+      - "8000:80"
+    volumes:
+      - "./:/var/www"
+  fpm:
+    image: ongr/php-fpm
+    user: "1000:1000"
+    links:
+      - mariadb
+      - elasticsearch
+    volumes:
+      # Uncomment if you want cache composer stuff
+      #- ".docker/.composer:/.composer"
+      - ".docker:/home"
+      - "./:/var/www"
+  npm:
+    image: ongr/nodejs:6.4.0
+    user: "1000:1000"
+    volumes:
+      - ".docker/.npm:/home/.npm"
+      - "./:/home/app"
+      - "/usr/local/lib/node_modules"
+  mariadb-data:
+    image: tianon/true
+    volumes:
+      - /var/lib/mysql
+  mariadb:
+    image: mariadb:10.1.10
+    ports:
+      - "3300:3306"
+    volumes_from:
+      - "mariadb-data"
+    environment:
+        MYSQL_ROOT_PASSWORD: root

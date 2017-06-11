@@ -1,0 +1,14 @@
+version: '2'
+
+services:
+  db:
+    image: mysql
+    volumes:
+      - ./mysql:/etc/mysql/conf.d:ro
+
+  web:
+    build: ./web
+    depends_on:
+      - db
+    volumes:
+      - /static

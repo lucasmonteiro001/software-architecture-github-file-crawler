@@ -1,0 +1,17 @@
+mumble:
+  image: viljaste/mumble:latest
+  hostname: mumble
+  restart: always
+  ports:
+    - "64738:64738"
+  volumes_from:
+    - mumbledata
+  environment:
+    - SUPW=SuperUser
+    - SERVERPASSWORD=
+    - USERS=100
+mumbledata:
+  image: viljaste/data:latest
+  hostname: mumbledata
+  volumes:
+    - /mumble

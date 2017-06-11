@@ -1,0 +1,70 @@
+web-app:
+  build: ./web-app
+  ports:
+    - "3000"
+  environment:
+    SERVICE_NAME: web-app
+    SERVICE_TAGS: web-app-production
+
+consul:
+  command: -server -bootstrap
+  image: progrium/consul:latest
+  ports:
+    - "8400:8400"
+    - "8500:8500"
+    - "8600:53/udp"
+    - "172.17.0.1:53:53/udp"
+
+registrator:
+  command:  -ip=192.168.99.100 consul://consul:8500
+  image: gliderlabs/registrator:latest
+  volumes:
+    - "/var/run/docker.sock:/tmp/docker.sock"
+  links:
+    - consul
+
+load_balancer:
+  build: ./load_balancer
+  links:
+    - consul
+  ports:
+    - "8080:80"
+  environment:
+    CONSUL_URL: consul:8500
+  volumes:
+    - ./load_balancer/consul-template:/etc/consul-template      
+
+postgres:
+  image: postgres
+  environment:
+    POSTGRES_PASSWORD: postgres
+    LC_ALL: C.UTF-8
+  ports:
+    - 5432:5432
+  volumes_from:
+    - data
+  hostname: 'postgres-node'
+
+rabbitmq:
+  image: rabbitmq:3-management
+  environment:
+    RABBITMQ_DEFAULT_VHOST: "production"
+    RABBITMQ_DEFAULT_USER: "guest"
+    RABBITMQ_DEFAULT_PASS: "guest"
+  ports:
+    - 5672:5672
+    - 15672:15672
+  hostname: 'amqp-node'
+
+redis:
+  image: mini/redis
+  ports:
+  - "6379:6379" 
+  hostname: 'redis-node'
+
+data:
+  image: cogniteev/echo
+  command: echo 'Data Container for PostgreSQL instance'
+  volumes:
+    - /var/lib/postgresql/data 
+  hostname: 'data-node'    

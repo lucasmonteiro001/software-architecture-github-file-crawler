@@ -1,0 +1,47 @@
+# https://docs.docker.com/compose/compose-file/
+version: '2'
+
+services:
+  web-server:
+    build: .
+    image: hashtag-viewer
+    command: ["dist/build/WebServer/WebServer", "--bind", "0.0.0.0", "--root", "./public/", "--port", "8001"]
+    container_name: hashtag-viewer-web-server
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: '3'
+    ports:
+      - "8001:8001"
+    depends_on:
+      - random-tweet-server
+      - twitter-poller
+  random-tweet-server:
+    build: .
+    image: hashtag-viewer
+    container_name: hashtag-viewer-tweet-server
+    command: ["dist/build/RandomTweetServer/RandomTweetServer", "--bind", "0.0.0.0"]
+    volumes:
+      - ./tweets.db:/opt/app/tweets.db
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: '3'
+    # TODO: add in haproxy container, expose ports instead of map them
+    ports:
+      - "8000:8000"
+  twitter-poller:
+    build: .
+    image: hashtag-viewer
+    command: dist/build/TwitterPoller/TwitterPoller
+    container_name: hashtag-viewer-twitter-poller
+    volumes:
+      - ./tweets.db:/opt/app/tweets.db
+      - ./private:/opt/app/private:ro
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: '3'

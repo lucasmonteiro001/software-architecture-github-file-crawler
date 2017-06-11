@@ -1,0 +1,34 @@
+version: '2'
+services:
+  articlemeta-restfulapi:
+    image: scieloorg/articles_meta:release-1.19.12
+    environment:
+      ADMIN_TOKEN:
+      LOGGING_LEVEL: DEBUG
+      MONGODB_HOST: 
+      SENTRY_DSN: 
+    command:
+        - gunicorn
+        - --paste
+        - config.ini
+        - -w
+        - '4'
+        - -b
+        - 0.0.0.0
+    labels:
+      io.rancher.container.pull_image: always
+  articlemeta-thriftserver:
+    image: scieloorg/articles_meta:release-1.19.12
+    environment:
+      ADMIN_TOKEN:
+      LOGGING_LEVEL: DEBUG
+      MONGODB_HOST: 
+      SENTRY_DSN: 
+    command:
+        - articlemeta_thriftserver
+        - --port
+        - '11620'
+        - --host
+        - 0.0.0.0
+    labels:
+      io.rancher.container.pull_image: always

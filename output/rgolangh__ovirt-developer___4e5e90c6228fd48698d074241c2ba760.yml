@@ -1,0 +1,24 @@
+developer:
+  build: .
+  ports:
+   - "8080:8080"
+   - "8787:8787"
+   - "8443:8443"
+  volumes:
+   - ./src:/home/ovirt/src/ovirt-engine
+   - /tmp/.X11-unix:/tmp/.X11-unix
+   - $HOME/.Xauthority:/home/ovirt/.Xauthority
+  links:
+   - db
+  working_dir: /home/ovirt/src/ovirt-engine
+  user: ovirt
+  environment:
+    - DISPLAY
+  entrypoint: /bin/bash
+db:
+  image: docker.io/fedora/postgresql
+  hostname: db
+  volumes:
+   - ./db:/var/lib/pgsql/data
+  environment:
+   - POSTGRESQL_ADMIN_PASSWORD=postgres

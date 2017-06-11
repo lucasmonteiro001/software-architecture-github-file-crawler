@@ -1,0 +1,6 @@
+Ldap:
+  image: jpbarto/ldap:latest
+  ports:
+    - "389:389/tcp"
+    - "636:636/tcp"
+  restart: always

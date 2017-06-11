@@ -1,0 +1,17 @@
+web:
+  build: ./source
+  command: python app.py
+  ports:
+   - "5000:5000"
+  volumes:
+   - ./source:/code
+  links:
+   - redis
+graphite:
+  image: cooniur/grafana_graphite:latest
+  ports:
+  - "80:80"
+  - "2003:2003"
+  - "8125:8125/udp"
+redis:
+  image: redis

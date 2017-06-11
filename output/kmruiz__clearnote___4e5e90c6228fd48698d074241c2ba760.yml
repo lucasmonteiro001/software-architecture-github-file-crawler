@@ -1,0 +1,12 @@
+clearnote:
+  build: ./
+  ports:
+    - "8080:8080"
+    - "2000:2000"
+  links:
+    - "mongo:mongo.service"
+
+mongo:
+  image: mongo:3
+  expose:
+    - "27017:27017"

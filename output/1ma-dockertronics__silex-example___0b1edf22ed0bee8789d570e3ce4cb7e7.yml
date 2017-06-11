@@ -1,0 +1,26 @@
+version: '2'
+services:
+  web:
+    image: nginx:1.10-alpine
+    depends_on:
+      - app
+    ports:
+      - '80:80'
+    volumes:
+      - ./etc/docker/dev/nginx/conf.d:/etc/nginx/conf.d
+    volumes_from:
+      - app
+    working_dir: /var/www/silex.dev/web
+  ass_watcher:
+    image: 1maa/nodetools:4.x
+    command: sh -c "while true; do date; sleep 300; done"
+    volumes_from:
+      - app
+    working_dir: /var/www/silex.dev/ass
+  app:
+    image: 1maa/php-dev:7.0
+    ports:
+      - '2222:22'
+    volumes:
+      - .:/var/www/silex.dev
+    working_dir: /var/www/silex.dev

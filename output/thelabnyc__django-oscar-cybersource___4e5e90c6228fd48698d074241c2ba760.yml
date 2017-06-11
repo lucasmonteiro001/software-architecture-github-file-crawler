@@ -1,0 +1,10 @@
+postgres:
+  image: postgres:9.4
+
+test:
+  build: .
+  command: env
+  links:
+    - postgres
+  volumes:
+    - .:/code

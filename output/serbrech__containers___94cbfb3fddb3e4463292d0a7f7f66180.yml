@@ -1,0 +1,10 @@
+web:
+    image: steph/node
+    ports:
+        - "5001"
+balancer:
+    image: tutum/haproxy
+    links:
+      - "web"
+    ports:
+      - "5000:80"

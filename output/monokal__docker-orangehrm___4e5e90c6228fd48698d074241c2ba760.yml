@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# Name:          docker-compose.yml
+# Description:   Docker Compose file to bring up OrangeHRM.
+# Maintainer:    Daniel Middleton - d@monokal.io
+# Documentation: See README.md
+
+orangehrm-db:
+  image: mysql:5.7
+#  volumes:
+#    - ./data:/var/lib/mysql
+  environment:
+    MYSQL_ROOT_PASSWORD: rootpass
+    MYSQL_DATABASE:      orangehrm
+    MYSQL_USER:          orangehrm
+    MYSQL_PASSWORD:      orangehrmpass
+
+orangehrm-app:
+  image: php:5.6-apache
+  volumes:
+    - ./www:/var/www/html
+  ports:
+    - "80:80"
+  links:
+    - orangehrm-db

@@ -1,0 +1,45 @@
+version: "2.0"
+services:
+  database:
+    image: sameersbn/postgresql:9.5-2
+    restart: always
+    environment:
+      - DEBUG=false
+      - DB_USER
+      - DB_PASS
+      - DB_NAME
+      - PG_PASSWORD
+    volumes:
+      - ./postgresql:/var/lib/postgresql
+    ports:
+      - "5432:5432"
+  website:
+    build:
+      context: .
+      dockerfile: ./deployment/Dockerfile.web
+    environment:
+      - SERVER_PORT=3000
+      - DB_PORT=5432
+      - DB_HOST=database
+      - DB_USER
+      - DB_PASS
+      - DB_NAME
+      - DB_PASSWD=${DB_PASS}
+      - EMAIL_USER
+      - EMAIL_PASSWD
+      - EMAIL_HOST
+      - ENVIRONMENT
+    links:
+      - database
+    ports:
+      - "3000:3000"
+    working_dir: /opt/server
+  nginx:
+    build:
+      context: ./
+      dockerfile: ./deployment/Dockerfile.nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    links:
+      - website

@@ -1,0 +1,48 @@
+version: '2'
+
+services:
+
+  node:
+    container_name: strawb-node
+    image: 486484741372.dkr.ecr.ap-southeast-2.amazonaws.com/strawberry-ice-cream
+    build: .
+    volumes:
+      - .:/usr/app
+    # environment:
+    #   - NODE_ENV=development
+    ports:
+      - '80:3000'
+    networks:
+      - strawb-network
+    depends_on:
+      - 'mongodb'
+
+  #No authentication is provided here - just a demo! Read the Dockerfile
+  #for more information about adding authentication.
+  mongodb:
+    container_name: strawb-mongo
+    image: mongo
+    volumes:
+    #   - ./db:/data/db
+      - strawb-data:/data/db
+    # command:
+    #   - echo 'running after volumes (2)'
+    ports:
+      - '27017:27017'
+    networks:
+      - strawb-network
+    # command: bash -c echo 'custom mongo command'
+    # command:
+    #   - bash -c echo 'custom mongo command'
+
+  # database:
+  #   container_name: strawb-data
+
+
+networks:
+  strawb-network:
+    driver: bridge
+
+volumes:
+    strawb-data:
+        driver: 'local'

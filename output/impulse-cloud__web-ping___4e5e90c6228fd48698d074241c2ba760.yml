@@ -1,0 +1,13 @@
+web:
+  image: tutum/hello-world:latest
+  ports:
+    - "80"
+
+pingclient:
+  build: .
+  environment:
+    - PYTHONUNBUFFERED=0
+  ports:
+    - "80:80"
+  links:
+    - web

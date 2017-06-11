@@ -1,0 +1,69 @@
+version: '2.1'
+services:
+  postgres:
+    image: quay.io/azavea/postgis:postgres9.5-postgis2.2
+    volumes:
+      - ./data/:/tmp/data/
+    env_file: .env
+    expose:
+      - "5432"
+
+  memcached:
+    image: memcached:1.4-alpine
+    command: -I 5242880b
+
+  nginx:
+    image: raster-foundry-nginx
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    ports:
+      - "9100:443"
+    extra_hosts:
+      - "airflow-flower:127.0.0.1"
+      - "airflow-webserver:127.0.0.1"
+    links:
+      - api-server
+      - tile-server
+    volumes:
+      - ./nginx/srv/dist/:/srv/dist/
+      - ./nginx/etc/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/etc/nginx/includes/:/etc/nginx/includes/
+      - ./nginx/etc/nginx/conf.d/:/etc/nginx/conf.d/
+
+  api-server:
+    image: openjdk:8-jre
+    links:
+      - postgres:database.service.rasterfoundry.internal
+    external_links:
+      - airflow-webserver:airflow.service.rasterfoundry.internal
+    env_file: .env
+    ports:
+      - "9000:9000"
+    volumes:
+      - ./app-backend/:/opt/raster-foundry/app-backend/
+      - ./.sbt:/root/.sbt
+      - ./.bintray:/root/.bintray
+      - $HOME/.aws:/root/.aws:ro
+    working_dir: /opt/raster-foundry/app-backend/
+    environment:
+      - AIRFLOW_SERVER_LOCATION=http://airflow.service.rasterfoundry.internal:8080
+    entrypoint: ./sbt
+    command: api/run
+
+  tile-server:
+    image: openjdk:8-jre
+    links:
+      - postgres:database.service.rasterfoundry.internal
+      - memcached:tile-cache.service.rasterfoundry.internal
+    env_file: .env
+    ports:
+      - "9900:9900"
+    volumes:
+      - ./app-backend/:/opt/raster-foundry/app-backend/
+      - ./.sbt:/root/.sbt
+      - ./.bintray:/root/.bintray
+      - $HOME/.aws:/root/.aws:ro
+    working_dir: /opt/raster-foundry/app-backend/
+    entrypoint: ./sbt
+    command: tile/run

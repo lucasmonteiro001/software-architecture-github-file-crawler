@@ -1,0 +1,33 @@
+db:
+  image: geographica/postgis:postgresql-9.3.5-postgis-2.1.7-gdal-1.11.2-patched
+  ports:
+    - "5435:5432"
+
+sourcegeoserver:
+  image: geographica/geoserver:v2.8.1
+  ports:
+    - "8084:8080"
+  links:
+    - db
+
+destinationgeoserver:
+  image: geographica/geoserver:v2.8.1
+  ports:
+    - "8085:8080"
+  links:
+    - db
+
+python-dev:
+  image: geographica/python_development:2.7.11
+  environment:
+    - APT_PACKAGES=libpq-dev
+    - PIP_PACKAGES=ipython;psycopg2;pytest;requests;ipdb;colour
+    - CONTAINER_USER_UID=1000
+    - CONTAINER_GROUP_ID=1000
+    - ADDTOPYPATH=/GeoServer-Python-REST-API/src
+  volumes:
+    - /home/git/GeoServer-Python-REST-API/:/GeoServer-Python-REST-API/
+  links:
+    - db
+    - sourcegeoserver
+    - destinationgeoserver

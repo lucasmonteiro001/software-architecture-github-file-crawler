@@ -1,0 +1,27 @@
+version: '2'
+services:
+  jenkinsmaster:
+    build: ./master
+    restart: always
+    environment:
+     JAVA_OPTS: "-Djava.awt.headless=true"
+    ports:
+     - "8080:8080"
+     - "5000:5000"
+    links:
+     - monoslave
+     - androidslave
+    depends_on:
+     - monoslave
+     - androidslave
+    volumes:
+     - /srv/docker/jenkins/master:/home/jenkins/jenkins_data
+    image: jenkinsmaster:2
+  androidslave:
+    build: ./android-slave
+    restart: always
+    image: androidslave:24
+  monoslave:
+    build: ./mono-slave
+    restart: always
+    image: monoslave:4

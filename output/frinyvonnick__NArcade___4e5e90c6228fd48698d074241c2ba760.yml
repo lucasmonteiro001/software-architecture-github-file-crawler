@@ -1,0 +1,17 @@
+narcade:
+  build: .
+  links:
+    - api:api
+  ports:
+    - "3000:80"
+api:
+  build: ../narcade-api/
+  links:
+    - bot:bot
+  ports:
+    - "4000:4000"
+bot:
+  build: ../narcade-bot/
+  environment:
+    - SLACK_TOKEN=${SLACK_TOKEN}
+    - NARCADE_API=${NARCADE_API}

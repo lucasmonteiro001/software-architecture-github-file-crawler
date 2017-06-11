@@ -1,0 +1,42 @@
+registry-datavolume:
+  labels:
+    io.rancher.container.start_once: 'true'
+    io.rancher.container.hostname_override: container_name
+  entrypoint:
+    - /bin/true
+  image: busybox
+  volumes:
+    - /var/lib/registry
+
+registry:
+  restart: always
+  image: registry:2.4
+ # expose: 5000
+  ports:
+    - 5000:5000
+  volumes_from:
+    - registry-datavolume
+  labels:
+    io.rancher.container.pull_image: always
+    io.rancher.sidekicks: registry-datavolume
+    io.rancher.container.hostname_override: container_name
+
+registry-frontend:
+  restart: always
+  image: konradkleine/docker-registry-frontend:v2
+  ports:
+    - 5001:80
+  environment:
+    ENV_DOCKER_REGISTRY_HOST: registry
+    ENV_DOCKER_REGISTRY_PORT: 5000
+    ENV_REGISTRY_PROXY_FQDN: dockerregistry
+    ENV_REGISTRY_PROXY_PORT: 5000
+    ENV_DEFAULT_REPOSITORIES_PER_PAGE: 50
+    ENV_DEFAULT_TAGS_PER_PAGE: 10
+  links:
+    - registry
+  labels:
+    io.rancher.container.pull_image: always
+    io.rancher.sidekicks: registry
+    io.rancher.container.hostname_override: container_name
+

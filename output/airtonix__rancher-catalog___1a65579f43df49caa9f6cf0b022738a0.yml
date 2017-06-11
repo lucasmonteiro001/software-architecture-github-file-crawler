@@ -1,0 +1,42 @@
+version: "2"
+services:
+
+  db:
+    image: postgres:9.5
+    environment:
+      POSTGRES_DB: concourse
+      POSTGRES_USER: ${CONCOURSE_DB_USERNAME}
+      POSTGRES_PASSWORD: ${CONCOURSE_DB_PASSWORD}
+      PGDATA: /database
+    volumes:
+      - "${CONCOURSE_STORAGE_PATH}/db:/database"
+
+  tsa:
+    image: concourse/concourse
+    command: web
+    ports:
+      - "${CONCOURSE_SSH_PORT}:2222"
+    expose:
+      -  "2222"
+      -  "8080"
+    volumes:
+      - "${CONCOURSE_STORAGE_PATH}/keys/tsa:/concourse-keys"
+    environment:
+      CONCOURSE_BASIC_AUTH_USERNAME: ${CONCOURSE_BASICAUTH_ADMIN_USERNAME}
+      CONCOURSE_BASIC_AUTH_PASSWORD: ${CONCOURSE_BASICAUTH_ADMIN_PASSWORD}
+      CONCOURSE_EXTERNAL_URL: ${CONCOURSE_SUBDOMAIN}.${CONCOURSE_PARENT_DOMAIN}
+      CONCOURSE_POSTGRES_DATA_SOURCE: postgres://${CONCOURSE_DB_USERNAME}:${CONCOURSE_DB_PASSWORD}@db:5432/concourse?sslmode=disable
+    labels:
+      traefik.enable: true
+      traefik.port: "8080"
+      traefik.domain: ${CONCOURSE_PARENT_DOMAIN}
+      traefik.alias: ${CONCOURSE_SUBDOMAIN}
+
+  worker:
+    image: concourse/concourse
+    privileged: true
+    command: worker
+    volumes:
+      - "${CONCOURSE_STORAGE_PATH}/keys/worker:/concourse-keys"
+    environment:
+      CONCOURSE_TSA_HOST: tsa

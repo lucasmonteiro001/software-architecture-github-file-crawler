@@ -1,0 +1,30 @@
+naturalmission-mysql:
+  image: mysql:5.7
+  container_name: naturalmission-mysql
+  environment:
+    - MYSQL_ROOT_PASSWORD=password
+    - MYSQL_DATABASE=db
+    - MYSQL_USER=user
+    - MYSQL_PASSWORD=password
+
+# @TODO: mount only web and vendor folders and composer.json?.
+naturalmission-webserver:
+  image: phpdockerio/nginx:latest
+  container_name: naturalmission-webserver
+  volumes:
+      - .:/var/www/naturalmission
+      - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+  ports:
+   - "9000:80"
+  links:
+   - naturalmission-php-fpm
+
+naturalmission-php-fpm:
+  build: .
+  dockerfile: docker/php-fpm/Dockerfile
+  container_name: naturalmission-php-fpm
+  volumes:
+    - .:/var/www/naturalmission
+    - ./docker/php-fpm/php-ini-overrides.ini:/etc/php/7.0/fpm/conf.d/99-overrides.ini
+  links:
+    - naturalmission-mysql

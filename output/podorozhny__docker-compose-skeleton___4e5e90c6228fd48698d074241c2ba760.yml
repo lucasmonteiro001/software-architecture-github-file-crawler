@@ -1,0 +1,40 @@
+app-data:
+    image: ubuntu:latest
+    volumes:
+        - ./app/database:/var/lib/mysql:rw
+        - ./app/logs/mysql:/var/log/mysql:rw
+        - ./app/logs/nginx:/var/log/nginx:rw
+        - ./app/logs/php:/var/log/php5-fpm:rw
+        - ./app/sessions:/var/app/sessions:rw
+        - ./app/tmp:/var/app/tmp:rw
+        - ./app/web:/var/app/web:rw
+    restart: always
+mysql:
+    build: ./images/mysql
+    ports:
+        - 33306:3306
+    volumes_from:
+        - app-data
+    env_file:
+        - ./mysql.env
+    restart: always
+php:
+    build: ./images/php
+    ports:
+        - 9000:9000
+    links:
+        - mysql:mysql
+    volumes_from:
+        - app-data
+    restart: always
+nginx:
+    build: ./images/nginx
+    hostname: docker-compose-test.dev
+    ports:
+        - 80:80
+        - 443:443
+    links:
+        - php:php
+    volumes_from:
+        - app-data
+    restart: always

@@ -1,0 +1,36 @@
+storage: 
+  image: busybox 
+  volumes: 
+    - /opt/data/registry:/var/lib/docker/registry 
+  command: true
+backend: 
+  image: registry 
+  ports: 
+    - 127.0.0.1:5001:5000
+  links: 
+    - storage 
+  volumes_from: 
+    - storage
+  environment: 
+    SETTINGS_FLAVOR: local 
+    STORAGE_PATH: /var/lib/docker/registry 
+frontend: 
+  image: konradkleine/docker-registry-frontend 
+  links:
+    - backend
+  ports: 
+    - 127.0.0.1:5080:80 
+  environment: 
+    ENV_DOCKER_REGISTRY_HOST: backend 
+    ENV_DOCKER_REGISTRY_PORT: 5000
+expose:
+  build: docker-registry-proxy-apache
+  links:
+    - frontend
+    - backend
+  ports:
+    - 5000:443
+  environment:
+    - PROXY_HOSTNAME=reg.your.domain
+  volumes:
+    - certs/:/srv/certs

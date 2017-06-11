@@ -1,0 +1,13 @@
+web:
+  image: clastic/nginx-dev
+  ports:
+    - 80:80
+  links:
+    - php
+  volumes:
+    - .:/var/www/html
+
+php:
+  image: clastic/php-dev:5.6
+  volumes:
+    - .:/var/www/html

@@ -1,0 +1,29 @@
+haproxy:
+  image: "tutum/haproxy"
+  links:
+    - "shadowsocks_1"
+    - "shadowsocks_2"
+  ports:
+    - "80:80"
+  environment:
+    - MODE=tcp
+
+shadowsocks_1:
+  image: "shadowsocks/shadowsocks-libev"
+  expose:
+    - "8338"
+  volumes:
+    - "/var/log:/var/log"
+  command:
+    "-k <PASSWORD> -m aes-256-cfb -vv"
+
+
+shadowsocks_2:
+  image: "shadowsocks/shadowsocks-libev"
+  expose:
+    - "8338"
+  volumes:
+    - "/var/log:/var/log"
+  command:
+    "-k <PASSWORD> -m aes-256-cfb -vv"
+

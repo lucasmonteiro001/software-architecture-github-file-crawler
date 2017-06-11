@@ -1,0 +1,13 @@
+cache:
+        image: devoops/varnish.basic.app.php
+        links:
+                - gateway
+        ports:
+                - "80:80"
+gateway:
+        image: devoops/nginx.basic.app.php
+        links:
+                - web
+web:
+        image: devooops/php-fpm.basic.app.php
+

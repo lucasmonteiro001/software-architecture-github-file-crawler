@@ -1,0 +1,18 @@
+redis:
+  image: redis:3.2.7-alpine
+  container_name: redis
+  hostname: redis
+  expose:
+    - "6379"
+
+tester:
+  image: makeomatic/node:7.5.0
+  links:
+    - redis
+  working_dir: /src
+  volumes:
+    - ${PWD}:/src
+  environment:
+    NODE_ENV: "docker"
+    DEBUG: ${DEBUG}
+  command: 'tail -f /dev/null'

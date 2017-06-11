@@ -1,0 +1,17 @@
+es:
+  image: elasticsearch
+  ports:
+    - "9200:9200"
+    - "9300:9300"
+
+panoptes:
+  dockerfile: Dockerfile
+  build: ./
+  volumes:
+    - ./csv_data:/home/ubuntu/csv_data
+  # ports:
+  #   - "3000:80"
+  # environment:
+  #   RAILS_ENV: development
+  links:
+    - elasticsearch

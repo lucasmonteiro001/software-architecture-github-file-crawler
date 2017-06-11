@@ -1,0 +1,19 @@
+clvitradata:
+    container_name: clvitra-data
+    image: learninglayers/clvitra-data:0.0.6
+    env_file:
+        - common.env
+        - services/clvitra/clvitra.env
+clvitra:
+    container_name: clvitra
+    image: learninglayers/clvitra:0.0.7
+    volumes_from:
+        - clvitradata
+    env_file:
+        - common.env
+        - services/clvitra/clvitra.env
+    links:
+        - mysql
+    actions:
+        - create_databases: [clvitra.env]
+        - create_oidcclients: [clvitra.env]

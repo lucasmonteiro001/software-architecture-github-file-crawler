@@ -1,0 +1,53 @@
+version: '2'
+services:
+  monomorphist:
+    build:
+      context: ./meteor-docker-image
+      dockerfile: Dockerfile
+    expose:
+      - 80
+    env_file:
+      - meteor.env.prod
+    volumes:
+      - /home/vhf/.docker/config.json:/root/.docker/config.json
+      - ../mononodes/:/mononodes
+      - ../irhydra/irhydra/build/web:/irhydra
+      - ../d8-artifacts:/d8-artifacts
+      - ../monod8:/monod8
+      - ../volume/src/:/src
+      - ../monomorphist.tar.gz:/bundle.tar.gz
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./run_app.sh:/opt/meteord/run_app.sh
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: always
+    labels:
+      - "traefik.backend=monomorphist"
+      - "traefik.backend.loadbalancer.method=drr"
+      - "traefik.backend.loadbalancer.sticky=true"
+      - "traefik.backend.circuitbreaker.expression=ResponseCodeRatio(500, 600, 0, 600) > 0.4"
+      - "traefik.docker.network=monomorphist_default"
+      - "traefik.frontend.rule=Host:mono.morph.ist"
+      - "traefik.port=80"
+    links:
+      - "mongodb:mongodb"
+
+  mongodb:
+    image: mongo:3.2
+    expose:
+      - "27017"
+    volumes:
+      - ../mongodata:/data/db
+      - ../volume/src:/src
+    restart: always
+    labels:
+      - "traefik.docker.network=monomorphist_default"
+    logging:
+      driver: "syslog"
+      options:
+        syslog-address: "udp://localhost:5000"
+        tag: "monomorphist-mongo"
+
+networks:
+  default:
+    external:
+      name: traefik_traefik_enabled

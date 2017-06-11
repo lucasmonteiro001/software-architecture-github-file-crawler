@@ -1,0 +1,21 @@
+db:
+    image: postgres
+    volumes:
+        - /var/lib/postgresql/data
+    environment:
+        - POSTGRES_USER=oposm_db_usr
+        - POSTGRES_DB=oposm_db
+    ports:
+        - "8080:5432"
+web:
+    build: .
+    volumes:
+        - .:/oPOSum/
+        - ./.db:/db
+    ports:
+        - "9000:9000"
+    links:
+        - db
+    command: ./manage.py runserver 0.0.0.0:9000
+    #command: ./manage.py migrate --fake-initial
+

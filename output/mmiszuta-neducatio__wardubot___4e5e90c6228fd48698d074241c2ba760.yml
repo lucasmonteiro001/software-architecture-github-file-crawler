@@ -1,0 +1,17 @@
+version: '2'
+
+services:
+  app:
+    container_name: node-wardubot
+    image: node:latest
+    environment:
+      - SLACKBOT_TOKEN=
+      - CLOUDINARY_NAME=
+      - CLOUDINARY_KEY=
+      - CLOUDINARY_SECRET=
+    volumes:
+      - ".:/wardubot" 
+    working_dir: /wardubot
+    command: bash -c "npm install &&  npm install -g forever && forever app.js"
+    tty: true
+    stdin_open: true

@@ -1,0 +1,221 @@
+---
+##
+# Configuration of docker compose.
+# Link and run related images.
+#
+
+version: '2'
+
+services:
+  #- REST API server -#
+  virtuoso-api:
+    image: coffeine/virtuoso-api
+    build:
+      context: .
+    environment:
+      DB_HOST: postgres
+    ports:
+     - "8080:8080"
+  #  volumes:
+  #    - .:/usr/src/virtuoso
+    links:
+      - postgres
+      - storage
+
+  #- Storage :: REST API server -#
+  storage:
+    image: coffeine/storage
+    build:
+      context: ../Storage
+    environment:
+      DB_HOST: mongodb
+    ports:
+      - 8081:8080
+    links:
+      - mongodb
+      - config
+      - rabbitmq
+
+  #- Infrastructure :: Support servers -#
+  #- Configuration -#
+  config:
+    image: coffeine/config
+    build:
+      context: ../Config
+    environment:
+      VCAP_APPLICATION_PORT: 8888
+    ports:
+      - "8888:8888"
+    links:
+      - discovery
+      - rabbitmq
+
+  #- Discovery -#
+  discovery:
+    image: coffeine/discovery
+    build:
+      context: ../Discovery
+    environment:
+      VCAP_APPLICATION_PORT: 8761
+    ports:
+      - "8761:8761"
+    links:
+      - rabbitmq
+
+  auth:
+    image: coffeine/auth
+    build:
+      context: ../Auth
+    environment:
+      DB_HOST: postgres
+    ports:
+      - "8080"
+    links:
+      - config
+      - postgres
+      - rabbitmq
+
+  edge:
+    image: coffeine/edge
+    build:
+      context: ../Edge
+    ports:
+      - "8080"
+    links:
+      - config
+      - rabbitmq
+      - auth
+
+  #- Database -#
+  postgres:
+    image: postgres:9.6
+    volumes:
+      - local_postgres:/var/lib/postgresql/data
+    ports:
+     - "5432:5432"
+    environment:
+      POSTGRES_DB: "virtuoso"
+      POSTGRES_USER: "virtuoso"
+      POSTGRES_PASSWORD: "virtuoso"
+      PGDATA: "/var/lib/postgresql/data"
+
+  #- JMS :: RabitMQ -#
+  rabbitmq:
+    image: rabbitmq:3.6
+    environment:
+      RABBITMQ_DEFAULT_USER: virtuoso
+      RABBITMQ_DEFAULT_PASS: virtuoso
+    ports:
+      - "5672"
+
+  #- Database :: Sharded cluster -#
+  #- Router :: #1 -#
+  mongodb:
+    image: coffeine/mongo
+    ports:
+      - 27017
+    links:
+      - mongodb_config_0
+      - mongodb_config_1
+      - mongodb_config_2
+    command: mongos --keyFile /tmp/keyfile --configdb configSet/mongodb_config_0:27019,mongodb_config_1:27019,mongodb_config_2:27019
+
+  #- Config servers -#
+  #- ReplicaSet :: #1 -#
+  mongodb_config_0:
+    image: coffeine/mongo
+    ports:
+      - 27019
+    volumes:
+      - mongo_config_0:/data/configdb
+    command: mongod --auth --keyFile /tmp/keyfile --configsvr --replSet configSet
+
+  #- ReplicaSet :: #2 -#
+  mongodb_config_1:
+    image: coffeine/mongo
+    ports:
+      - 27019
+    volumes:
+      - mongo_config_1:/data/configdb
+    command: mongod --auth --keyFile /tmp/keyfile --configsvr --replSet configSet
+
+  #- ReplicaSet :: #3 -#
+  mongodb_config_2:
+    image: coffeine/mongo
+    ports:
+      - 27019
+    volumes:
+      - mongo_config_2:/data/configdb
+    command: mongod --auth --keyFile /tmp/keyfile --configsvr --replSet configSet
+
+  #- Shard :: #1 -#
+  #- ReplicaSet :: #1 -#
+  mongodb_0_0:
+    image: coffeine/mongo
+    ports:
+      - 27018
+    volumes:
+      - mongo_0_0:/data/db
+    command: mongod --auth --keyFile /tmp/keyfile --shardsvr --replSet music-notes
+
+  #- ReplicaSet :: #2 -#
+  mongodb_0_1:
+    image: coffeine/mongo
+    ports:
+      - 27018
+    volumes:
+      - mongo_0_1:/data/db
+    command: mongod --auth --keyFile /tmp/keyfile --shardsvr --replSet music-notes
+
+  #- ReplicaSet :: #3 -#
+  mongodb_0_2:
+    image: coffeine/mongo
+    ports:
+      - 27018
+    volumes:
+      - mongo_0_2:/data/db
+    command: mongod --auth --keyFile /tmp/keyfile --shardsvr --replSet music-notes
+
+  #- Shard :: #2 -#
+  #- ReplicaSet :: #1 -#
+  mongodb_1_0:
+    image: coffeine/mongo
+    ports:
+      - 27018
+    volumes:
+      - mongo_1_0:/data/db
+    command: mongod --auth --keyFile /tmp/keyfile --shardsvr --replSet music-files
+
+  #- ReplicaSet :: #2 -#
+  mongodb_1_1:
+    image: coffeine/mongo
+    ports:
+      - 27018
+    volumes:
+      - mongo_1_1:/data/db
+    command: mongod --auth --keyFile /tmp/keyfile --shardsvr --replSet music-files
+
+  #- ReplicaSet :: #3 -#
+  mongodb_1_2:
+    image: coffeine/mongo
+    ports:
+      - 27018
+    volumes:
+      - mongo_1_2:/data/db
+    command: mongod --auth --keyFile ./tmp/keyfile --shardsvr --replSet music-files
+
+volumes:
+  #- PostgreSQL -#
+  local_postgres:
+  #- Config -#
+  mongo_config_0:
+  mongo_config_1:
+  mongo_config_2:
+  # Shard :: #1
+  mongo_0_0:
+  mongo_0_1:
+  mongo_0_2:
+  # Shard :: #2
+  mongo_1_0:
+  mongo_1_1:
+  mongo_1_2:

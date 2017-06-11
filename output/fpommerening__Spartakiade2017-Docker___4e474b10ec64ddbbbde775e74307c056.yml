@@ -1,0 +1,16 @@
+version: "3"
+services:
+    mymongodb:
+        image: mongo:3.2
+        networks:
+            - mongomessage
+    webapp:
+        image: fpommerening/spartakiade2017-docker:mongomessage
+        ports: 
+            - 5000:5000
+        networks:
+            - mongomessage
+        depends_on:
+            - mymongodb
+networks:
+    mongomessage:

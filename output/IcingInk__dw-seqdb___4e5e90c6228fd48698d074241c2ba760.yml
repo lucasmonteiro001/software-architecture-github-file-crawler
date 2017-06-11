@@ -1,0 +1,32 @@
+fs_tomcat:
+  image: tianon/true
+  volumes:
+    - ./srv/releases:/opt/tomcat/releases
+    - ./srv/logs:/opt/tomcat/logs
+
+fs_db:
+  image: tianon/true
+  volumes:
+    - ./mysql_datadir:/var/lib/mysql:z
+    - ./mysql_shr:/shr:z
+    - ./mysql_autoload:/docker-entrypoint-initdb.d:ro
+    - ./mysql_conf.d:/etc/mysql/conf.d:z
+db:
+  image: mysql:5.6
+  environment:
+    - TZ=Europe/Stockholm
+    - MYSQL_ROOT_PASSWORD=supersecret
+    - MYSQL_DATABASE=seqdbweb
+    - MYSQL_USER=naturalist
+    - MYSQL_PASSWORD=passw0rd12
+  volumes_from:
+    - fs_db
+
+tomcat:
+  build: tomcat 
+  ports:
+    - "8080:8080"
+  links:
+   - db:db
+  volumes_from:
+  - fs_tomcat

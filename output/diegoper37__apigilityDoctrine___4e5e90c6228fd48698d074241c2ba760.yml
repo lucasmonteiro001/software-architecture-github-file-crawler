@@ -1,0 +1,32 @@
+mysql:
+ image: mysql/mysql-server:5.6
+ environment:
+ - MYSQL_ROOT_PASSWORD=mypasswd
+ - MYSQL_DATABASE=dbapp
+ - MYSQL_USER=dbuser
+ - MYSQL_PASSWORD=mypasswd
+ ports:
+ - "3306:3306"
+mongodb:
+ image: mongo
+ ports:
+ - "27017:27017"
+redis:
+ image: siworks/redis
+php-fpm:
+ image: siworks/php-fpm
+ volumes:
+ - ./:/var/www/html
+ links:
+ - redis:redis
+ - mysql:mysql
+ - mongodb:mongodb
+nginx:
+ image: siworks/nginx
+ ports:
+ - "8888:80"
+ volumes:
+ - ./public:/var/www/html/public
+ links:
+ - php-fpm:phpfpm
+

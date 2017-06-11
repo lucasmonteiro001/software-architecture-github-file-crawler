@@ -1,0 +1,11 @@
+dashing:
+  image: frvi/dashing
+  env_file: dashing.env
+  volumes:
+    - dashboards:/dashboards
+    - jobs:/jobs
+    - config:/config
+    - widgets:/widgets
+    - public:/public
+  ports:
+    - "8080:3030"

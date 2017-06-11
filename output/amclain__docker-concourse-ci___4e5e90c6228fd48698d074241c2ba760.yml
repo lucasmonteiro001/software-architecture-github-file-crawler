@@ -1,0 +1,19 @@
+version: "2"
+services:
+  web:
+    build: ./docker/web
+    ports:
+      - "8080:8080"
+    volumes:
+      - "./keys:/var/concourse/keys/"
+    links:
+      - db
+  worker:
+    build: ./docker/worker
+    privileged: true
+    volumes:
+      - "./keys:/var/concourse/keys/"
+    links:
+      - web
+  db:
+    image: postgres:9.5

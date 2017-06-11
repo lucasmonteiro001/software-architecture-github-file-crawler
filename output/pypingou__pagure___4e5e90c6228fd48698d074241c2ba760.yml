@@ -1,0 +1,71 @@
+version: '3.2'
+volumes:
+  repos:
+  attachments:
+services:
+  web:
+    build:
+      context: ./docker
+      dockerfile: web
+    depends_on:
+      - redis
+      - postgresql
+    image: pagure-web:latest
+    ports:
+      - "5000:5000"
+    volumes:
+      - type: volume
+        source: repos
+        target: /repos
+        read_only: true
+      - type: volume
+        source: attachments
+        target: /attachments
+        read_only: false
+      - .:/code
+  worker:
+    build:
+      context: ./docker
+      dockerfile: worker
+    depends_on:
+      - redis
+      - postgresql
+    image: pagure-worker:latest
+    volumes:
+      - type: volume
+        source: repos
+        target: /repos
+        read_only: false
+      - type: volume
+        source: attachments
+        target: /attachments
+        read_only: true
+      - .:/code
+    environment:
+      - PYTHONPATH=.
+      - PAGURE_CONFIG=/code/openshift.cfg
+  ev:
+    build:
+      context: ./docker
+      dockerfile: ev
+    depends_on:
+      - redis
+    image: pagure-ev:latest
+    ports:
+      - "8080:8080"
+    volumes:
+      - .:/code
+    environment:
+      - PYTHONPATH=.
+      - PAGURE_CONFIG=/code/openshift.cfg
+  redis:
+    image: redis
+  postgresql:
+    image: postgres
+    environment:
+      - POSTGRES_USER=pagure
+      - POSTGRES_PASSWORD=pagure
+      - POSTGRES_DB=pagure
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - ./docker/volumes/postgres:/var/lib/postgresql/data/pgdata

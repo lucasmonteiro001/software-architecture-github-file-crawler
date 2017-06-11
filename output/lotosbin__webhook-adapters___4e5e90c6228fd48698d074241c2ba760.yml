@@ -1,0 +1,9 @@
+web:
+  image: node
+  ports:
+    - 18002:3000
+  working_dir: /src
+  volumes:
+    - ./:/src
+  command: 'npm start'
+

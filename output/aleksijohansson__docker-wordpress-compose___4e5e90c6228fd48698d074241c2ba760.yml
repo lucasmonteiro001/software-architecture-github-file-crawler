@@ -1,0 +1,11 @@
+wordpress:
+  image: wordpress:4.2.1-apache
+  links:
+    - mariadb:mysql
+  ports:
+    - 8080:80
+
+mariadb:
+  image: mariadb
+  environment:
+    MYSQL_ROOT_PASSWORD: root

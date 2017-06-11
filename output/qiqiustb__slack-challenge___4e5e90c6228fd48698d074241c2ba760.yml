@@ -1,0 +1,19 @@
+version: '2'
+services:
+  angular-app:
+    build: ./angular-app/
+    links:
+      - html_parser
+    depends_on:
+      - html_parser
+    ports:
+      - "80:8888"
+
+  html_parser:
+    build: ./html_parser/
+    ports:
+      - "8081:8888"
+
+# add a new stuff!
+
+# blabla change

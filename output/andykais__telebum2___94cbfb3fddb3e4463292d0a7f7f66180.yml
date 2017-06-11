@@ -1,0 +1,54 @@
+version: '2'
+services:
+  nginx:
+    image: nginx:1.11
+    entrypoint: nginx_entrypoint.sh
+    volumes:
+      - ../services/nginx/nginx.conf:/etc/nginx/nginx.conf.tmp:rw
+      - ./scripts/wait-for-it/wait-for-it.sh:/usr/bin/wait-for-it.sh:ro
+      - ./scripts/nginx_entrypoint.sh:/usr/bin/nginx_entrypoint.sh
+    networks:
+      - front
+    depends_on:
+      - web-client
+      - web-api
+  web-client:
+    build:
+      context: .
+      dockerfile: ./images/Dockerfile-javascript
+    volumes:
+      - ../services/web-client:/usr/src/app
+      - ../volumes/yarn-cache/:/usr/local/share/.cache/yarn
+    networks:
+      - front
+      - db
+  web-api:
+    build:
+      context: .
+      dockerfile: ./images/Dockerfile-scala
+    entrypoint: api_entrypoint.sh
+    volumes:
+      #- ../services/web-api/build.sbt:/usr/src/app/build.sbt
+      #- ../services/web-api/src:/usr/src/app/src
+      - ../services/web-api:/usr/src/app/
+      #- ../services/web-api/project/build.properties:/usr/src/app/project/build.properties
+      #- ../volumes/web-api-project:/usr/src/app
+      - ../volumes/sbt-cache/:/root/.ivy2
+      - ./scripts/api_entrypoint.sh:/usr/bin/api_entrypoint.sh
+    networks:
+      - front
+      - db
+    depends_on:
+      - postgres
+  postgres:
+    image: postgres:9.6
+    env_file:
+      - ../services/postgres/variables.env
+    volumes:
+      - ../volumes/postgres-data:/var/lib/postgresql/data
+    networks:
+      - db
+
+networks:
+  front:
+  db:

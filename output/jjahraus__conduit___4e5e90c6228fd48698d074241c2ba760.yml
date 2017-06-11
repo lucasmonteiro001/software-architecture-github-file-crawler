@@ -1,0 +1,30 @@
+version: '2'
+services:
+ rabbit:
+  image: rabbitmq
+  ports:
+   - "5672:5672"
+ multitasker:
+  build:
+   context: ./multitasker
+   dockerfile: Dockerfile
+  volumes:
+   - ./mrpc:/src/mrpc
+  environment:
+   - RABBITMQ=rabbit
+  links:
+   - rabbit
+  restart: always
+  tty: true
+ worker:
+  build:
+   context: ./worker
+   dockerfile: Dockerfile
+  volumes:
+   - ./mrpc:/src/mrpc
+  environment:
+   - RABBITMQ=rabbit
+  links:
+   - rabbit
+  restart: always
+  tty: true

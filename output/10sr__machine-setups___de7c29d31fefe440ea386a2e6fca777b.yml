@@ -1,0 +1,28 @@
+---
+version: '2'
+services:
+  gnusocial0:
+    build:
+      context: .
+      dockerfile: Dockerfile.gnusocial
+    container_name: gnusocial0
+    ports:
+      - "8765:80"
+    environment:
+      LC_ALL: C
+    env_file:
+      - ../gnusocial.env
+    depends_on:
+      - gnusocial0_mariadb0
+    volumes:
+      # - "/var/lib/data/docker/gnusocial0/config:/config"
+      - "./config:/config"
+
+  gnusocial0_mariadb0:
+    image: "mariadb"
+    container_name: gnusocial0_mariadb0
+    command: ["--innodb-buffer-pool-size=128M", "--expire-logs-days=5"]
+    env_file:
+      - ../gnusocial.env
+    volumes:
+      - "/var/lib/data/docker/gnusocial0/mariadb:/var/lib/mysql"

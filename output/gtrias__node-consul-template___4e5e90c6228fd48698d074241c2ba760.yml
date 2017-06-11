@@ -1,0 +1,54 @@
+version: '2'
+
+services:
+    consul:
+        image: progrium/consul
+        command: -server -bootstrap -bind=0.0.0.0 -recursor=8.8.8.8
+        network_mode: host
+        ports:
+        - 8301:8301
+        - 8301:8301/udp
+        - 8302:8302
+        - 8302:8302/udp
+        - 8400:8400
+        - 8500:8500
+        - 53:8600/udp # -> Use this to bind consul to the DNS port and use DNS resolution
+    registrator:
+        image: gliderlabs/registrator
+        depends_on:
+        - consul
+        network_mode: host
+        volumes:
+        - /var/run/docker.sock:/tmp/docker.sock
+        command: -internal=true consul://localhost:8500
+
+    # This is a standard consul-template usage
+    # Autoconfigured haproxy
+    consul-template-haproxy:
+        build:
+            context: .
+            dockerfile: Dockerfile-haproxy
+        depends_on:
+        - consul
+        network_mode: host
+        ports:
+        - 80:80
+        - 443:443
+        volumes:
+        - ./dump:/app/dump
+        - /etc/haproxy
+        - /etc/consul-template
+        - ./dump/certs:/certificates
+        - ./templates:/app/templates
+        environment:
+          - 'NODE_CONFIG={"consul":{"host":"127.0.0.1"}, "templateGlobals": {"haproxy": {"httpPort": 80}}, "templates":[{"source":"templates/haproxy.cnf.njk","path":"/etc/haproxy","filename":"haproxy.cfg","command":"service haproxy reload" }, {"source": "templates/cert-list.njk", "path": "/etc/haproxy/", "filename": "cert-list", "command": "echo"}]}'
+
+    certbot-consul-server:
+        image: gtrias/certbot-consul-server
+        network_mode: host
+        volumes:
+        - ./dump/certs:/root/letsencrypt
+        ports:
+        - 54321:54321
+        environment:
+        - 'NODE_CONFIG={"consul":{"host":"127.0.0.1"}, "letsencrypt": {"server": "production", "configDir": "/root/letsencrypt"}}'

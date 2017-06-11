@@ -1,0 +1,32 @@
+bootstrap:
+  build: node
+  container_name: hydrachain_node_bootstrap
+  links:
+    - statsmon
+  volumes:
+    - ../../../../hydrachain:/hydrachain.src:ro
+    - ../../../../pyethapp:/pyethapp.src:ro
+  ports:
+    - "127.0.0.1:4000:4000"
+    - "127.0.0.1:30303:30303"
+    - "127.0.0.1:30303:30303/udp"
+  environment:
+    - HYDRACHAIN_HOST_PREFIX
+
+node:
+  build: node
+  links:
+    - statsmon
+  volumes:
+    - ../../../../hydrachain:/hydrachain.src:ro
+    - ../../../../pyethapp:/pyethapp.src:ro
+  environment:
+    - HYDRACHAIN_HOST_PREFIX
+
+statsmon:
+  build: statsmon
+  container_name: hydrachain_statsmon
+  environment:
+    - WS_SECRET=eth-net-stats-has-a-secret
+  ports:
+    - "3000:3000"

@@ -1,0 +1,42 @@
+version: '2'
+services:
+    db:
+        image: postgres
+        volumes:
+            - /var/lib/postgresql/data/
+    web:
+        build: .
+        image: jaywhy13/branches
+        command: python manage.py runserver 0.0.0.0:8000
+        volumes:
+            - .:/code
+            - /usr/local/lib/python2.7/site-packages/
+        ports:
+            -  "8000:8000"
+        links:
+            - db
+            - redis
+    celery:
+        image: jaywhy13/branches
+        links:
+            - redis
+            - db
+            - web
+        depends_on:
+            - redis
+            - web
+        volumes_from:
+            - web
+        command: su -m myuser -c "celery worker -A branches -l info"
+    redis:
+        image: redis:latest
+    docs:
+        image: jaywhy13/branches
+        depends_on:
+            - web
+        volumes_from:
+            - web
+        command: python /code/docs/watchdocs.py docs
+    # stats:
+    #     image: hopsoft/graphite-statsd
+

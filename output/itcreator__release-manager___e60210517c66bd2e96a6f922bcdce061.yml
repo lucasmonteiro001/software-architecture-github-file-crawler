@@ -1,0 +1,35 @@
+version: "2"
+
+services:
+    api:
+        build: go
+        working_dir: /go/src/app
+        command: bash -c "glide install && tail -f /dev/null"
+        environment:
+            - POSTGRES_DB=${POSTGRES_DB}
+            - POSTGRES_USER=${POSTGRES_USER}
+            - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+            - APP_HTTP_PORT=${APP_HTTP_PORT}
+            - APP_DATABASE_HOST=${APP_DATABASE_HOST}
+
+        volumes:
+           - ../../src/app:/go/src/app
+        depends_on:
+            - database
+        expose:
+           - "8080"
+        ports:
+         - "8080:8080"
+
+    database:
+        image: 'postgres:9.5'
+        environment:
+            - POSTGRES_DB=${POSTGRES_DB}
+            - POSTGRES_USER=${POSTGRES_USER}
+            - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+        volumes:
+            - dbdata:/var/lib/postgresql
+
+volumes:
+    dbdata:
+        driver: local

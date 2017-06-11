@@ -1,0 +1,15 @@
+version: '2'
+services:
+  vault-api:
+    image: vault-api:1.0.0
+    ports:
+      - 8080
+    environment:
+      - TZ=Europe/Paris
+      - VAULT_TOKEN=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+      - SERVICE_TAGS=urlprefix-/vault-api
+      - SERVICE_8080_NAME=vault-api
+      - SERVICE_8080_CHECK_HTTP=/status
+      - SERVICE_8080_CHECK_INTERVAL=10s
+      - SERVICE_8080_CHECK_TIMEOUT=5s
+

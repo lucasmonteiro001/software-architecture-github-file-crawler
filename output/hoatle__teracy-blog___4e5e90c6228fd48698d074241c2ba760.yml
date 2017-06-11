@@ -1,0 +1,13 @@
+version: "2"
+
+services:
+  dev:
+    build:
+      context: .
+      dockerfile: Dockerfile-dev
+    image: teracy/blog:dev_latest
+    command: bash -c "rake generate && rake preview"
+    ports:
+      - "4000:4000"
+    volumes:
+      - .:/opt/app

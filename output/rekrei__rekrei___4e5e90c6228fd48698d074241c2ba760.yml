@@ -1,0 +1,45 @@
+version: '2'
+
+services:
+  db:
+    image: postgres:9.5
+    ports:
+      - "5432:5432"
+  nginx:
+    build:
+      context: .
+      dockerfile: ./config/deploy/nginx/Dockerfile
+    depends_on:
+      - web
+    ports:
+      - '80:80'
+      - '443:443'
+  web:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    command: bundle exec puma -C config/puma.rb
+    volumes:
+      - .:/rekrei
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    env_file: .env
+    environment:
+      #DATABASE_URL: "postgres://postgres@db:5432/postgres?pool=5"
+      RAILS_ENV: production
+      RACK_ENV: production
+  test:
+    build:
+      context: .
+      dockerfile: ./Dockerfile.test
+    command: sh -c 'bundle exec rake db:migrate && bundle exec guard --force-polling'
+    volumes:
+      - .:/rekrei
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: "postgres://postgres@db:5432/rekrei_test?pool=5"
+      RAILS_ENV: test
+      RACK_ENV: test

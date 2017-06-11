@@ -1,0 +1,9 @@
+munin:
+    build: .
+    privileged: true
+    ports:
+        - 127.0.0.1:48080:80
+    volumes:
+        - /srv/data/munin:/var/lib/munin
+    environment:
+        - NODES=skynet:127.0.0.1

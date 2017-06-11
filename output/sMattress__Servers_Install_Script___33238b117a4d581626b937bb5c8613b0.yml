@@ -1,0 +1,9 @@
+version: "2"
+
+services:
+  sMattress_TcpServer:
+    image: registry.cn-hangzhou.aliyuncs.com/smattress/tcp-server:latest
+    container_name: sMattress_TcpServer
+    ports:
+      - 1234:1234
+      - 4321:4321

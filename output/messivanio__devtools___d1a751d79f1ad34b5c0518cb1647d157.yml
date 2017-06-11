@@ -1,0 +1,7 @@
+redmine:
+  image: redmine:3.0.5-passenger
+  ports:
+   - "3001:3000"
+
+# TODO: Add data container
+

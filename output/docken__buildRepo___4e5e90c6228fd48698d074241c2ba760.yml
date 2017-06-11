@@ -1,0 +1,7 @@
+dev:
+    image: iojs:slim
+    working_dir: /usr/src/app
+    volumes:
+        - .:/usr/src/app
+        - /var/run/docker.sock:/var/run/docker.sock
+    command: npm run watch

@@ -1,0 +1,21 @@
+version: '2'
+
+services:
+    nginx:
+        build: nginx
+        ports:
+            - 8080:8080
+
+    ow1:
+        build: ow1
+
+    ow2:
+        build: ow2
+
+    node-red:
+        build: node-red
+        ports:
+            - 80:80
+        environment:
+            - USERNAME=${NODE_USERNAME}
+            - PASSWORD=${NODE_PASSWORD}

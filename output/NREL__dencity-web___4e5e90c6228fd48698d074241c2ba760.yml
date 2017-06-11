@@ -1,0 +1,24 @@
+web:
+  build: .
+  command: /usr/bin/start-server
+  links:
+    - db
+    - solr
+  ports:
+    - "8080:80"
+  environment:
+    - RAILS_ENV=docker
+    - DENCITY_HOST_URL
+    - MAILGUN_SMTP_LOGIN
+    - MAILGUN_API_KEY
+db:
+  image: mongo
+  volumes_from:
+    - mongodata
+  ports:
+    - "27017:27017"
+solr:
+   build: solr/
+   volumes_from:
+       - solrdata
+

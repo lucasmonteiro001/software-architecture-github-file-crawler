@@ -1,0 +1,11 @@
+server:
+  container_name: discord-Ragebot
+  build: .
+  volumes:
+    - ./bot/data/:/var/www/discord-Ragebot/bot/data/
+    - ./bot/src/:/var/www/discord-Ragebot/bot/src/
+    - ./bot/www/:/var/www/discord-Ragebot/bot/www/
+    - ./data/log/:/data/log
+  ports:
+    - 3000:3000
+    - 4000:4000

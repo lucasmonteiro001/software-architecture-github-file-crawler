@@ -1,0 +1,81 @@
+version: '2'
+
+services:
+  consul:
+    image: consul
+    ports:
+      - "8300:8300"
+      - "8400:8400"
+      - "8500:8500"
+    networks:
+      - bridge-net
+      - overlay-net
+
+  traefik:
+    image: traefik
+    volumes:
+      - ./traefik.toml:/etc/traefik/traefik.toml
+    ports:
+      - "8888:8888"
+      - "80:80"
+    depends_on:
+      - consul
+    links:
+      - consul
+    networks:
+      - bridge-net
+      - overlay-net
+
+  device-service:
+    image: "device-service:1.0.0"
+    environment:
+      - JAVA_OPTS=-Xmx128m
+      - PORT=18081
+      - CONSUL_HOST=consul
+      - CONSUL_PORT=8500
+    ports:
+      - "18081:18081"
+    links:
+      - consul
+    depends_on:
+      - consul
+    networks:
+      - overlay-net
+
+  room-service:
+    image: "room-service:1.0.0"
+    environment:
+      - JAVA_OPTS=-Xmx128m
+      - PORT=18082
+      - CONSUL_HOST=consul
+      - CONSUL_PORT=8500
+    ports:
+      - "18082:18082"
+    links:
+      - consul
+    depends_on:
+      - consul
+    networks:
+      - overlay-net
+
+  display-service:
+    image: "display-service:1.0.0"
+    environment:
+      - JAVA_OPTS=-Xmx128m
+      - PORT=18083
+      - CONSUL_HOST=consul
+      - CONSUL_PORT=8500
+    ports:
+      - "18083:18083"
+    links:
+      - consul
+    depends_on:
+      - consul
+    networks:
+      - overlay-net
+
+networks:
+  bridge-net:
+    driver: bridge
+  overlay-net:
+      driver: overlay

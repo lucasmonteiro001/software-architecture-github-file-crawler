@@ -1,0 +1,13 @@
+@@APPNAME:
+  image: @@APPNAME
+  ports:
+   - "80:8080"
+   - "443:4434"
+  volumes:
+   - @@LOGDIR:/home/logs
+  net: "@@NETNAME"
+@@DBNAME:
+  image: @@DBNAME
+  volumes:
+   - @@DATADIR:/data/db
+  net: "@@NETNAME"

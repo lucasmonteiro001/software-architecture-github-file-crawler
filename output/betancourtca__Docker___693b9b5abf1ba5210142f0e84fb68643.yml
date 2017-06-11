@@ -1,0 +1,12 @@
+version: '2'
+services:
+  orthanc:
+    build:
+      context: .
+    image: sc-orthanc
+    container_name: sc-orthanc
+    ports:
+      - "8042:8042"
+      - "4242:4242"
+    volumes:
+      - ./appdata:/opt/mirth-connect/appdata

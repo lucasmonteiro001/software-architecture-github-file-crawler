@@ -1,0 +1,34 @@
+web:
+    build: docker/web
+    working_dir: /var/www
+    hostname: randos1000etangs
+    domainname: randos1000etangs.dev
+    volumes:
+        - ".:/var/www"
+        - "./var/logs/web:/var/log/nginx"
+    links:
+        - db
+        - redis
+
+db:
+    image: mongo:3.0
+    command: mongod --smallfiles
+    volumes:
+        - "./data/db:/data/db"
+
+redis:
+    image: redis
+
+composer:
+    image: composer/composer
+    working_dir: /src
+    volumes:
+        - /var/tmp/composer/cache:/root/.composer/cache
+        - ".:/src"
+    net: "host"
+
+builder:
+    image: zolweb/nodejs-bower-gulp
+    working_dir: /src
+    volumes:
+        - .:/src

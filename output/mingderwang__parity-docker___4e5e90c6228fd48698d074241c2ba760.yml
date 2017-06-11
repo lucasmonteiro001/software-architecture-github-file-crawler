@@ -1,0 +1,7 @@
+ethereum-node:
+   image: mingderwang/parity:latest
+   container_name: my-parity3
+   working_dir: /parity/
+   command: --chain=testnet -j --jsonrpc-interface 'all'
+   ports:
+     - "8545:8545"

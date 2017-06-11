@@ -1,0 +1,12 @@
+---
+helloworldacceptancetests:
+  build: ./hello-world-acceptance-tests
+  read_only: true
+  links:
+   - helloworld
+
+helloworld:
+  build: ./hello-world
+  ports:
+     - "80"
+  restart: always

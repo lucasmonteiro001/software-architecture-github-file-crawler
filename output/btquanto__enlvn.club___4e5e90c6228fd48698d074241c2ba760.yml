@@ -1,0 +1,10 @@
+version: '3'
+services:
+  jekyll:
+    image: btquanto/docker-jekyll
+    user: $UID
+    ports:
+      - 4000:4000
+    volumes:
+      - ./:/src
+    command: jekyll serve -H 0.0.0.0 --draft

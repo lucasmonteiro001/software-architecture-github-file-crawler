@@ -1,0 +1,103 @@
+version: '3'
+services:
+  consul:
+    networks:
+      consul_net:
+        ipv4_address: 172.19.1.2
+    build:
+      context: .
+      dockerfile: ./consul/Dockerfile
+    env_file: 
+      - ./common/common.env
+  mongo:
+    build:
+      context: .
+      dockerfile: ./mongo/Dockerfile
+    dns:
+    - 127.0.0.1
+    - 8.8.8.8
+    env_file: 
+    - ./common/common.env
+    volumes:
+    - /data/data/db:/data/db
+    - /data/configdb:/configdb
+    networks:
+      - consul_net
+    depends_on: 
+      - consul
+  nightscout:
+    build:
+      context: .
+      dockerfile: ./nightscout/Dockerfile
+      args:
+      - MMCONNECT_USER_NAME
+      - MMCONNECT_PASSWORD
+    dns:
+    - 127.0.0.1
+    - 8.8.8.8
+    ports: 
+    - "8081:80"
+    env_file: 
+      - ./common/common.env
+    networks:
+      - consul_net
+    depends_on: 
+      - consul
+  cgm:
+    build:
+      context: .
+      dockerfile: ./cgm/Dockerfile
+      args:
+      - carelink_user
+      - carelink_pw
+    dns:
+    - 127.0.0.1
+    - 8.8.8.8
+    env_file: 
+    - ./common/common.env
+    networks:
+    - consul_net
+    depends_on: 
+      - consul
+  mfp:
+    build:
+      context: .
+      dockerfile: ./mfp/Dockerfile
+      args:
+      - MFP_USER
+      - MFP_PW
+    dns:
+    - 127.0.0.1
+    - 8.8.8.8
+    env_file: 
+    - ./common/common.env
+    networks:
+     - consul_net 
+    depends_on: 
+      - consul
+  elmo:
+    build:
+      context: .
+      dockerfile: ./elmo/Dockerfile
+      args:
+      - FACEBOOK_MESSENGER_VALIDATION_TOKEN
+      - FACEBOOK_MESSENGER_PAGE_TOKEN
+      - API_AI_AUTH_TOKEN
+    dns:
+    - 127.0.0.1
+    - 8.8.8.8
+    ports:
+    - "443:443"
+    env_file: 
+    - ./common/common.env
+    networks: 
+    - consul_net
+    depends_on: 
+      - consul
+networks: 
+  consul_net:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.19.1.0/24

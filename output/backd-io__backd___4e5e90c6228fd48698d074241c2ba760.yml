@@ -1,0 +1,117 @@
+version: '2'
+
+services:
+  bootstrap:
+    image: backd/bootstrap:0.0.1-dev
+    environment:
+      - DB_URL=mongodb:27017
+      - DEV=1
+    links:
+      - mongodb
+    depends_on:
+      - mongodb
+
+  identity:
+    image: backd/identity:0.0.1-dev
+    restart: always
+    environment:
+      - DB_URL=mongodb:27017
+      - API_IP=0.0.0.0
+      - API_PORT=8080
+      - METRICS_IP=0.0.0.0
+      - METRICS_PORT=8081
+    ports:
+      - 8080
+      - 8081
+    links:
+      - mongodb
+    depends_on:
+      - mongodb
+
+  objects:
+    image: backd/objects:0.0.1-dev
+    restart: always
+    environment:
+      - DB_URL=mongodb:27017
+      - API_IP=0.0.0.0
+      - API_PORT=8080
+      - METRICS_IP=0.0.0.0
+      - METRICS_PORT=8081
+    ports:
+      - 8080
+      - 8081
+    links:
+      - mongodb
+    depends_on:
+      - mongodb
+
+  mongodb:
+    image: mongo:3.4
+    command: --storageEngine wiredTiger
+    ports:
+      - 47017:27017
+    volumes:
+      - .docker/mongodb/db:/data/db
+      - .docker/mongodb/configdb:/data/configdb
+
+  mongoclient:
+    image: mongoclient/mongoclient:1.5.0
+    ports:
+      - 3000
+    links:
+      - mongodb
+    depends_on:
+      - mongodb
+
+  prometheus:
+    image: prom/prometheus:v1.3.1
+    ports:
+      - 49090:9090
+    links:
+      - identity
+      - objects
+    depends_on:
+      - identity
+      - objects
+    volumes:
+      - .docker/prometheus:/prometheus
+      - ./scripts/prometheus.yml:/prometheus/prometheus.yml:ro
+    command:
+      -config.file=/prometheus/prometheus.yml
+
+  grafana:
+    image: grafana/grafana:3.1.1
+    ports:
+      - 43000:3000
+    links:
+      - prometheus
+    depends_on:
+      - prometheus
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=secret
+    volumes:
+      - .docker/grafana:/var/lib/grafana
+
+  nginx:
+    image: nginx:stable
+    ports:
+      - 8080:80
+      - 8443:443
+    links:
+      - identity
+      - objects
+      - prometheus
+      - grafana
+      - mongoclient
+    depends_on:
+      - identity
+      - objects
+      - prometheus
+      - grafana
+      - mongoclient
+    volumes:
+      - ./scripts/nginx/prometheus.conf:/etc/nginx/conf.d/prometheus.conf:ro
+      - ./scripts/nginx/grafana.conf:/etc/nginx/conf.d/grafana.conf:ro
+      - ./scripts/nginx/identity.conf:/etc/nginx/conf.d/identity.conf:ro
+      - ./scripts/nginx/objects.conf:/etc/nginx/conf.d/objects.conf:ro
+      - ./scripts/nginx/mongoclient.conf:/etc/nginx/conf.d/mongoclient.conf:ro

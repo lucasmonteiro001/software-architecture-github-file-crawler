@@ -1,0 +1,13 @@
+version: '2'
+services:
+  sc-neo4j:
+    build:
+      context: .
+    image: sc-neo4j
+    container_name: sc-neo4j
+    ports:
+      - "7473:7473"
+      - "7474:7474"
+      - "7687:7687"
+    volumes:
+      - /c/UPMC.com/data/SC/neo4j:/data

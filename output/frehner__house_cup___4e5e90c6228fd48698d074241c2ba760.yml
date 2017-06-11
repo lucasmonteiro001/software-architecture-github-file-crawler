@@ -1,0 +1,8 @@
+node:
+    image: node:4.2
+    volumes:
+        - /home/house_cup:/usr/src/nodesms/node
+    ports:
+        - "80:3000"
+    working_dir: /usr/src/nodesms/node/
+    command: bash -c "npm install && npm start"

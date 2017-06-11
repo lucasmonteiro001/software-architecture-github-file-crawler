@@ -1,0 +1,9 @@
+
+bind:
+  image: bind9
+  volumes:
+  - ./data:/data
+  - ./dpkg-builder:/data/builder
+  command: make
+  tty: false
+

@@ -1,0 +1,8 @@
+dev:
+  build: .
+  privileged: true
+  links:
+    - redis
+
+redis:
+  image: redis

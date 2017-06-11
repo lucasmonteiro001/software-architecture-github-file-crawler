@@ -1,0 +1,4 @@
+web:
+    extends:
+        file: ./docker/local.yml
+        service: web

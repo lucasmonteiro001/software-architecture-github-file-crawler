@@ -1,0 +1,20 @@
+web:
+  build: .
+  command: ["apache2ctl", "-D", "FOREGROUND"]
+  links:
+    - db
+  ports:
+    - "80:80"
+  volumes:
+    - ./dist/craft:/var/www/craft
+    - ./dist/public:/var/www/html
+    - ./dist/uploads:/var/www/uploads
+db:
+  image: mysql:5.6.32
+  ports:
+    - "3306:3306"
+  environment:
+    MYSQL_ROOT_PASSWORD: root
+    MYSQL_USER: outwrldrs_mysql
+    MYSQL_PASSWORD: outworlders_mysql
+    MYSQL_DATABASE: craft_outworlders

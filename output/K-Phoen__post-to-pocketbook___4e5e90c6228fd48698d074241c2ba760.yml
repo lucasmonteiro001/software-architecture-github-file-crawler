@@ -1,0 +1,33 @@
+app:
+  build: .
+  volumes_from:
+    - appdata
+  links:
+    - db
+  ports:
+    - "80:3000"
+  environment:
+    - RAILS_ENV=production
+    - SECRET_KEY_BASE=27c69802bb9063b782219f92bceadsf08e32187c4b746e5d93010d59968b1c43da10b53c817ce8609c6bfa4a06bd1d66313617a75b10e08521cab37185c9c6bc
+    - RAILS_SERVE_STATIC_FILES=true
+    - DATABASE_URL=postgresql://db/pocketbook
+    - DATABASE_USER=pocketbook
+    - DATABASE_PASSWORD=pocketbook
+
+appdata:
+  image: busybox:latest
+  volumes:
+    - /srv/public/pdf
+
+db:
+  image: 'postgres:9.4'
+  volumes_from:
+    - postgresdata
+  environment:
+    - POSTGRES_USER=pocketbook
+    - POSTGRES_PASSWORD=pocketbook
+
+postgresdata:
+  image: busybox:latest
+  volumes:
+    - /var/lib/postgresql/data

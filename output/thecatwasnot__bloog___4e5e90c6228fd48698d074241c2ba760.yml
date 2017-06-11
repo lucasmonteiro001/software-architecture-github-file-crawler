@@ -1,0 +1,15 @@
+web:
+  build: .
+  ports:
+    - "80:80"
+  environment:
+    BLOOG_DATABASE_URL: file:///db/bloog_development
+dev:
+  build: .
+  ports:
+    - "2300:2300"
+  environment:
+    LOTUS_ENV: development
+  command: bundle exec lotus server --host 0.0.0.0
+  volumes:
+    - /home/core/share:/usr/src/app

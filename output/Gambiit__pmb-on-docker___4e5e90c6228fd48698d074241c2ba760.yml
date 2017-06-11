@@ -1,0 +1,19 @@
+reverse:
+  build: ./reverse_apache
+  ports:
+    - "80:80"
+  links:
+    - apache:mabiblio.home
+apache:
+  build: ./web_apache
+  volumes_from:
+    - pmb
+  links:
+    - dbpmb
+dbpmb:
+  image: 'tutum/mysql:latest'
+  environment:
+    MYSQL_USER: admin
+    MYSQL_PASS: 0466
+pmb:
+  build: ./web_appli

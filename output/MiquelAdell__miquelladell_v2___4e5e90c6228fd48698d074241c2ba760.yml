@@ -1,0 +1,24 @@
+wordpress:
+  image: miqueladell/composed_wordpress:1.0.0
+  links:
+    - wordpress_db:mysql
+  environment:
+    - VIRTUAL_HOST=miqueladell.dev
+    - WORDPRESS_DB_NAME=wordpress
+  ports:
+   - "80"
+  working_dir: /var/www/html/
+  volumes:
+     - ./html:/var/www/html/
+
+wordpress_db:
+  image: miqueladell/mariadb-utf8mb4
+  environment:
+     - MYSQL_ROOT_PASSWORD=password
+
+phpmyadmin:
+  image: corbinu/docker-phpmyadmin
+  links:
+    - wordpress_db:mysql
+  ports:
+    - "8181:80"

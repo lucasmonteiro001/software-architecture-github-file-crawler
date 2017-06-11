@@ -1,0 +1,26 @@
+
+discovery:
+  image: wb/discovery
+  ports:
+   - "8761:8761"
+gateway:
+  image: wb/gateway
+  ports:
+   - "10000:10000"
+  links:
+   - discovery
+   - user
+   - auth
+user:
+  image: wb/user
+   ports:
+     - "9000:9000"
+  links:
+   - discovery
+auth:
+  image: wb/auth
+   ports:
+     - "5000:5000"
+  links:
+   - discovery
+

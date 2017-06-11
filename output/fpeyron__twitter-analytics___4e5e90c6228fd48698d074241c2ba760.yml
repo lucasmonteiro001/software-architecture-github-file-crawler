@@ -1,0 +1,21 @@
+analytics:
+  container_name: crawler
+  image: fpeyron/twitter-rank-crawler:latest
+  ports:
+    - "8080:8080"
+
+graphdb:
+  container_name: graphdb
+  image: neo4j:latest
+  ports:
+    - "7474:7474"
+  environment:
+    - NEO4J_AUTH=none
+  cap_add:
+    - SYS_RESOURCE
+
+rabbitmq:
+  container_name: rabbitmq
+  image: rabbitmq:3
+  ports:
+      - "5672:5672"

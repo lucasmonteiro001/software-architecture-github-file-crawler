@@ -1,0 +1,5 @@
+test:
+  image: mhart/alpine-node:latest
+  volumes:
+    - .:/src/
+

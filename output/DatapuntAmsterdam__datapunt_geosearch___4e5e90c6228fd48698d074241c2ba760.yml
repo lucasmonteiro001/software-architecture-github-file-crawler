@@ -1,0 +1,52 @@
+version: '2.1'
+services:
+  atlas_db:
+    image: build.datapunt.amsterdam.nl:5000/atlas/postgres
+    ports:
+      - "5405:5432"
+    environment:
+      POSTGRES_PASSWORD: insecure
+      POSTGRES_DB: atlas
+      POSTGRES_USER: atlas
+  nap_db:
+    image: build.datapunt.amsterdam.nl:5000/atlas/postgres
+    ports:
+      - "5401:5432"
+    environment:
+      POSTGRES_DB: nap
+      POSTGRES_USER: nap
+      POSTGRES_PASSWORD: insecure
+  milieuthemas_db:
+    image: build.datapunt.amsterdam.nl:5000/atlas/postgres
+    ports:
+      - "5402:5432"
+    environment:
+      POSTGRES_PASSWORD: insecure
+      POSTGRES_USER: milieuthemas
+  monumenten_db:
+    image: build.datapunt.amsterdam.nl:5000/atlas/postgres
+    ports:
+      - "5412:5432"
+    environment:
+      POSTGRES_PASSWORD: insecure
+      POSTGRES_USER: monumenten
+  tellus_db:
+    image: build.datapunt.amsterdam.nl:5000/atlas/postgres
+    ports:
+      - "5409:5432"
+    environment:
+      POSTGRES_PASSWORD: insecure
+      POSTGRES_USER: tellus
+  web:
+      build: ./web
+      ports:
+        - "8022:8000"
+      environment:
+        - CONSUL_HOST=${CONSUL_HOST:-notset}
+        - CONSUL_PORT=${CONSUL_PORT:-8500}
+        - UWSGI_HTTP=0.0.0.0:8000
+        - UWSGI_STATS=0.0.0.0:9191
+        - UWSGI_MODULE=wsgi
+        - UWSGI_CALLABLE=app
+        - UWSGI_MASTER=1
+        - UWSGI_MASTER=4

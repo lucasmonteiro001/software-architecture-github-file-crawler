@@ -1,0 +1,26 @@
+version: '2'
+
+services:
+  app:
+    build: app
+    ports:
+      - "9999:9999"
+    volumes:
+      - ./app/jars:/var/jars
+    command: java -jar /var/jars/app.jar -Dserver.port=9999
+    networks:
+      - docker_webapp
+  nginx: 
+    build: nginx/
+    ports:
+      - '80:80'
+    networks:
+      - docker_webapp
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d/
+      - ./nginx/log/:/var/log/nginx/
+      - ./nginx/html:/var/www/html
+
+networks:
+  docker_webapp:
+    driver: bridge

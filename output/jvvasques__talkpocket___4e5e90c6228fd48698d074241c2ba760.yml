@@ -1,0 +1,35 @@
+common: &BASE
+  build: ./talkpocket-api
+  env_file: prod.env
+  links:
+    - s3:api.s3
+    - mongo:api.mongo
+
+mongo:
+  image: mongo:3.2.9
+  ports:
+    - "27017:27017"
+
+s3:
+  image: minio/minio:RELEASE.2016-10-07T01-16-39Z
+  command: server
+  ports:
+  - "9000:9000"
+  env_file: prod.env
+  volumes:
+    - /tmp/minio/export/:/export
+    - /tmp/minio:/root/.minio
+
+api:
+  <<: *BASE
+  ports:
+    - "8080:8080"
+  command: bash -c "lein run"
+  volumes:
+    - /tmp/:/tmp
+
+talkpocketui:
+  ports:
+    - "3001:3001"
+    - "3000:3000"
+  build: ./ui

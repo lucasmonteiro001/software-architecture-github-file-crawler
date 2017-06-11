@@ -1,0 +1,40 @@
+version: "2"
+
+services:
+
+  # set -x ETCD_DISCOVERY (curl -fsS "https://discovery.etcd.io/new?size=3")
+  # echo $ETCD_DISCOVERY
+
+# --security-opt seccomp:/path/to/systemd-seccomp.json
+
+  fleet:
+    build:
+      context: fleet
+    cap_add:
+      - SYS_ADMIN
+    privileged: true
+      #^ needed for docker in docker
+    tmpfs:
+      - /run
+      - /tmp
+    environment:
+      - ETCD_DISCOVERY
+    tty: true
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+      - ~/.ssh/id_rsa.pub:/home/core/.ssh/authorized_keys
+      - ./examples:/examples
+      - /var/lib/docker
+    # depends-on: registry-proxy ?
+
+  # https://docs.docker.com/registry/deploying/#managing-with-compose
+  registry-proxy:
+    image: registry:2.4
+    # ports:
+    #   - "5000"
+    volumes:
+      - ./registry-proxy/config.yml:/etc/docker/registry/config.yml
+      - registry-proxy-data:/var/lib/registry
+
+volumes:
+  registry-proxy-data:

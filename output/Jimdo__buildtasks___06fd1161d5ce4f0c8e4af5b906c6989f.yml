@@ -1,0 +1,15 @@
+demo1:
+  build: .
+  command: rake build publish PUBLISH_DIR=/pkg
+  volumes:
+    - example1:/data
+    - pkg:/pkg
+  working_dir: /data
+
+demo2:
+  build: .
+  command: rake build publish PUBLISH_DIR=/pkg
+  volumes:
+    - example2:/data
+    - pkg:/pkg
+  working_dir: /data

@@ -1,0 +1,115 @@
+skydns:
+  image: crosbymichael/skydns
+  ports:
+    - "172.17.42.1:53:53/udp"
+    - "10083:8080"
+  environment:
+    - SKYDNS_NAMESERVERS
+  command: "-domain docker"
+
+skydock:
+  image: crosbymichael/skydock
+  dns: 172.17.42.1
+  dns_search: dev.docker
+  links:
+    - skydns
+  volumes:
+    - "/var/run/docker.sock:/docker.sock"
+  command: -ttl 30 -s /docker.sock -domain docker -environment dev -name hubotgerty_skydns_1
+
+jenkins:
+  image: jenkins
+  dns: 172.17.42.1
+  dns_search: dev.docker
+  links:
+    - skydock
+  ports:
+    - "8080:8080"
+  volumes:
+    - "~/docker/jenkins:/var/jenkins_home"
+
+rundeck:
+  image: jordan/rundeck
+  dns: 172.17.42.1
+  dns_search: dev.docker
+  links:
+    - skydock
+    - "hubot:hubot"
+  ports:
+    - "4440:4440"
+  volumes:
+    - "~/docker/rundeck/var:/var/rundeck"
+
+nagios:
+  image: cpuguy83/nagios
+  dns: 172.17.42.1
+  dns_search: dev.docker
+  links:
+    - skydock
+  ports:
+    - "10081:80"
+
+hubot:
+  build: .
+  links:
+    - skydock
+  dns: 172.17.42.1
+  dns_search: dev.docker
+  ports:
+    - "8001:8001"
+  env_file:
+    - hubot.env
+  volumes:
+    - "~/docker/hubot:/data"
+
+graphite:
+  image: jayofdoom/trusty-graphite-standalone
+  dns: 172.17.42.1
+  dns_search: dev.docker
+  links:
+    - skydock
+  ports:
+    - "10082:80"
+    - "8125:8125/udp"
+    - "2003:2003"
+    - "2004:2004"
+    - "7002:7002"
+
+postgresql:
+  image: postgres:9.4
+  dns: 172.17.42.1
+  dns_search: dev.docker
+  links:
+    - skydock
+  environment:
+    - POSTGRES_USER=gitlab
+    - POSTGRES_PASS=secretpassword
+  volumes:
+    - "~/docker/gl-postgresql:/var/lib/postgresql"
+
+redis:
+  image: redis:latest
+  dns: 172.17.42.1
+  dns_search: dev.docker
+  links:
+    - skydock
+
+gitlab:
+  image: sameersbn/gitlab:7.8.1
+  dns: 172.17.42.1
+  dns_search: dev.docker
+  environment:
+    - GITLAB_PORT=10080
+    - GITLAB_SSH_PORT=10022
+    - DB_USER=gitlab
+    - DB_PASS=secretpassword
+    - DB_NAME=gitlab
+  links:
+    - redis:redisio
+    - postgresql:postgresql
+    - skydock
+  ports:
+    - "10080:80"
+    - "10022:22"
+  volumes:
+    - "~/docker/gitlab:/home/git/data"

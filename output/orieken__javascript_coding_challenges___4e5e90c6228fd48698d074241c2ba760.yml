@@ -1,0 +1,40 @@
+version: '2'
+
+networks:
+  challengesnetwork:
+    driver: bridge
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.app
+    command: bash -c "gulp test && gulp serve"
+    ports:
+      - "8000:3000"
+      - "8001:3001"
+    networks:
+      - challengesnetwork
+    depends_on:
+      - standalone-chrome
+
+  standalone-chrome:
+    image: selenium/standalone-chrome
+    ports:
+      - "4444:4444"
+    networks:
+      - challengesnetwork
+
+  e2e:
+    build:
+      context: .
+      dockerfile: Dockerfile.e2e
+    command: tail -f /dev/null
+    environment:
+     - GRID_URL=http://standalone-chrome:4444/wd/hub
+     - BASE_URL=http://web:3000
+    networks:
+     - challengesnetwork
+    depends_on:
+     - standalone-chrome
+     - web

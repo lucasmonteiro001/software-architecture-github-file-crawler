@@ -1,0 +1,29 @@
+postgres:
+  build: docker/postgres
+  hostname: postgres
+  ports:
+    - "5432:5432"
+  volumes_from:
+    - data
+
+cornerwise:
+  build: .
+  ports:
+    - "3000:3000"
+  links:
+    - postgres
+    - redis
+  environment:
+    - PYTHONUNBUFFERED=1
+    - REDIS_HOST=redis
+    - POSTGRES_HOST=postgres
+  volumes_from:
+    - data
+  volumes:
+    - ./server:/app
+    - ./client:/client
+    - ./data:/data
+    - ./docker-runtime
+
+redis:
+  image: redis:latest

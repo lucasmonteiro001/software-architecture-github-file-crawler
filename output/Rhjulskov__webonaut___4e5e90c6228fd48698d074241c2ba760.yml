@@ -1,0 +1,13 @@
+webonaut:
+  build: .
+  ports:
+   - "300:80"
+  links:
+   - webonaut-mongo
+  environment:
+   - MONGO_URL=mongodb://webonaut-mongo/webonaut
+   - ROOT_URL=http://webonout.dk
+   - METEOR_SETTINGS_PATH=/settings.json
+
+webonaut-mongo:
+  image: mongo:latest

@@ -1,0 +1,10 @@
+dtcollector:
+  container_name: "dtcollector"
+  hostname: "docker-dtcollector"
+  image: "pcjeffmac/dynatrace-collector"
+  environment:
+    DT_COLLECTOR_NAME: "dtcollector"
+    HOST_NAME: "docker-dtcollector"
+    DT_COLLECTOR_SERVER: "192.168.2.101:6699"
+  volumes:
+    - "/tmp/log/dynatrace/collectors/dtcollector:/dynatrace/log/collector/dtcollector"    

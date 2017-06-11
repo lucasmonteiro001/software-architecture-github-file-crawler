@@ -1,0 +1,11 @@
+pootle:
+    build: .
+    links:
+#        - db
+    ports:
+        - 8000:8000
+
+#db:
+#    image: mysql
+#    environment:
+#        MYSQL_ROOT_PASSWORD: ibIG0olih2et3yv4XkzP

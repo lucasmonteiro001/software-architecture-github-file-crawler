@@ -1,0 +1,35 @@
+version: '2'
+services:
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - 9090:9090
+    volumes:
+      - ./conf/prometheus.yml:/etc/prometheus/prometheus.yml
+  node_exporter:
+    image: prom/node-exporter
+    ports:
+      - 9100:9100
+    volumes:
+      - /proc:/host/proc
+      - /sys:/host/sys
+      - /:/rootfs
+    network_mode: "host"
+    command: ['-collector.procfs','/host/proc','-collector.sysfs','/host/proc','-collector.filesystem.ignored-mount-points',"^/(sys|proc|dev|host|etc)($$|/)", '-collectors.enabled', 'conntrack,diskstats,entropy,filefd,filesystem,loadavg,meminfo,netdev,netstat,stat,time,uname,vmstat']
+  grafana:
+    image: grafana/grafana
+    ports: 
+      - 3000:3000
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=password
+    volumes:
+      - ~/grafana_db:/var/lib/grafana
+  cadvisor:
+    image: google/cadvisor
+    ports:
+      - 8080:8080
+      - 3002:3002
+    volumes:
+      - /sys:/sys:ro
+      - /var/run:/var/run:rw
+      - /var/lib/docker/:/var/lib/docker:ro

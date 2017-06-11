@@ -1,0 +1,37 @@
+version: '3'
+networks:
+  homejs:
+    driver: overlay
+services:
+  web:
+    # build: .
+    image: 'handsofblue67/homejs'
+    ports:
+      - '3030:3030'
+    # volumes:
+    #   - .:/opt/home-js
+    #   - /opt/home-js/node_modules
+    depends_on:
+      - db
+    networks:
+      - homejs
+  db:
+    image: 'mongo:latest'
+    ports:
+      - '27018:27017'
+    networks:
+      - homejs
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+  broker:
+    image: 'ansi/mosquitto'
+    networks:
+      - homejs 
+  mock-device:
+    # build: mock-device
+    image: 'handsofblue67/mockdevice' 
+    depends_on:
+      - broker
+    networks:
+      - homejs 

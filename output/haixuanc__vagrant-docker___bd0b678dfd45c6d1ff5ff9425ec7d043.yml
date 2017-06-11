@@ -1,0 +1,8 @@
+nodejs:
+  build: ./nodejs
+  volumes:
+      - /vagrant/apps/package-manager:/app
+  ports:
+    - "9000:9000"
+  working_dir: /app
+  command: npm start

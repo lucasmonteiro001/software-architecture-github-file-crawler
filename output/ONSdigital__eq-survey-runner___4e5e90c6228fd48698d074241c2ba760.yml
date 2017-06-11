@@ -1,0 +1,52 @@
+version: '2'
+
+services:
+
+  rabbit:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - eq-env
+    environment:
+      RABBITMQ_DEFAULT_USER: digitaleq
+      RABBITMQ_DEFAULT_PASS: digitaleq
+
+  db:
+    image: postgres:9.4
+    environment:
+      POSTGRES_PASSWORD: digitaleq
+      POSTGRES_USER: digitaleq
+      POSTGRES_DB: runner
+    ports:
+      - "5433:5432"
+    networks:
+      - eq-env
+
+  eq-survey-runner:
+    build: ./
+    environment:
+      EQ_DEV_MODE: "True"
+      EQ_ENABLE_CACHE: "True"
+      EQ_DEVELOPER_LOGGING: "True"
+      EQ_RABBITMQ_ENABLED: "True"
+      EQ_SERVER_SIDE_STORAGE_DATABASE_HOST: db
+      EQ_SERVER_SIDE_STORAGE_DATABASE_NAME: runner
+      EQ_RABBITMQ_HOST: rabbit
+      EQ_RABBITMQ_HOST_SECONDARY: rabbit
+    volumes:
+      - ./docker-secrets.yml:/tmp/application/secrets.yml
+    restart: always
+    depends_on:
+      - db
+      - rabbit
+    networks:
+      - eq-env
+    ports:
+      - "80:80"
+
+
+networks:
+  eq-env:
+    driver: bridge

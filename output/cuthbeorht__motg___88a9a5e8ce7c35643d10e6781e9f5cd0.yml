@@ -1,0 +1,17 @@
+version: "2"
+services:    
+    rabbitmq:
+        image: rabbitmq:3.6.6-management
+        container_name: rabbitmq
+        ports:
+            - 15672:15672
+            - 5672:5672
+    mongo:
+        image: mongo:3.4
+        container_name: mongodb
+        ports:
+            - 27017:27017
+        volumes:
+            - mongodb:/data/db
+volumes:
+    mongodb:

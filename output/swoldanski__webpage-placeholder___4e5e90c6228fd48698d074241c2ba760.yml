@@ -1,0 +1,11 @@
+
+version: '2'
+
+services:
+  webpage-placeholder:
+    image: webpage-placeholder:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 80:80

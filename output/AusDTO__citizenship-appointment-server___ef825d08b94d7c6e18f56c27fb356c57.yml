@@ -1,0 +1,20 @@
+sensu-server:
+  image: ausdto/monitoring-stack
+  ports:
+    - "5672:5672"
+    - "3000:3000"
+
+appointments-border-gov-au:
+  build: .
+  hostname: appointments-border-gov-au
+  links:
+    - sensu-server
+  environment:
+    - URL
+    - SECURITY_ADMIN_USERNAME
+    - SECURITY_ADMIN_PASSWORD
+    - MONITOR_CLIENT_ID
+    - MONITOR_FAMILY_NAME
+    - PAGELOAD_URI=/login
+    - BACKEND_PING_URI=/monitoring/backend
+    - PHANTOMJS_EXECUTABLE=node_modules/.bin/phantomjs

@@ -1,0 +1,23 @@
+ts3:
+  image: devalx/docker-teamspeak3:latest
+  labels:
+    io.rancher.container.hostname_override: container_name
+    io.rancher.scheduler.affinity:host_label: ${host_label}
+    io.rancher.sidekicks: ts3-datavolume
+    io.rancher.container.pull_image: always
+  volumes_from:
+    - ts3-datavolume
+  ports:
+    - "9987:9987/udp"
+    - "30033:30033"
+    - "10011:10011"
+ts3-datavolume:
+  labels:
+    io.rancher.container.hostname_override: container_name
+    io.rancher.container.start_once: true
+    io.rancher.container.pull_image: always
+  volume_driver: ${VOLUME_DRIVER}
+  volumes:
+    - ${VOLUME_NAME}:/home/ts3/data
+  entrypoint: /bin/true
+  image: busybox

@@ -1,0 +1,12 @@
+version: '2'
+services:
+  web:
+    build: .
+    ports:
+     - "8080:80"
+    depends_on:
+     - "mongodemo"
+    entrypoint: ./wait-for-it.sh mongodemo:27017
+  mongodemo:
+    image: mongo:latest
+

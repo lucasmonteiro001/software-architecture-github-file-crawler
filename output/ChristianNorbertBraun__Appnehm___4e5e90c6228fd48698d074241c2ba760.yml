@@ -1,0 +1,13 @@
+mongo:
+  image: mongo
+  ports:
+    - 27017:27017
+tomcat:
+  build: .  
+  ports:
+    - 8080:8080
+  environment:
+    - TOMCAT_User=admin
+    - TOMCAT_PASS=admin
+  links:
+    - mongo

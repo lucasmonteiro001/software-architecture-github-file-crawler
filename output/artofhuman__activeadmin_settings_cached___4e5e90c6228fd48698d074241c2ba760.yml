@@ -1,0 +1,13 @@
+version: '2'
+
+services:
+  app:
+    build: '.'
+    command: 'make test'
+    volumes:
+      - '.:/app'
+      - gems:/usr/local/bundle
+
+volumes:
+  gems:
+    external: true

@@ -1,0 +1,39 @@
+version: "2"
+services:
+
+  db:
+    image: postgres:9.5.3
+    volumes:
+      - $VAGRANT_DATA_DIR../data/pgdata:/var/lib/postgresql/data/pgdata
+    environment:
+      PGDATA: /var/lib/postgresql/data/pgdata
+      POSTGRES_USER: listenbrainz
+      POSTGRES_PASSWD: listenbrainz
+      POSTGRES_DB: listenbrainz
+
+  redis:
+    image: redis:3.2.1
+
+  web:
+    build:
+      context: ..
+      dockerfile: ./docker/Dockerfile
+    volumes:
+      - $VAGRANT_DATA_DIR..:/code/listenbrainz
+      - $VAGRANT_DATA_DIR../data/app:/data
+    ports:
+      - "80:80"
+    depends_on:
+      - redis
+      - db
+
+  consumer:
+    build:
+      context: ..
+      dockerfile: ./docker/redis-consumer/Dockerfile
+    command: python redis-consumer/redis-consumer.py
+    volumes:
+      - $VAGRANT_DATA_DIR..:/code/listenbrainz
+    depends_on:
+      - db
+      - redis

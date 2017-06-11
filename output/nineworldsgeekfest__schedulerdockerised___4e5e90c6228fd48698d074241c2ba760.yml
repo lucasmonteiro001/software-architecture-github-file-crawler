@@ -1,0 +1,14 @@
+db:
+        image: postgres:9.4
+        ports:
+                - "5432"
+        container_name: "db"
+scheduler:
+        build: .
+        volumes:
+                - ./scheduler:/app
+        ports:
+                - "3000:3000"
+        environment:
+                DATABASE_URL: "postgresql://postgres@db/"
+

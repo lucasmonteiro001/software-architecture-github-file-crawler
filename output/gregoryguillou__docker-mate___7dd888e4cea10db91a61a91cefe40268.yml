@@ -1,0 +1,17 @@
+version: '2'
+services:
+  vault:
+    image: vault
+    network_mode: "host"
+    ports:
+      - 8200:8200
+    command: ['server']
+    environment:
+      - VAULT_SKIP_VERIFY=true
+      - VAULT_LOCAL_CONFIG={"backend":{"consul":{"address":"127.0.0.1:8500","path":"vault"}},"listener":{"tcp":{"address":"127.0.0.1:8200","tls_cert_file":"/opt/vault/vault.cer","tls_key_file":"/opt/vault/vault.key"}},"disable_mlock":true}
+    volumes:
+      - ./keys/vault.cer:/opt/vault/vault.cer
+      - ./keys/127.0.0.1-unencrypted.key:/opt/vault/vault.key
+      - ./conf/credentials.acl:/opt/vault/credentials.acl
+    security_opt:
+      - label:disable

@@ -1,0 +1,7 @@
+srvCiJenkins:
+    image: mkodockx/docker-jenkins
+# if using nginx-proxy
+#    environment:
+#        - "VIRTUAL_HOST=<your-domain>"
+    volumes:
+        - /your/persistence/path/home:/var/jenkins_home

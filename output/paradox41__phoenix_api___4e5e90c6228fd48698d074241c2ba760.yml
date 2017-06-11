@@ -1,0 +1,31 @@
+version: '2'
+
+services:
+  web:
+    restart: always
+    build: .
+    volumes:
+      - .:/app
+    ports:
+      - '4000:4000'
+    links:
+      - postgres:db
+    depends_on:
+      - postgres
+    env_file: ./containers/.env
+    command: mix phoenix.server
+  data:
+    restart: 'no'
+    image: postgres:latest
+    volumes:
+      - /var/lib/postgresql
+    env_file: ./containers/.env
+    command: ls
+  postgres:
+    restart: always
+    image: postgres:latest
+    volumes_from:
+      - data
+    ports:
+      - "5432:5432"
+    env_file: ./containers/.env

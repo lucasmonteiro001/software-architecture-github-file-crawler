@@ -1,0 +1,25 @@
+version: '2'
+
+services:
+
+  db:
+    image: mongo
+    volumes:
+     - ${CMML_DB}:/data/db
+
+  camomile:
+    image: camomile/api
+    links:
+     - db:mongo
+    volumes:
+     - ${CMML_MEDIA}:/media
+     - ${CMML_LOGS}:/logs
+     - ${CMML_UPLOAD}:/upload
+    ports:
+     - "${CMML_PORT}:3000"
+    environment:
+     - ROOT_PASSWORD=${CMML_PASSWORD}
+     - MEDIA=/media
+     - LOG=/logs
+     - UPLOAD=/upload
+    command: node /app/app.js

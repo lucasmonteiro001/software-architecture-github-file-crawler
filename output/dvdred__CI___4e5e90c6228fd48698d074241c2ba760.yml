@@ -1,0 +1,79 @@
+version: '2'
+services:
+
+  gitlab:
+    image: gitlab/gitlab-ce:latest
+    hostname: gitlab.local
+    ports:
+      - "1122:22"
+      - "1180:80"
+      - "5001:5001"
+      - "11443:443"
+    volumes:
+      - ./data/gitlab/config:/etc/gitlab
+      - ./data/gitlab/logs:/var/log/gitlab
+      - ./data/gitlab/data:/var/opt/gitlab
+      - ./data/gitlab/registry:/opt/registry
+
+  tomcatqa:
+    image: tomcat
+    hostname: tomcat.local
+    environment:
+      JAVA_OPTS: "-Djava.awt.headless=true"
+      TOMCAT_ALLOW_REMOTE_MANAGEMENT: "1"
+    ports:
+      - "1080:8080"
+      - "1090:8009"
+    volumes:
+      - ./tomcat/tomcat-users.xml:/usr/local/tomcat/conf/tomcat-users.xml
+  
+  tomcatprod:
+    image: tomcat
+    hostname: tomcat.prod
+    environment:
+      JAVA_OPTS: "-Djava.awt.headless=true"
+      TOMCAT_ALLOW_REMOTE_MANAGEMENT: "1"
+    ports:
+      - "9080:8080"
+      - "9090:8009"
+    volumes:
+      - ./tomcat/tomcat-users-prod.xml:/usr/local/tomcat/conf/tomcat-users.xml
+  
+  jslave:
+    build: ./jenkins-slave/
+    environment:
+      JAVA_OPTS: "-Djava.awt.headless=true"
+    command: echo "Skipping, ready to run when spawned"
+  
+  jmaster:
+    build: 
+      context: ./jenkins
+      args:
+        JENKINS_UID: 1000
+        JENKINS_GID: 1000
+    hostname: jenkins.local
+    environment:
+      JAVA_OPTS: "-Djava.awt.headless=true"
+      JENKINS_UID: "1000"
+      JENKINS_GID: "1000"
+    ports:
+      - "50000:50000"
+      - "8080:8080"
+    links:
+      - gitlab:gitlab.local
+      - tomcatqa:tomcat.local
+      - tomcatprod:tomcat.prod
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /usr/bin/docker:/usr/bin/docker:ro
+    volumes_from:
+      - data
+
+  data:
+    image: alpine
+    user: root
+    volumes:
+      - ./data/jenkins:/var/jenkins_home
+    command: /bin/chown -R 1000:1000 /var/jenkins_home
+
+

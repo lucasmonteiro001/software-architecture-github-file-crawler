@@ -1,0 +1,34 @@
+version: '2'
+
+services:
+  memcache:
+    container_name: memcache
+    image: memcached:1.4.36
+
+  logjamdb:
+    container_name: logjamdb
+    image: percona/percona-server-mongodb:3.4.4
+    command: mongod --storageEngine=rocksdb
+    volumes:
+      - /data/db.rocksdb:/data/db
+    ports:
+      - "27017:27017"
+
+  demo:
+    container_name: logjam-demo
+    image: stkaes/logjam-app
+#    image: stkaes/logjam-develop
+    ports:
+      - "80:80"
+      - "8080:8080"
+      - "9604:9604"
+      - "9605:9605"
+      - "9705:9705"
+    tty: true
+    environment:
+      - LOGJAMDB_NAME=logjamdb
+      - MEMCACHE_NAME=memcache
+      - LOGJAM_ENV=production
+    env_file:
+      - "logjam.env"
+#    privileged: true

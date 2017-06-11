@@ -1,0 +1,15 @@
+wordpress:
+  image: wordpress
+  links:
+    - wordpress_db:mysql
+  ports:
+    - 8080:80
+  volumes:
+    - ./:/var/www/html/wp-content/themes   
+wordpress_db:
+  image: mariadb
+  environment:
+    WORDPRESS_DB_NAME: wdyouth
+    MYSQL_ROOT_PASSWORD: examplepass
+  volumes:
+    - db_data:/var/lib/mysql

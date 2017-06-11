@@ -1,0 +1,13 @@
+elasticsearch:
+  image: elasticsearch:2
+  volumes:
+    - ./elasticsearch/config:/usr/share/elasticsearch/config
+    - ./elasticsearch/plugins:/usr/share/elasticsearch/plugins
+    - ./elasticsearch/data:/usr/share/elasticsearch/data
+  ports:
+    - 9200:9200
+    - 9300:9300
+  command: ["elasticsearch", "--security.manager.enabled", "false"]
+  environment:
+      ES_HEAP_SIZE: 2g
+      VIRTUAL_HOST: storage.behaviorai.docker

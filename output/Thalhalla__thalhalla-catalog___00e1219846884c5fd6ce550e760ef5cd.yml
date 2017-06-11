@@ -1,0 +1,35 @@
+version: '2'
+services:
+  thalhallashop-nginx:
+    image: ${NGINX_TAG}
+    labels:
+      io.rancher.scheduler.affinity:host_label: ${host_label}
+      io.rancher.container.hostname_override: container_name
+      io.rancher.container.pull_image: always
+      traefik.enable: true
+      traefik.alias: ${MEANSHOP_HOST}
+      traefik.domain: ${MEANSHOP_DOMAIN}
+      traefik.acme: true
+      traefik.port: 80
+    environment:
+      NGINX_HOST: ${MEANSHOP_HOST}.${MEANSHOP_DOMAIN}
+      NGINX_PORT: 80
+  thalhallashop-node:
+    image: ${NODE_TAG}
+    labels:
+      io.rancher.scheduler.affinity:host_label: ${host_label}
+      io.rancher.container.pull_image: always
+    environment:
+      NODE_ENV: development
+      FACEBOOK_ID: ${FACEBOOK_ID}
+      FACEBOOK_SECRET: ${FACEBOOK_SECRET}
+      TWITTER_ID: ${TWITTER_ID}
+      TWITTER_SECRET: ${TWITTER_SECRET}
+      GOOGLE_ID: ${GOOGLE_ID}
+      GOOGLE_SECRET: ${GOOGLE_SECRET}
+      BRAINTREE_MERCHANT_ID: ${BRAINTREE_MERCHANT_ID}
+      BRAINTREE_PUBLIC_KEY: ${BRAINTREE_PUBLIC_KEY}
+      BRAINTREE_PRIVATE_KEY: ${BRAINTREE_PRIVATE_KEY}
+      MEANGO_DEBUG: ${MEANGO_DEBUG}
+      PORT: 9000
+      MONGODB_DB_URL: "mongodb://${MEANGO_HOST}/${MEANGO_DB}"

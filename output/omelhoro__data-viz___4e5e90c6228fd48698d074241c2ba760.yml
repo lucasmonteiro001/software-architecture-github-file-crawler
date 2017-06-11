@@ -1,0 +1,19 @@
+version: '2'
+services:
+  data-viz:
+    image: omelhoro1/data-viz
+    container_name: data-viz
+    restart: unless-stopped
+    # ports:
+    #   - "3000:3000"
+    environment:
+      - VIRTUAL_HOST=data-viz.igor-fischer.rocks,data.fischerops.com
+      - LETSENCRYPT_HOST=data-viz.igor-fischer.rocks,data.fischerops.com
+      - VIRTUAL_NETWORK=proxy-tier
+      - VIRTUAL_PORT=5000
+      - LETSENCRYPT_EMAIL=fischerig@outlook.com
+    networks:
+      - proxy-tier
+networks:
+  proxy-tier:
+    external: true

@@ -1,0 +1,14 @@
+version: '2'
+services:
+  ui:
+    image: testkitt/testkittui:latest
+    ports:
+      - 80:80
+    environment:
+      - NODE_ENV=production
+      - PORT=80
+      - MONGO_HOST=mongo
+    depends_on:
+      - mongo
+  mongo:
+    image: "mongo:latest"

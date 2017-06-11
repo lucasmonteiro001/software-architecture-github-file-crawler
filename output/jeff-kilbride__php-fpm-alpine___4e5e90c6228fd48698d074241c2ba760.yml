@@ -1,0 +1,20 @@
+version: "2"
+
+services:
+  nginx:
+    image: jkilbride/nginx-alpine
+    networks:
+      - private
+    ports:
+      - "8080:80"
+    volumes_from:
+      - php-fpm:ro
+
+  php-fpm:
+    image: jkilbride/php-fpm-alpine
+    networks:
+      - private
+
+networks:
+  private:
+    driver: bridge

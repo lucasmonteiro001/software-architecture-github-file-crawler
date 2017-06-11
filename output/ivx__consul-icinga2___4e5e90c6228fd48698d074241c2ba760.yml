@@ -1,0 +1,25 @@
+consul_1:
+  image: voxxit/consul
+  command: agent -client=0.0.0.0 -server -bootstrap-expect=2 -config-file=/tmp/consul-config/consul-service.cfg -data-dir=/tmp/consul-data
+  volumes:
+    - ./consul-template-example:/tmp/consul-config:ro
+consul_2:
+  image: voxxit/consul
+  entrypoint: /bin/bash -c
+  command: /bin/consul\ agent\ -client=0.0.0.0\ -join=$$CONSUL_1_PORT_8300_TCP_ADDR\ -server\ -bootstrap-expect=2\ -config-file=/tmp/consul-config/consul-service.cfg\ -data-dir=/tmp/consul-data
+  volumes:
+    - ./consul-template-example:/tmp/consul-config:ro
+  links:
+    - consul_1
+icinga2-consul:
+  build: .
+  environment:
+    - CONSUL_SERVER=consul_1
+  volumes:
+    - ./consul-template-example:/opt/consul-template/conf:ro
+  links:
+    - consul_1
+    - consul_2
+  ports:
+    - "443:443"
+    - "80:80"

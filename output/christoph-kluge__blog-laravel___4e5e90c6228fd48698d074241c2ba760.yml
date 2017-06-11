@@ -1,0 +1,43 @@
+service-webserver:
+    container_name: webproxy
+    build: ./docker/services/nginx-proxy
+    ports:
+        - "80:80"
+        - "443:443"
+    volumes_from:
+        - service-data
+    links:
+        - service-app
+service-db:
+  container_name: db
+  image: mysql/mysql-server
+  ports:
+    - "3306:3306"
+  environment:
+    - MYSQL_USER=laravel
+    - MYSQL_PASSWORD=laravel
+    - MYSQL_DATABASE=laravel
+    - MYSQL_ROOT_PASSWORD=laravel
+service-app:
+  container_name: app
+  build: ./docker/services/php-fpm
+  volumes_from:
+    - service-data
+  links:
+    - service-db
+  environment:
+    - DB_CONNECTION=docker
+service-data:
+    container_name: data
+    build: ./docker/services/data-container
+    volumes:
+        - ./.env:/data/vhost/.env
+        - ./app:/data/vhost/app
+        - ./bootstrap:/data/vhost/bootstrap
+        - ./config:/data/vhost/config
+        - ./database:/data/vhost/database
+        - ./public:/data/vhost/public
+        - ./resources:/data/vhost/resources
+        - ./storage:/data/vhost/storage
+        - ./vendor:/data/vhost/vendor
+        - ./artisan:/data/vhost/artisan

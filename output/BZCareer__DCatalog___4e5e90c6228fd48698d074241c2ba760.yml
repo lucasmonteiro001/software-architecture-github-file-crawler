@@ -1,0 +1,19 @@
+version: '2'
+
+services:
+  mongo:
+    image: mongo
+    container_name: mongo
+    volumes:
+      - /data/db:/data/db
+    ports:
+      - "27017:27017"
+  dcatalog-core:
+    build:
+      context: ./datacatalog-core
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    links:
+      - mongo:mongo
+

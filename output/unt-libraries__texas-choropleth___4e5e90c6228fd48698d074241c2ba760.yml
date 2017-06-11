@@ -1,0 +1,14 @@
+db:
+    image: mysql:latest
+    environment:
+        - MYSQL_ROOT_PASSWORD=root
+        - MYSQL_DATABASE=texas_choropleth
+web:
+    build: .
+    command: python src/manage.py runserver 0.0.0.0:8000 --settings=texas_choropleth.settings.local
+    volumes:
+        - .:/app/
+    ports:
+        - "8000:8000"
+    links:
+        - db

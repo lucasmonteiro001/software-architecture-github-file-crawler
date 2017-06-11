@@ -1,0 +1,40 @@
+# Author: Nguyen Ba Cuong
+
+postgres:
+    image: "postgres:9.4"
+    ports:
+        - "5432:5432"
+    environment:
+        - POSTGRES_USER=admin
+        - POSTGRES_PASSWORD=openthedoor
+        - POSTGRES_DB=demo
+    hostname: postgres
+    domainname: coclab.lan
+    cpu_shares: 512              # 0.5 CPU
+    mem_limit: 536870912         # 512 MB RAM
+    # privileged: true
+    # restart: always
+    # stdin_open: true
+    # tty: true
+
+mesos-admin:
+    image: "tranhuucuong91/mesos-admin:0.1"
+    command: bash -c "trap 'echo Exited!; exit;' SIGINT SIGTERM; while true; do date -u '+%Y-%m-%d %H:%M:%S'; sleep 1; done"
+    links:
+        - postgres:postgres
+    ports:
+        - "8000:8000"
+    # environment:
+    #     - POSTGRES_USER=admin
+    #     - POSTGRES_PASSWORD=openthedoor
+    #     - POSTGRES_DB=demo
+    volumes:
+        - ./:/mesos-admin/
+    hostname: python
+    domainname: coclab.lan
+    cpu_shares: 512              # 0.5 CPU
+    mem_limit: 536870912         # 512 MB RAM
+    # privileged: true
+    # restart: always
+    # stdin_open: true
+    tty: true

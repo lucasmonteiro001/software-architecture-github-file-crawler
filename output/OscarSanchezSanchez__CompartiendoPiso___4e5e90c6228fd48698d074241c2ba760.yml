@@ -1,0 +1,25 @@
+version: '2'
+ 
+services:
+  mysql:
+    image: mysql
+    container_name: mysql-spring
+    environment:
+      - MYSQL_USER=root2
+      - MYSQL_PASSWORD=pass2
+      - MYSQL_ROOT_PASSWORD=pass
+      - MYSQL_DATABASE=compartiendopiso
+    #restart: always
+ 
+  spring-repository:
+    depends_on:
+      - mysql
+    image: compartiendopisourjc/compartiendopiso:latest
+    container_name: compartiendopiso_apirest_angular
+    ports:
+      - "8443:8443"
+    links:
+      - mysql:mysql
+    #restart: always
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/compartiendopiso

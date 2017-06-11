@@ -1,0 +1,25 @@
+version: '2'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: bastogne
+    restart: always
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/bastogne
+    depends_on:
+      - mongodb
+      - redis
+    entrypoint: /bastogne/entrypoint.sh
+
+  mongodb:
+    image: mongo
+    restart: always
+
+  redis:
+    image: redis
+    restart: always

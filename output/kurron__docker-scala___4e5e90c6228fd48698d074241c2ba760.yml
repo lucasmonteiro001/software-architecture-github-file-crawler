@@ -1,0 +1,7 @@
+scala:
+    build: .
+    container_name: "scala"
+    net: "host"
+    volumes:
+        - /home/vagrant:/home/developer
+    user: 1000:1000

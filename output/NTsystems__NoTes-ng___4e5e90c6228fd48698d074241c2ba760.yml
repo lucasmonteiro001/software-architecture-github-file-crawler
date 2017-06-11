@@ -1,0 +1,6 @@
+angular:
+  image: nginx:1.9.2
+  ports:
+    - "8080:80"
+  volumes:
+    - .:/usr/share/nginx/html

@@ -1,0 +1,21 @@
+# docker-compose up -d
+# ensure you open all ports in the hosts firewall
+jenkins_data:
+  container_name: jenkins_data
+  build: ./Jenkins_Data
+
+jenkins_master:
+  container_name: jenkins_master
+  build: ./Jenkins
+  ports: 
+   - "50000:50000"
+  volumes_from:
+   - jenkins_data:rw
+
+reverse_proxy:
+  container_name: reverse_proxy
+  build: ./Reverse_Proxy
+  ports:
+   - "80:80"
+  links:
+   - jenkins_master:jenkins_master

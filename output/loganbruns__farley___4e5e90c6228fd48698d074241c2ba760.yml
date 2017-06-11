@@ -1,0 +1,7 @@
+farley:
+  image: farley-xmpp
+  volumes:
+    - /home/vagrant/.farley:/root/.farley
+    - /tmp/incoming:/var/farley/incoming
+    - /tmp/www:/var/farley/www
+    - /tmp/tdb:/var/farley/tdb

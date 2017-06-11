@@ -1,0 +1,15 @@
+mysql:
+  image: anthonykgross/docker-mysql-backup-cron:latest
+  container_name: akg-mysql
+  environment:
+    MYSQL_ROOT_PASSWORD: root
+  volumes:
+    - ./lib:/var/lib/mysql
+    - ./logs:/var/log/mysql
+    - ./conf/mysql:/etc/mysql
+    - ./conf/cron.conf:/etc/cron.d/cron-mysql.conf
+    - ./conf/supervisor.conf:/etc/supervisor/conf.d/supervisor.conf
+    - ./backup:/src
+    - ./scripts:/scripts
+  ports:
+    - 3306:3306

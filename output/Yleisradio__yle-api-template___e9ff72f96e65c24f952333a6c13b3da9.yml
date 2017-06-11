@@ -1,0 +1,42 @@
+{{#postgres?}}
+dev-postgres:
+  container_name: "{{name}}-sql"
+  build: "docker/dockerfiles-dev"
+  dockerfile: "Dockerfile.postgresql"
+  environment:
+    - POSTGRES_PASSWORD=postgres
+    - POSTGRES_USER=postgres
+  ports:
+    - "{{dev-postgres-port}}:5432"
+  hostname: "postgres.docker-container.local"
+{{/postgres?}}
+{{#rabbitmq?}}
+dev-rabbitmq:
+  image: "rabbitmq:3-management"
+  container_name: "{{name}}-mq"
+  ports:
+    - "{{dev-rabbitmq-port}}:5672"
+    - "{{dev-rabbitmq-management-port}}:15672"
+  hostname: "rabbitmq.docker-container.local"
+tests-rabbitmq:
+  image: "rabbitmq:3-management"
+  container_name: "{{name}}-tests-mq"
+  ports:
+    - "{{test-rabbitmq-port}}:5672"
+    - "{{test-rabbitmq-management-port}}:15672"
+  hostname: "rabbitmq.docker-container.local"
+{{/rabbitmq?}}
+{{#redis?}}
+dev-redis:
+  container_name: "{{name}}-redis"
+  image: "redis:2.8.23"
+  ports:
+    - "{{dev-redis-port}}:6379"
+  hostname: "redis.docker-container.local"
+tests-redis:
+  container_name: "{{name}}-tests-redis"
+  image: "redis:2.8.23"
+  ports:
+    - "{{test-redis-port}}:6379"
+  hostname: "redis.docker-container.local"
+{{/redis?}}

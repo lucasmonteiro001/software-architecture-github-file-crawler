@@ -1,0 +1,13 @@
+version: '2'
+services:
+
+  jekyll:
+    image: jekyll/jekyll
+    ports:
+      - 4000:4000
+    environment:
+      - PUID=1000
+      - PGID=1000
+    volumes:
+      - ~/workspace/arthurlm44.com/:/home/jekyll/
+

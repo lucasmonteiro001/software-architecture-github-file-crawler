@@ -1,0 +1,54 @@
+version: '2'
+
+services:
+    code:
+        image: eraac/xxx
+        volumes:
+            - "./logs/code:/var/www/var/logs"
+
+    php:
+        image: eraac/php:7
+        env_file: "./config/code/env"
+        expose:
+            - "9000"
+        links:
+            - code
+        external_links:
+            - mysql
+            - fake-smtp
+        volumes_from:
+            - code
+        networks:
+            - fake-smtp
+            - mysql
+            - default
+        labels:
+            - "traefik.enable=false"
+
+    nginx:
+        image: eraac/nginx
+        labels:
+            - "traefik.backend=app-name"
+            - "traefik.frontend.rule=Host:domain.tld"
+            - "traefik.port=80"
+            - "traefik.docker.network=reverse-proxy"
+            - "traefik.enable=true"
+        links:
+            - php
+            - code
+        volumes:
+            - "./logs/nginx/:/var/log/nginx"
+            - "./config/nginx/nginx/conf:/etc/nginx/nginx.conf:ro"
+        volumes_from:
+            - code
+        networks:
+            - reverse-proxy
+            - default
+
+networks:
+    mysql:
+        external: true
+    fake-smtp:
+        external: true
+    reverse-proxy:
+        external: true

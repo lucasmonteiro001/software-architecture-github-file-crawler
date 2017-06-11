@@ -1,0 +1,46 @@
+version: '2'
+services:
+  lila:
+    build: lila-server
+    links:
+     - db1
+    volumes:
+     - ./lila:/lila
+     - ivy-data:/root/.ivy2
+    ports:
+     - "9663:9663"
+     - "2222:22"
+  explorer:
+    build: explorer
+    volumes:
+     - ./lila:/lila
+     - ivy-data:/root/.ivy2
+    ports:
+     - "2223:22"
+     - "9000:9000"
+  db1:
+    image: mongo:3.2
+    ports:
+     - "27017:27017"
+    volumes:
+     - mongo-data:/data/db
+  nginx:
+    build: nginx
+    links:
+     - lila
+    volumes:
+     - ./lila/lila:/lila
+    extra_hosts:
+     - l.org socket.l.org en.l.org de.l.org le.l.org fr.l.org es.l.org l1.org socket.en.l.org socket.le.l.org socket.fr.l.org ru.l.org el.l.org hu.l.org socket.hu.l.org:127.0.0.1
+    ports:
+     - "80:80"
+  fishnet:
+    image: ageneau/fishnet
+    command: [--key, foo, --endpoint, "http://nginx/fishnet"]
+    links:
+     - nginx
+volumes:
+  mongo-data:
+    driver: local
+  ivy-data:
+    driver: local

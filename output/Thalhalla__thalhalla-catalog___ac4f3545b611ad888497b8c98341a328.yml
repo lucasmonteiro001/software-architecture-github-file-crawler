@@ -1,0 +1,37 @@
+tf2:
+  image: thalhalla/tf2
+  environment:
+    STEAM_USERNAME: ${STEAM_USERNAME}
+    STEAM_PASSWORD: ${STEAM_PASSWORD}
+    STEAM_GID: 232250
+    STEAM_GSLT: ${STEAM_GSLT}
+    TF2_EXEC: ${TF2_EXEC}
+    TF2_MOTD_URL: ${TF2_MOTD_URL}
+    TF2_PASSWORD: ${TF2_PASSWORD}
+    TF2_MAIL: ${TF2_MAIL}
+    TF2_HOSTNAME: ${TF2_HOSTNAME}
+    PORT: 27015
+  labels:
+    io.rancher.container.hostname_override: container_name
+    io.rancher.scheduler.affinity:host_label: ${host_label}
+    io.rancher.sidekicks: tf2-datavolume
+    io.rancher.container.pull_image: always
+  volumes_from:
+    - tf2-datavolume
+  ports:
+    - "26901:26901/udp"
+    - "27005:27005/udp"
+    - "27015:27015"
+    - "27015:27015/udp"
+    - "27020:27020/udp"
+tf2-datavolume:
+  labels:
+    io.rancher.container.hostname_override: container_name
+    io.rancher.container.start_once: true
+    io.rancher.scheduler.affinity:host_label: ${host_label}
+    io.rancher.container.pull_image: always
+  volume_driver: ${VOLUME_DRIVER}
+  volumes:
+    - ${VOLUME_NAME}:/home/steam
+  entrypoint: /bin/true
+  image: busybox

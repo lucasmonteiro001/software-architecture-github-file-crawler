@@ -1,0 +1,15 @@
+version: '2'
+services:
+  ldfclient:
+    image: "ldfclient:latest"
+    ports:
+     - "80:3000"
+    container_name: ldfclient
+  ldfserver:
+    image: "ldfserver:latest"
+    ports:
+      - "3000:3000"
+    volumes:
+      - /home/gilles/Projects/CloudMobielApplicaties/Labo06/dbpedia:/data
+    command: /var/www/ldf-server/config.json 3000
+    container_name: ldfserver

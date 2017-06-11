@@ -1,0 +1,210 @@
+version: '2'
+networks:
+  mynet:
+    driver: bridge
+    ipam:
+      config:
+      - subnet: 172.25.0.0/24
+        gateway: 172.25.0.1
+services:
+  installer:
+    build: docker-images/installer
+    environment:
+      DOMAIN: dockerized-magento.local
+      MAGENTO_ROOT: /var/www/html/web
+      MYSQL_HOST: mysql
+      MYSQL_DATABASE: magento
+      MYSQL_USER: root
+      MYSQL_PASSWORD: pw
+      ADMIN_USERNAME: admin
+      ADMIN_FIRSTNAME: Admin
+      ADMIN_LASTNAME: Inistrator
+      ADMIN_PASSWORD: password123
+      ADMIN_FRONTNAME: admin
+      ADMIN_EMAIL: admin@example.com
+      ENCRYPTIONKEY: 731aea833710535779fe8c7c49bc6c4d
+    volumes_from:
+      - nginx
+#      - apache
+#      - php7
+    links:
+      - "cache:rediscache"
+      - "sessions:redissession"
+      - "fullpagecache:redisfullpagecache"
+      - "mysql:mysql"
+  nginx:
+    build: docker-images/nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    links:
+      - "php"
+    volumes:
+      - ./logs/nginx:/var/log/nginx
+      - ./config/ssl/cert.pem:/etc/nginx/ssl/cert.pem
+      - ./config/ssl/cert.key:/etc/nginx/ssl/cert.key
+      - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./config/nginx/sites-enabled:/etc/nginx/sites-enabled
+      - ./config/nginx/includes:/etc/nginx/includes
+      - ./config/nginx/custom-locations:/etc/nginx/custom-locations
+      - ./config/php/5.6/cli/php.ini:/etc/php/5.6/cli/php.ini
+      - ./config/php/5.6/fpm/php.ini:/etc/php/5.6/fpm/php.ini
+      - ./config/nginx/newrelic.ini:/etc/php/5.6/mods-available/newrelic.ini
+      - ./config/nginx/newrelic.ini:/etc/php/5.6/fpm/conf.d/newrelic.ini
+      - ./config/nginx/newrelic.ini:/etc/php/5.6/cli/conf.d/newrelic.ini
+    volumes_from:
+      - php
+    working_dir: /var/www/html/
+    networks:
+      mynet:
+        ipv4_address: 172.25.0.11
+#  apache:
+#    build: docker-images/apache
+#    ports:
+#      - "80:80"
+#      - "443:443"
+#    links:
+#      - php
+#    volumes:
+#      - ./config/apache:/etc/apache2/sites-available/
+#      - ./config/apache:/etc/apache2/sites-enabled/
+#      - ./config/php/cli/php.ini:/etc/php5/cli/php.ini
+#      - ./config/php/php.ini:/etc/php5/apache2/php.ini
+#      - ./docker-images/apache/ioncube:/usr/local/ioncube
+#      - ./config/hosts:/etc/hosts
+#    volumes_from:
+#      - php
+#    working_dir: /var/www/html/magentoce/
+#    networks:
+#      mynet:
+#        ipv4_address: 172.25.0.11
+  php:
+    build: docker-images/php
+    links:
+      - "cache:rediscache"
+      - "sessions:redissession"
+      - "fullpagecache:redisfullpagecache"
+      - "mysql:mysql"
+    volumes:
+      - .:/var/www/html
+#  php7:
+#    build: docker-images/php7
+#    ports:
+#      - "80:80"
+#      - "443:443"
+#    links:
+#      - php
+#    volumes:
+#      - ./config/apache:/etc/apache2/sites-available/
+#      - ./config/apache:/etc/apache2/sites-enabled/
+#      - ./config/php/cli/php.ini:/etc/php5/cli/php.ini
+#      - ./config/php/php.ini:/etc/php5/apache2/php.ini
+#      - ./docker-images/apache/ioncube:/usr/local/ioncube
+#      - ./config/hosts:/etc/hosts
+#    volumes_from:
+#      - php
+#    working_dir: /var/www/html/lotte/lottevec/
+#    networks:
+#      mynet:
+#        ipv4_address: 172.25.0.11
+  mysql:
+    image: mysql:5.6
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: pw
+    volumes:
+      - ./config/mysql/my.conf:/etc/mysql/my.cnf
+      - ./data/mysql:/var/lib/mysql
+      - ./data/database:/data/database
+    networks:
+      mynet:
+        ipv4_address: 172.25.0.22
+  cache:
+    image: redis:latest
+    networks:
+      mynet:
+        ipv4_address: 172.25.0.33
+  fullpagecache:
+    image: redis:latest
+    networks:
+      mynet:
+        ipv4_address: 172.25.0.44
+  sessions:
+    image: redis:latest
+    networks:
+      mynet:
+        ipv4_address: 172.25.0.55
+  memcached:
+    image: memcached:latest
+    ports:
+      - "11211:11211"
+    networks:
+      mynet:
+        ipv4_address: 172.25.0.101
+  dbadmin:
+    image: corbinu/docker-phpmyadmin
+    links:
+      - "mysql:mysql"
+    ports:
+      - 8181:80
+    environment:
+      MYSQL_PORT_3306_TCP_ADDR: 172.25.0.22
+      MYSQL_PORT_3306_TCP_PORT: 3306
+      PMA_USERNAME: root
+      PMA_PASSWORD: pw
+      PMA_NO_PASSWORD: 1
+    networks:
+      mynet:
+        ipv4_address: 172.25.0.66
+  rabbit:
+    build: docker-images/RabbitMQ
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    links:
+      - php
+    working_dir: /data
+    volumes:
+      - ./data/rabbit/mnesia:/var/lib/rabbitmq/mnesia
+      - ./data/rabbit/log:/var/log/rabbitmq
+      - ./config/rabbit/rabbitmq-env.conf:/etc/rabbitmq/rabbitmq-env.conf
+    hostname: cf78b9183759
+    networks:
+      mynet:
+        ipv4_address: 172.25.0.77
+  mongodb:
+    build: docker-images/mongodb
+    ports:
+      - "27017:27017"
+    working_dir: /data
+    volumes:
+      - ./data/mongodb:/data
+    networks:
+      mynet:
+        ipv4_address: 172.25.0.88
+#  nodejs:
+#    build: docker-images/nodejs
+#    ports:
+#      - "4545:4545"
+#      - "7980:7980"
+#      - "7979:7979"
+#      - "22222:22222"
+#    working_dir: /var/www/lotte-integration
+#    volumes:
+#      - ./docker-images/nodejs/lotte-integration:/var/www/lotte-integration
+#    networks:
+#      mynet:
+#        ipv4_address: 172.25.0.99
+  adminmongo:
+    build: docker-images/adminMongo
+    ports:
+      - "1234:1234"
+    working_dir: /app/adminMongo
+    environment:
+      - CONN_NAME=lpoint
+      - DB_HOST=172.25.0.88
+      - DB_PORT=27017
+    networks:
+      mynet:
+        ipv4_address: 172.25.0.100

@@ -1,0 +1,34 @@
+messaging:
+  image: rabbitmq:3.4
+  ports:
+   - "5672:5672"
+   - "15672:15672"
+db:
+  image: mongo:latest
+  command: --smallfiles
+  ports:
+   - "27017:27017"
+autho:
+  image: httpprincess/authorizator:latest
+  ports:
+   - "5000:5000"
+updater:
+  image: httpprincess/store-updater:latest
+  links:
+    - db
+    - messaging
+worker2:
+  image: benedicere/metahosting-dummyworker
+  links:
+    - db
+    - messaging
+  environment:
+   - DB_LOCAL_COLLECTION=dummy2-local-instances
+   - WORKER_NAME=dummy2
+   - WORKER_DESCRIPTION=dummyworkerdd
+facade:
+   build: .
+   links:
+    - db
+    - autho
+    - messaging

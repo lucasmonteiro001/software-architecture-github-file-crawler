@@ -1,0 +1,24 @@
+---
+version: '2'
+services:
+  nextcloud0:
+    image: "rootlogin/nextcloud"
+    container_name: nextcloud0
+    ports:
+      - "8880:80"
+    volumes:
+      - "/var/lib/data/docker/nextcloud0/data:/data/data"
+      # - "/var/lib/data/docker/nextcloud0/tmp:/data/tmp"
+      # - "/var/lib/data/docker/nextcloud0/userapps:/data/userapps"
+      - "./config:/data/config"
+    depends_on:
+      - nextcloud0_mariadb0
+
+  nextcloud0_mariadb0:
+    image: "mariadb:10"
+    container_name: nextcloud0_mariadb0
+    command: ["--innodb-buffer-pool-size=128M", "--expire-logs-days=5"]
+    env_file:
+      - ../nextcloud.env
+    volumes:
+      - "/var/lib/data/docker/nextcloud0/mariadb:/var/lib/mysql"

@@ -1,0 +1,36 @@
+version: "2"
+
+services:
+
+  sMattress_MySql:
+      image: mysql:latest
+      environment:
+        - MYSQL_ROOT_PASSWORD=123456
+      container_name: sMattress_MySql
+      expose:
+        - 3306
+      ports:
+        - 3305:3306
+      volumes:
+        - ./mysql/data:/var/lib/mysql
+
+  sMattress_Redis:
+      image: redis:alpine
+      container_name: sMattress_Redis
+      expose:
+        - 6379
+
+  sMattress_WebServer:
+    image: registry.cn-hangzhou.aliyuncs.com/smattress/web-server:latest
+    container_name: sMattress_WebServer
+    depends_on:
+      - sMattress_Redis
+      - sMattress_MySql
+    external_links:
+      - sMattress_Redis
+      - sMattress_MySql
+    ports:
+      - 80:8080
+      - 443:8443
+    volumes:
+      - ./config:/config

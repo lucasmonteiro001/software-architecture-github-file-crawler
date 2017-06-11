@@ -1,0 +1,57 @@
+web:
+  build: .
+  command: bundle exec guard -p
+  volumes:
+    - .:/app
+  ports:
+    - 7580:3000
+  links:
+    - db
+    - mail
+    - memcached
+  volumes_from:
+    - bundle
+
+
+db:
+  image: kiasaki/alpine-postgres:9.4
+  volumes_from:
+    - pgdata
+  ports:
+    - 5432
+
+bundle:
+  image: alpine:3.3
+  command: echo data container for bundle ...
+  volumes:
+    - /bundle
+
+
+# editor:
+#   build: editor/
+#   command: grunt
+#   ports:
+#     - "9006:9006"
+#   volumes:
+#     - ./editor:/app
+
+
+redis:
+  image: redis:3.2-alpine
+
+memcached:
+  image: memcached
+  ports:
+    - 11211
+
+mail:
+  image: turfmedia/maildev
+  ports:
+    - "7080:1080"
+    - "7025:1025"
+
+pgdata:
+  image: alpine:3.3
+  command: echo data container for pg ...
+  volumes:
+    - /var/lib/postgresql/data

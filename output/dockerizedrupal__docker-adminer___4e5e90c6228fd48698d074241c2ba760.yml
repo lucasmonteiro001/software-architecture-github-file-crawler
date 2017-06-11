@@ -1,0 +1,26 @@
+adminer:
+  image: dockerizedrupal/adminer:2.0.0
+  hostname: adminer
+  ports:
+    - "80:80"
+    - "443:443"
+  volumes_from:
+    - adminer-data
+  environment:
+    - SERVER_NAME=localhost
+    - TIMEZONE=Etc/UTC
+    - PROTOCOLS=https,http
+    - MYSQL_HOST=
+    - MYSQL_PORT=3306
+    - MYSQL_USERNAME=container
+    - MYSQL_PASSWORD=container
+    - PHP_INI_MAX_EXECUTION_TIME=900
+    - HTTP_BASIC_AUTH=Off
+    - HTTP_BASIC_AUTH_USERNAME=container
+    - HTTP_BASIC_AUTH_PASSWORD=
+adminer-data:
+  image: dockerizedrupal/adminer:2.0.0
+  hostname: adminer-data
+  entrypoint: ["/bin/echo", "Data-only container for Adminer."]
+  volumes:
+    - /adminer

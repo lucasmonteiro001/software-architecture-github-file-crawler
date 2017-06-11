@@ -1,0 +1,25 @@
+version: '2'
+
+services:
+    tipboard:
+        image: eraac/tipboard
+        labels:
+            - "traefik.backend=dashboard"
+            - "traefik.frontend.rule=Host:dashboard.domain.tld"
+            - "traefik.docker.network=reverse-proxy"
+            - "traefik.enable=true"
+        volumes:
+            - "./config/tipboard:/root/.tipboard"
+        networks:
+            - default
+            - reverse-proxy
+
+    redis:
+        image: redis:alpine
+        volumes:
+            - "./data/redis:/data"
+
+networks:
+    reverse-proxy:
+        external: true
+

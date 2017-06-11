@@ -1,0 +1,38 @@
+version: '2'
+
+services:
+  webapiapplication:
+    container_name: webapiapplication
+    image: webapiapplication
+    build:
+      context: ./WebAPIApplication
+      dockerfile: .docker/Dockerfile
+    ports:
+      - "80:80"
+    networks:
+      - webapi-network
+
+  node:
+    container_name: nodeapp
+    image: nodeapp
+    build:
+      context: ./productsmanager
+      dockerfile: .docker/Dockerfile
+#    volumes:
+#      - ./productsmanager/src:/var/www/productsmanager
+    environment:
+      - NODE_ENV=development
+    ports:
+      - "4200:4200"
+    networks:
+      - webapi-network
+
+  mongodb:
+    container_name: mongodb
+    image: mongo
+    networks:
+      - webapi-network
+
+networks:
+  webapi-network:
+    driver: bridge

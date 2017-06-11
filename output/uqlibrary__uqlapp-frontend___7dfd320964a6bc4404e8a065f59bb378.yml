@@ -1,0 +1,7 @@
+frontend:
+  image: uqlibrary/docker-grunt:latest
+  ports:
+    - "8001:8001"
+    - "35729:35729"
+  volumes:
+    - ../../:/var/app/current

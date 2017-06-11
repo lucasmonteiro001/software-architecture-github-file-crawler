@@ -1,0 +1,18 @@
+version: '2'
+services:
+  sc-elasticsearch:
+    build: .
+    image: sc-elasticsearch
+    container_name: sc-elasticsearch
+    ports:
+     - "9200:9200"
+     - "9300:9300"
+    environment:    
+      ES_JAVA_OPTS: "-Xms1g -Xmx1g"
+  sc-kibana:
+    image: kibana:latest
+    container_name: skunkwork-kibana
+    links:
+     - sc-elasticsearch:elasticsearch
+    ports:
+     - "5601:5601"

@@ -1,0 +1,14 @@
+version: '2'
+
+services:
+   postgres:
+     image: postgres
+     restart: always
+
+   recipe-ui:
+     depends_on:
+       - postgres
+     image: recipe:v1
+     ports:
+       - "8080:8080"
+     restart: always

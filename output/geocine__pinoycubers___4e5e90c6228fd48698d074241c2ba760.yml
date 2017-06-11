@@ -1,0 +1,96 @@
+version: '2'
+
+services:
+
+### Workspace Utilities Container ###########################
+
+    workspace:
+        container_name: 'pinoycubers_workspace'
+        build:
+            context: .
+            args:
+                - INSTALL_NODE=true
+                - INSTALL_WORKSPACE_SSH=true
+                - PUID=1000
+                - PGID=1000
+                - NODE_VERSION=stable
+        volumes_from:
+            - volumes_source
+        tty: true
+        expose:
+           - "3001"
+        ports:
+           - "3001:3001"
+
+### PHP-FPM Container #######################################
+
+    php-fpm:
+        container_name: 'pinoycubers_phpfpm'
+        build:
+            context: ./docker/php-fpm
+            dockerfile: Dockerfile-70
+        volumes_from:
+            - volumes_source
+        expose:
+            - "9000"
+        links:
+            - workspace
+
+### Nginx Server Container ##################################
+
+    nginx:
+        container_name: 'pinoycubers_nginx'
+        build:
+            context: ./docker/nginx
+            args:
+                - PHP_UPSTREAM=php-fpm
+        volumes:
+            - ./logs/nginx/:/var/log/nginx
+        volumes_from:
+            - volumes_source
+        ports:
+            - "80:80"
+        links:
+            - php-fpm
+
+### MySQL Container #########################################
+
+    mysql:
+        container_name: 'pinoycubers_mysql'
+        build: ./docker/mysql
+        volumes_from:
+            - volumes_data
+        environment:
+            MYSQL_DATABASE: pinoycubers
+            MYSQL_USER: pinoycubers
+            MYSQL_PASSWORD: secret
+            MYSQL_ROOT_PASSWORD: root
+        ports:
+            - "3306:3306"
+
+### Redis Container #########################################
+
+    redis:
+        container_name: 'pinoycubers_redis'
+        build: ./docker/redis
+        volumes_from:
+            - volumes_data
+        ports:
+            - "6379:6379"
+            
+### Laravel Application Code Container ######################
+
+    volumes_source:
+        container_name: 'pinoycubers_source'
+        image: tianon/true
+        volumes:
+            - .:/var/www/laravel
+
+### Databases Data Container ################################
+
+    volumes_data:
+        container_name: 'pinoycubers_data'
+        image: tianon/true
+        volumes:
+            - /var/lib/mysql:/var/lib/mysql
+            - /var/lib/redis:/data

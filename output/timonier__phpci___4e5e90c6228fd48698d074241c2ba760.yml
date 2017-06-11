@@ -1,0 +1,45 @@
+version: '2'
+
+services:
+    beanstalkd:
+        image: timonier/beanstalkd:1.10
+
+    mysql:
+        command: --sql-mode="NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION,ONLY_FULL_GROUP_BY"
+        environment:
+            - MYSQL_DATABASE=phpci
+            - MYSQL_PASSWORD=ThisPasswordIsNotSoSecretChangeIt
+            - MYSQL_ROOT_PASSWORD=ThisPasswordIsNotSoSecretChangeIt
+            - MYSQL_USER=phpci
+        image: mysql:5.7
+        volumes:
+            - mysql:/var/lib/mysql:rw
+
+    phpci:
+        image: timonier/phpci:1.7.0
+        environment:
+            - PHPCI_DB_HOST=mysql
+            - PHPCI_DB_NAME=phpci
+            - PHPCI_DB_PASSWORD=ThisPasswordIsNotSoSecretChangeIt
+            - PHPCI_DB_USER=phpci
+            - PHPCI_QUEUE_HOST=beanstalkd
+            - PHPCI_QUEUE_NAME=phpci
+        volumes:
+            - phpci:/srv/phpci:rw
+
+    worker:
+        environment:
+            - PHPCI_DB_HOST=mysql
+            - PHPCI_DB_NAME=phpci
+            - PHPCI_DB_PASSWORD=ThisPasswordIsNotSoSecretChangeIt
+            - PHPCI_DB_USER=phpci
+            - PHPCI_MODE=worker
+            - PHPCI_QUEUE_HOST=beanstalkd
+            - PHPCI_QUEUE_NAME=phpci
+        image: timonier/phpci:1.7.0
+        volumes:
+            - phpci:/srv/phpci:rw
+
+volumes:
+    mysql: {}
+    phpci: {}

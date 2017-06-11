@@ -1,0 +1,20 @@
+reader:
+ build: ./reader
+ ports:
+   - "3000:3000"
+ links:
+   - api
+db:
+  image: postgres
+  environment:
+    POSTGRES_PASSWORD: manifold
+    POSTGRES_USER: manifold
+api:
+  build: ./api
+  command: /usr/local/bin/entry.sh
+  volumes:
+    - ./epubs:/home/manifold/api/epubs
+  ports:
+    - "3001:3001"
+  links:
+    - db

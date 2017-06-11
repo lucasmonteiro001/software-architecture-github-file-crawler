@@ -1,0 +1,128 @@
+version: '2'
+
+networks:
+  prodnetwork:
+    driver: bridge
+
+services:
+ proxy:
+  build: ./proxy
+  image: zsuffazs/nomoretools-ci-proxy:latest
+  container_name: ci-proxy
+  ports:
+   - "80:80"
+  networks:
+   - prodnetwork
+  depends_on:
+   - gitlab
+   - jenkins
+   - nexus
+   - sonar
+   - seleniumhub
+
+ nexus:
+  build: ./nexus
+  image: zsuffazs/nomoretools-ci-nexus:latest
+  container_name: ci-nexus
+  ports:
+    - "18081:8081"
+  networks:
+    - prodnetwork
+
+ jenkins:
+  build: ./jenkins
+  image: zsuffazs/nomoretools-ci-jenkins:latest
+  container_name: ci-jenkins
+  ports:
+    - "18080:8080"
+  networks:
+    - prodnetwork
+  volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
+    - /usr/bin/docker:/usr/bin/docker
+    - /opt/jenkins/:/var/lib/jenkins/
+  depends_on:
+    - nexus
+    - gitlab
+    - sonar
+    - seleniumhub
+  environment:
+    - NEXUS_PORT=8081
+    - SONAR_PORT=9000
+    - SONAR_DB_PORT=5432
+
+ sonar:
+  build: ./sonar
+  image: zsuffazs/nomoretools-ci-sonar:latest
+  container_name: ci-sonar
+  ports:
+   - "19000:9000"
+   - "5432:5432"
+  networks:
+    - prodnetwork
+  depends_on:
+    - sonardb
+  environment:
+   - SONARQUBE_JDBC_URL=jdbc:postgresql://sonardb:5432/sonar
+   - SONARQUBE_JDBC_USERNAME=sonar
+   - SONARQUBE_JDBC_PASSWORD=sonar
+   
+ sonardb:
+  networks:
+    - prodnetwork
+  image: postgres
+  container_name: ci-sonardb
+  environment:
+   - POSTGRES_USER=sonar
+   - POSTGRES_PASSWORD=sonar
+  volumes:
+    - /opt/postgres/data:/var/lib/postgresql/data
+
+ gitlab:
+  image: gitlab/gitlab-ce:8.14.4-ce.0
+  container_name: ci-gitlab
+  restart: always
+  networks:
+    - prodnetwork
+  environment:
+    GITLAB_OMNIBUS_CONFIG: |
+      # external_url 'https://gitlab.example.com'
+      # Add any other gitlab.rb configuration here, each on its own line
+  ports:
+    - "8080:80"
+    - "443:443"
+    - "2222:22"
+  volumes:
+    - /opt/gitlab/config:/etc/gitlab
+    - /opt/gitlab/logs:/var/log/gitlab
+    - /opt/gitlab/data:/var/opt/gitlab
+
+ seleniumhub:
+  image: selenium/hub
+  container_name: ci-seleniumhub
+  ports:
+    - "4444:4444"
+  networks:
+    - prodnetwork
+
+ firefox:
+  image: selenium/node-firefox
+  container_name: ci-firefox
+  depends_on:
+    - seleniumhub
+  environment:
+    - HUB_PORT_4444_TCP_ADDR=ci-seleniumhub
+    - HUB_PORT_4444_TCP_PORT=4444
+  networks:
+    - prodnetwork
+
+ chrome:
+  image: selenium/node-chrome
+  container_name: ci-chrome
+  depends_on:
+    - seleniumhub
+  environment:
+    - HUB_PORT_4444_TCP_ADDR=ci-seleniumhub
+    - HUB_PORT_4444_TCP_PORT=4444
+  networks:
+    - prodnetwork

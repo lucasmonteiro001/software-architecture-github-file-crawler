@@ -1,0 +1,6 @@
+ecs-deployment:
+    image: uqlibrary/docker-ecs-deployment:11
+    env_file:
+        - local.env
+    volumes:
+        - .aws/:/root/.aws

@@ -1,0 +1,19 @@
+version: '2'
+
+services:
+  client:
+    image: reustonium/uptime-sentry-client:dev
+    ports:
+      - "8080:8080"
+  server:
+    image: reustonium/uptime-sentry-server:dev
+    ports:
+      - "3000:3000"
+    links:
+      - database
+    environment:
+      - NODE_ENV=docker
+  database:
+    image: mongo
+    ports:
+      - "27017:27017"

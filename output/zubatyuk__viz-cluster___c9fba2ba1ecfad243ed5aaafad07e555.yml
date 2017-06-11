@@ -1,0 +1,12 @@
+dnsmasq:
+    image: $REGISTRY/dnsmasq
+    container_name: dnsmasq 
+    ports: []
+    volumes: 
+        - "./dnsmasq.d/common.conf:/etc/dnsmasq.d/common.conf"
+        - "./dnsmasq.d/${ClusterId}.conf:/etc/dnsmasq.d/${ClusterId}.conf"
+        - "./dnsmasq.d/althosts:/etc/althosts" 
+    net: none
+    restart: always
+    command: /usr/sbin/dnsmasq --conf-dir=/etc/dnsmasq.d -d --cache-size=2000 --dns-forward-max=1000 --bind-dynamic --log-queries --log-dhcp 
+    

@@ -1,0 +1,36 @@
+postgres:
+  image: zooniverse/postgresql
+  environment:
+    - "PG_USER=panoptes"
+    - "DB=panoptes_development"
+    - "PASS=panoptes"
+
+zookeeper:
+  image: zooniverse/zookeeper
+  command: /usr/share/zookeeper/bin/zkServer.sh start-foreground -c localhost:2888:3888 -i 1
+
+redis:
+  image: redis
+  command: redis-server --appendonly yes
+
+kafka:
+  image: zooniverse/kafka
+  links:
+    - zookeeper:zk
+  hostname: kafka
+  command: -i 1 -H kafka -p 9092 -z zk:2181
+
+panoptes:
+  dockerfile: Dockerfile.dev
+  build: ./
+  volumes:
+    - ./:/rails_app
+  ports:
+    - "3000:80"
+  environment:
+    RAILS_ENV: development
+  links:
+    - postgres
+    - zookeeper:zk
+    - kafka
+    - redis

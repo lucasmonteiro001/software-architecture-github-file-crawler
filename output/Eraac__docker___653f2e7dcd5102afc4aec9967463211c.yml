@@ -1,0 +1,15 @@
+version: '2'
+
+services:
+    glances:
+        image: nicolargo/glances:stable
+        container_name: glances
+        ports:
+            - "61209:61209"
+        volumes:
+            - "/var/run/docker.sock:/var/run/docker.sock:ro"
+            - "./config/glances/glances.pwd:/root/.config/glances/glances.pwd"
+        pid: "host"
+        environment:
+            - "GLANCES_OPT=-s"
+

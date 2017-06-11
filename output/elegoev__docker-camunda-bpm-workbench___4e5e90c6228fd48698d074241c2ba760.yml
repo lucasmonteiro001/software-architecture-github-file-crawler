@@ -1,0 +1,19 @@
+nginx:
+  image: "elegoev/nginx"
+  ports:
+    - "80:80"
+  links:
+    - dockerui:dockerui
+    - camunda-bpm-workbench:camunda-bpm-workbench
+  volumes:
+    - ./data/auth/:/etc/nginx/conf.d
+    - ./data/html:/usr/share/nginx/html
+
+camunda-bpm-workbench:
+  image: "elegoev/camunda-bpm-workbench"
+
+dockerui:
+  image: "elegoev/dockerui"
+  privileged: true
+  volumes:
+    - /var/run/docker.sock:/var/run/docker.sock

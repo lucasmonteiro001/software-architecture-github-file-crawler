@@ -1,0 +1,9 @@
+version: '2'
+services:
+    hermes:
+        build: .
+        image: fahernandez/hermes:v1
+        environment:
+            TERM: xterm
+        ports:
+            - "9001:9001"

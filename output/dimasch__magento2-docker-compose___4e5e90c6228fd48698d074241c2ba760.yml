@@ -1,0 +1,85 @@
+# Mage Inferno Docker Compose (https://github.com/mageinferno/magento2-docker-compose)
+# Version 5.0.0
+
+app:
+  image: mageinferno/magento2-nginx:1.11-1
+  links:
+    - phpfpm
+    - db
+    #- elasticsearch
+  volumes_from:
+    - appdata
+  ports:
+    - 80:80
+  environment:
+    - APP_MAGE_MODE=developer
+
+appdata:
+  image: tianon/true
+  volumes:
+    - /var/www/html
+    #- ./html:/var/www/html
+    - ~/.composer:/var/www/.composer    
+    - ~/.ssh:/var/www/.ssh
+    #- ./html/.git:/var/www/html/.git
+    #- ./html/app/code:/var/www/html/app/code
+    #- ./html/app/design:/var/www/html/app/design
+    #- ./html/dev/tools/grunt/configs:/var/www/html/dev/tools/grunt/configs
+
+#elasticsearch:
+#  image: elasticsearch-with-plugin
+#  ports:
+#    - "9200:9200"
+
+phpfpm:
+  image: komplizierte/docker-magento2-php:7.0-fpm-0
+  links:
+    - db
+    #- elasticsearch
+  volumes_from:
+    - appdata
+  environment:
+    - APP_MAGE_MODE=developer
+
+db:
+  image: percona:5.7
+  volumes_from:
+    - dbdata
+  ports:
+    - 8001:3306
+  environment:
+    - MYSQL_ROOT_PASSWORD=magento2
+    - MYSQL_DATABASE=magento2
+    - MYSQL_USER=magento2
+    - MYSQL_PASSWORD=magento2
+
+dbdata:
+  image: tianon/true
+  volumes:
+    - /var/lib/mysql
+
+setup:
+  image: komplizierte/docker-magento2-php:7.0-fpm-0
+  command: /usr/local/bin/mage-setup
+  links:
+    - db
+    #- elasticsearch
+  volumes_from:
+    - appdata
+  environment:
+    - M2SETUP_DB_HOST=db
+    - M2SETUP_DB_NAME=magento2
+    - M2SETUP_DB_USER=magento2
+    - M2SETUP_DB_PASSWORD=magento2
+    - M2SETUP_BASE_URL=http://m.local/
+    - M2SETUP_ADMIN_FIRSTNAME=Admin
+    - M2SETUP_ADMIN_LASTNAME=User
+    - M2SETUP_ADMIN_EMAIL=dummy@gmail.com
+    - M2SETUP_ADMIN_USER=magento2
+    - M2SETUP_ADMIN_PASSWORD=magento2
+    - M2SETUP_VERSION=2.1.6
+    - APP_MAGE_MODE=developer
+    - M2SETUP_USE_SAMPLE_DATA=false
+    - M2SETUP_USE_ARCHIVE=false
+    #- M2SETUP_PROJECT_URL=git@bitbucket.org:team/project.git
+    #- M2SETUP_CHECKOUT_BRANCH=custom-branch

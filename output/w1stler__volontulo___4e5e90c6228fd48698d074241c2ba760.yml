@@ -1,0 +1,24 @@
+volontulo:
+  image: codeforpoznan/volontulo
+  # If You want to build image locally,
+  # comment line above and uncomment line below:
+  # build: .
+  entrypoint: bash docker-entrypoint.sh
+  # If You want to use pdb in container,
+  # comment line above, uncomment line below and execute whatever You want in
+  # container:
+  # entrypoint: tail -f /dev/null
+  ports:
+    - 8000:8000
+  links:
+    - db:db
+  volumes:
+    - .:/app
+    - /app/apps/volontulo/node_modules
+
+db:
+  image: postgres
+  environment:
+    POSTGRES_PASSWORD: volontulo
+    POSTGRES_USER: volontulo
+    POSTGRES_DB: volontulo

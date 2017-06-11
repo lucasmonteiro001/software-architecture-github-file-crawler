@@ -1,0 +1,5 @@
+flarum:
+  build: flarum
+  ports:
+    - "80:80"
+#    - "3306:3306" # can be uncommented for debugging purposes

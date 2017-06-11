@@ -1,0 +1,21 @@
+version: '2'
+
+services:
+    fake-smtp:
+        image: djfarrelly/maildev
+        container_name: fake-smtp
+        labels:
+            - "traefik.backend=fake-smtp"
+            - "traefik.frontend.rule=Host:smtp.domain.tld"
+            - "traefik.port=80"
+            - "traefik.docker.network=reverse-proxy"
+            - "traefik.enable=true"
+        networks:
+            - fake-smtp
+            - reverse-proxy
+
+networks:
+    fake-smtp:
+        external: true
+    reverse-proxy:
+        external: true

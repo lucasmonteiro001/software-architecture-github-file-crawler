@@ -1,0 +1,79 @@
+postgres:
+    image: postgres:latest
+    expose: 
+        - "5432"
+    environment:
+        - POSTGRES_USER=$DB_USER
+        - POSTGRES_PASSWORD=$DB_PASS
+
+ldap:
+    image: nickstenning/slapd
+    command: /etc/service/slapd/run
+    expose:
+        - "389"
+    environment:
+        - LDAP_DOMAIN=$DOMAIN
+        - LDAP_ORGANISATION=$LDAP_ORG
+        - LDAP_ROOTPASS=$LDAP_PASS
+
+ldap-configure:
+    build: slapd-configure/
+    volumes:
+        - ./users.ldif:/root/users.ldif
+    links: 
+        - ldap:ldap
+    environment:
+        - LDAP_DN=cn=admin,$LDAP_DN
+        - LDAP_ROOTPASS=$LDAP_PASS
+
+prosody:
+    image: sebu77/kaiwa-server
+    ports:
+        - "5269:5269"
+        - "5280:5280"
+        - "5281:5281"
+        - "3478:3478"
+        - "5222:5222"
+    expose:
+        - 5347
+    links:
+        - postgres:postgres
+        - ldap:ldap
+    environment:
+        - XMPP_DOMAIN=$XMPP_DOMAIN
+        - DB_NAME=$DB_USER
+        - DB_USER=$DB_USER
+        - DB_PWD=$DB_PASS
+        - LDAP_USER_BASE=ou=users,$LDAP_DN
+        - LDAP_GROUP_BASE=ou=groups,$LDAP_DN
+        - LDAP_DN=cn=admin,$LDAP_DN
+        - LDAP_PWD=$LDAP_PASS
+        - LDAP_GROUP=$LDAP_GROUP
+
+kaiwa:
+    image: sebu77/kaiwa
+    ports:
+        - "8821:8000"
+    links:
+        - ldap:ldap
+    environment:
+        - VIRTUAL_HOST=localhost
+        - VIRTUAL_PORT=8000
+        - XMPP_NAME=cadair
+        - XMPP_DOMAIN=$XMPP_DOMAIN
+        - XMPP_WSS=ws://localhost:5280/xmpp-websocket
+        - XMPP_MUC=chat.localhost
+        - XMPP_STARTUP=groupchat/home%40chat.localhost
+        - XMPP_ADMIN=admin
+        - LDAP_USER_BASE=ou=users,$LDAP_DN
+        - LDAP_GROUP_BASE=ou=groups,$LDAP_DN
+        - LDAP_DN=cn=admin,$LDAP_DN
+        - LDAP_PWD=$LDAP_PASS
+        - LDAP_GROUP=$LDAP_GROUP
+
+biboumi:
+    build: biboumi/
+    volumes:
+        - /home/stuart/GitHub/xmpp_chat/biboumi/biboumi.cfg:/root/.config/biboumi/biboumi.cfg
+    links:
+        - prosody:prosody

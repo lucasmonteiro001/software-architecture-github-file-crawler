@@ -1,0 +1,18 @@
+version: "2"
+services:
+  app:
+    build:
+      context: .
+      dockerfile: app.dockerfile
+    ports:
+      - 80:80
+    container_name: platystener
+    restart: always
+    links:
+      - db:db
+  db:
+    build:
+      context: .
+      dockerfile: database.dockerfile
+    container_name: platystener_db
+    restart: always

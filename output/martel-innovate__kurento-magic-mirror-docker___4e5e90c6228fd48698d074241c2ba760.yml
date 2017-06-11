@@ -1,0 +1,38 @@
+version: "3"
+
+services:
+  magic:
+    image: martel/kurento-magic-mirror-docker:latest
+    environment:
+     - MAGICHOST=${MAGICHOST}
+    links:
+      - kurento
+    ports:
+      - 8443:8443
+    networks:
+      - replica
+    deploy:
+      mode: replicated
+      replicas: 2
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+
+  kurento:
+    image: kurento/kurento-media-server:latest
+    ports:
+      - 8888:8888
+    networks:
+      - replica
+    deploy:
+      mode: global
+      resources:
+        limits:
+          memory: 512M
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+
+networks:
+    replica:
+        driver: overlay

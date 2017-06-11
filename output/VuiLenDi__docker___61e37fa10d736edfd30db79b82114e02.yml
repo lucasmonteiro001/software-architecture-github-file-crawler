@@ -1,0 +1,23 @@
+web:
+  image: vuilendi/magento
+  hostname: docker.magento.com
+  environment:
+    - DOCKER_FIX=
+    - VIRTUAL_HOST=docker.magento.com
+    - ENABLE_SENDMAIL=true
+  ports:
+    - "8812:80"
+    - "8443:443"
+  links:
+    - db
+
+db:
+  image: vuilendi/magentodb
+  restart: always
+  environment:
+    - MySQL_USER=root
+    - MYSQL_ROOT_PASSWORD=root
+    - MYSQL_DATABASE=magento
+    
+  ports:
+    - "3333:3306"

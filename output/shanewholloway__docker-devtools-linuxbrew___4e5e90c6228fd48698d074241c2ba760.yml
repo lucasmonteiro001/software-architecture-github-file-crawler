@@ -1,0 +1,12 @@
+version: "2"
+services:
+  devtools:
+    image: shane/devtools-linuxbrew-tip
+
+  demo:
+    image: ubuntu:xenial
+    volumes_from:
+      - devtools
+    tty: true
+    command: |
+      /brew/enter -c "echo \"node:`which node`  py2:`which python2` py3:`which python3` hg:`which hg`\" && exec bash -l"

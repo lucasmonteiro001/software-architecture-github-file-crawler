@@ -1,0 +1,7 @@
+ollert:
+    build: .
+    mem_limit: 512m
+    cpu_shares: 256
+    net: host
+    restart: always
+    hostname: ollert

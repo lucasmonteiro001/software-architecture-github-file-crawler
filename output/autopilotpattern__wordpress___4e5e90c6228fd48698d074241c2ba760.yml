@@ -1,0 +1,114 @@
+# An demo version of WordPress for easy scaling
+wordpress:
+  image: autopilotpattern/wordpress:latest
+  restart: always
+  env_file: _env
+  environment:
+    - CONSUL_AGENT=1
+  ports:
+    - 80
+    - 9090
+  labels:
+    # Setting the CNS service name
+    - triton.cns.services=wp-wordpress
+    # Soft anti-affinity to avoid other WordPress instances
+    - com.docker.swarm.affinities=["container!=~*wordpress*"]
+    # Set the package
+    - com.joyent.package=g4-highcpu-1G
+
+# Consul is the service catalog that helps discovery between the components
+# Change "-bootstrap" to "-bootstrap-expect 3", then scale to 3 or more to
+# turn this into an HA Consul raft.
+consul:
+  image: autopilotpattern/consul:latest
+  command: >
+    /usr/local/bin/containerpilot
+    /bin/consul agent -server
+    -bootstrap
+    -config-dir=/etc/consul
+    -ui-dir /ui
+  restart: always
+  env_file: _env
+  ports:
+    - 8500
+  dns:
+    - 127.0.0.1
+  labels:
+    - triton.cns.services=wp-consul
+    # Soft anti-affinity to avoid all other containers
+    - com.docker.swarm.affinities=["container!=~*"]
+    - com.joyent.package=g4-highcpu-128M
+
+# NFS is used to store user uploads
+nfs:
+  image: autopilotpattern/nfsserver:latest
+  restart: always
+  env_file: _env
+  environment:
+    - CONSUL_AGENT=1
+  expose:
+    - 111
+    - 1892
+    - 2049
+  labels:
+    - triton.cns.services=wp-nfs
+    - com.docker.swarm.affinities=["container!=~*"]
+    - com.joyent.package=g4-highcpu-256M
+
+# The MySQL database will automatically cluster and scale
+# see https://www.joyent.com/blog/dbaas-simplicity-no-lock-in
+mysql:
+  image: autopilotpattern/mysql:latest
+  restart: always
+  env_file: _env
+  environment:
+    - CONSUL_AGENT=1
+  expose:
+    - 3306
+  labels:
+    - triton.cns.services=wp-mysql
+    - com.docker.swarm.affinities=["container!=~*mysql*"]
+    - com.joyent.package=g4-highcpu-4G
+
+# Memcached is a high performance object cache
+memcached:
+  image: autopilotpattern/memcached:latest
+  restart: always
+  env_file: _env
+  environment:
+    - CONSUL_AGENT=1
+  ports:
+    - 11211
+  labels:
+    - triton.cns.services=wp-memcached
+    - com.docker.swarm.affinities=["container!=~*memcached*"]
+    - com.joyent.package=g4-highcpu-512M
+
+# Nginx as a load-balancing tier and reverse proxy
+nginx:
+  image: autopilotpattern/wordpress-nginx:latest
+  restart: always
+  ports:
+    - 80
+    - 443
+    - 9090
+  env_file: _env
+  environment:
+    - CONSUL_AGENT=1
+  labels:
+    - triton.cns.services=wp-nginx,nginx
+    - com.docker.swarm.affinities=["container!=~*nginx*"]
+    - com.joyent.package=g4-highcpu-512M
+
+# Prometheus is an open source performance monitoring tool
+# it is included here for demo purposes and is not required
+prometheus:
+  image: autopilotpattern/prometheus:branch-triton-support
+  restart: always
+  env_file: _env
+  ports:
+    - 9090
+  labels:
+    - triton.cns.services=wp-prometheus
+    - com.docker.swarm.affinities=["container!=~*prometheus*"]
+    - com.joyent.package=g4-highcpu-1G

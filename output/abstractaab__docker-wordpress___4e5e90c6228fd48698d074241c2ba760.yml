@@ -1,0 +1,22 @@
+wordpress:
+  image: wordpress
+  restart: always
+  links:
+    - db:mysql
+  volumes:
+    - ./content:/var/www/html/wp-content
+    - ./config/uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
+  environment:
+    - VIRTUAL_HOST=abstracta.se,www.abstracta.se
+    - LETSENCRYPT_HOST=abstracta.se,www.abstracta.se
+    - LETSENCRYPT_EMAIL=hampus.kvarnhammar@abstracta.se
+    - WORDPRESS_TABLE_PREFIX=abs_
+
+db:
+  image: mariadb
+  restart: always
+  volumes:
+    - ./db:/var/lib/mysql
+  environment:
+    MYSQL_ROOT_PASSWORD: yourPasswordHere
+

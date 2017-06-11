@@ -1,0 +1,35 @@
+version: '2'
+
+services:
+  web:
+    image: nandawtek/valoration:latest
+    container_name: valoration
+    ports:
+      - ${SINATRA_DEFAULT_PORT}:${SINATRA_DEFAULT_PORT}
+    volumes:
+     - .:/opt/valoration
+     - bundle:/usr/local/bundle
+
+    links:
+      - selenium
+      - mongocontainer
+    command: bash -c "bundle install --jobs 3 && bundle exec rake"
+
+  selenium:
+    image: selenium/standalone-chrome
+    ports:
+        - "5555:5555"
+    container_name: valoration-chrome-browser
+    logging:
+      driver: none
+
+  mongocontainer:
+    container_name: valoration_mongo
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    command: --smallfiles
+
+volumes:
+  bundle:
+    driver: local

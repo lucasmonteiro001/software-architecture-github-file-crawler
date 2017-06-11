@@ -1,0 +1,20 @@
+app:
+  build: .
+  volumes:
+    - .:/data/www/app
+  links:
+    - memcached
+  command: /usr/local/php/sbin/php-fpm -y /usr/local/php/etc/php-fpm.conf -F
+nginx:
+  build: ./docker/nginx
+  ports:
+    - "80:80"
+  links:
+    - app
+  volumes_from:
+   - app
+  command: nginx -g "daemon off;"
+memcached:
+  image: memcached
+  ports:
+    - "11211:11211"

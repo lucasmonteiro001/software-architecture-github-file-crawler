@@ -1,0 +1,61 @@
+data:
+  image: busybox
+  container_name: data
+  volumes:
+    - ./projects:/usr/share/nginx/html
+    - ./nginx/conf.d:/etc/nginx/conf.d:ro
+    - ./nginx/logs:/var/log/nginx
+    - ./php/conf.d/custom.ini:/usr/local/etc/php/conf.d/custom.ini:ro
+    - ./mysql/conf.d/my.cnf:/etc/mysql/conf.d/my.cnf:ro
+    - ./mysql/data:/var/lib/mysql
+web:
+  image: nginx:1.9
+  container_name: nginx
+  restart: always
+  ports:
+    - "127.0.0.1:80:80"
+  volumes_from:
+    - data
+  working_dir: /usr/share/nginx/html
+  links:
+    - php:php
+    - php7:php7
+php:
+  build: ./php
+  container_name: php
+  restart: always
+  expose:
+    - 9000
+  volumes_from:
+    - data
+  working_dir: /usr/share/nginx/html
+  links:
+    - mysql:db
+    - mysql:database
+    - mysql:mysql
+php7:
+  build: ./php7
+  container_name: php7
+  restart: always
+  expose:
+    - 9000
+  volumes_from:
+    - data
+  working_dir: /usr/share/nginx/html
+  links:
+    - mysql:db
+    - mysql:database
+    - mysql:mysql
+mysql:
+  image: mysql:5.5
+  container_name: mysql
+  restart: always
+  ports:
+    - 127.0.0.1:3306:3306
+  expose:
+    - 3306
+  volumes_from:
+    - data
+  environment:
+    - MYSQL_ROOT_PASSWORD=root
+    - MYSQL_DATABASE=dev

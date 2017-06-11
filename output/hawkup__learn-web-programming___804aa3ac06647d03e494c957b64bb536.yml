@@ -1,0 +1,5 @@
+thrift:
+  build: .
+  volumes:
+    - ./program:/program
+  command: /bin/bash

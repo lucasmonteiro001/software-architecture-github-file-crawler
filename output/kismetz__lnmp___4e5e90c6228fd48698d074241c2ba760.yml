@@ -1,0 +1,28 @@
+nginx:
+    build: ./nginx
+    ports:
+        - "80:80"
+    links:
+        - "php"
+    volumes:
+        - e:/etc/nginx/sites-enabled:/etc/nginx/sites-enabled
+        - e:/project:/opt/htdocs
+
+php:
+    build: ./php
+    ports:
+        - "9000:9000"
+    links:
+        - "mysql"
+    volumes:
+        - e:/opt:/opt
+        - e:/project:/opt/htdocs
+
+mysql:
+    build: ./mysql
+    ports:
+        - "3306:3306"
+    volumes:
+        - e:/opt/data/mysql:/opt/data/mysql
+    environment:
+        MYSQL_ROOT_PASSWORD: 123456

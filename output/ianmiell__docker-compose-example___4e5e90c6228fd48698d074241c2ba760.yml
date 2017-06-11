@@ -1,0 +1,12 @@
+one:
+  command: socat TCP-L:12345,fork,reuseaddr EXEC:'sqlite /opt/sqlite/live',pty
+  image: imiell/sqlite
+  volumes:
+  - /tmp/sqlitedbs/live:/opt/sqlite/live
+two:
+  command: socat TCP-L:12346,fork,reuseaddr TCP:one:12345
+  image: imiell/sqlite
+  links:
+  - one:one
+  ports:
+  - 12346:12346

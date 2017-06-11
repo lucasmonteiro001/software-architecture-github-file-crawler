@@ -1,0 +1,46 @@
+dockarmaiii:
+  image: thalhalla/dockarmaiii:${DOCKARMAIII_BRANCH}
+  command: ${DOCKARMAIII_COMMAND}
+  environment:
+    STEAM_USERNAME: ${STEAM_USERNAME}
+    STEAM_PASSWORD: ${STEAM_PASSWORD}
+    ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+    HOSTNAME: ${HOSTNAME}
+    MAX_PLAYERS: ${MAX_PLAYERS}
+    STEAM_GID: 233780
+    IP: 0.0.0.0
+    PORT: ${PORT}
+    MODS: ${DOCKARMAIII_MODS}
+  labels:
+    io.rancher.container.hostname_override: container_name
+    io.rancher.scheduler.affinity:host_label: ${host_label}
+    io.rancher.sidekicks: dockarmaiii-datavolume
+    io.rancher.container.pull_image: always
+  volumes_from:
+    - dockarmaiii-datavolume
+  ports:
+    - "${PORT}:${PORT}/udp"
+    - "2303:2303/udp"
+    - "2304:2304/udp"
+    - "2305:2305/udp"
+dockarmaiii-datavolume:
+  labels:
+    io.rancher.container.hostname_override: container_name
+    io.rancher.scheduler.affinity:host_label: ${host_label}
+    io.rancher.container.start_once: true
+    io.rancher.container.pull_image: always
+  environment:
+    STEAM_USERNAME: ${STEAM_USERNAME}
+    STEAM_PASSWORD: ${STEAM_PASSWORD}
+    ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+    HOSTNAME: ${HOSTNAME}
+    MAX_PLAYERS: ${MAX_PLAYERS}
+    STEAM_GID: 233780
+    IP: 0.0.0.0
+    PORT: ${PORT}
+    MODS: ${DOCKARMAIII_MODS}
+  volume_driver: ${VOLUME_DRIVER}
+  volumes:
+    - ${VOLUME_NAME}:/home/steam
+  image: thalhalla/dockarmaiii:${DOCKARMAIII_BRANCH}
+  command: /bin/true

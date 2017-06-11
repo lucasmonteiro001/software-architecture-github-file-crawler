@@ -1,0 +1,45 @@
+redis:
+  image: redis:3.0.7-alpine
+  ports:
+    - "6379:6379"
+web:
+  build: .
+  command: /app/projects/serve.sh
+  volumes:
+      - .:/app/
+      - ./data:/data/
+  ports:
+    - "80:8000"
+  environment:
+    - DB_NAME=/data/container.db
+    - DEBUG=True
+    - GUNICORN_WORKERS=10
+    - REDIS_URL=redis:6379
+  links:
+    - redis
+rqworker:
+  build: .
+  command: /app/run.sh /app-ve/bin/python /app/manage.py rqworker default
+  environment:
+    - DB_NAME=/data/container.db
+    - DEBUG=False
+    - GUNICORN_WORKERS=10
+    - REDIS_URL=redis:6379
+  volumes:
+      - .:/app/
+      - ./data:/data/
+  links:
+    - redis
+rqscheduler:
+  build: .
+  command: /app/run.sh /app-ve/bin/python /app/manage.py rqscheduler default
+  environment:
+    - DB_NAME=/data/container.db
+    - DEBUG=False
+    - GUNICORN_WORKERS=10
+    - REDIS_URL=redis:6379
+  volumes:
+      - .:/app/
+      - ./data:/data/
+  links:
+    - redis

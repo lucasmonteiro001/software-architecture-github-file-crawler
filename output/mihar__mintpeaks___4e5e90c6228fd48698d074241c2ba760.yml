@@ -1,0 +1,10 @@
+mintpeaks:
+  build: .
+  command: bin/mintpeaks 
+  ports:
+    - 3000:3000
+    - 10231:10231
+  environment:
+    DEBUG: mintpeaks*
+    HTTP_PORT: 3000
+    TESSEL_PORT: 10231

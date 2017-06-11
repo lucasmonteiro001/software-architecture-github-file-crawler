@@ -1,0 +1,20 @@
+version: '2'
+services:
+    web01:
+        container_name: web01
+        image: neofonie/demo-server
+        build: demo-server
+
+    web02:
+        container_name: web02
+        image: neofonie/demo-server
+
+    loadbalancer:
+        container_name: loadbalancer
+        image: neofonie/demo-loadbalancer
+        build: demo-loadbalancer
+        links:
+            - web01:backend01
+            - web02:backend02
+        ports:
+            - 42080:8080

@@ -1,0 +1,59 @@
+postgresql:
+  image: jcalazan/postgresql
+  environment:
+    - POSTGRESQL_DB=youtubeadl
+    - POSTGRESQL_USER=youtubeadl
+    - POSTGRESQL_PASSWORD=password
+  volumes:
+    - ~/dockerfiles/youtube-audio-dl/postgresql:/var/lib/postgresql
+  ports:
+    - "5432:5432"
+
+rabbitmq:
+  image: jcalazan/rabbitmq
+  ports:
+    - "15672:15672"
+
+djangobase:
+  image: jcalazan/django
+  environment:
+    - PYTHONIOENCODING=utf8
+    - DATABASE_HOST=postgresql
+    - DJANGO_SETTINGS_MODULE=youtubeadl.settings.local
+    - BROKER_URL=amqp://guest:guest@rabbitmq//
+    - C_FORCE_ROOT=true  # Allows celery to run as root.
+  working_dir: /youtube-audio-dl
+  volumes:
+    - .:/youtube-audio-dl
+    - ~/dockerfiles/youtube-audio-dl/python:/usr/local/lib/python3.6
+    - ~/dockerfiles/youtube-audio-dl/bin:/usr/local/bin
+
+celery:
+  extends:
+    service: djangobase
+  working_dir: /youtube-audio-dl
+  command: bash -c "sleep 3 && celery -A youtubeadl worker -E -l info --concurrency=3"
+  links:
+    - postgresql
+    - rabbitmq
+
+flower:
+  extends:
+    service: djangobase
+  command: bash -c "sleep 3 && celery -A youtubeadl flower --port=5555"
+  ports:
+    - "5555:5555"
+  links:
+    - postgresql
+    - rabbitmq
+
+django:
+  extends:
+    service: djangobase
+  command: bash -c "sleep 3 && python3.6 manage.py runserver_plus 0.0.0.0:80"
+  ports:
+    - "80:80"
+  links:
+    - postgresql
+    - rabbitmq
+    - celery

@@ -1,0 +1,16 @@
+wordpress:
+  build: ./
+  links:
+    - db:mysql
+  ports:
+    - 80:80
+  volumes:
+    - .:/var/www/html/wp-content/plugins/multi-site
+    - ./html:/var/www/html
+  environment:
+    - WORDPRESS_DEBUG=true
+
+db:
+  image: mariadb
+  environment:
+    MYSQL_ROOT_PASSWORD: foo

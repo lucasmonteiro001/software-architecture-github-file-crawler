@@ -1,0 +1,8 @@
+version: '3'
+
+services:
+  harvest:
+    image: szukalski/netapp-harvest
+      volumes:
+       - ./netapp-harvest.conf:/opt/netapp-harvest/netapp-harvest.conf
+

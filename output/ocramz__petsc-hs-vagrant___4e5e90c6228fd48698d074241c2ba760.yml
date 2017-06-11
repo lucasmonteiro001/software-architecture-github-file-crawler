@@ -1,0 +1,12 @@
+consul:
+    image: qnib/consul
+    *snip*
+
+slurmctld:
+    image: qnib/slurmctld
+    *snip*
+
+compute:
+    # inherits from qnib/slurmd
+    image: qnib/compute
+    *snip*

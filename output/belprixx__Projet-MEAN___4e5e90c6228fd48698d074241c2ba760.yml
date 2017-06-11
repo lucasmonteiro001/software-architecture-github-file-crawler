@@ -1,0 +1,40 @@
+version: '2'
+services:
+  node-server:
+    image: node:6-slim
+    container_name: node-server
+    ports:
+      - 3001:3000
+    volumes:
+      - .:/app/
+    networks:
+      mean-network:
+    working_dir: /app
+    command: npm run start
+
+  mongo:
+    image: mongo
+    container_name: mongo
+    ports:
+      - 27017:27017
+    volumes:
+      - ./db:/data/db
+    networks:
+      mean-network:
+
+  mongo-express:
+    image: mongo-express
+    container_name: phpmyadmin-mongo
+    ports:
+      - 8081:8081
+    links:
+      - mongo:mongo
+    networks:
+      mean-network:
+        
+volumes:
+  mongo-data:
+    driver: local
+
+networks:
+  mean-network:

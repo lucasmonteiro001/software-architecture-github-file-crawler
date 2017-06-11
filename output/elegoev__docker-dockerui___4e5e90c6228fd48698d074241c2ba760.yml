@@ -1,0 +1,14 @@
+nginx:
+  image: "nginx:1.9.8"
+  ports:
+    - "80:80"
+  links:
+    - dockerui:dockerui
+  volumes:
+    - ./data/auth/:/etc/nginx/conf.d
+    - ./data/html:/usr/share/nginx/html
+dockerui:
+  image: "elegoev/dockerui:0.7.0"
+  privileged: true
+  volumes:
+    - /var/run/docker.sock:/var/run/docker.sock

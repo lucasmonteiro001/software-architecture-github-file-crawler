@@ -1,0 +1,34 @@
+mysql:
+  hostname: mysql
+  domainname: localdomain
+  image: smartdeveloperhub/mysql  
+  environment:
+    - MYSQL_PASS=secret
+
+phpmyadmin:
+  hostname: phpmyadmin
+  domainname: localdomain
+  image: smartdeveloperhub/phpmyadmin
+  environment:
+    - MYSQL_USER=root
+    - MYSQL_PASS=secret
+    - MYSQL_ADDR=mysql
+    - MYSQL_PORT=3306
+  links:
+    - mysql:mysql
+
+laravel:
+  hostname: laravel
+  domainname: localdomain
+  image: smartdeveloperhub/laravel
+  environment:
+    - MYSQL_USER=root
+    - MYSQL_PASS=secret
+    - MYSQL_ADDR=mysql
+    - MYSQL_PORT=3306
+    - SDH_API_HOST=http://localhost:9002
+    - LARAVEL_DB=homestead
+  links:
+    - mysql:mysql
+  ports:
+    - "9003:80"

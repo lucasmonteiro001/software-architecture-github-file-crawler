@@ -1,0 +1,29 @@
+version: '2.1'
+
+services:
+  factory:
+    image: obitec/dstack-factory:${PY_VERSION:-3.5}
+    build:
+      context: ./factory/${PY_VERSION:-3.5}/
+      dockerfile: Dockerfile
+    volumes:
+      - /srv/build/wheelhouse:/wheelhouse
+      - /srv/build/archive:/archive
+      - /srv/build/recipes:/app/
+    environment:
+      - HDF5_DIR=/usr/lib/x86_64-linux-gnu/hdf5/serial/
+      - WHEELHOUSE=/wheelhouse
+      - PIP_WHEEL_DIR=/wheelhouse
+      - PIP_FIND_LINKS=/archive
+      - VIRTUAL_ENV=/env
+      - CEXT
+      - RECIPE
+      - BUILD_REQ
+
+  runtime:
+    image: obitec/dstack-runtime:${PY_VERSION:-3.5}
+    build:
+      context: ./runtime/${PY_VERSION:-3.5}/
+      dockerfile: Dockerfile
+      args:
+        - UID=${UID:-4801}

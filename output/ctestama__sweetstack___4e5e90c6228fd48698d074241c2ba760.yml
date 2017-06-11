@@ -1,0 +1,37 @@
+web:
+  build: images/nginx
+  ports:
+    - "80:80"
+    - "9000:9000"
+    - "9099:22"
+  links:
+    - mariadb:mariadb
+    - memcached:memcached
+    - redis:redis
+  volumes:
+    - ./www:/var/www
+    - ./sites:/etc/nginx/sites-enabled
+
+mariadb:
+  image: mariadb:latest
+  ports:
+    - "3306:3306"
+  #volumes:
+  #  - ./mysql/mysql:/var/lib/mysql
+  #  - ./mysql/conf.d:/etc/mysql/conf.d
+  environment:
+    MYSQL_ROOT_PASSWORD: password
+    MYSQL_PASSWORD: password
+    MYSQL_USER: admin
+
+memcached:
+  build: images/memcached
+  ports:
+    - "11211:11211"
+
+redis:
+  image: tutum/redis
+  ports:
+    - "6379:6379"
+  environment:
+    REDIS_PASS: password

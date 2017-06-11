@@ -1,0 +1,15 @@
+# https://docs.docker.com/compose/install/
+web:
+  build: .
+  links:
+    - redis
+  ports:
+    - "3000:3000"
+  volumes:
+   - .:/var/www
+  command: gin -a 4200
+
+redis:
+  image: redis
+  ports:
+    - "6379:6379"

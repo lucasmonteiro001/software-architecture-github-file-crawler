@@ -1,0 +1,7 @@
+web:
+  build: .
+  command: app:start
+  environment:
+    - CI_SERVER_URL=https://ci.navigate.de
+    - REGISTRATION_TOKEN=a28af9f8b031bf0cfff7
+    - CI_RUNNERS_COUNT=2

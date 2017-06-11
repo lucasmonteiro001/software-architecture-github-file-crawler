@@ -1,0 +1,8 @@
+whatsdata_backend:
+  build: ./lib/docker/
+  ports:
+   - "8080:8080"
+  volumes:
+   - .:/code
+  environment:
+   - API_PORT:8080

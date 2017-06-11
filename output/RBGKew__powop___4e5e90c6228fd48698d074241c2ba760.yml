@@ -1,0 +1,84 @@
+version: '2'
+services:
+  db:
+    image: ${DOCKER_REGISTRY}db:latest
+    env_file:
+      - src/main/resources/docker/env/common.env
+      - src/main/resources/docker/env/portal.env
+    volumes:
+      - portal_data:/var/lib/mysql
+    ports:
+      - "13306:3306"
+  portal:
+    image: ${DOCKER_REGISTRY}portal:latest
+    env_file:
+      - src/main/resources/docker/env/common.env
+    links:
+      - activemq
+      - db
+      - geoserver
+      - solr
+    volumes:
+      - $SOURCE_DIRECTORY/emonocot/emonocot-portal/target/emonocot-portal.war:/usr/local/tomcat/webapps/ROOT.war
+    mem_limit: 500M
+
+  harvester:
+    image: ${DOCKER_REGISTRY}harvester:latest
+    env_file:
+      - src/main/resources/docker/env/common.env
+    links:
+      - activemq
+      - db
+      - geoserver
+      - solr
+    volumes:
+      - $SOURCE_DIRECTORY/emonocot/emonocot-harvest/target/emonocot-harvest.war:/usr/local/tomcat/webapps/harvester.war
+    mem_limit: 500M
+
+  apache:
+    image: ${DOCKER_REGISTRY}apache:latest
+    env_file:
+      - src/main/resources/docker/env/common.env
+    links:
+      - geoserver
+      - harvester
+      - portal
+    volumes:
+      - $SOURCE_DIRECTORY/emonocot/emonocot-portal/src/main/frontend/dist/css:/usr/local/apache2/htdocs/css
+      - $SOURCE_DIRECTORY/emonocot/emonocot-portal/src/main/frontend/dist/fonts:/usr/local/apache2/htdocs/fonts
+      - $SOURCE_DIRECTORY/emonocot/emonocot-portal/src/main/frontend/dist/img:/usr/local/apache2/htdocs/img
+      - $SOURCE_DIRECTORY/emonocot/emonocot-portal/src/main/frontend/dist/js:/usr/local/apache2/htdocs/js
+      - $SOURCE_DIRECTORY/emonocot/emonocot-static/src/main/tiles/:/usr/local/apache2/htdocs/tiles
+    ports:
+      - "10080:80"
+    mem_limit: 200M
+
+  activemq:
+    image: rmohr/activemq:5.12.0
+
+  solr:
+    image: ${DOCKER_REGISTRY}solr:latest
+    ports:
+      - "18983:8983"
+    volumes:
+      - solr_data:/opt/solr/server/solr/powop/data
+
+  geoserver:
+    image: ${DOCKER_REGISTRY}geoserver:latest
+    env_file: src/main/resources/docker/env/common.env
+    links:
+      - geodb
+    ports:
+      - "18080:8080"
+    mem_limit: 1G
+
+  geodb:
+    image: ${DOCKER_REGISTRY}geodb:latest
+    env_file:
+      - src/main/resources/docker/env/common.env
+      - src/main/resources/docker/env/geoserver.env
+
+
+volumes:
+  portal_data: {}
+  solr_data: {}

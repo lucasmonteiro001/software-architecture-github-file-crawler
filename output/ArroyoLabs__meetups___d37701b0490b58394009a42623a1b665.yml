@@ -1,0 +1,11 @@
+version: '2'
+
+services:
+  golang:
+    container_name: gotainer
+    build: .
+    image: golang_image
+    volumes:
+      - ./:/go
+    ports:
+      - "8888:8888"

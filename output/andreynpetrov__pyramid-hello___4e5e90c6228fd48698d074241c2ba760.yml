@@ -1,0 +1,23 @@
+version: '2'
+services:
+  hello:
+    image: andreynpetrov/docker-pyramid
+    container_name: hello
+    command: /usr/local/bin/uwsgi --ini-paste production.ini
+    ports:
+    - "9031:9031"
+    volumes:
+    - .:/code:ro
+    logging:
+      driver: "json-file"
+
+  nginx:
+    image: nginx
+    container_name: nginx
+    ports:
+    - "80:80"
+    volumes:
+    - .:/code:ro
+    - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    logging:
+      driver: "json-file"

@@ -1,0 +1,21 @@
+version: '3'
+services:
+  db:
+    image: mongo
+    ports:
+      - "54321:54321"
+
+  web:
+    build: .
+    depends_on:
+      - db
+    command: node app.js
+    volumes:
+      - .:/noted
+    ports:
+      - "3000:3000"
+    links:
+      - db
+    environment:
+      PORT: 3000
+

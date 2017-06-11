@@ -1,0 +1,7 @@
+web:
+    build: was
+    volumes:
+        - ./was:/where-artists-share
+    ports:
+        - "8000:8000"
+    tty: true

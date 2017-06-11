@@ -1,0 +1,449 @@
+version: "2"
+services:
+    db:
+        image: gwul/sfm-ui-db:1.8.0
+        environment:
+            - POSTGRES_PASSWORD
+            - TZ
+        logging:
+            driver: json-file
+            options:
+                max-size: ${DOCKER_LOG_MAX_SIZE}
+                max-file: ${DOCKER_LOG_MAX_FILE}
+        volumes_from:
+            - data
+        restart: always
+    mq:
+        image: gwul/sfm-rabbitmq:1.8.0
+        hostname: mq
+        ports:
+            # Opens up the ports for RabbitMQ management
+            - "${RABBITMQ_MANAGEMENT_PORT}:15672"
+        environment:
+            - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
+            - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
+            - TZ
+        logging:
+            driver: json-file
+            options:
+                max-size: ${DOCKER_LOG_MAX_SIZE}
+                max-file: ${DOCKER_LOG_MAX_FILE}
+        volumes_from:
+            - data
+        restart: always
+    # These containers will exit on startup. That's OK.
+    data:
+        image: gwul/sfm-data:1.8.0
+        volumes:
+             - ${DATA_VOLUME}
+        environment:
+            - TZ
+            - SFM_UID
+            - SFM_GID
+    processingdata:
+        image: debian:jessie
+        command: /bin/true
+        volumes:
+             - ${PROCESSING_VOLUME}
+        environment:
+            - TZ
+    ui:
+        image: gwul/sfm-ui:1.8.0
+        ports:
+            - "${SFM_PORT}:8080"
+        links:
+            - db:db
+            - mq:mq
+        environment:
+            - SFM_DEBUG=False
+            - SFM_APSCHEDULER_LOG=INFO
+            - SFM_UI_LOG=INFO
+            # This adds a 5 minute schedule option to speed testing.
+            - SFM_FIVE_MINUTE_SCHEDULE=False
+            # This adds a 100 item export segment for testing.
+            - SFM_HUNDRED_ITEM_SEGMENT=False
+            - TZ
+            - SFM_SITE_ADMIN_NAME
+            - SFM_SITE_ADMIN_EMAIL
+            - SFM_SITE_ADMIN_PASSWORD
+            - SFM_EMAIL_USER
+            - SFM_EMAIL_PASSWORD
+            - SFM_SMTP_HOST
+            - SFM_HOST=${SFM_HOSTNAME}:${SFM_PORT}
+            - SFM_CONTACT_EMAIL
+            - TWITTER_CONSUMER_KEY
+            - TWITTER_CONSUMER_SECRET
+            - WEIBO_API_KEY
+            - WEIBO_API_SECRET
+            - TUMBLR_CONSUMER_KEY
+            - TUMBLR_CONSUMER_SECRET
+            - RABBITMQ_USER
+            - RABBITMQ_PASSWORD
+            - RABBITMQ_MANAGEMENT_PORT
+            - POSTGRES_PASSWORD
+            # To have some test accounts created.
+            - LOAD_FIXTURES=False
+            - SFM_REQS=release
+            - DATA_VOLUME_THRESHOLD
+            - PROCESSING_VOLUME_THRESHOLD
+            - SFM_UID
+            - SFM_GID
+            - SFM_INSTITUTION_NAME
+            - SFM_INSTITUTION_LINK
+            - SFM_MONITOR_QUEUE_HOUR_INTERVAL
+            - SFM_SCAN_FREE_SPACE_HOUR_INTERVAL
+            - SFM_WEIBO_SEARCH_OPTION
+        logging:
+            driver: json-file
+            options:
+                max-size: ${DOCKER_LOG_MAX_SIZE}
+                max-file: ${DOCKER_LOG_MAX_FILE}
+        volumes_from:
+            - data
+            - processingdata
+        restart: always
+    uiconsumer:
+        image: gwul/sfm-ui-consumer:1.8.0
+        links:
+            - db:db
+            - mq:mq
+            - ui:ui
+        environment:
+            - SFM_DEBUG=False
+            - SFM_APSCHEDULER_LOG=INFO
+            - SFM_UI_LOG=INFO
+            - TZ
+            - SFM_SITE_ADMIN_NAME
+            - SFM_SITE_ADMIN_EMAIL
+            - SFM_SITE_ADMIN_PASSWORD
+            - SFM_EMAIL_USER
+            - SFM_EMAIL_PASSWORD
+            - SFM_SMTP_HOST
+            - SFM_HOST=${SFM_HOSTNAME}:${SFM_PORT}
+            - RABBITMQ_USER
+            - RABBITMQ_PASSWORD
+            - POSTGRES_PASSWORD
+            - SFM_REQS=release
+            - SFM_UID
+            - SFM_GID
+        volumes_from:
+            - data
+            - processingdata
+        restart: always
+# Twitter
+    twitterrestharvester:
+        image: gwul/sfm-twitter-rest-harvester:1.8.0
+        links:
+            - mq:mq
+        environment:
+            - TZ
+            - DEBUG=False
+            - RABBITMQ_USER
+            - RABBITMQ_PASSWORD
+            - SFM_REQS=release
+            - HARVEST_TRIES=${TWITTER_REST_HARVEST_TRIES}
+            - SFM_UID
+            - SFM_GID
+        logging:
+            driver: json-file
+            options:
+                max-size: ${DOCKER_LOG_MAX_SIZE}
+                max-file: ${DOCKER_LOG_MAX_FILE}
+        volumes_from:
+            - data
+        restart: always
+    twitterstreamharvester:
+        image: gwul/sfm-twitter-stream-harvester:1.8.0
+        links:
+            - mq:mq
+        environment:
+            - TZ
+            - DEBUG=False
+            - RABBITMQ_USER
+            - RABBITMQ_PASSWORD
+            - SFM_REQS=release
+            - HARVEST_TRIES=${TWITTER_STREAM_HARVEST_TRIES}
+            - SFM_UID
+            - SFM_GID
+        logging:
+            driver: json-file
+            options:
+                max-size: ${DOCKER_LOG_MAX_SIZE}
+                max-file: ${DOCKER_LOG_MAX_FILE}
+        volumes_from:
+            - data
+        restart: always
+    twitterrestexporter:
+        image: gwul/sfm-twitter-rest-exporter:1.8.0
+        links:
+            - mq:mq
+            - ui:api
+        environment:
+            - TZ
+            - DEBUG=False
+            - RABBITMQ_USER
+            - RABBITMQ_PASSWORD
+            - SFM_REQS=release
+            - SFM_UID
+            - SFM_GID
+        logging:
+            driver: json-file
+            options:
+                max-size: ${DOCKER_LOG_MAX_SIZE}
+                max-file: ${DOCKER_LOG_MAX_FILE}
+        volumes_from:
+            - data
+        restart: always
+    twitterstreamexporter:
+        image: gwul/sfm-twitter-stream-exporter:1.8.0
+        links:
+            - mq:mq
+            - ui:api
+        environment:
+            - TZ
+            - DEBUG=False
+            - RABBITMQ_USER
+            - RABBITMQ_PASSWORD
+            - SFM_REQS=release
+            - SFM_UID
+            - SFM_GID
+        logging:
+            driver: json-file
+            options:
+                max-size: ${DOCKER_LOG_MAX_SIZE}
+                max-file: ${DOCKER_LOG_MAX_FILE}
+        volumes_from:
+            - data
+        restart: always
+
+# FLICKR
+    flickrharvester:
+        image: gwul/sfm-flickr-harvester:1.8.0
+        links:
+            - mq:mq
+        environment:
+            - TZ
+            - DEBUG=False
+            - RABBITMQ_USER
+            - RABBITMQ_PASSWORD
+            - SFM_REQS=release
+            - HARVEST_TRIES=${FLICKR_HARVEST_TRIES}
+            - SFM_UID
+            - SFM_GID
+        logging:
+            driver: json-file
+            options:
+                max-size: ${DOCKER_LOG_MAX_SIZE}
+                max-file: ${DOCKER_LOG_MAX_FILE}
+        volumes_from:
+            - data
+        restart: always
+    flickrexporter:
+        image: gwul/sfm-flickr-exporter:1.8.0
+        links:
+            - mq:mq
+            - ui:api
+        environment:
+            - DEBUG=False
+            - TZ
+            - RABBITMQ_USER
+            - RABBITMQ_PASSWORD
+            - SFM_REQS=release
+            - SFM_UID
+            - SFM_GID
+        logging:
+            driver: json-file
+            options:
+                max-size: ${DOCKER_LOG_MAX_SIZE}
+                max-file: ${DOCKER_LOG_MAX_FILE}
+        volumes_from:
+            - data
+        restart: always
+
+# WEB
+    heritrix:
+        image:  gwul/sfm-heritrix:1.8.0
+        ports:
+            # Opens up the port for Heritrix admin console.
+            - "${HERITRIX_ADMIN_PORT}:8443"
+        environment:
+            - HERITRIX_USER
+            - HERITRIX_PASSWORD
+            # Memory for heritrix
+            - JAVA_OPTS=-Xmx512M
+            - SFM_UID
+            - SFM_GID
+        logging:
+            driver: json-file
+            options:
+                max-size: ${DOCKER_LOG_MAX_SIZE}
+                max-file: ${DOCKER_LOG_MAX_FILE}
+        volumes_from:
+            - data
+        restart: always
+    webharvester:
+        image: gwul/sfm-web-harvester:1.8.0
+        links:
+            - mq:mq
+            - heritrix:heritrix
+        environment:
+            - DEBUG=False
+            - HERITRIX_CONTACT_URL
+            - RABBITMQ_USER
+            - RABBITMQ_PASSWORD
+            - HERITRIX_USER
+            - HERITRIX_PASSWORD
+            - SFM_REQS=release
+            - SFM_UID
+            - SFM_GID
+        logging:
+            driver: json-file
+            options:
+                max-size: ${DOCKER_LOG_MAX_SIZE}
+                max-file: ${DOCKER_LOG_MAX_FILE}
+        volumes_from:
+            - data
+        restart: always
+
+# WEIBO
+    weiboharvester:
+        image: gwul/sfm-weibo-harvester:1.8.0
+        links:
+            - mq:mq
+        environment:
+            - TZ
+            - DEBUG=False
+            - RABBITMQ_USER
+            - RABBITMQ_PASSWORD
+            - SFM_REQS=release
+            - HARVEST_TRIES=${WEIBO_HARVEST_TRIES}
+            - SFM_UID
+            - SFM_GID
+        logging:
+            driver: json-file
+            options:
+                max-size: ${DOCKER_LOG_MAX_SIZE}
+                max-file: ${DOCKER_LOG_MAX_FILE}
+        volumes_from:
+            - data
+        restart: always
+    weiboexporter:
+        image: gwul/sfm-weibo-exporter:1.8.0
+        links:
+            - mq:mq
+            - ui:api
+        environment:
+            - TZ
+            - DEBUG=False
+            - RABBITMQ_USER
+            - RABBITMQ_PASSWORD
+            - SFM_REQS=release
+            - SFM_UID
+            - SFM_GID
+        logging:
+            driver: json-file
+            options:
+                max-size: ${DOCKER_LOG_MAX_SIZE}
+                max-file: ${DOCKER_LOG_MAX_FILE}
+        volumes_from:
+            - data
+        restart: always
+
+# TUMBLR
+    tumblrharvester:
+        image: gwul/sfm-tumblr-harvester:1.8.0
+        links:
+            - mq:mq
+        environment:
+            - TZ
+            - DEBUG=False
+            - RABBITMQ_USER
+            - RABBITMQ_PASSWORD
+            - SFM_REQS=release
+            - HARVEST_TRIES=${TUMBLR_HARVEST_TRIES}
+            - SFM_UID
+            - SFM_GID
+        logging:
+            driver: json-file
+            options:
+                max-size: ${DOCKER_LOG_MAX_SIZE}
+                max-file: ${DOCKER_LOG_MAX_FILE}
+        volumes_from:
+            - data
+        restart: always
+    tumblrexporter:
+        image: gwul/sfm-tumblr-exporter:1.8.0
+        links:
+            - mq:mq
+            - ui:api
+        environment:
+            - TZ
+            - DEBUG=False
+            - RABBITMQ_USER
+            - RABBITMQ_PASSWORD
+            - SFM_REQS=release
+            - SFM_UID
+            - SFM_GID
+        logging:
+            driver: json-file
+            options:
+                max-size: ${DOCKER_LOG_MAX_SIZE}
+                max-file: ${DOCKER_LOG_MAX_FILE}
+        volumes_from:
+            - data
+        restart: always
+
+# PROCESSING
+    # This container will exit on startup. That's OK.
+    processing:
+        image: gwul/sfm-processing:1.8.0
+        links:
+            - ui:api
+        environment:
+            - TZ
+        logging:
+            driver: json-file
+            options:
+                max-size: ${DOCKER_LOG_MAX_SIZE}
+                max-file: ${DOCKER_LOG_MAX_FILE}
+        volumes_from:
+            - data:ro
+            - processingdata
+
+# ELK
+    # Multiple instances of this container can be included by duplicating this definition
+    # and changing ports and command.
+#    elk:
+#        image: gwul/sfm-elk:1.8.0
+#        ports:
+#          #Kibana web interface
+#          - "5601:5601"
+#          #Elasticsearch JSON interface
+#          - "9200:9200"
+#          #Logstash server
+#          - "5000:5000"
+#        links:
+#          - mq:mq
+#        volumes_from:
+#          - data
+#        environment:
+#            - TZ
+#            - DEBUG=False
+#            - RABBITMQ_USER
+#            - RABBITMQ_PASSWORD
+#            # The amount of memory for Elasticsearch.
+#            # This is the minimal memory allowed.
+#            # For larger indexes, consider adding more memory.
+#            #  See https://www.elastic.co/guide/en/elasticsearch/reference/2.4/setup-configuration.html
+#            - ES_HEAP_SIZE=2048m
+#            - SFM_UID
+#            - SFM_GID
+#        logging:
+#            driver: json-file
+#            options:
+#                max-size: ${DOCKER_LOG_MAX_SIZE}
+#                max-file: ${DOCKER_LOG_MAX_FILE}
+#        # Set the hostname uniquely for each elk container
+#        hostname: myproject_elk
+#        # To limit ELK loading to a specific collection set.
+##        command: --collection-set=04afb3d938aa468ca2a71de0824da126

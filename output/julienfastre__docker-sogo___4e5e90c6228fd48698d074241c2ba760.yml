@@ -1,0 +1,41 @@
+version: '2'
+
+services:
+   sogo:
+
+#      if you want to build your own image
+
+      build: 
+         context: .
+         args:
+            - version=3.2.6a
+
+#     if you want to use builded image, uncomment next line
+#      image: julienfastre/sogo:3.2
+
+      links: 
+         - db
+      volumes:
+
+#     replace by the path to your own sogo.conf file
+
+         - ./../sogo.conf:/etc/sogo/sogo.conf
+      environment:
+         - "TZ=Europe/Amsterdam"
+   db:
+      image: postgres:9.5
+      ports:
+         - "5432"
+   memcached:
+      image: memcached:1.4-alpine
+   nginx:
+      image: nginx
+      links:
+         - sogo
+      volumes_from:
+         - sogo:ro
+      ports:
+         - "8080:80"
+      volumes: 
+         - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      

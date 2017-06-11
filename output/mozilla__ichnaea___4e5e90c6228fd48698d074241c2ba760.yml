@@ -1,0 +1,15 @@
+mysql:
+  container_name: location_mysql
+  expose:
+    - "3306"
+  image: mozilla/location_mysql:latest
+  ports:
+    - "3306"
+
+redis:
+  container_name: location_redis
+  expose:
+    - "6379"
+  image: mozilla/location_redis:latest
+  ports:
+    - "6379"

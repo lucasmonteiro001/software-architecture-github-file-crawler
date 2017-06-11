@@ -1,0 +1,10 @@
+allc:
+  image: jscheel42/allc
+  environment:
+    - ALLCUSER=allc
+    - ALLCPASS={{ secret_postgresql_password_allc }}
+    - ALLCHOST={{ app_allc_db_server }}
+    - DEPLOY_ENV=production
+    - SECRET_KEY_BASE=
+  ports:
+  - "3000:3000"

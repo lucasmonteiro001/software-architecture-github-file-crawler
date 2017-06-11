@@ -1,0 +1,46 @@
+version: "2"
+services:
+  dreddit-api-mongo:
+    image: mongo:3.2.7
+    restart: unless-stopped
+  dreddit-api-rabbit:
+    image: rabbitmq:3.6.2
+    hostname: rabbit
+    restart: unless-stopped
+  dreddit-api-worker:
+    image: node:6.2.2
+    volumes:
+      - ./dreddit-api-worker:/usr/src/app
+    depends_on:
+      - dreddit-api-mongo
+      - dreddit-api-rabbit
+    entrypoint: /usr/src/app/bin/worker
+    working_dir: /usr/src/app
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+  dreddit-api-server:
+    image: node:6.2.2
+    volumes:
+      - ./dreddit-api-server:/usr/src/app
+    depends_on:
+      - dreddit-api-rabbit
+    entrypoint: /usr/src/app/bin/server
+    working_dir: /usr/src/app
+    expose:
+      - 8080
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+  dreddit-api-www:
+    image: nginx:1.11.1
+    ports:
+      - "8080:80"
+    depends_on:
+      - dreddit-api-server
+    restart: unless-stopped
+    entrypoint: /docker-entrypoint.sh
+    volumes:
+      - ./dreddit-api-www/docker-entrypoint.sh:/docker-entrypoint.sh
+      - ./dreddit-api-www/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./dreddit-api-www/static:/usr/share/nginx/html:ro

@@ -1,0 +1,44 @@
+version: '2'
+services:
+  app:
+    build: .
+    environment:
+      MYDB_DATABASE: $MYDB_DATABASE
+      MYDB_USER: $MYDB_USER
+      MYDB_PASSWORD: $MYDB_PASSWORD
+    expose:
+      - "8080"
+    links:
+      - db:db
+    volumes:
+      - .:/spring
+    command: java $JAVA_OPTS -jar /usr/local/spring/libs/ChouseiFF14-0.0.1-SNAPSHOT.jar
+
+  web:
+    build: ./web
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    links:
+      - app:app
+    volumes:
+      - ./web/nginx.conf:/etc/nginx/nginx.conf
+      - ./web/ssl:/etc/nginx/ssl
+      - ./web/webserver.conf:/etc/nginx/conf.d/webserver.conf
+    volumes_from:
+      - app
+
+  db:
+    image: postgres:alpine
+    environment:
+      POSTGRES_DB: $MYDB_DATABASE
+      POSTGRES_USER: $MYDB_USER
+      POSTGRES_PASSWORD: $MYDB_PASSWORD
+    ports:
+      - "5432:5432"
+    volumes_from:
+      - storage
+
+  storage:
+    build: ./storage

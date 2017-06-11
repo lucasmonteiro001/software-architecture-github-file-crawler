@@ -1,0 +1,25 @@
+elasticsearch:
+  image: elasticsearch
+  restart: always
+  command: elasticsearch --node.name="ESNode" --cluster.name=escluster
+  expose:
+    - 9200
+    - 9300
+  volumes_from:
+    - esdata
+logstash:
+  image: logstash
+  restart: always
+  command: /docker-entrypoint.sh logstash -e "input { syslog { port => 5514 type => syslog } } output { stdout { } elasticsearch { cluster => "escluster" host => \"es\" }}"
+  ports:
+    - 514:5514/udp
+    - 514:5514
+  links:
+    - elasticsearch:es
+kibana:
+  image: kibana
+  restart: always
+  ports:
+    - 5601:5601
+  links:
+    - elasticsearch:elasticsearch

@@ -1,0 +1,119 @@
+# Note that all path are relative to fig file
+#web:
+#    build: ../web
+#    volumes:
+#        - ../web:/usr/src/web
+#        - ../config:/usr/lib/python/config
+#        - ../core:/usr/lib/python/core
+#        - ../messaging:/usr/lib/python/messaging
+#        - ../smtp:/usr/lib/python/smtp
+#        - ../storage:/usr/lib/python/storage
+#        - ../api:/usr/lib/python/api
+#        - ../cli:/usr/lib/python/cli
+#    links:
+#        - redis
+#        - rabbitmq
+#        - cassandra
+#        - elasticsearch
+#    cmd: []
+#    entrypoint: []
+
+# ### Redis Database
+#
+# Used to store sessions.
+redis:
+    image: redis
+    ports:
+        - "6379:6379"
+
+# ### Rabbit MQ
+#
+# Used as an event broker for async tasks
+rabbitmq:
+    image: rabbitmq
+    ports:
+        - "5672:5672"
+
+# ### Cassandra
+#
+# Cassandra is used as the reference storage for business data
+cassandra:
+    image: cassandra
+    ports:
+        - "9042:9042"
+        - "9160:9160"
+        - "7000:7000"
+    volumes:
+        - ../.data/cassandra/data:/var/lib/cassandra
+
+# ### Elasticsearch
+#
+# Used to index mail content and ensure great research performances.
+elasticsearch:
+    image: elasticsearch
+    ports:
+        - "9200:9200"
+    volumes:
+        - ../.data/elasticsearch/data:/data/data
+
+# Commands
+# --------
+#
+# A set of commands to administrate caliOpen development infrastructure.
+
+# ### CaliOpen Cli
+#
+# Run CaliOpen cli command in a container.
+#
+# * `fig run cli -h`
+# * `fig run cli setup`
+# * `fig run cli create_user -e julien.muetton@gandi.net -g Julien -f Muetton -p 123456`
+# * `fig run cli import -e julien.muetton@gandi.net -f mbox -p ~/Downloads/mails/`
+#cli:
+#    build: .
+#    volumes-from: web
+#    cmd: ['-f', 'caliopen.yaml.template']
+#    entrypoint: ['caliopen']
+
+# ### Cassandra Cli
+#
+# Open the cassandra shell to send requests to running cassandra instance
+#
+# `fig run cassandracli`
+cassandracli:
+    image: cassandra
+    links:
+        - cassandra:cassandra.caliopen.dev
+    entrypoint: 'cqlsh'
+    command: ['cassandra.caliopen.dev']
+
+# ### Npm container
+#
+# Run npm  in a docker container.
+# Simply run `fig run npm install` to install dependencies
+# Simply run `fig run npm run dev` to run in dev mode
+npm:
+    image: "node:0.10"
+    working_dir: /usr/local/caliopen/frontend
+    volumes:
+        - ../:/usr/local/caliopen
+    entrypoint: npm
+
+# ### Grunt container
+ember:
+    image: "node:0.10"
+    working_dir: /usr/local/caliopen/frontend
+    volumes:
+        - ../:/usr/local/caliopen
+    entrypoint: ./node_modules/.bin/ember
+
+# ### Node environment
+#
+# Run node commands, Note there is no entry point.
+# Simply run `fig run node my/js/file.js`
+node:
+    image: "node:0.10"
+    working_dir: /usr/local/caliopen/frontend
+    volumes:
+        - ../:/usr/local/caliopen
+

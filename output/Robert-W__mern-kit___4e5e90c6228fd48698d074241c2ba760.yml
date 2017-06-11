@@ -1,0 +1,32 @@
+version: '3'
+
+services:
+  mern:
+    depends_on:
+      - mongo
+    build:
+      context: mern
+      dockerfile: Dockerfile
+    env_file: secrets/local.secrets
+    environment:
+      NODE_ENV: development
+      MONGO_HOSTNAME: mongo
+      MONGO_DATABASE: docker-mern
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./mern/packages:/srv/src/packages
+      - ./mern/scripts:/srv/src/scripts
+    links:
+      - mongo
+    # To test production mode, comment out this command and
+    # change NODE_ENV in the environment section above to production
+    command: npm run nodemon
+  mongo:
+    image: mongo:3.4.2
+    ports:
+      - "27017"
+    volumes:
+      - mongo_data:/data/db
+volumes:
+  mongo_data:

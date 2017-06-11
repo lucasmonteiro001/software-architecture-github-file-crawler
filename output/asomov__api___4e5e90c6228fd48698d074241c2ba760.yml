@@ -1,0 +1,43 @@
+version: "2"
+
+services:
+  meteor:
+    image: partup/partup:develop
+    links:
+      - mongo
+      - api
+    env_file: ../part-up/config/development/env
+    environment:
+      MONGO_URL: mongodb://mongo/partup
+      ROOT_URL: http://localhost:8080
+      EVENT_ENDPOINT_URL: http://api/events
+      EVENT_ENDPOINT_AUTHORIZATION: mock-auth-value1
+      NODE_ENV: development
+    ports:
+      - "3000:3000"
+
+  api:
+    build: .
+    links:
+      - mongo
+      - neo4j
+    environment:
+      MONGO_HOST: mongo
+      NEO4J_HOST: neo4j
+      NEO4J_PORT: 7474
+      PARTUP_API_AUTHKEY: mock-auth-value1
+    ports:
+      - "8080:80"
+
+  mongo:
+    image: mongo:3
+    command: mongod --smallfiles
+    ports:
+     - "27017"
+
+  neo4j:
+    image: partup/ubcf:master
+    environment:
+      NEO4J_AUTH: none
+    ports:
+      - "7474:7474"

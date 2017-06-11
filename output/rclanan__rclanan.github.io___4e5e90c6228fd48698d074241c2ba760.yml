@@ -1,0 +1,9 @@
+rclanan.github.io:
+    build: .
+    command: bundle exec jekyll serve --port 4000 --host 0.0.0.0 --watch --drafts --force_polling --config _config.dev.yml
+    ports:
+        - "4000:4000"
+    volumes:
+        - .:/src
+    environment:
+        - INSTANCE_TYPE=web-server

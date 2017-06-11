@@ -1,0 +1,24 @@
+# App
+web:
+  extends:
+    file: ./docker/app.yml
+    service: app
+  command: python providers/manage.py runserver 0.0.0.0:3060 --configuration Local
+  links:
+   - db
+   - redis
+   - geodb
+  ports:
+    - "3060:3060"
+db:
+  image: postgres 
+  volumes:
+   - /opt/mozio/postgres/data:/var/lib/postgresql/data
+geodb:
+  image: mdillon/postgis
+  volumes:
+   - /opt/mozio/postgis/data:/var/lib/postgresql/data
+redis:
+  image: redis
+  volumes:
+    - /opt/mozio/redis/data:/data

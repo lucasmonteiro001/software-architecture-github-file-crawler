@@ -1,0 +1,21 @@
+db:
+    image: postgres:9.4
+    ports:
+        - "5432:5432"
+flyway:
+    image: projectweekend/flyway
+    volumes:
+        - ./local_migrate.sh:/src/local_migrate.sh
+        - ./sql:/opt/flyway-3.2.1/sql
+    links:
+        - db
+app:
+    build: .
+    command: python main.py
+    volumes:
+        - .:/src
+    links:
+        - db
+    environment:
+        PICLOUD_URL:
+        PICLOUD_API_KEY:

@@ -1,0 +1,17 @@
+registry:
+  container_name: registry-v2
+  restart: always
+  image: registry:2
+  ports:
+    - "127.0.0.1:443:5000"
+  environment:
+    REGISTRY_HTTP_TLS_CERTIFICATE: /certs/cert.crt
+    REGISTRY_HTTP_TLS_KEY: /certs/cert.key
+    REGISTRY_AUTH: htpasswd
+    REGISTRY_AUTH_HTPASSWD_PATH: /auth/htpasswd
+    REGISTRY_AUTH_HTPASSWD_REALM: Docker Registry Authentication
+    REGISTRY_STORAGE_DELETE_ENABLED: true
+  volumes:
+    - ./certs:/certs
+    - ./images:/var/lib/registry
+    - ./auth:/auth

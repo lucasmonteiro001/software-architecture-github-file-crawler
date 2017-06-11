@@ -1,0 +1,4 @@
+pdftk:
+  build: .
+  volumes:
+    - .:/src

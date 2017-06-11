@@ -1,0 +1,48 @@
+version: '2'
+services:
+  mirakurun:
+    build:
+      context: {{ repo_dir }}/mirakurun
+    container_name: mirakurun
+    privileged: true
+    restart: always
+    ports:
+      - "40772:40772"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./mnt/mirakurun/conf:/usr/local/etc/mirakurun
+      - ./mnt/mirakurun/db:/usr/local/var/db/mirakurun
+
+  chinachu:
+    build:
+      context: {{ repo_dir }}/chinachu
+      args:
+        - REPOSITORY=git://github.com/Chinachu/Chinachu.git
+        - BRANCH=master
+    container_name: chinachu
+    restart: always
+    ports:
+      - "10772:10772"
+      - "5353:5353/udp"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./mnt/chinachu/conf/config.json:/usr/local/chinachu/config.json
+      - ./mnt/chinachu/conf/rules.json:/usr/local/chinachu/rules.json
+      - ./mnt/chinachu/data:/usr/local/chinachu/data
+      - ./encode.sh:/usr/local/bin/encode.sh
+      - /chinachu/recorded:/usr/local/chinachu/recorded
+    links:
+      - mirakurun:container-mirakurun
+      - odango-encoder:container-odango-encoder
+
+  odango-encoder:
+    build:
+      context: {{ odango_encoder_dir }}
+    container_name: odango-encoder
+    restart: always
+    ports:
+      - "6000:6000"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /chinachu/recorded:/usr/local/chinachu/recorded
+      - /mnt/odango:/mnt/odango

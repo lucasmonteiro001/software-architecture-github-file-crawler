@@ -1,0 +1,41 @@
+version: '2'
+
+services:
+
+  server:
+    image: terriajs/spacerace-server:latest
+    build: server
+    ports:
+      - "5556:5556"
+      - "5557:5557"
+      - "5558:5558"
+      - "5559:5559"
+    volumes:
+      - ./config:/spacerace/config
+      - ./maps:/spacerace/maps
+
+  frontend:
+    image: terriajs/spacerace-frontend:latest
+    build: frontend
+    links:
+      - server
+    depends_on:
+      - server
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./config:/spacerace/config
+      - ./maps:/spacerace/maps
+
+  httpserver:
+    image: terriajs/spacerace-httpserver:latest
+    build: httpserver
+    links:
+      - server
+    depends_on:
+      - server
+    ports:
+      - "5001:5001"
+    volumes:
+      - ./config:/spacerace/config
+      - ./maps:/spacerace/maps

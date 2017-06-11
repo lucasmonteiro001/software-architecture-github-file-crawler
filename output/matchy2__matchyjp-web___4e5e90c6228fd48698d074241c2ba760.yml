@@ -1,0 +1,51 @@
+mysql-data:
+  image: alpine
+  command: echo "done."
+  volumes:
+    - /var/lib/mysql
+
+mysql:
+  build: ./mysql
+  environment:
+    MYSQL_ROOT_PASSWORD: secret
+  volumes_from:
+    - mysql-data
+  ports:
+    - "127.0.0.1:3306:3306"
+
+php:
+  build: ./php
+  links:
+    - mysql:mysql
+  expose:
+    - "9000"
+  volumes:
+    - /var/www/wordpress:/var/www/wordpress
+    - /var/www/owncloud:/var/www/owncloud
+
+php71:
+  build: ./php71
+  links:
+    - mysql:mysql
+  expose:
+    - "9001"
+  volumes:
+    - /var/www/wordpress:/var/www/wordpress
+    - /var/www/owncloud:/var/www/owncloud
+
+nginx:
+  build: ./nginx
+  links:
+    - php:php
+    - php71:php71
+  volumes:
+    - /var/www/www.matchy.jp:/var/www/www.matchy.jp
+    - /var/www/naganonews:/var/www/naganonews
+    - /var/www/wordpress:/var/www/wordpress
+    - /var/www/owncloud:/var/www/owncloud
+    - /etc/letsencrypt:/etc/letsencrypt
+    - /var/log/nginx:/var/log/nginx/
+    - /home/hideki/radio/radiko:/home/hideki/radio/radiko
+  ports:
+    - "80:80"
+    - "443:443"

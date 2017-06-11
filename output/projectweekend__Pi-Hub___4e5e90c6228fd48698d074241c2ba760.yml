@@ -1,0 +1,7 @@
+wss:
+    build: .
+    command: npm start
+    volumes:
+        - .:/src
+    ports:
+        - "3030:3030"

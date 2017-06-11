@@ -1,0 +1,9 @@
+chrome:
+  image: pl31/chrome:stretch
+  volumes:
+  - $XAUTHORITY:/root/.Xauthority
+  - /dev/snd/:dev/snd/
+  environment:
+  - DISPLAY
+  - XAUTHORITY=/root/.Xauthority
+  net: "host"

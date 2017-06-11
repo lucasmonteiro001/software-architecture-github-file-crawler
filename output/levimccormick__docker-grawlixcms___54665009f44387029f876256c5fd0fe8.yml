@@ -1,0 +1,41 @@
+version: '2'
+
+services:
+  webserver:
+    depends_on:
+      - dbserver
+    build: webserver/.
+    volumes:
+      - ../grawlixcms/:/var/www/html
+    links:
+       - dbserver
+    ports:
+       - "9000:80"
+    environment:
+      LOCAL: 'True'
+      DB_SERVER: 'dbserver'
+      DB_NAME: 'default'
+      DB_USER: 'user'
+      DB_PASS: 'password'
+  dbserver:
+    image: mysql:5.6
+    # Needs configuration
+    volumes:
+      - ./dbserver/data:/var/lib/mysql
+    environment:
+       MYSQL_ROOT_PASSWORD: 'rootpass'
+       MYSQL_DATABASE: 'default'
+       MYSQL_USER: 'user'
+       MYSQL_PASSWORD: 'password'
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:4.6.5.1-1
+    links:
+      - dbserver
+    ports:
+      - "9001:80"
+    environment:
+      PMA_HOST: "dbserver"
+      MYSQL_ROOT_PASSWORD: 'rootpass'
+      MYSQL_DATABASE: 'default'
+      MYSQL_USER: 'user'
+      MYSQL_PASSWORD: 'password'

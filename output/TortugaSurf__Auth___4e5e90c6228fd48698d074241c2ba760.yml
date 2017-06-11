@@ -1,0 +1,14 @@
+version: "2"
+
+services:
+  mysql:
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: auth_service
+      MYSQL_USER: auth_user
+      MYSQL_PASSWORD: auth_user
+    volumes:
+      - ./database:/var/lib/mysql
+    expose:
+      - "3306"

@@ -1,0 +1,29 @@
+version: '2'
+services: 
+  rabbitmq:
+    image: rabbitmq:3-management
+
+  mongo:
+    image: mongo:3.2
+  
+  netcore3:
+    image: microsoft/dotnet:1.0.3-core
+  
+  netcore4:
+    image: microsoft/dotnet:1.0.4-core
+
+  sdk:
+    image: microsoft/dotnet:1.0.4-sdk
+  
+  ubuntu:
+    image: ubuntu:latest
+    
+  mono:
+    image: mono:4.6.1
+    
+  web:
+    depends_on:
+      - rabbitmq
+    image: fpommerening/spartakiade2017-docker:StartupApp
+    ports:
+      - 19317:19317

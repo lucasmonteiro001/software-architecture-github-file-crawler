@@ -1,0 +1,26 @@
+mysql:
+  image: mysql
+  expose:
+    - "3306"
+  ports:
+    - "3306:3306"
+  environment:
+    MYSQL_ROOT_PASSWORD: keypass
+    MYSQL_DATABASE: keypass
+    MYSQL_USER: keypass
+    MYSQL_PASSWORD: keypass
+
+keypass:
+  image: telefonicaiot/fiware-keypass
+  links:
+    - mysql
+  expose:
+    - "7070"
+    - "7071"
+  ports:
+    - "7070:7070"
+    - "7071:7071"
+  command: -dbhost mysql
+  environment:
+    - DBTIMEOUT=200
+

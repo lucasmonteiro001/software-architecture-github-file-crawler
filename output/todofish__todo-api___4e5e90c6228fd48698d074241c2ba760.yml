@@ -1,0 +1,29 @@
+version: "2"
+services:
+  db:
+    image: postgres:latest
+    restart: always
+    volumes:
+      - /var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: secret
+  api:
+    build: .
+    command: "/env/bin/python ./run.py"
+    depends_on:
+      - db
+    links:
+      - db
+    ports:
+      - "5000:5000"
+    environment:
+      DATABASE_URL: postgresql://postgres:secret@db/postgres
+  admin:
+    image: todo-admin
+    depends_on:
+      - api
+    links:
+      - db
+    ports:
+      - "9000:5000"
+    

@@ -1,0 +1,25 @@
+py:
+  build: .
+  command: python3 -m src
+  environment:
+    APP_PORT: 3000
+    RUN_ENV: development
+    SQL_DATABASE: postgres
+    SQL_HOST: postgresql
+    SQL_PORT: 5432
+    SQL_USER: postgres
+  ports:
+    - "3000:3000"
+  volumes:
+    - ./config:/var/www/config
+    - ./coverage:/var/www/coverage
+    - ./requirements.txt:/var/www/requirements.txt
+    - ./src:/var/www/src
+    - ./test:/var/www/test
+  links:
+    - postgresql
+
+postgresql:
+  image: postgres:9.5
+  ports:
+    - "19132:5432"

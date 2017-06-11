@@ -1,0 +1,10 @@
+app:
+  build: .
+  ports:
+    - 8888:8888
+  links:
+    - mongo:database
+mongo:
+  image: mongo:latest
+  ports:
+    - "27017:27017"

@@ -1,0 +1,30 @@
+# starting interactive debug session:
+# docker-compose run --rm --service-ports mail
+
+version: '2'
+
+services:
+  mail:
+    image: cloudycube/docker-mailserver
+    hostname: mail
+    domainname: domain.com
+    container_name: mail
+#    stdin_open : true
+#    tty: true
+    command: [ run-and-enter ]
+    ports:
+    - "25:25"
+    - "80:80"
+    - "110:110"
+    - "143:143"
+    - "587:587"
+    - "993:993"
+    - "995:995"
+    - "4190:4190"
+    volumes:
+    - ./data:/data
+    environment:
+    - CC_HOSTNAME=mail.domain.com
+    - CC_SSL_TYPE=self-signed
+    cap_add:
+    - NET_ADMIN

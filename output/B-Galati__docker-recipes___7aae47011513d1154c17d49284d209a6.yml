@@ -1,0 +1,36 @@
+dbData:
+    image: debian:jessie
+    volumes:
+        - /data/db
+elkData:
+    image: debian:jessie
+    volumes:
+        - /data/logstash
+db:
+    image: mongo:3.0
+    volumes:
+        - ./data/db:/data/db
+    volumes_from:
+        - dbData
+    ports:
+        - 27017:27017
+web:
+    image: benoitg/php-apache-symfony
+    ports:
+        - 80:80
+    links:
+        - db:db
+    volumes:
+        - ./:/var/www/html
+        - ./app/logs/apache2:/var/log/apache2
+elk:
+    image: willdurand/elk
+    ports:
+        - 81:80
+    volumes:
+        - ./elk/logstash:/etc/logstash
+        - ./elk/logstash/patterns:/opt/logstash/patterns
+        - ./data/logstash:/data/logstash
+    volumes_from:
+        - web
+        - elkData

@@ -1,0 +1,16 @@
+version: '2'
+
+services:
+    wordpress:
+        image: wordpress:php7.1
+        ports:
+            - 8080:80
+        environment:
+            WORDPRESS_DB_PASSWORD: wb$Dyp@q4-
+            WORDPRESS_DB_HOST: mysql:3306
+        volumes:
+            - ./my-awesome-theme:/var/www/html/wp-content/themes/my-awesome-theme
+    mysql:
+        image: mariadb
+        environment:
+            MYSQL_ROOT_PASSWORD: wb$Dyp@q4-

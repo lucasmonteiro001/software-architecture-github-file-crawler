@@ -1,0 +1,15 @@
+version: '2'
+services:
+  sc-mysql:
+    build:
+      context: .
+    image: sc-mysql
+    container_name: sc-mysql
+    environment: 
+      - MYSQL_ROOT_PASSWORD=Testing
+      - MYSQL_DATABASE=SC
+    ports:
+      - "3306:3306"
+    volumes:
+      - /c/UPMC.com/data/SC/MySQL:/var/lib/mysql
+      - /c/UPMC.com/Data:/mnt/data

@@ -1,0 +1,42 @@
+web:
+  build: .
+  command: 'bash -c ''bundle exec puma -C config/puma.rb'''
+  working_dir: /app/user
+  volumes:
+    - .:/app/user
+  environment:
+    PORT: 3000
+    DATABASE_URL: 'postgres://postgres:@db:5432/postgres'
+  env_file:
+    - .env
+    - .env.test
+    - .env.development
+  ports:
+    - '3000:3000'
+  links:
+    - db
+    - redis
+
+# @TODO Can this be combined with `web`?
+shell:
+  build: .
+  command: bash
+  working_dir: /app/user
+  volumes:
+    - .:/app/user
+  environment:
+    PORT: 3000
+    DATABASE_URL: 'postgres://postgres:@db:5432/postgres'
+  ports:
+    - '3000:3000'
+  links:
+    - db
+    - redis
+  volumes:
+    - '.:/app/user'
+
+db:
+  image: postgres
+
+redis:
+  image: redis

@@ -1,0 +1,17 @@
+api:
+  image: egifedcloud/training-fractal
+  ports:
+   - "80:80"
+  links:
+   - rabbitmq
+  command: faafo-api
+worker:
+  image: egifedcloud/training-fractal
+  links:
+   - rabbitmq
+   - api
+  command: faafo-worker
+rabbitmq:
+  image: rabbitmq:3
+  ports:
+   - "5672:5672"

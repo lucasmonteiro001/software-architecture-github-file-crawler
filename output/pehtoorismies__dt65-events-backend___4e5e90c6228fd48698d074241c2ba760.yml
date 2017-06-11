@@ -1,0 +1,28 @@
+version: "2"
+services:
+  db:
+    container_name: dt65-mongo
+    image: mongo:3.0.14
+    restart: always
+    environment:
+      - MONGODB_USER=${MONGO_USER}
+      - MONGODB_DATABASE=${MONGO_DB}
+      - MONGODB_PASS=${MONGO_PW}
+  web:
+    container_name: dt65-backend
+    build: .
+    restart: always
+    command: npm run start-server:dev
+    stop_signal: SIGTERM
+    environment:
+      - MONGODB_USER=${MONGO_USER}
+      - MONGODB_DATABASE=${MONGO_DB}
+      - MONGODB_PASS=${MONGO_PW}
+    volumes:
+      - .:/usr/src/app
+    ports:
+      - "3001:${DT65_PORT}"
+    links:
+      - db
+    depends_on:
+      - db

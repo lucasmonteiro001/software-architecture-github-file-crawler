@@ -1,0 +1,17 @@
+prerender:
+  build: .
+  ports:
+    - 3000:3000
+  links:
+    - mongodb:database
+  environment:
+    - MONGODB_URL=mongodb://database:27017/prerender
+  volumes:
+    - /your-local-path/config:/data/config
+
+mongodb:
+  image: mongo:3.0.4
+  ports:
+    - "27017:27017"
+  volumes:
+    - /your-local-path/data:/data/db

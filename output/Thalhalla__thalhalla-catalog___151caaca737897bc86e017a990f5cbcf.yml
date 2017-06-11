@@ -1,0 +1,100 @@
+dockarmaiii:
+  image: thalhalla/dockarmaiii:${DOCKARMAIII_BRANCH}
+  command: ${DOCKARMAIII_COMMAND}
+  environment:
+    STEAM_USERNAME: ${STEAM_USERNAME}
+    STEAM_PASSWORD: ${STEAM_PASSWORD}
+    MAX_PLAYERS: ${MAX_PLAYERS}
+    ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+    HOSTNAME: ${HOSTNAME}
+    STEAM_GID: 233780
+    IP: ${IP}
+    PORT: ${PORT2}
+    CLIENT_IP: 10.42.227.21
+    CLIENT_IP2: 10.42.227.22
+    CLIENT_IP3: 10.42.227.23
+    CLIENT_IP4: 10.42.227.24
+    CLIENT_IP5: 10.42.227.25
+    CLIENT_IP6: 10.42.227.26
+    MODS: ${DOCKARMAIII_MODS}
+  labels:
+    io.rancher.container.hostname_override: container_name
+    io.rancher.scheduler.affinity:host_label: ${host_label}
+    io.rancher.container.requested_ip: 10.42.227.27
+    io.rancher.sidekicks: dockarmaiii-datavolume
+    io.rancher.container.pull_image: always
+  volumes_from:
+    - dockarmaiii-datavolume
+  ports:
+    - "${PORT2}:2302/udp"
+    - "${PORT3}:2303/udp"
+    - "${PORT4}:2304/udp"
+    - "${PORT5}:2305/udp"
+dockarmaiiihc1:
+  image: thalhalla/dockarmaiii:${DOCKARMAIII_BRANCH}
+  command: /assets/headless.sh
+  environment:
+    STEAM_USERNAME: ${STEAM_USERNAME}
+    STEAM_PASSWORD: ${STEAM_PASSWORD}
+    STEAM_GID: 233780
+    IP: ${IP}
+    PORT2: ${PORT2}
+    PORT3: ${PORT3}
+    PORT4: ${PORT4}
+    PORT5: ${PORT5}
+    SERVER_IP: 10.42.227.27
+    SERVER_PORT: 2302
+  labels:
+    io.rancher.container.requested_ip: 10.42.227.21
+    io.rancher.sidekicks: dockarmaiii-datavolume
+  volumes_from:
+    - dockarmaiii-datavolume
+dockarmaiiihc2:
+  image: thalhalla/dockarmaiii:${DOCKARMAIII_BRANCH}
+  command: /assets/headless.sh
+  environment:
+    STEAM_USERNAME: ${STEAM_USERNAME}
+    STEAM_PASSWORD: ${STEAM_PASSWORD}
+    STEAM_GID: 233780
+    IP: ${IP}
+    PORT2: ${PORT2}
+    PORT3: ${PORT3}
+    PORT4: ${PORT4}
+    PORT5: ${PORT5}
+    SERVER_IP: 10.42.227.27
+    SERVER_PORT: 2302
+  labels:
+    io.rancher.container.requested_ip: 10.42.227.22
+    io.rancher.sidekicks: dockarmaiii-datavolume
+  volumes_from:
+    - dockarmaiii-datavolume
+dockarmaiiihc3:
+  image: thalhalla/dockarmaiii:${DOCKARMAIII_BRANCH}
+  command: /assets/baked-headless-pw.sh
+  environment:
+    STEAM_USERNAME: ${STEAM_USERNAME}
+    STEAM_PASSWORD: ${STEAM_PASSWORD}
+    GAME_PASSWORD: ${GAME_PASSWORD}
+    STEAM_GID: 233780
+    IP: ${IP}
+    PORT2: ${PORT2}
+    PORT3: ${PORT3}
+    PORT4: ${PORT4}
+    PORT5: ${PORT5}
+    SERVER_IP: 10.42.227.27
+    SERVER_PORT: 2302
+  labels:
+    io.rancher.container.requested_ip: 10.42.227.23
+    io.rancher.sidekicks: dockarmaiii-datavolume
+    io.rancher.container.pull_image: always
+  volumes_from:
+    - dockarmaiii-datavolume
+dockarmaiii-datavolume:
+  labels:
+    io.rancher.container.hostname_override: container_name
+    io.rancher.container.start_once: true
+  volume_driver: ${VOLUME_DRIVER}
+  volumes:
+    - ${VOLUME_NAME}:/home/steam
+  image: thalhalla/dockarmaiii:${DOCKARMAIII_BRANCH}
+  command: /bin/true

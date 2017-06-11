@@ -1,0 +1,48 @@
+version: '2'
+services:
+  forum:
+    image: typedefstructer/scforum:v0.1.1
+    cap_add:
+      - SYS_ADMIN
+    security_opt:
+      - apparmor:unconfined
+    ports:
+      - "80:3000"
+    volumes:
+      - ..:/src
+      - ./data:/data
+    privileged: true
+    hostname: scforums
+    environment:
+      - PGHOST=scforums_postgres
+      - RAILS_ENV=production
+    links:
+      - postgres_service:scforums_postgres
+      - mail_local:scforums_mail
+    command: bash
+    stdin_open: true
+    tty: true
+    depends_on:
+      - postgres_phppgadmin
+      - mail_local
+  mail_local:
+    image: namshi/smtp
+    environment:
+      - SMARTHOST_ADDRESS=smtp.sendgrid.net
+      - SMARTHOST_USER=dodlasricharan
+      - SMARTHOST_PASSWORD=mikeljackson
+      - SMARTHOST_PORT=587
+  postgres_phppgadmin:
+    image: clue/adminer
+    ports:
+     - "8083:80"
+    links:
+     - postgres_service:postgres
+    depends_on:
+     - postgres_service
+  postgres_service:
+    image: postgres:9
+    environment:
+      - POSTGRES_USER=discourse
+    volumes:
+      - ./data/db/postgres:/var/lib/postgresql/data

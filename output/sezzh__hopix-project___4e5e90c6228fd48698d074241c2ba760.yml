@@ -1,0 +1,60 @@
+version: "2"
+services:
+  webplatform:
+    build:
+      context: .
+      dockerfile: ./dockerfile/Dockerfile_nodejs
+    depends_on:
+      - data
+      - authservice
+    volumes:
+      - ./web-platform:/usr/src/app
+    ports:
+      - "3000:3000"
+      - "5858:5858"
+    env_file:
+      - ./env/web-platform/webplatform.env
+      - ./env/web-platform/webplatform_secrets.env
+  authservice:
+    build:
+      context: .
+      dockerfile: ./dockerfile/Dockerfile_python35
+    depends_on:
+      - data
+      - authservice_db
+    env_file:
+      - ./env/auth-service/authservice.env
+      - ./env/auth-service/authservice_db_secrets.env
+      - ./env/auth-service/authservice_secrets.env
+    environment:
+      - FLASK_DEBUG=1
+    volumes:
+      - ./auth-service:/usr/src/app
+    ports:
+      - "5000:5000"
+  authservice_db:
+    image: postgres:9.6.0
+    env_file:
+      - ./env/auth-service/authservice_db.env
+      - ./env/auth-service/authservice_pg_secrets.env
+    volumes_from:
+      - data
+    depends_on:
+      - data
+    volumes:
+      - ./auth-service/sql:/usr/sql
+  gateway:
+    image: nginx:stable
+    volumes:
+      - ./gateway:/etc/nginx/conf.d
+    ports:
+      - "8080:80"
+    depends_on:
+      - webplatform
+  data:
+    image: busybox
+    volumes:
+      - psdata:/var/lib/postgresql/data
+volumes:
+  psdata:
+    external: true

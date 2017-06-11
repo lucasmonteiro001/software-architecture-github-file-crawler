@@ -1,0 +1,23 @@
+# phd - application stack
+
+version: '2'
+services:
+  php:
+    build: .
+    image: local/phd/app${IMAGE_TAG}
+    depends_on:
+      - db
+    networks:
+      default:
+        aliases:
+          - phpfpm
+
+  nginx:
+    image: phundament/nginx-one:1.9
+    depends_on:
+      - php
+
+  db:
+    image: 'percona:5.6'
+    environment:
+      MYSQL_ROOT_PASSWORD: secretadmin

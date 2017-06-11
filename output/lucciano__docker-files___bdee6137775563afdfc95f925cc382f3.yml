@@ -1,0 +1,14 @@
+#root@a9f45234e647:/# amqp-declare-queue -u amqp://rabbitmq --durable --queue=my 
+#my
+#root@a9f45234e647:/# amqp-consume  -u amqp://rabbitmq  --queue=my  ./onemessage.sh
+#
+# amqp-publish -u amqp://rabbitmq -r my -b "$(date)"
+version: "2.0"
+services:
+   bish:
+     build: .
+     links: 
+       - rabbitmq
+
+   rabbitmq:
+     image: rabbitmq

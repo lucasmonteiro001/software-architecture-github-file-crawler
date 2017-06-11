@@ -1,0 +1,27 @@
+# COMMAND
+# docker-compose up -d --build
+
+version: '2'
+services:
+  nginx:
+    build: .
+    container_name: nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    logging:
+      driver: json-file
+  # app-one:
+  #   container_name: app-one
+  #   image: gcr.io/app-one:latest
+  #   ports:
+  #     - "1111:1111"
+  #   logging:
+  #     driver: json-file
+  # app-two:
+  #   container_name: app-two
+  #   image: gcr.io/app-two:latest
+  #   ports:
+  #     - "2222:2222"
+  #   logging:
+  #     driver: json-file

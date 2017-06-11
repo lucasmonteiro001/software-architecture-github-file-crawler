@@ -1,0 +1,26 @@
+version: '2'
+
+services:
+
+  csclassroom.webapp:
+    image: csclassroom/csclassroom.webapp${TAG}
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "10000:80"
+    volumes:
+      - ./appsettings.Environment.json:/app/appsettings.Environment.json
+    environment:
+      - RollingLogPath=/var/log/csclassroom/log.txt
+
+  postgres:
+    image: postgres
+    ports:
+      - "5432:5432"
+    restart: always
+    volumes:
+      - data-volume:/var/lib/postgresql/data
+
+volumes:
+  data-volume:

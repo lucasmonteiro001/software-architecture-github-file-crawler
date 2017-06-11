@@ -1,0 +1,35 @@
+version: '2'
+services:
+  web:
+    image: nginx_proxy:latest
+    ports:
+      - "10000:80"
+    links:
+      - pris_back_end
+      - pris_front_end
+    volumes:
+      - ./config/pris.localhost.com.conf:/etc/nginx/sites-enabled/pris.localhost.com.conf
+      - ./config/nginx.conf:/etc/nginx/nginx.conf
+
+  pris_back_end:
+    image: hub.momentech.no:5000/price_back_end:latest
+    external_links:
+      - mysql
+    volumes:
+      - ./src/back-end:/var/www/back-end
+      - ./config/php.ini:/usr/local/etc/php/php.ini
+      - ./data/back-end/statics:/var/data/statics/images
+    networks:
+      - mysql_network
+      - default
+
+  pris_front_end:
+    image: hub.momentech.no:5000/price_front_end:latest
+    working_dir: /var/www/front-end/
+    command: npm run run:dev
+    volumes:
+      - ./src/front-end:/var/www/front-end
+
+networks:
+  mysql_network:
+    external: true

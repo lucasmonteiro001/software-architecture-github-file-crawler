@@ -1,0 +1,39 @@
+plex:
+        image: linuxserver/plex:latest
+        restart: always
+        net: host
+        volumes:
+                - /data/plex/library:/config
+                - /nfs/jhnas01/movies:/data/movies:ro
+                - /nfs/jhnas01b/tv:/data/tvshows:ro
+        environment:
+                - PLEXPASS=1
+                - PUID=1001
+                - PGID=1001
+
+mariadb:
+        image: mariadb:latest
+        restart: always
+        volumes:
+                - /data/mysql/lib:/var/lib/mysql
+                - /data/mysql/etc:/etc/mysql
+        ports:
+                - "3306:3306"
+        environment:
+                - MYSQL_ROOT_PASSWORD=cotgw9AfC6UUq3v3XWFTgtHV
+                - MYSQL_DATABASE=mythconverg
+                - MYSQL_USER=mythtv
+                - MYSQL_PASSWORD=mdL3Qnz42YFATyVa
+
+mythtv-backend:
+        image: mythtv-backend:latest
+        build: mythtv-backend
+        restart: always
+        links:
+                - mariadb:db
+        volumes:
+                - /data/mythtv:/data
+        ports:
+                - "6543:6543"
+                - "6544:6544"
+

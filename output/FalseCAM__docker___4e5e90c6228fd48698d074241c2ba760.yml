@@ -1,0 +1,191 @@
+version: '2'
+
+services:
+
+ mail:
+  build: mail
+  domainname: example.com
+  hostname: mail
+  networks:
+   - stdnet
+  volumes_from:
+   - maildata
+  ports:
+   - "443:443"
+   - "25:25"
+   - "587:587"
+   - "143:143"
+   - "993:993"
+   - "110:110"
+   - "995:995"
+   - "4190:4190"
+
+ maildata:
+  build: mail-data
+
+ nginx:
+  build: nginx
+  domainname: example.com
+  hostname: nginx
+  networks:
+   - stdnet
+  volumes_from:
+   - nginxdata
+  ports:
+   - "80:80"
+   - "443:443"
+  restart: always
+
+ nginxdata:
+  build: nginx-data
+
+ owncloud:
+  build: owncloud
+  domainname: example.com
+  hostname: owncloud
+  restart: always
+  networks:
+   - stdnet
+#  volumes:
+#   - /srv/owncloud/config:/var/www/html/config
+#   - /srv/owncloud/data:/var/www/html/data
+  volumes_from:
+   - ownclouddata
+
+ ownclouddata:
+  build: owncloud-data
+
+ nextcloud-db:
+    image: mariadb
+    networks:
+     - stdnet
+    restart: always
+    volumes:
+      - /srv/nextcloud/db-data:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=1234
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
+      - MYSQL_PASSWORD=foo5678
+
+ nextcloud:
+    image: wonderfall/nextcloud
+    domainname: example.com
+    hostname: nextcloud
+    networks:
+     - stdnet
+    restart: always
+    environment:
+      - UID=1000
+      - GID=1000
+      - UPLOAD_MAX_SIZE=10G
+      - APC_SHM_SIZE=128M
+      - OPCACHE_MEM_SIZE=128
+      - REDIS_MAX_MEMORY=64mb
+      - CRON_PERIOD=15m
+      - TZ=Europe/Berlin
+      - ADMIN_USER=admin
+      - ADMIN_PASSWORD=admin
+      - DB_TYPE=mysql
+      - DB_NAME=nextcloud
+      - DB_USER=nextcloud
+      - DB_PASSWORD=foo5678
+      - DB_HOST=nextcloud-db
+    depends_on:
+      - nextcloud-db
+    volumes:
+      - /srv/nextcloud/data:/data
+      - /srv/nextcloud/config:/config
+      - /srv/nextcloud/apps:/apps2
+#   ports:
+#     - 8888:8888
+
+ wordpress:
+  image: wordpress
+  domainname: example.com
+  hostname: wordpress
+  restart: always
+  networks:
+   - stdnet
+  environment:
+   - WORDPRESS_DB_HOST=mysql
+   - WORDPRESS_DB_USER=wordpress
+   - WORDPRESS_DB_PASSWORD='my-secret-pw'
+   - WORDPRESS_DB_NAME=wordpress
+#  ports:
+#    - 8080:80
+
+ ldapaccountmanager:
+  build: ldap-account-manager
+  domainname: example.com
+  hostname: ldapaccountmanager
+  networks:
+   - stdnet
+  restart: always
+# ports:
+#  - "80:80"
+
+ openldap:
+  image: osixia/openldap
+  domainname: example.com
+  hostname: openldap
+  networks:
+   - stdnet
+  volumes_from:
+   - openldapdata
+  restart: always
+  ports:
+ #  - '389:389'
+   - '636:636'
+  environment:
+   LDAP_DOMAIN: "example.com"
+   LDAP_BASE_DN: "dc=example,dc=com"
+   LDAP_ADMIN_PASSWORD: "Password1!"
+   LDAP_CONFIG_PASSWORD: "Password1!"
+
+ openldapdata:
+  build: openldap-data
+
+ mysql:
+  image: 'mysql:latest'
+  restart: always
+  domainname: example.com
+  hostname: mysql
+  networks:
+   - stdnet
+  environment:
+   - MYSQL_ROOT_PASSWORD='my-secret-pw'
+   - MYSQL_USER='example-user'
+   - MYSQL_PASSWORD='my-secret-pw'
+   - MYSQL_DATABASE='example-database'
+#  ports:
+#   - '3306:3306'
+#  volumes:
+#   - /srv/mysql:/var/lib/mysql
+  volumes_from:
+   - mysqldata
+ 
+ mysqldata:
+  build: mysql-data
+ 
+ postgresql:
+  image: 'postgres:latest'
+  restart: always
+  domainname: example.com
+  hostname: postgresql
+  networks:
+   - stdnet
+  environment:
+   - POSTGRES_PASSWORD='my-secret-pw'
+   - POSTGRES_USER='example-user'
+   - POSTGRES_DB='example-database'
+  ports:
+   - '5432:5432'
+  volumes_from:
+   - postgresqldata
+ 
+ postgresqldata:
+  build: postgresql-data
+
+networks:
+ stdnet:

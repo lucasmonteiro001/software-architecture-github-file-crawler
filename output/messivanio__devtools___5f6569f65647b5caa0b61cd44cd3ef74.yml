@@ -1,0 +1,5 @@
+gocd-dev:
+  image: gocd/gocd-dev
+  ports:
+   - "8153:8153"
+

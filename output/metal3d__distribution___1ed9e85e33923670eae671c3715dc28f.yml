@@ -1,0 +1,15 @@
+version: "2"
+services:
+
+  node:
+    build: .
+    command: -node -master master:3000
+    depends_on:
+      - master
+
+  master:
+    build: .
+    command: -debug=1
+    ports:
+      - 3001:3001
+

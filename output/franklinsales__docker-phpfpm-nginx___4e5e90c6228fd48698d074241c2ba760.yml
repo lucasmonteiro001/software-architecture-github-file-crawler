@@ -1,0 +1,18 @@
+version: '2'
+services:
+  nginx:
+      build:
+          context: ./docker/nginx
+      ports:
+          - "8080:80"
+      volumes:
+          - .:/usr/share/nginx/html
+      links:
+          - phpfpm
+  phpfpm:
+      build:
+          context: ./docker/php
+      volumes:
+          - .:/usr/share/nginx/html
+      expose:
+          - "9000"

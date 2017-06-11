@@ -1,0 +1,31 @@
+---
+version: '2'
+services:
+  frontend:
+    image: onelove/frontend
+    volumes:
+      - ./projects/frontend:/usr/src/app
+    command: ./bin/dev.sh
+    ports:
+      - "8080:8080"
+
+  backend:
+    image: onelove/backend
+    volumes:
+      - ./projects/backend:/usr/src/app
+    command: ./bin/dev.sh
+    ports:
+      - "5000:5000"
+    links:
+      - mongodb:mongodb
+
+  worker:
+    image: onelove/backend
+    volumes:
+      - ./projects/backend:/usr/src/app
+    command: ./bin/worker_dev.sh
+    stdin_open: true
+    tty: true
+
+  mongodb:
+    image: mongo:latest

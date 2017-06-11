@@ -1,0 +1,38 @@
+version: '2'
+
+services:
+  db_mysql:
+    image: mysql:5.6
+    container_name: pece-db-mysql
+    network_mode: bridge
+    environment:
+      - MYSQL_USER=pece
+      - MYSQL_DATABASE=pece
+      - MYSQL_PASSWORD=ZwTuVZzQO90qwYzA
+      - MYSQL_ROOT_PASSWORD=Sk82jxYqqpx02jxT
+    # volumes:
+    #   - ../databases/pece:/var/lib/mysql
+
+  dev_pece:
+    image: taller/pece
+    build:
+      context: ./
+      dockerfile: ./docker/DockerfileDevelopment
+    hostname: "dev"
+    mem_limit: 1256m
+    network_mode: bridge
+    working_dir: /pece/drupal
+    environment:
+      - DB_PORT=3306
+      - DB_HOST=pece-db
+      - DB_NAME=pece
+      - DB_DRIVER=mysql
+      - DB_USERNAME=pece
+      - DB_PASSWORD=ZwTuVZzQO90qwYzA
+    volumes:
+      - $PWD:/pece/drupal
+      - $HOME/.ssh:/pece/.ssh
+      - $HOME/.gitconfig:/pece/.gitconfig
+    container_name: pece-dev-apache
+    links:
+      - db_mysql:pece-db

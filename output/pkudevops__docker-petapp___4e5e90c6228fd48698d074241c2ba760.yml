@@ -1,0 +1,15 @@
+db:
+  image: mysql
+  env_file:
+    - ./common.env
+  volumes:
+    - db:/var/lib/mysql
+  ports:
+    - "3306"
+
+petclinic:
+  build: .
+  links:
+    - db:mysql
+  ports:
+    - "80:8080"

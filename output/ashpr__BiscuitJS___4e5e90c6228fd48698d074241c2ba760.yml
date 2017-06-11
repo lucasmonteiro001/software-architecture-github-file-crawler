@@ -1,0 +1,35 @@
+sourceit:
+  build: .
+  expose:
+    - "3000"
+  volumes:
+    - .:/usr/local/var/sourceit/app/
+  ports:
+    - "3000:3000"
+    - "27017:27017"
+    - "6379:6379"
+  links:
+    - "mongo:mongo"
+    - "redis:redis"
+  environment:
+    - DOMAIN=http://localhost:3000/
+    - REDIS_HOST=redis
+    - REDIS_PORT=6379
+    - MONGO_PATH=mongo
+    - MONGO_PORT=27017
+    - MONGO_DATABASE=sourceit
+    - NODE_ENV=development
+    - KEYS=hello,there
+    - SECRET=secretGoesHere
+    - FACEBOOK_KEY=yourkey
+    - FACEBOOK_SECRET=yourpassword
+
+mongo:
+  image: mongo
+  expose: 
+    - "27017"
+
+redis:
+  image: redis
+  expose:
+    - "6379"

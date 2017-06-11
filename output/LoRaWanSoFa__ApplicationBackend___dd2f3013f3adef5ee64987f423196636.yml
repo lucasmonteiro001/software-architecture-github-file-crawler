@@ -1,0 +1,8 @@
+version: "2"
+
+services:
+  postgres-db:
+    restart: on-failure:10
+    build: ./image
+    ports:
+      - "5432"

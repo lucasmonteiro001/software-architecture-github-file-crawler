@@ -1,0 +1,13 @@
+web:
+  build: .
+  command: php -S 0.0.0.0:8000 -t /wordpress
+  ports:
+    - "8000:8000"
+  links:
+    - db
+  volumes:
+    - ./wordpress:/wordpress
+db:
+  image: orchardup/mysql
+  environment:
+    MYSQL_DATABASE: wordpress

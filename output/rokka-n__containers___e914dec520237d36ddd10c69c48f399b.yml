@@ -1,0 +1,30 @@
+version: '2'
+services:
+  ember: 
+    image: romann/ember-cli:2.3.0 
+    volumes:
+      - .:/myapp
+  bower:
+    image: romann/ember-cli:2.3.0
+    volumes:
+      - .:/myapp
+    entrypoint: ['/usr/local/bin/bower', '--allow-root']
+  npm:
+    image: romann/ember-cli:2.3.0
+    volumes:
+      - .:/myapp
+    entrypoint: ['/usr/local/bin/npm']
+  server:
+    image: romann/ember-cli:2.3.0
+    volumes:
+      - .:/myapp
+    entrypoint: ['/usr/local/bin/npm']
+    command: server --watcher polling
+    ports:
+      - "4200:4200"
+      - "35729:35729"
+  phantomjs:
+    image: romann/ember-cli:2.3.0
+    volumes:
+      - .:/myapp
+    entrypoint: ['phantomjs']

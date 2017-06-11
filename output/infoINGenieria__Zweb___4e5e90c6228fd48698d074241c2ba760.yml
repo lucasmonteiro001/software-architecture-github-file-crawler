@@ -1,0 +1,18 @@
+zweb_data:
+  image: busybox
+  volumes:
+    - /var/lib/mysql
+  command: "true"
+
+db:
+  image: mariadb
+  environment:
+    MYSQL_DATABASE: zweb
+    MYSQL_USER: zille
+    DATABASE_PASSWORD: zille123
+    MYSQL_ROOT_PASSWORD: zille123 
+  ports:
+    - "3306:3306"
+  volumes_from:
+    - zweb_data 
+

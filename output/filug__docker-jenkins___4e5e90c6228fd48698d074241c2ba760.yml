@@ -1,0 +1,12 @@
+jenkins:
+  image: filug/docker-jenkins:2.7.4
+
+  environment:
+    - JENKINS_JAVA_OPTIONS=-Dmail.smtp.starttls.enable=true
+
+  ports:
+    - "3002:8080"
+
+  volumes:
+    - /srv/docker/jenkins:/var/jenkins_home
+

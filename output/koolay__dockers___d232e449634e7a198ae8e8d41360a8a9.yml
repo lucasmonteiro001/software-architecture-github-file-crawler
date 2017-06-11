@@ -1,0 +1,46 @@
+data:
+    image: busybox
+    volumes:
+       - ./data/mysql:/var/lib/mysql/
+       - ./data/log:/data/log
+       - ./data/runtime:/data/runtime
+       - ./data:/data
+
+mysql:
+    image: mysql/mysql-server:5.6
+    ports:
+     - "3306:3306"
+    environment:
+     - MYSQL_ROOT_PASSWORD=dev
+     - MYSQL_DATABASE=sentry
+    volumes_from:
+     - data
+
+redis:
+    image: daocloud.io/koolay/alpine-redis
+    ports:
+     - "6379:6379"
+
+sentry:
+    image: koolay/sentry:7.7
+    ports:
+     - "9876:9876"
+    links:
+     - redis
+     - mysql
+    volumes:
+     - ./sentry.conf.py:/sentry.conf.py
+
+    environment:
+     - SENTRY_DOCKER_DO_DB_CHECK=yes
+     - SENTRY_URL_PREFIX=http://localhost:9876
+     - DB_HOST=mysql
+     - DB_USERNAME=root
+     - DB_PASSWORD=dev
+     - DB_NAME=sentry
+     - DB_PORT=3306
+     - REDIS_HOST=redis
+     - REDIS_PORT=6379
+     - SENTRY_ADMIN_USERNAME=admin
+     - SENTRY_ADMIN_PASSWORD=dev
+     - SENTRY_ADMIN_EMAIL=dev@foo.com

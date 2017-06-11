@@ -1,0 +1,39 @@
+consul:
+    image: qnib/alpn-consul
+    ports:
+     - "8500:8500"
+    environment:
+    - DC_NAME=qnib
+    - ENABLE_SYSLOG=true
+    - BOOTSTRAP_CONSUL=true
+    - RUN_SERVER=true
+    dns: 127.0.0.1
+    hostname: consul
+    privileged: true
+
+slurmctld:
+    image: qnib/slurmctld
+    ports:
+    - "6817:6817"
+    links:
+    - consul:consul
+    environment:
+    - DC_NAME=qnib
+    volumes:
+    - ${HOME}/shared/chome/:/chome/
+    dns: 127.0.0.1
+    hostname: slurmctld
+    privileged: true
+
+slurmd:
+    image: qnib/slurmd
+    links:
+    - consul:consul
+    - slurmctld:slurmctld
+    environment:
+    - DC_NAME=qnib
+    volumes:
+    - ${HOME}/shared/chome/:/chome/
+    dns: 127.0.0.1
+    privileged: true
+

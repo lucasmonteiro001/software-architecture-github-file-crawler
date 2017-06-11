@@ -1,0 +1,8 @@
+app:
+  build: .
+  restart: always
+  links:
+    - redis
+redis:
+  image: redis
+  restart: always

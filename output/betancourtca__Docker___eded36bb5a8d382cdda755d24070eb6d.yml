@@ -1,0 +1,18 @@
+version: '2.1'
+services:
+  mirth:
+    build:
+      context: .
+    image: sc-mirth-connect
+    container_name: sc-mirth-connect
+    ports:
+      - "8080:8080"
+      - "8443:8443"
+      - "8104:8104"
+      - "6666:6666"
+      - "8081:8081"
+      - "8082:8082"
+    volumes:
+      - ./appdata:/opt/mirth-connect/appdata
+      - ./data:/data
+      - ./resources:/resources

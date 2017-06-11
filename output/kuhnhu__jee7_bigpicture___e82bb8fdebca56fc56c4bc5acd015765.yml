@@ -1,0 +1,8 @@
+wildfly:
+    image: jboss/wildfly
+    command: /opt/jboss/wildfly/bin/standalone.sh --debug 8787 -b 0.0.0.0 -bmanagement 0.0.0.0
+    ports:
+        - "8080:8080"
+        - "8787:8787"
+    volumes:
+        - ./target/java-websockets.war:/opt/jboss/wildfly/standalone/deployments/java-websockets.war

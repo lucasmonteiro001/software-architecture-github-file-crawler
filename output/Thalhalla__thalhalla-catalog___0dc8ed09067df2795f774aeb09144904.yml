@@ -1,0 +1,39 @@
+csgo:
+  image: thalhalla/steamer
+  environment:
+    STEAM_USERNAME: ${STEAM_USERNAME}
+    STEAM_PASSWORD: ${STEAM_PASSWORD}
+    STEAM_GID: ${STEAM_GID}
+    STEAM_GSLT: ${STEAM_GSLT}
+    PORT: ${PORT}
+    CS_GAME_TYPE: ${CS_GAME_TYPE}
+    CS_GAME_MODE: ${CS_GAME_MODE}
+    CS_MAP_GROUP: ${CS_MAP_GROUP}
+    CS_INITIAL_MAP: ${CS_INITIAL_MAP}
+  labels:
+    io.rancher.container.hostname_override: container_name
+    io.rancher.sidekicks: csgo-datavolume
+    io.rancher.container.pull_image: always
+  volumes_from:
+    - csgo-datavolume
+  ports:
+    - "26901:26901/udp"
+    - "27005:27005/udp"
+    - "${PORT}:${PORT}"
+    - "${PORT}:${PORT}/udp"
+    - "27020:27020/udp"
+csgo-datavolume:
+  labels:
+    io.rancher.container.hostname_override: container_name
+    io.rancher.container.start_once: true
+    io.rancher.container.pull_image: always
+  volumes:
+    - /home/steam/.steam
+    - /home/steam/.local
+    - /home/steam/steamcmd
+    - /home/steam/Steam
+    - /home/steam/SteamLibrary
+    - /home/steam/serverfiles
+    - /home/steam/log
+  entrypoint: /bin/true
+  image: busybox

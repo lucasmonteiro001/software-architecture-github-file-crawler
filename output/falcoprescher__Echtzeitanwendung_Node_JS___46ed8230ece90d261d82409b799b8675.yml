@@ -1,0 +1,25 @@
+version: '2'
+
+services:
+  webclient:
+    image: node:latest
+    ports:
+      - "80:80"
+    volumes:
+      - ${WEBCLIENTDIR}:/usr/src/app:rw
+    mem_limit: 256M
+    working_dir: /usr/src/app
+    entrypoint: node index.js -p 80
+    logging:
+      driver: json-file
+  websocketserver:
+    image: node:latest
+    ports:
+      - "81:81"
+    volumes:
+      - ${SERVERDIR}:/usr/src/app:rw
+    working_dir: /usr/src/app
+    entrypoint: node index.js -p 81
+    mem_limit: 256M
+    logging:
+      driver: json-file

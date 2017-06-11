@@ -1,0 +1,63 @@
+app:
+  image: vojtechbartos/smsgw
+  links:
+    - mariadb
+    - rabbitmq
+  restart: always
+  env_file: .env
+
+worker:
+  image: vojtechbartos/smsgw
+  command: celery -A smsgw.tasks.celery worker
+  links:
+    - mariadb
+    - rabbitmq
+  restart: always
+  environment:
+    C_FORCE_ROOT: 1
+  env_file: .env
+
+gammu:
+  image: vojtechbartos/smsgw
+  command: ./bin/smsd
+  privileged: true
+  devices:
+    - "/dev/ttyUSB0:/dev/ttyUSB0"
+  links:
+    - mariadb
+    - rabbitmq
+  restart: always
+  env_file: .env
+
+nginx:
+  image: vojtechbartos/nginx
+  ports:
+    - "80:80"
+  links:
+    - app
+  restart: always
+
+mariadb:
+  image: mariadb:5.5
+  ports:
+    - "3306:3306"
+  volumes_from:
+    - data
+  restart: always
+  env_file: .env
+
+rabbitmq:
+  image: rabbitmq:3.5.6
+  ports:
+    - "5672:5672"
+  volumes_from:
+    - data
+  restart: always
+  env_file: .env
+
+data:
+  image: cogniteev/echo
+  command: echo 'Data Container for MariaDB/RabbitMQ'
+  volumes:
+    - /var/lib/mysql
+    - /var/lib/rabbitmq

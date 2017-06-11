@@ -1,0 +1,134 @@
+version: '2'
+
+services:
+  proxy:
+    image: traefik:v1.2.3
+    ports:
+      - "80:80"
+      - "12005:8088"
+    volumes:
+      - "./proxy/dev.toml:/etc/traefik/traefik.toml"
+
+  gateway:
+    image: traefik:v1.2.3
+    ports:
+      - "8888:8888"
+      - "8088:8088"
+    volumes:
+      - "./gateway/dev.toml:/etc/traefik/traefik.toml"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    labels:
+      - "traefik.backend=gateway"
+
+  redis:
+    image: redis:3.2.8-alpine
+    ports:
+      - 6379:6379
+
+  broadcaster:
+    build:
+      context: ./broadcaster
+    volumes:
+      - "./broadcaster:/code"
+    environment:
+     - DEBUGMODE=debug
+    labels:
+      - "traefik.frontend.rule=PathPrefixStrip:/broadcaster"
+      - "traefik.port=9400"
+      - "traefik.backend=broadcaster"
+
+  data-service:
+    build:
+      dockerfile: Dockerfile-dev
+      context: ./data-service
+    volumes:
+      - "./data-service:/src/app"
+    labels:
+      - "traefik.frontend.rule=PathPrefixStrip:/data-service"
+      - "traefik.port=3721"
+      - "traefik.backend=data-service"
+
+  delivery:
+    build:
+      dockerfile: Dockerfile-dev
+      context: ./delivery
+    volumes:
+      - "./delivery:/src/app"
+    labels:
+      - "traefik.frontend.rule=PathPrefixStrip:/delivery"
+      - "traefik.port=3000"
+      - "traefik.backend=delivery"
+
+  frontend:
+    build:
+      dockerfile: Dockerfile-dev
+      context: ./frontend
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./frontend:/src/app
+      - /src/app/node_modules
+      - ./physics:/src/physics
+    labels:
+      - "traefik.frontend.rule=PathPrefixStrip:/frontend"
+      - "traefik.port=8080"
+      - "traefik.backend=frontend"
+
+  games:
+    build:
+      context: ./gamemanager
+    volumes:
+      - "./gamemanager:/code"
+    environment:
+     - PYTHONUNBUFFERED=0
+     - SITE_BASE_URL=http://localhost
+     - DEBUGMODE=debug
+    labels:
+      - "traefik.frontend.rule=PathPrefixStrip:/games"
+      - "traefik.port=5000"
+      - "traefik.backend=games"
+
+  scores:
+    build:
+      context: ./scores
+    volumes:
+      - "./scores:/code"
+    environment:
+     - PYTHONUNBUFFERED=0
+     - DEBUGMODE=debug
+    labels:
+      - "traefik.frontend.rule=PathPrefixStrip:/scores"
+      - "traefik.port=5000"
+      - "traefik.backend=scores"
+
+  physics:
+    build:
+      dockerfile: Dockerfile-dev
+      context: ./physics
+    volumes:
+      - "./physics:/src/app"
+    labels:
+      - "traefik.frontend.rule=PathPrefixStrip:/physics"
+      - "traefik.port=3005"
+      - "traefik.backend=physics"
+
+  results:
+    build:
+      dockerfile: Dockerfile-dev
+      context: ./results
+    volumes:
+      - "./results:/app"
+    command: bash -c "cd /app && dotnet restore && dotnet watch run --server.urls http://*:5000"
+    labels:
+      - "traefik.frontend.rule=PathPrefixStrip:/results"
+      - "traefik.port=5000"
+      - "traefik.backend=results"
+
+  humanizer:
+    image: alkukampela/humanizer
+    ports:
+      - 12006:8080
+    labels:
+      - "traefik.frontend.rule=PathPrefixStrip:/humanizer"
+      - "traefik.port=8080"
+      - "traefik.backend=humanizer"

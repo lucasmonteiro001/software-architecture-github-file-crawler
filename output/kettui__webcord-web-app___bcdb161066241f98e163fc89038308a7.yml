@@ -1,0 +1,42 @@
+version: "3"
+services:
+    webcord-web-app:
+        image: "kettui/webcord-web-app:latest"
+        container_name: webcord-web-app
+        restart: always
+        depends_on:
+            - rethinkdb
+        ports:
+            - "9000:9000"
+        volumes:
+            - ./logs:/usr/src/webcord-web-app/logs
+            - ./dist:/usr/src/webcord-web-app/dist
+        environment:
+            - APP_PORT=
+            - APP_DB_NAME=
+            - AUTH_SECRET=
+            - DISCORD_CLIENT_ID=
+            - DISCORD_CLIENT_SECRET=
+            - DISCORD_AUTH_CALLBACK_URL=
+            - DISCORD_AUTH_SUCCESS_REDIRECT=
+            - DISCORD_AUTH_FAILURE_REDIREC=
+            - JWT_AUDIENCE=
+            - JWT_SUBJECT=
+            - JWT_ALGORITHM=
+            - JWT_EXPIRES_IN=
+            - NODE_ENV=
+            - NODE_CONFIG_DIR=
+            - BOT_HOST=
+            - BOT_PORT=
+            - S3_BUCKET_KEY=
+            - S3_REGION=
+        command: node ./app.js
+    rethinkdb:
+        image: rethinkdb:latest
+        container_name: rethinkdb
+        expose:
+            - "28015"
+        ports:
+            - "8080:8080"
+        volumes:
+            - /home/anadev/rethinkdb_data:/data/rethinkdb_data

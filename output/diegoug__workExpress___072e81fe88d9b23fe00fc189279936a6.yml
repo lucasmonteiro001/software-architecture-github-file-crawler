@@ -1,0 +1,40 @@
+version: '2'
+services:
+  # nodejs
+  workexpress-nodejs:
+    image: workexpress/workexpress-nodejs
+    container_name: workexpress-nodejs
+    entrypoint: /bin/sh -c "forever start /usr/bin/node-inspector --web-port=8081 && cd /opt/workexpress/ && supervisor --debug workers.js"
+    volumes:
+      - ../../workExpress:/opt/workexpress
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    environment:
+      - NODE_PATH=/opt/node_modules/
+    networks:
+      - workexpress
+    depends_on:
+      - workexpress-mongodb
+      - workexpress-redis
+  # mongodb
+  workexpress-mongodb:
+    image: mongo
+    container_name: workexpress-mongodb
+    ports:
+      - "27017:27017"
+    networks:
+        workexpress:
+            aliases:
+                - mongodb
+  # redis
+  workexpress-redis:
+    image: redis
+    container_name: workexpress-redis
+    networks:
+        workexpress:
+            aliases:
+                - redis
+networks:
+   workexpress:
+     external: true

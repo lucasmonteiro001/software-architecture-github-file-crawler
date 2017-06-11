@@ -1,0 +1,44 @@
+version: '2'
+
+services:
+
+### Applications Code Container #############################
+
+    applications:
+        build: .
+        volumes:
+            - ./src:/var/www/html
+        ports:
+            - "80:80"
+        links:
+            # for mysql container
+            - "mysql:db"
+
+### MySQL Container #########################################
+
+    mysql:
+        image: mysql/mysql-server
+        environment:
+            - MYSQL_DATABASE=simpleblog
+            - MYSQL_USER=simpleblog
+            - MYSQL_PASSWORD=secret
+            - MYSQL_ROOT_PASSWORD=root
+        ports:
+            - "3306:3306"
+
+### phpMyAdmin Container ####################################
+
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin
+        environment:
+            PMA_ARBITRARY: 1
+            MYSQL_USER: simpleblog
+            MYSQL_PASSWORD: secret
+            MYSQL_ROOT_PASSWORD: root
+        ports:
+            - "8080:80"
+        links:
+            # for mysql container
+            - "mysql:db"
+            # for mariadb container
+            #- "mariadb:db"

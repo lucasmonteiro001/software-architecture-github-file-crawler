@@ -1,0 +1,10 @@
+version: '2'
+services:
+    dev: &dev
+        build: .
+        ports:
+            - "3000:80"
+        volumes:
+            - .:/usr/share/nginx/html
+        environment:
+            DB_HOST:

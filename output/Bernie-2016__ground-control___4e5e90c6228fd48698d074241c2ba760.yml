@@ -1,0 +1,10 @@
+db:
+  image: mdillon/postgis
+  environment:
+    - POSTGRES_PASSWORD=
+    - POSTGRES_USER=postgres
+    - POSTGRES_DBNAME=ground_control
+  ports:
+    - 5432
+  ports:
+    - 5432:5432

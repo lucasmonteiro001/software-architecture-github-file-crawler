@@ -1,0 +1,20 @@
+web:
+    build: ./
+    ports:
+        - 80
+    links:
+        - db
+    volumes_from:
+        - data
+db:
+    image: tutum/mysql
+    environment:
+        MYSQL_PASS: root
+        MYSQL_USER: root
+        ON_CREATE_DB: pagekit
+data:
+    image: busybox
+    command: /bin/true
+    volumes:
+        - /pagekit/storage
+        - /pagekit/app/cache

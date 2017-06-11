@@ -1,0 +1,17 @@
+postgresDB:
+  image: postgres
+  volumes_from:
+    - postgresData
+  environment:
+    POSTGRES_PASSWORD: tcuser
+
+web:
+  image: node
+  volumes:
+    - $PWD:/home/docker/git/appExpress
+  working_dir: /home/docker/git/appExpress
+  ports:
+    - 80:3000
+  links:
+    - postgresDB
+  command: node app.js

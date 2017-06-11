@@ -1,0 +1,16 @@
+version: "2"
+
+services:
+  mongo:
+    image: mongo
+  node:
+    build: .
+    links:
+      - mongo
+    ports:
+      - "3000:3000"
+    volumes:
+      - ../../:/opt/app
+      - ./script:/opt/script
+    environment:
+      - RUN_FILE=custom.sh

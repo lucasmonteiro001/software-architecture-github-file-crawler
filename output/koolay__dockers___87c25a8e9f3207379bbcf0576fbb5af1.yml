@@ -1,0 +1,7 @@
+grafana:
+  image: daocloud.io/koolay/grafana:latest
+  ports:
+   - "3000:3000"
+  environment:
+   - GF_SERVER_ROOT_URL=http://dev.myapp.com
+   - GF_SECURITY_ADMIN_PASSWORD=dev

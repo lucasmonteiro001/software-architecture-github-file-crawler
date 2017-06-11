@@ -1,0 +1,50 @@
+# Docker Compose
+version: '3'
+services:
+
+    templates:
+
+        # Building & tagging
+        image: 'manager.asora.co/gual/templates:1.0.0'
+        build: 
+            context: './templates'
+
+        # Runtime settings
+        container_name: 'gual-templates'
+        restart: always
+        expose: [ '3030' ]
+
+        # Networking
+        networks: 
+            - 'gual-inner'
+
+        # Development volumes
+        volumes:
+            - './templates/pug:/srv/pug:ro'
+
+    server:
+
+        # Building & tagging
+        image: 'manager.asora.co/gual/server:1.0.0'
+        build:
+
+            context: './server'
+            args:
+                config: 'default.https'
+
+        # Runtime settings
+        container_name: 'gual-server'
+        restart: always
+        ports: [ '80:80', '443:443' ]
+
+        # Networking
+        networks: 
+            - 'gual-inner'
+            - 'default'
+
+        # Development volumes
+        volumes:
+            - './server/static:/srv/static:ro'
+
+networks:
+    gual-inner: { driver: bridge }

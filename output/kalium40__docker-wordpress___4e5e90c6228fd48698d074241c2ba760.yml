@@ -1,0 +1,14 @@
+db:
+  container_name: wordpress-db
+  build: db/
+
+wordpress:
+  container_name: wordpress-web
+  build: wordpress/
+  links:
+    - db
+  ports:
+    - 8080:80
+  volumes:
+    - ./data:/var/www/wordpress
+    - ./theme:/var/www/wordpress/wp-content/themes/custom

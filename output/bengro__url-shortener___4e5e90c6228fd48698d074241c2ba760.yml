@@ -1,0 +1,18 @@
+version: '2'
+
+services:
+  postgres:
+    build: ./database
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+     - "54321:5432"
+    expose:
+     - "5432"
+  redis:
+    image: redis
+    ports:
+     - "12345:6379"
+    expose:
+     - "6379"

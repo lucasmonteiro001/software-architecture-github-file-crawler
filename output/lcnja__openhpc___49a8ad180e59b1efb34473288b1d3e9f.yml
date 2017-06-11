@@ -1,0 +1,17 @@
+version: '2'
+services:
+  gogs:
+    image: gogs/gogs
+    container_name: gogs
+    hostname: gogs
+    restart: always
+    tty: true
+    stdin_open: true
+    mem_limit: 1024M
+    volumes:
+      - /var/lib/docker/kims/gogs:/data
+    network_mode: bridge
+    ports:
+      - "3000:3000"
+      - "29418:22"
+    dns: 192.168.3.252

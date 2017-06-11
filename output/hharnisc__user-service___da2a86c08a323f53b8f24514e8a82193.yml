@@ -1,0 +1,19 @@
+version: '2'
+
+services:
+  integration-tester:
+    build: .
+    links:
+      - user
+      - rethinkdb
+  user:
+    build: ../..
+    command: npm start
+    links:
+      - rethinkdb
+    expose:
+      - "8080"
+  rethinkdb:
+    image: rethinkdb
+    expose:
+      - "28015"

@@ -1,0 +1,9 @@
+# Compose for starting the Portal service on Rancher.
+# Syntax needs to follow compose version 1 specification.
+
+portal:
+  image: iotitude/portal
+  restart: always
+  ports:
+    - "3000:3000"
+    - "3001:3001"

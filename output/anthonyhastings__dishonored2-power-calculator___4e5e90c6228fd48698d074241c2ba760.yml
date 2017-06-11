@@ -1,0 +1,20 @@
+version: '2.1'
+
+volumes:
+  apps_node_modules:
+    driver: local
+
+services:
+    express:
+        build: ./
+        image: registry.heroku.com/dishonored2-power-calculator/web:latest
+        container_name: dishonored2-express
+        environment:
+            - PORT=${PORT:-8080}
+            - COVERALLS_SERVICE_NAME=${COVERALLS_SERVICE_NAME:-missing}
+            - COVERALLS_REPO_TOKEN=${COVERALLS_REPO_TOKEN:-missing}
+        ports:
+            - ${PORT:-8080}:${PORT:-8080}
+        volumes:
+            - ./src:/src
+            - apps_node_modules:/src/node_modules

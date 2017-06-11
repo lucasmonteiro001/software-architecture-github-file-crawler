@@ -1,0 +1,19 @@
+elasticsearch:
+  image: elasticsearch
+  command: elasticsearch -Des.network.host=0.0.0.0
+  ports:
+    - "9200:9200"
+
+kibana:
+  image: kibana
+  links:
+   - elasticsearch
+
+nginx:
+  image: nginx
+  ports: 
+    - "80:80"
+  links:
+   - kibana
+  volumes:
+   - /vagrant/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro

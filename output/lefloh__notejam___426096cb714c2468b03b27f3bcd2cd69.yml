@@ -1,0 +1,17 @@
+server:
+  build: docker
+  container_name: notejam_server
+  ports:
+    - "4848:4848"
+    - "8080:8080"
+    - "9009:9009"
+    # DerbyDB
+    - "1527:1527"
+  volumes_from:
+    - app
+app:
+  image: glassfish/nightly
+  container_name: notejam_app
+  volumes:
+    - ./notejam/target/notejam-ozark.war:/glassfish4/glassfish/domains/domain1/autodeploy/notejam-ozark.war
+  command: "tail -f /dev/null"

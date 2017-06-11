@@ -1,0 +1,27 @@
+frontend:
+  build: .
+  dockerfile: Dockerfile-frontend
+  links:
+   - backend
+   - mqlight
+  environment:
+   - FISHALIVE_HOST=mqlight
+  ports:
+   - "3000:3000"
+
+backend:
+  build: .
+  dockerfile: Dockerfile-backend
+  links:
+   - mqlight
+  environment:
+   - FISHALIVE_HOST=mqlight
+
+mqlight:
+  image: ibmcom/mqlight:1.0
+  environment:
+   - LICENSE=accept
+  expose:
+   - "5672"
+  ports:
+   - "9180:9180"

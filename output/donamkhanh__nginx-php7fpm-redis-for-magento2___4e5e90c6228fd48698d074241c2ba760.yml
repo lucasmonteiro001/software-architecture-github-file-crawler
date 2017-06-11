@@ -1,0 +1,8 @@
+app:
+  image: donamkhanh/nginx-php7fpm-redis-for-magento2:v4
+  volumes:
+    - ~/www/magento:/usr/share/nginx/html
+  ports:
+    - 8888:80
+  environment:
+    - APP_MAGE_MODE=developer

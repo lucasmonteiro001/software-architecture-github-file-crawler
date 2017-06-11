@@ -1,0 +1,12 @@
+db:
+  image: postgres:9.6
+
+api:
+  image: setspy/api
+
+frontend:
+  image: setspy/frontend
+
+proxy:
+  image: traefik
+  ports: ["8080:8080", "8000:80"]

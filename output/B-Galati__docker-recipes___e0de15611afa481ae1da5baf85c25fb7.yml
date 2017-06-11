@@ -1,0 +1,10 @@
+web:
+    image: jekyll/jekyll:pages
+    volumes:
+        - ./:/srv/jekyll
+    ports:
+        - 4000:4000
+    environment:
+        - BUNDLE_CACHE=true
+    command: sudo -u jekyll jekyll serve --drafts --watch --force_polling
+

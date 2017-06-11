@@ -1,0 +1,8 @@
+squid3-ssl:
+    image: registry.local:5000/squid3-ssl
+    container_name: squid3-ssl
+    hostname: squid3.local
+    ports: ["3128:3128"]
+    volumes: 
+        - "/data/docker/cache/squid3-ssl:/var/cache/squid3"
+    restart: always

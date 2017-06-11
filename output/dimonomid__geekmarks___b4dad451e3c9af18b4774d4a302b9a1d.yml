@@ -1,0 +1,15 @@
+# docker-compose config for locally-running test geekmarks
+
+version: '2'
+services:
+  postgres-test:
+    container_name: geekmarks-test-postgres
+    image: library/postgres:9.6
+    volumes:
+      - "/var/tmp/geekmarks_test/postgresql:/var/lib/postgresql/data"
+    ports:
+      - "6001:5432"
+    environment:
+      POSTGRES_USER: geekmarks-test
+      POSTGRES_PASSWORD: geekmarks-test
+      POSTGRES_DB: geekmarks-test

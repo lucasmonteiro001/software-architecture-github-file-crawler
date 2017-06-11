@@ -1,0 +1,59 @@
+version: '2'
+services:
+  cms:
+    image: alpine:3.5
+    volumes:
+      - .:/var/www
+    command: /bin/sh
+
+  db:
+   image: mysql:5.7
+   volumes:
+     - db_data:/var/lib/mysql
+   environment:
+     - MYSQL_ROOT_PASSWORD=hjz238+SuSP4pDgv
+     - MYSQL_DATABASE=fipsrgqcow
+     - MYSQL_USER=xvAuEdnUBl
+     - MYSQL_PASSWORD=REqRN&P%3d#_t?Nj
+   expose:
+      - "3306"
+
+  memcached:
+    image: memcached:1.4-alpine
+    mem_limit: 256m
+    expose:
+      - "11211"
+
+  php-fpm:
+    image: jwp23/php-wordpress
+    volumes_from:
+      - cms
+    links:
+      - db
+      - memcached
+    environment:
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_NAME=fipsrgqcow
+      - DB_USER=xvAuEdnUBl
+      - DB_PASSWORD=REqRN&P%3d#_t?Nj
+      - WP_HOST=127.0.0.1
+      - WP_ENV=development
+    expose:
+      - "9000"
+    command: php-fpm --nodaemonize
+
+  nginx:
+    image: nginx:1.11.8-alpine
+    volumes_from:
+      - cms
+    volumes:
+      - ./nginx/ssl:/etc/ssl
+      - ./nginx/conf.d:/etc/nginx/conf.d
+    links:
+      - php-fpm
+    ports:
+      - "80:80"
+      - "443:443"
+volumes:
+  db_data:

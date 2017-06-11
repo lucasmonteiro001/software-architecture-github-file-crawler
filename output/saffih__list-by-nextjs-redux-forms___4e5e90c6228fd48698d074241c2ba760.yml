@@ -1,0 +1,30 @@
+version: '2'
+
+services:
+  # full image build - though code is external
+  next:
+    build: .
+    command: yarn next
+
+    working_dir: /usr/app
+    ports:
+       - "3001:3000"
+    volumes:
+    - ./app/src:/usr/app/src
+    - logvolume:/var/log
+
+  # mix core node in docker with  dev node_modules dir
+  # node/yarn in docker bound to current app dir
+  dev:
+    build: DevDocker
+    command: yarn dev
+
+    working_dir: /usr/app
+    ports:
+       - "3000:3000"
+    volumes:
+    - ./app/:/usr/app/
+    - logvolume:/var/log
+
+volumes:
+  logvolume: {}

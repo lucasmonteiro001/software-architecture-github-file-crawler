@@ -1,0 +1,37 @@
+api:
+    build: .
+    command: python api.py
+    container_name: queue_api
+    volumes:
+     - ./:/app/src
+    ports:
+     - "80:5000"
+    links: 
+     - redis
+     - gearman
+    environment:
+     - APP_MODE=dev
+
+pub:
+    build: .
+    command: python pub.py
+    container_name: queue_pub
+    volumes:
+     - ./:/app/src
+    links:
+     - redis
+     - gearman
+    environment:
+     - APP_MODE=dev
+
+redis:
+    image: redis
+    container_name: queue_redis
+    expose:
+     - "6379"
+
+gearman:
+    image: pataquets/gearmand
+    container_name: queue_gearman
+    expose:
+     - "4730"

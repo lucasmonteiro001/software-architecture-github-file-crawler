@@ -1,0 +1,35 @@
+postgres:
+    image: postgres:9.4
+    environment:
+        - POSTGRES_PASSWORD=postgres
+    volumes_from:
+        - dbdata
+
+dbdata:
+    image: postgres:9.4
+    volumes:
+        - /var/lib/postgresql
+    entrypoint: "true"
+
+django-app:
+    restart: always
+    image: surajx/dockyard:django-app
+    environment:
+        - DJANGO_APP_ENV=development
+        - SESSION_SECRET=@chk(&1j+_qtx3le^)2g^zzig906c1s5l%xufzkk*f#9!e&r*z
+        - DB_NAME=postgres
+        - DB_USER=postgres
+        - DB_PASS=postgres
+        - DB_SERVICE=postgres
+        - DB_PORT=5432
+    command: bash -c "
+        until pg_isready --host=$$POSTGRES_1_PORT_5432_TCP_ADDR --port=$$POSTGRES_1_PORT_5432_TCP_PORT; do sleep 1; done &&
+        python manage.py migrate &&
+        python manage.py collectstatic --noinput &&
+        gunicorn -c ./config/gunicorn_dev_conf.py hello_world.wsgi:application"
+    ports:
+        - "8880:8880"
+    volumes:
+        - ./django-app/:/usr/src/app/
+    links:
+        - postgres

@@ -1,0 +1,37 @@
+cadvisor:
+  labels:
+    io.rancher.scheduler.global: 'true'
+  tty: true
+  image: google/cadvisor:latest
+  stdin_open: true
+  volumes:
+    - "/:/rootfs:ro"
+    - "/var/run:/var/run:rw"
+    - "/sys:/sys:ro"
+    - "/var/lib/docker/:/var/lib/docker:ro"
+
+node-exporter:
+  labels:
+    io.rancher.scheduler.global: 'true'
+  tty: true
+  image: prom/node-exporter:latest
+  stdin_open: true
+
+prom-conf:
+    tty: true
+    image: infinityworks/prom-conf:17
+    volumes:
+      - /etc/prom-conf/
+    net: none
+
+prometheus:
+    tty: true
+    image: prom/prometheus:latest
+    command: -config.file=/etc/prom-conf/prometheus.yml -storage.local.path=/prometheus -web.console.libraries=/etc/prometheus/console_libraries -web.console.templates=/etc/prometheus/consoles
+    labels:
+      io.rancher.sidekicks: prom-conf
+    volumes_from:
+       - prom-conf
+    links:
+      - cadvisor:cadvisor
+      - node-exporter:node-exporter

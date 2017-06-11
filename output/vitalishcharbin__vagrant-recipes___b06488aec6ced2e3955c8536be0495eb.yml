@@ -1,0 +1,32 @@
+version: '2'
+services:
+  web1:
+    build: web-container/
+    restart: always
+    volumes:
+    - /vagrant/web-application:/usr/src/app
+    ports:
+    - "8081:80"
+  web2:
+    build: web-container/
+    restart: always
+    volumes:
+    - /vagrant/web-application:/usr/src/app
+    ports:
+    - "8082:80"
+  web3:
+    build: web-container/
+    restart: always
+    volumes:
+    - /vagrant/web-application:/usr/src/app
+    ports:
+    - "8083:80"
+  haproxy:
+    build: haproxy-container/
+    restart: always
+    ports:
+    - "8080:80"
+    links:
+    - web1
+    - web2
+    - web3

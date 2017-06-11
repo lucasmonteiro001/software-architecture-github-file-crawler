@@ -1,0 +1,61 @@
+version: "2.0"
+
+services:
+  elasticsearch:
+    build:
+      context: .
+      dockerfile: Dockerfile-elasticsearch
+    environment:
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=true
+      - xpack.security.enabled=false
+      - transport.host=127.0.0.1
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    mem_limit: 1g
+    cap_add:
+      - IPC_LOCK
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+  kibana:
+    image: docker.elastic.co/kibana/kibana:5.1.1
+    environment:
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+    ports:
+      - 5601:5601
+  fluentd:
+    build:
+      context: .
+      dockerfile: Dockerfile-fluentd
+    volumes:
+      - ./_fluentd/etc:/fluentd/etc
+      - nginxlog:/var/log/nginx:ro
+    environment:
+      - FLUENTD_CONF=fluent.conf
+  nginx:
+    image: nginx:1.11
+    volumes:
+      - ./_nginx/etc/nginx.conf:/etc/nginx/nginx.conf:ro
+      - nginxlog:/var/log/nginx
+    ports:
+      - 80:80
+  go:
+    build: .
+    volumes:
+      - .:/go/src/github.com/efkbook/blog-sample
+    ports:
+      - 8080:8080
+
+volumes:
+  esdata:
+    driver: local
+  nginxlog:
+    driver: local

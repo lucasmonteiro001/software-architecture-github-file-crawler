@@ -1,0 +1,4 @@
+main:
+  image: ruby:2.2.0
+  volumes:
+    - .:/usr/src/app

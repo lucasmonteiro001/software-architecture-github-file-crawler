@@ -1,0 +1,14 @@
+server:
+  image: gocd/gocd-server
+  ports:
+    - "8153:8153"
+
+agent:
+  image: ivanmoore/inception-agent
+  links:
+    - "server:go-server"
+
+configure:
+  image: ivanmoore/inception-configure
+  links:
+    - "server:go-server"

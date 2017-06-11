@@ -1,0 +1,47 @@
+# Nginx
+
+nginx:
+  build: nginx
+  ports:
+   - "80:80"
+  volumes:
+   - ../drupal/:/var/www/html/
+  links:
+   - php
+php:
+  image: aleksijohansson/drupal-php-fpm:0.5
+  volumes:
+   - ../drupal/:/var/www/html/
+  links:
+   - mariadb
+   - memcache
+mariadb:
+  image: mariadb:10.0.21
+  environment:
+    MYSQL_ROOT_PASSWORD: root
+    MYSQL_DATABASE: bench
+    MYSQL_USER: bench
+    MYSQL_PASSWORD: onethousand
+memcache:
+  image: memcached:1.4.24
+
+# Apache
+
+php:
+  image: aleksijohansson/drupal-php-apache:0.5
+  ports:
+   - "80:80"
+  volumes:
+   - ../drupal/:/var/www/html/
+  links:
+   - mariadb
+   - memcache
+mariadb:
+  image: mariadb:10.0.21
+  environment:
+    MYSQL_ROOT_PASSWORD: root
+    MYSQL_DATABASE: bench
+    MYSQL_USER: bench
+    MYSQL_PASSWORD: onethousand
+memcache:
+  image: memcached:1.4.24

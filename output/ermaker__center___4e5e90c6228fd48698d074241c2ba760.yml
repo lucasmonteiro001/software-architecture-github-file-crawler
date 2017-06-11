@@ -1,0 +1,25 @@
+version: '2'
+services:
+  center:
+    build: .
+    environment:
+      - SELENIUM_WEBDRIVER_URI=$SELENIUM_WEBDRIVER_URI
+      - SINGLE_USERID=$SINGLE_USERID
+      - SINGLE_PASSWORD=$SINGLE_PASSWORD
+      - CENTER=$CENTER
+      - TAG=$TAG
+    volumes:
+      - log:/usr/src/app/log
+    restart: always
+  ant:
+    image: ermaker/fluentd-ant
+    volumes:
+      - log:/fluentd/log:ro
+      - buffer:/fluentd/buffer
+    environment:
+      - HIVE_URI=$HIVE_URI
+      - TAG=$TAG
+    restart: always
+volumes:
+  log: {}
+  buffer: {}

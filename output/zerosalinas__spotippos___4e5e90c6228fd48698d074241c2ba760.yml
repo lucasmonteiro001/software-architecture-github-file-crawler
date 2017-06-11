@@ -1,0 +1,20 @@
+version: '2'
+services:
+  web:
+    restart: always
+    build: .
+    container_name: spotippos
+    ports:
+     - "3000:3000"
+     - "35729:35729"
+    environment:
+     - NODE_ENV=development
+    volumes_from:
+     - web-data
+  web-data:
+    build: .
+    entrypoint: /bin/true
+    volumes:
+     - ./:/opt/spotippos
+     - /opt/spotippos/node_modules
+     - /opt/spotippos/public

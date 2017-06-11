@@ -1,0 +1,40 @@
+---
+node0:
+  extends:
+    file: common.yml
+    service: nuodb
+  volumes:
+    - "./data/node0:/opt/nuodb/data"
+  ports:
+    - "8888:8888"
+    - "8889:8889"
+    - "9001:9001"
+    - "48004:48004"
+  environment:
+    - BROKER_ALT_ADDR=self
+
+node1:
+  extends:
+    file: common.yml
+    service: nuodb
+  volumes:
+    - "./data/node1:/opt/nuodb/data"
+  links:
+    - node0
+
+  environment:
+    - BROKER_ALT_ADDR=self
+    - PEER=node0
+
+node2:
+  extends:
+    file: common.yml
+    service: nuodb
+  volumes:
+    - "./data/node2:/opt/nuodb/data"
+  links:
+    - node0
+
+  environment:
+    - BROKER_ALT_ADDR=self
+    - PEER=node0

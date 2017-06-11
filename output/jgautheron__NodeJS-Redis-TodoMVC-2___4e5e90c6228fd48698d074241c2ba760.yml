@@ -1,0 +1,18 @@
+app:
+    build: .
+redis:
+    image: redis:3
+    expose:
+        - "6379"
+node:
+    image: node:5-slim
+    command: node /app/app.js
+    environment:
+        REDIS_HOST: redis
+        PORT: 3000
+    links:
+        - redis
+    volumes_from:
+        - app
+    ports:
+        - "3000:3000"

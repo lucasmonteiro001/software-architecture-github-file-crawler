@@ -1,0 +1,18 @@
+webdata:
+  image: busybox:latest
+  command: echo webdata
+  volumes:
+   - ./doc_root:/app
+   - ./conf:/bitnami/nginx/conf
+
+nginx:
+  image: bitnami/nginx
+  ports:
+    - "8083:80"
+  volumes:
+   - ./doc_root:/app
+   - ./conf:/bitnami/nginx/conf
+  log_driver: "json-file"
+  log_opt:
+    max-size: "20k"
+    max-file: "5"

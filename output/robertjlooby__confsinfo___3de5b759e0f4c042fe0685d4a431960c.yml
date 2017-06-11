@@ -1,0 +1,18 @@
+version: '2'
+services:
+  db:
+    image: postgres
+    environment:
+      POSTGRES_USER: 'confsinfo'
+  web: &WEB
+    build: .
+    command: sh -c 'stack build --install-ghc && stack exec confsinfo-backend-exe'
+    volumes:
+      - .:/var/confsinfo
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+  test:
+    <<: *WEB
+    command: stack --install-ghc test

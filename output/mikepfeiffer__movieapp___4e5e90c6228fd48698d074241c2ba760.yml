@@ -1,0 +1,21 @@
+version: '2.1'
+services:
+  sql:
+    build:
+      context: .
+      dockerfile: Dockerfile.sql
+    ports:
+      - "1433:1433"
+  iis:
+    build:
+      context: .
+      dockerfile: Dockerfile.iis
+    depends_on:
+      - "sql"
+    ports:
+      - "80:80"
+
+networks:
+  default:
+    external:
+      name: nat

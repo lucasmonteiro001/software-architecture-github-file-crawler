@@ -1,0 +1,21 @@
+version: '2'
+services:
+  app:
+    build: .
+    environment:
+      NODE_ENV: development
+    volumes:
+      - .:/usr/src/app
+    ports:
+      - "3000:3000"
+    networks:
+      - back-tier
+  mongo:
+    image: mongo:3.2.6
+    volumes:
+      - /data/db
+    networks:
+      - back-tier
+networks:
+  back-tier:
+    driver: bridge

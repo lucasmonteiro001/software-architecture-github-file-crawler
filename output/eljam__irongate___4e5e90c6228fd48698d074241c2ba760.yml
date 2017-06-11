@@ -1,0 +1,56 @@
+version: '2'
+
+services:
+    app:
+        build: docker/code
+        working_dir: /var/www/hogosha
+        volumes:
+            - ./:/var/www/hogosha
+        tty: true
+    db:
+        image: postgres
+        expose:
+            - 5432
+        ports:
+            - 5432:5432
+        environment:
+            POSTGRES_PASSWORD: root
+            POSTGRES_USER: root
+            POSTGRES_DB: hogosha
+    maildev:
+        image: djfarrelly/maildev
+        expose:
+            - 1025
+        ports:
+            - 1080:1080
+    php:
+        build: docker/php-fpm
+        expose:
+            - 9000
+        volumes_from:
+            - app
+        links:
+            - db:database
+            - maildev
+    nginx:
+        build: docker/nginx
+        ports:
+            - 80:80
+        links:
+            - php
+        volumes_from:
+            - app
+    ldap:
+        image: mhmxs/ldap
+        expose:
+            - 389
+        ports:
+            - 389:389
+        environment:
+            SLAPD_PASSWORD: admin
+    phpldapadmin:
+        image: dinkel/phpldapadmin
+        ports:
+            - 8080:80
+        environment:
+            LDAP_SERVER_HOST: ldap

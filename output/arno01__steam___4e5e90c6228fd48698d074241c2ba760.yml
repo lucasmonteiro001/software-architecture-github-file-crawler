@@ -1,0 +1,45 @@
+version: '2'
+
+services:
+  steam:
+    image: andrey01/steam
+    network_mode: bridge
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:ro
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/machine-id:/etc/machine-id:ro
+      - $XDG_RUNTIME_DIR/pulse:/run/user/1000/pulse
+      - ./data:/home/user
+      # - /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket:ro
+      # Ubuntu's NVIDIA driver:
+      - /usr/lib/nvidia-361-prime:/h1_64:ro
+      - /usr/lib/nvidia-340:/h2_64:ro
+      - /usr/lib/nvidia-340-prime:/h3_64:ro
+      - /usr/lib/nvidia-304:/h4_64:ro
+      - /usr/lib32/nvidia-361:/h5_32:ro
+      - /usr/lib32/nvidia-340:/h6_32:ro
+      - /usr/lib32/nvidia-304:/h7_32:ro
+      # Ubuntu's generic libGL:
+      - /usr/lib/x86_64-linux-gnu:/h8_64:ro
+      - /usr/lib/i386-linux-gnu:/h9_32:ro
+      # openSUSE's NVIDIA driver:
+      - /usr/X11R6/lib:/h10_32:ro
+      - /usr/X11R6/lib64:/h11_64:ro
+      - /usr/lib:/h12_32:ro
+      - /usr/lib64:/h13_64:ro
+    dns: steam # a DNS cache is needed to avoid upstream bug https://github.com/ValveSoftware/steam-for-linux/issues/3401
+    devices:
+      - /dev/nvidia0
+      - /dev/nvidiactl
+      - /dev/nvidia-uvm
+      # uncomment this when running NVIDIA Driver >= 361
+      - /dev/nvidia-modeset
+      - /dev/dri
+      # - /dev/snd
+    environment:
+      - DISPLAY=unix$DISPLAY
+      - PULSE_SERVER=unix:$XDG_RUNTIME_DIR/pulse/native
+      # Use Steam provided runtime, requires --reset
+      # Steam provided runtime seems to be less stable with this image
+      # - STEAM_RUNTIME=1
+    shm_size: 4G

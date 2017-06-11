@@ -1,0 +1,8 @@
+version: '3'
+services:
+  bot:
+    image: shadebot
+    build: .
+    env_file: .docker_env
+    volumes:
+      - ./:/usr/src/app

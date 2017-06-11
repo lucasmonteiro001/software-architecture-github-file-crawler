@@ -1,0 +1,27 @@
+version: '2'
+services:
+    api:
+        build:  ./API
+        ports:
+            -   "5000:5000"
+        volumes:
+            -   ./API:/api
+        depends_on:
+            -   db
+    front:
+        build:  ./Front
+        ports:
+            -   "9000:9000"
+            -   "3001:3001"
+        volumes:
+            -   ./Front:/front
+        depends_on:
+            -   api
+    db:
+        build:  ./Database
+        ports:
+            -   "5432:5432"
+        volumes:
+            -   postgres_data:/var/lib/pgsql/data
+volumes:
+    postgres_data:

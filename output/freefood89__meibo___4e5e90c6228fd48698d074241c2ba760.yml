@@ -1,0 +1,19 @@
+meibo:
+  build: ./meibo
+  ports:
+    - "3000:3000"
+
+elasticsearch:
+  image: elasticsearch
+  volumes:
+    - ./esdata:/usr/share/elasticsearch/data
+  ports:
+    - "9200:9200"
+
+kibana:
+  image: kibana
+  ports:
+   - "5601:5601"
+  links:
+   - elasticsearch
+

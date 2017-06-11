@@ -1,0 +1,33 @@
+version: '2'
+
+services:
+    redis:
+        image: redis
+        ports:
+            - "6379:6379"
+    web:
+        build: .
+        command: python runserver.py --host 0.0.0.0
+        environment:
+            - MOXIE_SETTINGS=/code/docker/app_settings.yaml
+        volumes:
+            - .:/code
+        ports:
+            - "5000:5000"
+        links:
+            - redis
+            - solr
+            - db
+            
+    solr:
+        build:
+            context: .
+            dockerfile: Dockerfile_solr
+        volumes:
+            - ./solr:/opt/solr/moxie_config
+        ports:
+            - "8983:8983"
+    
+    db:
+        image: postgres
+        

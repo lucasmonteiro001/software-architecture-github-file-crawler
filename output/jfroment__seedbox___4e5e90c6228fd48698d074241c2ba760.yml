@@ -1,0 +1,77 @@
+version: '3'
+
+networks:
+    main:
+
+volumes:
+    config:
+        driver: local-persist
+        driver_opts:
+            mountpoint: /data/config
+    torrents:
+        driver: local-persist
+        driver_opts:
+            mountpoint: /data/torrents
+
+services:
+    frontend:
+        image: fromenje/seedbox:frontend
+        build: Dockerfiles/frontend
+        restart: always
+        networks:
+            - main
+        ports:
+            - "80:80"
+            - "443:443"
+        volumes:
+            - config:/config
+        env_file:
+            - config
+
+    deluge:
+        image: fromenje/seedbox:deluge
+        build: Dockerfiles/deluge
+        restart: always
+        networks:
+            - main
+        volumes:
+            - torrents:/torrents
+            - config:/config
+        env_file:
+            - config
+
+    h5ai:
+        image: fromenje/seedbox:h5ai
+        build: Dockerfiles/h5ai
+        restart: always
+        networks:
+            - main
+        volumes:
+            - torrents:/torrents
+            - config:/config
+        env_file:
+            - config
+
+    plex:
+        image: fromenje/seedbox:plex
+        build: Dockerfiles/plex
+        restart: always
+        networks:
+            - main
+        ports:
+            - "32400:32400"
+        volumes:
+            - config:/config
+            - torrents:/torrents
+        env_file:
+            - config
+
+    sonarr:
+        image: fromenje/seedbox:sonarr
+        build: Dockerfiles/sonarr
+        restart: always
+        networks:
+            - main
+        volumes:
+            - config:/config
+            - torrents:/torrents

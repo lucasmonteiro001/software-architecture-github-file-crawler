@@ -1,0 +1,20 @@
+version: "3"
+services:
+  umbrella:
+    container_name: api-umbrella
+    image: nrel/api-umbrella
+    ports:
+    - 80:80
+    - 443:443
+    links:
+    - hug:hug.api.com
+  hug:
+    container_name: api-hug
+    build: ./
+    image: cheese:latest
+    ports:
+    - 8000:8000
+    command:
+    - hug
+    - -f
+    - /app/hug-ftw/app.py

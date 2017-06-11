@@ -1,0 +1,72 @@
+version: '2'
+services:
+  eureka:
+    image: eureka:0.0.1-SNAPSHOT
+    restart: always
+    container_name: eureka
+    ports:
+      - "8761:8761"
+    environment:
+      DOMAIN_NAME: 192.168.1.110
+    networks:
+      - wfij
+    
+    
+  configserver:
+    image: config-server:0.0.1-SNAPSHOT
+    restart: always
+    container_name: configserver
+    ports:
+      - "8888:8888"
+    environment:
+      DOMAIN_NAME: 192.168.1.110
+    networks:
+      - wfij
+    depends_on:
+      - eureka
+
+
+
+  authserver:
+    image: auth-server:0.0.1-SNAPSHOT
+    restart: always
+    container_name: authserver
+    ports:
+      - "9999:9999"
+    environment:
+      DOMAIN_NAME: 192.168.1.110
+    networks:
+      - wfij
+    depends_on:
+      - eureka
+      - configserver
+
+
+
+  pcgateway:
+    image: pc-gateway:0.0.1-SNAPSHOT   
+    container_name: pcgateway
+    domainname: 192.168.1.110
+    ports:
+      - "8080:8080"
+    environment:
+      DOMAIN_NAME: 192.168.1.110
+    networks:
+      - wfij
+    depends_on:
+      - eureka
+      - configserver
+      - authserver
+
+networks:
+  wfij:
+    external:
+      name: wfij-net
+
+
+
+
+
+
+
+

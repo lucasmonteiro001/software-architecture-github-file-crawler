@@ -1,0 +1,14 @@
+version: '2'
+
+services:
+    flask:
+        build:
+            context: .
+            dockerfile: Dockerfile.web
+        image: docker-swarm-ports:web
+        ports:
+            - 5000:5000
+        volumes:
+            - ./web:/usr/local/app/web
+            - ./utils:/usr/local/app/utils
+            - /var/run/docker.sock:/var/run/docker.sock

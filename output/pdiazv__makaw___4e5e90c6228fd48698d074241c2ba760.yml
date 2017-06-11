@@ -1,0 +1,29 @@
+postgres:
+  image: postgres:9.5
+  volumes:
+    - /data/macaw-dev/postgres:/var/lib/postgresql/data
+  env_file: .env
+
+django:
+  build: .
+  user: django
+  volumes:
+    - /app
+  links:
+    - postgres
+    - redis
+  command: /gunicorn.sh
+  env_file: .env
+
+nginx:
+  build: ./compose/nginx
+  volumes_from:
+    - django
+  links:
+    - django
+  ports:
+    - "0.0.0.0:80:80"
+
+redis:
+  image: redis:3.0
+

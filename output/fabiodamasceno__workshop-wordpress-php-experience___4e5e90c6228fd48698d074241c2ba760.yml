@@ -1,0 +1,31 @@
+version: "2"
+services:
+  database-container:
+    image: mysql:5.7
+    ports:
+      - "8081:3306"
+    environment:
+       MYSQL_ROOT_PASSWORD: wordpress
+       MYSQL_DATABASE: wordpress
+       MYSQL_USER: wordpress
+       MYSQL_PASSWORD: wordpress
+
+  wordpress-container:
+    image: wordpress
+    volumes:
+      - ./wordpress:/var/www/html
+    ports:
+      - "8080:80"
+    links:
+      - database-container:mysql
+    environment:
+      WORDPRESS_DB_PASSWORD: wordpress
+
+  wpcli-container:
+    image: tatemz/wp-cli
+    volumes_from:
+        - wordpress-container
+    links:
+        - database-container:mysql
+    entrypoint: wp  
+    command: "--info"

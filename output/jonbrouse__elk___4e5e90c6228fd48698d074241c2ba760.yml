@@ -1,0 +1,44 @@
+version: '2'
+services:
+  elasticsearch:
+    hostname: elasticsearch
+    image: jonbrouse/elk:elasticsearch
+    build: elasticsearch
+    command: -Des.insecure.allow.root=true
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - ./elasticsearch/volumes/esdata/:/opt/elasticsearch/data
+  logstash:
+    hostname: logstash
+    image: jonbrouse/elk:logstash
+    build: logstash
+    ports:
+      - "24642:24642"
+    command: -f /etc/logstash.conf 
+    tty: true
+    volumes:
+      - ./logstash/assets/logstash.conf:/etc/logstash.conf
+    links:
+      - elasticsearch
+    environment:
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+  kibana:
+    hostname: kibana
+    image: jonbrouse/elk:kibana
+    build: kibana
+    links:
+      - elasticsearch
+  nginx:
+    hostname: nginx
+    image: nginx:stable-alpine
+    links:
+      - kibana
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/assets/certs:/etc/nginx/certs
+      - ./nginx/assets/nginx.conf:/etc/nginx/nginx.conf

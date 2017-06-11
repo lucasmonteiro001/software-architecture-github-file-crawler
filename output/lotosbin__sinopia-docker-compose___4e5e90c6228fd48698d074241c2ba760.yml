@@ -1,0 +1,5 @@
+web2:
+    image: keyvanfatehi/sinopia
+    ports:
+      - 4873:4873
+

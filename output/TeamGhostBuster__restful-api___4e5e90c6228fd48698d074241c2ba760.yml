@@ -1,0 +1,79 @@
+version: '2'
+services:
+    flaskapp:
+        image: exiasr/alpine-flask:latest
+        container_name: flaskapp
+        networks:
+            - esnet
+        ports:
+            - "5000:80"
+        volumes:
+            - .:/home/app
+        environment:
+            - FLASK_CONFIGURATION=deploy
+            - debug:debug1
+        restart: always
+        links:
+            - mongo
+            - mongo1
+            - mongo2
+            - elastic:elasticsearch
+    mongo:
+        image: mongo:3.4.1
+        container_name: mongo
+        command: mongod --replSet mongo-replica
+        networks:
+            - esnet
+        volumes:
+            - esdata:/data/db
+        ports:
+            - 27017:27017
+        links:
+          - mongo1:mongo1
+          - mongo2:mongo2
+    mongo1:
+        image: mongo:3.4.1
+        container_name: mongo1
+        command: mongod --replSet mongo-replica
+        networks:
+            - esnet
+        volumes:
+            - mongo-replica1:/data/db
+        ports:
+            - 30000:27017
+    mongo2:
+        image: mongo:3.4.1
+        container_name: mongo2
+        command: mongod --replSet mongo-replica
+        networks:
+            - esnet
+        volumes:
+            - mongo-replica2:/data/db
+        ports:
+            - 30001:27017
+    elastic:
+        image: elasticsearch:2.4.4-alpine
+        container_name: elastic
+        ports:
+            - 9200:9200
+        volumes:
+            - elastic-data:/usr/share/elasticsearch/data
+            - ./config/elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+        networks:
+            - esnet
+        environment:
+            - cluster.name=collabrative_list_docker_cluster
+
+networks:
+  esnet:
+    driver: bridge
+
+volumes:
+    esdata:
+        driver: local
+    mongo-replica1:
+        driver: local
+    mongo-replica2:
+        driver: local
+    elastic-data:
+        driver: local

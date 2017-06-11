@@ -1,0 +1,7 @@
+sprawl:
+  build: .
+  command: echo 'ready'
+  volumes:
+    - .:/home/app/sprawl
+    - /home/app/sprawl/node_modules
+    

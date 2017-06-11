@@ -1,0 +1,10 @@
+ant:
+    build: .
+    labels:
+        org.kurron.description: "Apache Ant"
+        org.kurron.version: "1.9.6"
+    container_name: "ant"
+    net: "host"
+    volumes:
+        - /home/vagrant:/home/developer
+    user: 1000:1000

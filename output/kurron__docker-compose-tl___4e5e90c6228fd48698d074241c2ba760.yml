@@ -1,0 +1,90 @@
+version: '2'
+services:
+    mongo-express:
+        image: mongo-express:latest
+        container_name: mongodb-express
+        network_mode: host
+        environment:
+        - ME_CONFIG_MONGODB_SERVER=localhost
+        depends_on: 
+        - mongodb
+
+    mongodb-data:
+        image: busybox
+        container_name: mongodb-data
+        network_mode: none
+        volumes:
+        - /data/db
+
+    mongodb:
+        image: mongo
+        container_name: mongodb
+        volumes_from:
+        - mongodb-data
+        restart: always
+        network_mode: host
+        command: mongod --storageEngine=wiredTiger --wiredTigerCacheSizeGB=1 --notablescan --journalCommitInterval=300 --directoryperdb
+
+    mysql-data:
+        image: busybox
+        container_name: mysql-data
+        network_mode: none
+        volumes:
+        - /var/lib/mysql
+        - /etc/mysql/conf.d
+
+    mysql:
+        image: mysql
+        container_name: mysql
+        volumes_from:
+        - mysql-data
+        restart: always
+        network_mode: host
+        environment:
+            MYSQL_ROOT_PASSWORD: sa
+            MYSQL_USER: mysql
+            MYSQL_PASSWORD: mysql
+            MYSQL_DATABASE: sushe
+        command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --lower_case_table_names=1
+
+    rabbitmq-data:
+        image: busybox
+        container_name: rabbitmq-data
+        network_mode: none
+        volumes:
+        - /var/lib/rabbitmq
+
+    rabbitmq:
+        image: rabbitmq:management
+        container_name: rabbitmq
+        volumes_from:
+        - rabbitmq-data
+        restart: always
+        network_mode: host
+        # limit RabbitMQ to 1GB of RAM or it will steal 40% of available memory
+        mem_limit: 1000000000
+        environment:
+            RABBITMQ_DEFAULT_USER: guest
+            RABBITMQ_DEFAULT_PASS: guest
+            RABBITMQ_DEFAULT_VHOST: /
+
+    redis-data:
+        image: busybox
+        container_name: redis-data
+        network_mode: none
+        volumes:
+        - /data
+
+    redis:
+        image: redis
+        container_name: redis
+        volumes_from:
+        - redis-data
+        restart: always
+        network_mode: host
+
+    consul:
+        image: consul:latest
+        container_name: consul
+        restart: always
+        network_mode: host

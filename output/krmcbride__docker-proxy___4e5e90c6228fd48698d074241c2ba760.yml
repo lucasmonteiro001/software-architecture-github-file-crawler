@@ -1,0 +1,20 @@
+version: '2'
+services:
+  proxy:
+    image: 'krmcbride/proxy:0.4'
+    ports:
+    - '8080:80'
+    volumes:
+    - '/var/run/docker.sock:/tmp/docker.sock:ro'
+  foo:
+    image: 'krmcbride/nginx:1.11'
+    environment:
+      PROXY_PATH: 'foo:/'
+  bar:
+    image: 'krmcbride/nginx:1.11'
+    environment:
+      PROXY_PATH: bar
+  baz:
+    image: 'krmcbride/nginx:1.11'
+    environment:
+      PROXY_PATH: baz

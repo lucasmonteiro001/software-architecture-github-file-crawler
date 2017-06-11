@@ -1,0 +1,61 @@
+version: '2'
+
+services:
+  # Easy way to reference our source code.
+  src:
+    image: busybox
+    volumes:
+      - ./api:/srv/api
+      - ./web:/srv/web
+      - .bundler:/var/lib/bundler
+
+  # Main entry point to the application
+  router:
+    build: router
+    domainname: rocker.dev
+    ipc: host
+    links:
+      - api
+      - web
+    ports:
+      - 80:80
+
+  api: &ruby_base
+    build: ./api
+    command: script/servers/start
+    links:
+      - dynamodb
+      - postgres
+      - redis
+    volumes_from:
+      - src
+    volumes:
+      - /var/lib/api
+    ports:
+      - 4000:80
+
+  # EXAMPLE container for doing tdd with guard. You can change the command as appropriate
+  # tdd:
+  #   <<: *ruby_base
+  #   command: bin/guard
+  #   environment:
+  #     RAILS_ENV: test
+
+  redis:
+    image: redis
+
+  dynamodb:
+    build: databases/dynamodb-local/
+
+  postgres:
+    build: databases/postgres
+    volumes:
+      - .pgdata:/var/lib/postgresql/
+
+  web:
+    build: web
+    command: gulp serve-dev
+    volumes_from:
+      - src
+    ports:
+      - 3000:3000

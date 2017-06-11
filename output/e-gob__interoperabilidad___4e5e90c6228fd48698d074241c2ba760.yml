@@ -1,0 +1,45 @@
+version: '2'
+services:
+  postgres:
+    image: postgres:9.5.3
+    ports:
+      - "5432"
+  web:
+    tty: true
+    stdin_open: true
+    build:
+      context: .
+      dockerfile: Dockerfile.development
+    command: bundle exec rails s -p 3000 -b '0.0.0.0'
+    volumes:
+      - .:/app
+    ports:
+      - "80:3000"
+    depends_on:
+      - postgres
+    volumes_from:
+      - bundle_cache
+    environment:
+      - OP_CLIENT_ID
+      - OP_SECRET_KEY
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+      - AWS_REGION
+      - SIGNER_API_TOKEN_KEY
+      - SIGNER_API_SECRET
+      - S3_CODEGEN_BUCKET=gobdigital-plat-rest-dev
+      - OP_CALLBACK_URL=http://dev.interoperabilidad.digital.gob.cl
+      - ROLE_SERVICE_URL=http://thawing-shore-28727.herokuapp.com
+      - ROLE_APP_ID=AB01
+      - CODECLIMATE_REPO_TOKEN # For CI environment. No need to set in dev.
+      - APP_HOST_URL=dev.interoperabilidad.digital.gob.cl
+      - SMTP_ADDRESS=smtp.localhost
+      - SMTP_PORT=25
+      - SMTP_USER=user
+      - SMTP_SECRET=secret
+      - MINSEGPRES_DIPRES_ID=AB01
+      - SIGNER_APP_HOST=http://proxy-banco.modernizacion.gob.cl
+  bundle_cache:
+    image: ruby:2.3.1 # Should be the same as the app Dockerfile.dev base image
+    volumes:
+      - /usr/local/bundle

@@ -1,0 +1,13 @@
+version: "2"
+services:
+  servicediscovery:
+    image: com.apps.servicediscovery/servicediscovery:1.0.0-SNAPSHOT
+    ports:
+      - "8088:8088"
+
+  dashboard:
+    image: com.apps/dashboard:1.0.0-SNAPSHOT
+    depends_on:
+      - servicediscovery
+    ports:
+      - "8080:8080"

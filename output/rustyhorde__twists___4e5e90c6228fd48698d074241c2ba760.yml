@@ -1,0 +1,9 @@
+version: '2'
+
+services:
+  twists:
+    image: rustyhorde/twists:dev
+    env_file: ./.twists/twists.env
+    ports:
+      - "11579:11579"
+      - "32276:32276"

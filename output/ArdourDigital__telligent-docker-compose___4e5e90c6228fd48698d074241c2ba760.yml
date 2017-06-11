@@ -1,0 +1,49 @@
+version: '2.1'
+services:
+  web:
+    build: 
+        context: .
+        dockerfile: Web.dockerfile
+    depends_on:
+      - db
+  job-server:
+    build: 
+        context: .
+        dockerfile: JobServer.dockerfile
+    depends_on:
+      - db
+  socket-message-bus:
+    build: 
+        context: .
+        dockerfile: SocketMessageBus.dockerfile
+    networks:
+      default:
+        ipv4_address: 172.22.79.3
+        aliases:
+          - socket-message-bus
+  search:
+    build:
+        context: .
+        dockerfile: Search.dockerfile
+    networks:
+      default:
+        ipv4_address: 172.22.79.2
+        aliases:
+          - search
+  db:
+    build:
+        context: .
+        dockerfile: Sql.dockerfile
+    environment:
+      sa_password: "JeRf5P7uw0"
+      ACCEPT_EULA: "y"
+    networks:
+      default:
+        ipv4_address: 172.22.79.1
+        aliases:
+          - db
+    
+networks:
+  default:
+    external:
+      name: nat

@@ -1,0 +1,51 @@
+postgres:
+  image: postgres:9.4
+  environment:
+    - POSTGRES_PASSWORD=root
+    - POSTGRES_USER=root
+    - POSTGRES_DB=blog
+  volumes_from:
+    - data
+
+redis:
+  image: redis:3.0
+
+web:
+  build: .
+  restart: always
+  ports:
+    - "8001:8001"
+  environment:
+    - DB_USER=root
+    - DB_PASSWORD=root
+    - DB_HOST=postgres
+    - REDIS_HOST=redis
+    - SECRET_KEY=qwerty
+  links:
+    - postgres
+    - redis
+  # volumes:  # not on prod
+  #   - .:/home/blog/src
+  volumes_from:
+    - data
+
+nginx:
+  image: nginx:1.9
+  restart: always
+  links:
+    - web
+  ports:
+    - "80:80"
+  volumes:
+    - ./docker/blog.conf.nginx:/etc/nginx/conf.d/default.conf
+  volumes_from:
+    - data
+
+data:
+  image: postgres:9.4
+  restart: no
+  volumes:
+    - /home/blog/logs
+    - /home/blog/static
+    - /var/lib/postgresql/data
+  command: /bin/true

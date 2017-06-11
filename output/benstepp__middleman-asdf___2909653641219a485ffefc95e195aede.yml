@@ -1,0 +1,28 @@
+version: '2'
+services:
+  middleman:
+    build:
+      context: '..'
+      dockerfile: 'config/Dockerfile'
+    restart: always
+    command: bundle exec middleman server
+    env_file: '../.env'
+    volumes:
+      - '..:/app'
+    ports:
+      - ${MIDDLEMAN_PORT}:4567
+      - ${LIVERELOAD_PORT}:35729
+  webpack:
+    build:
+      context: '..'
+      dockerfile: 'config/Dockerfile-webpack'
+    env_file: '../.env'
+    environment:
+      - 'NODE_ENV=development'
+    volumes:
+      - '..:/app'
+      - '/app/node_modules'
+    ports:
+      - ${WEBPACK_PORT}:8080
+    restart: always
+    command: sh -c '/app/node_modules/.bin/webpack-dev-server --hot --inline --config config/webpack.js'

@@ -1,0 +1,56 @@
+version: '2'
+services:
+  elasticsearch:
+    image: elasticsearch:2
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      ES_JAVA_OPTS: "-Xms1g -Xmx1g"
+
+  logstash:
+    build: logstash/
+    ports:
+      - "5000:5000"
+      - "5044:5044"
+    depends_on:
+      - elasticsearch
+
+  grafana:
+    build:
+      context: grafana/
+      args:
+        GRAFANA_VERSION: 4.0.0-1480439068
+    ports:
+      - "3000:3000"
+    depends_on:
+      - elasticsearch
+      - riemann
+
+  influxdb:
+    image: tutum/influxdb
+    environment:
+      PRE_CREATE_DB: "riemann"
+    ports:
+      - "8083:8083"
+      - "8086:8086"
+    expose:
+      - "8090"
+      - "8099"
+
+  riemann:
+    build: riemann/
+    ports:
+    - "5555:5555"
+    - "5555:5555/udp"
+    - "5556:5556"
+    command: -a start
+    links:
+      - influxdb
+    depends_on:
+      - influxdb
+
+
+networks:
+  default:
+    driver: bridge

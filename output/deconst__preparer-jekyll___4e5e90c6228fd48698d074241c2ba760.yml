@@ -1,0 +1,20 @@
+---
+content:
+  image: quay.io/deconst/content-service
+  environment:
+    STORAGE: memory
+    ADMIN_APIKEY:
+    CONTENT_LOG_LEVEL: DEBUG
+preparer:
+    build: .
+    links:
+        - content
+    environment:
+        CONTENT_STORE_URL: http://content:8080
+        CONTENT_STORE_APIKEY:
+        CONTENT_ID_BASE:
+        TRAVIS_PULL_REQUEST: "false"
+        JEKYLL_DOCUMENT:
+    volumes:
+        - ".:/usr/src/app"
+        - "${JEKYLL_PATH}:/usr/content-repo"

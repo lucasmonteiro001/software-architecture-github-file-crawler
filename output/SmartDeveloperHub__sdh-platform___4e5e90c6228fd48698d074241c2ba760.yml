@@ -1,0 +1,165 @@
+redis:
+  build: redis
+  hostname: redis
+  domainname: localdomain
+  environment:
+    - TERM=xterm
+
+mredis:
+  build: mredis
+  hostname: mredis
+  domainname: localdomain
+  environment:
+    - TERM=xterm
+  volumes:
+    - /usr/lib/agora/graph_store
+
+fountain:
+  image: smartdeveloperhub/agora-fountain
+  hostname: fountain
+  domainname: localdomain
+  links:
+    - mredis:redis  
+  environment:
+    - TERM=xterm
+    - FOUNTAIN_CONFIG=agora.fountain.server.config.ProductionConfig
+  volumes_from:
+    - mredis
+
+planner:
+  image: smartdeveloperhub/agora-planner
+  hostname: planner
+  domainname: localdomain
+  links:
+    - fountain:fountain
+  environment:
+    - TERM=xterm
+    - PLANNER_CONFIG=agora.planner.server.config.ProductionConfig
+
+fragment:
+  image: smartdeveloperhub/agora-planner
+  hostname: fragment
+  domainname: localdomain
+  links:
+    - scmharvester:scmharvester
+    - ciharvester:ciharvester
+    - scmmetrics:scmmetrics
+    - cimetrics:cimetrics
+    - fountain:fountain
+  environment:
+    - TERM=xterm
+    - PLANNER_CONFIG=agora.planner.server.config.ProductionConfig
+
+scmmetrics:
+  build: scmmetrics
+  hostname: scmmetrics
+  domainname: localdomain
+  links:
+    - scmharvester:scmharvester
+    - planner:planner
+    - fountain:fountain
+    - mredis:redis
+  environment:
+    - TERM=xterm
+    - CONFIG=sdh.metrics.scm.config.ProductionConfig
+
+cimetrics:
+  build: cimetrics
+  hostname: cimetrics
+  domainname: localdomain
+  links:
+    - scmharvester:scmharvester
+    - ciharvester:ciharvester
+    - planner:planner
+    - fountain:fountain
+    - mredis:redis
+  environment:
+    - TERM=xterm
+    - CONFIG=sdh.metrics.ci.config.ProductionConfig
+
+enhancer:
+  image: smartdeveloperhub/sdh-gl-enhancer-docker
+  hostname: enhancer
+  domainname: localdomain
+  links:
+    - redis:redis
+  command: /sbin/my_init
+  environment:
+    - ENH_GITLAB_IP=127.0.0.1
+    - ENH_GITLAB_PORT=80
+    - ENH_GITLAB_USER=root
+    - ENH_GITLAB_PASS=12345678
+    - ENH_REDIS_IP=redis
+    - ENH_REDIS_PORT=6379
+    - ENH_REDIS_DB=0
+    - TERM=xterm
+    - ENHANCER_VERSION=0.3.0.dev8
+
+scmharvester:
+  build: scmharvester
+  hostname: scmharvester
+  domainname: localdomain
+  links:
+    - enhancer:enhancer
+    - fountain:fountain
+  environment:
+    - TERM=xterm
+
+ciharvester:
+  build: ciharvester
+  hostname: ciharvester
+  domainname: localdomain
+  mem_limit: 1024m
+  links:
+    - fountain:fountain
+  environment:
+    - TERM=xterm
+
+sdhapi:
+  image: smartdeveloperhub/sdh-api-docker
+  hostname: sdhapi
+  domainname: localdomain
+  links:
+    - nginx:nginx
+  environment:
+    - USERPROFILE=/usr/lib/node_modules/sdh-api
+    - PLANNER_ADDR=http://nginx
+    - PLANNER_PORT=80
+    - FRAGMNT_ADDR=http://nginx
+    - FRAGMNT_PORT=80
+    - SDH_API_HOST="localhost:9002"
+    - TERM=xterm
+  ports:
+    - "9002:8080"
+
+ldap:
+  image: smartdeveloperhub/ldap
+  hostname: ldap
+  domainname: localdomain
+  environment:
+    - TERM=xterm
+  ports:
+    - "9005:80"
+    - "9010:389"
+    - "9011:636"
+
+nginx:
+  build: nginx
+  hostname: nginx
+  domainname: localdomain
+  links:
+    - fragment:fragment
+    - fountain:fountain
+    - enhancer:enhancer
+    - scmharvester:scmharvester
+    - scmmetrics:scmmetrics
+    - ciharvester:ciharvester
+    - cimetrics:cimetrics
+  environment:
+    - TERM=xterm
+  ports:
+    - "9001:80"
+  volumes:
+    - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+
+

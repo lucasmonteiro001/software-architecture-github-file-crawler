@@ -1,0 +1,19 @@
+version: '2'
+services:
+
+  chefmateserver:
+    build:
+      context: .
+      dockerfile: Dockerfile-chefmateserver
+    environment:
+      LISTEN_PORT: 8181
+
+  tester:
+    build:
+      context: .
+      dockerfile: Dockerfile-chefmatetester
+    links:
+      - chefmateserver
+    environment:
+      API_HOST: chefmateserver
+      API_PORT: 8181

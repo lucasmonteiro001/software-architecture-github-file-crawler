@@ -1,0 +1,26 @@
+version: '2'
+services:
+  php:
+    build: .
+    volumes:
+      - .:/code
+    links:
+      - mysql
+  nginx:
+    image: nginx:1.9.10
+    ports:
+      - "81:80"
+    volumes:
+      - ./docker_confs/default.conf:/etc/nginx/conf.d/default.conf
+    volumes_from:
+      - php
+    links:
+      - php
+  mysql:
+    image: mysql:5.6.31
+    ports:
+      - "13306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=admin
+      - DOCKER_HOST=tcp://localhost:4243
+      - XDEBUG_CONFIG="remote_host=172.17.0.1"

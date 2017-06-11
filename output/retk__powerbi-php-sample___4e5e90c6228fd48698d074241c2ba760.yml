@@ -1,0 +1,8 @@
+version: '2'
+
+services:
+  powerbi-php-sample:
+    image: powerbi-php-sample
+    build:
+      context: ./src/website
+      dockerfile: Dockerfile

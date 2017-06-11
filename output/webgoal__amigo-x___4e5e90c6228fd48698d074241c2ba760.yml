@@ -1,0 +1,21 @@
+version: '2'
+services:
+  nginx:
+    build: ./nginx/dev
+    ports:
+      - 80:80
+    depends_on:
+      - web
+  db:
+    image: postgres
+    env_file: .env
+  web:
+    build: .
+    command: bundle exec puma -C config/puma.rb
+    env_file: .env
+    volumes:
+      - .:/opt/amigo-x
+    ports:
+      - 3000:3000
+    depends_on:
+      - db

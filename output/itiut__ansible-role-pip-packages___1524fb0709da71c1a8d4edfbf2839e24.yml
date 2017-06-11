@@ -1,0 +1,12 @@
+---
+precise:
+  extends:
+    file: docker-compose-common.yml
+    service: common
+  dockerfile: Dockerfile-precise
+
+trusty:
+  extends:
+    file: docker-compose-common.yml
+    service: common
+  dockerfile: Dockerfile-trusty

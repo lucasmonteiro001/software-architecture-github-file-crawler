@@ -1,0 +1,58 @@
+version: '2'
+services:
+  mysql:
+    image: mysql:5.5
+    container_name: ilias_db
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_DATABASE: ilias
+      MYSQL_USER: ilias
+      MYSQL_PASSWORD: ilias
+    ports:
+      - 3306:3306
+    volumes:
+      - iliasdb:/var/lib/mysql
+      - ./dump:/iliasdump
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "10"
+    command: --character-set-server=utf8 --collation-server=utf8_unicode_ci --max-connections=200 --query-cache-size=32MB
+    network_mode: bridge
+    restart: always
+
+  mysql_init:
+    image: mysql:5.5
+    container_name: ilias_db_init
+    depends_on: 
+      - mysql
+    links:
+      - mysql:db
+    volumes:
+      - ./sql:/sql
+    working_dir: /sql
+    network_mode: bridge
+    command: ./entrypoint.sh
+
+  ilias:
+    image: rreinurm/ilias-docker:latest
+    container_name: ilias-server
+    depends_on:
+      - mysql
+      - mysql_init
+    ports:
+      - 80:80
+    links:
+      - mysql:db
+    network_mode: bridge
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "10"
+    restart: always
+
+volumes:
+  iliasdb:
+    driver: local

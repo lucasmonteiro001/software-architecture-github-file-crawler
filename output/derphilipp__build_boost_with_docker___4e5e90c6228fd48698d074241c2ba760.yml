@@ -1,0 +1,8 @@
+builder:
+    tty: true
+    stdin_open: true
+    restart: always
+    build: docker/.
+    volumes:
+        - "./temp:/tmp/boost"
+        - "./output:/usr/local"

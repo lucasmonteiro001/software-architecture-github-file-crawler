@@ -1,0 +1,15 @@
+version: '2'
+services:
+  blog:
+    image: mrsu/blog
+    restart: always
+    environment:
+      - DOMAIN_NAME=mrsu.me
+      - USER_ID=1001
+      - USER_GID=1001
+      - WEB_HOME=/home/mrsu/work/test/mrsu.me
+      - PROJECT_NAME=mrsu
+    volumes:
+      - '/home/mrsu:/home/mrsu'
+    ports:
+      - '8900:80'

@@ -1,0 +1,107 @@
+version: '2.1'
+
+services:
+
+  db:
+    build: ./db
+    env_file: ./.dockerenv/db.env
+    healthcheck:
+      interval: 10s
+      timeout: 5s
+      retries: 6
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+    networks:
+      - db
+
+  redis:
+    image: cailloumajor/redis-armhf:alpine
+    healthcheck:
+      interval: 10s
+      timeout: 5s
+      retries: 2
+    volumes:
+      - redisdata:/data
+    networks:
+      - redis
+
+  django:
+    extends:
+      file: common.yml
+      service: backend
+    command: ./run_webapp.sh
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      WSGI_APPLICATION: home_web.wsgi
+      GUNICORN_CMD_ARGS: >
+        --bind 0.0.0.0:8000
+        --name home_web
+        --access-logfile -
+        --error-logfile -
+    expose:
+      - "8000"
+    volumes:
+      - staticfiles:/static
+    networks:
+      - db
+      - django
+      - redis
+
+  # Celery worker
+  worker:
+    extends:
+      file: common.yml
+      service: backend
+    command: >
+      su-exec python-user celery worker --app home_web
+      --loglevel INFO --purge
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - db
+      - redis
+
+  # Celery beat
+  beat:
+    extends:
+      file: common.yml
+      service: backend
+    command: >
+      su-exec python-user celery beat --app home_web
+      --loglevel INFO --pidfile= --schedule /tmp/celerybeat-schedule
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - redis
+
+  nginx:
+    build: ./nginx
+    env_file: ./.dockerenv/nginx.env
+    environment:
+      - NGINX_BACKEND_ADDRESS=django:8000
+    links:
+      - django
+    ports:
+      - "80:80"
+    volumes:
+      - staticfiles:/var/www/static:ro
+    networks:
+      - django
+
+networks:
+  db:
+  django:
+  redis:
+
+volumes:
+  dbdata:
+  redisdata:
+  staticfiles:

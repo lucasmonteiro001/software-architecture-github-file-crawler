@@ -1,0 +1,42 @@
+version: "2"
+services:
+  influxdb:
+    image: tutum/influxdb:0.12
+    ports: 
+      - "8083:8083"
+      - "8086:8086"
+    volumes:
+      - /tmp/data:/data
+    environment:
+      ADMIN_USER: "track_deploy"
+      INFLUXDB_INIT_PWD: "track_deploy_secret"
+      PRE_CREATE_DB: "track_deploy"       
+      TZ: America/Sao_Paulo
+  app-track-deploy:
+    image: lucasvasconcelos/app-track-deploy:latest
+    ports:
+      - "5000:5000"
+    depends_on:
+      - influxdb
+    links:
+      - "influxdb:influxhost"
+    volumes:
+      - ../logs:/logs  
+    environment:
+      INFLUX_HOST: "influxhost"
+      INFLUX_PORT: "8086"
+      INFLUX_USER: "track_deploy"
+      INFLUX_PASS: "track_deploy_secret"
+      INFLUX_DATABASE: "track_deploy"         
+      LOG_PATH: "/logs"
+      TZ: America/Sao_Paulo    
+  grafana-track-deploy:
+    image: lucasvasconcelos/grafana-track-deploy:1.1
+    ports:
+      - "3000:3000"
+    depends_on:
+      - influxdb
+    links:
+      - "influxdb:influxhost"
+    environment:
+      TZ: America/Sao_Paulo

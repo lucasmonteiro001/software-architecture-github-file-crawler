@@ -1,0 +1,32 @@
+rails:
+  build:  .
+  volumes:
+    - .:/raccoon-issues
+
+web:
+  extends:
+    service: rails
+  command:  [bundle, exec, rails, server, -p, '3000', -b, '0.0.0.0', -e, 'development']
+  ports:
+    - 80:3000
+  links:
+    - db
+
+shell:
+  extends:
+    service: rails
+  command:  [bundle, exec, rails, console]
+  links:
+    - db
+
+db:
+  image:  mariadb:10.1
+  environment:
+    - MYSQL_USER=dobleme
+    - MYSQL_PASSWORD=gafotas
+    - MYSQL_DATABASE=raccoon
+    - MYSQL_ROOT_PASSWORD=gafotas
+  volumes:
+    - /opt/raccoon/mysql:/var/lib/mysql
+  ports:
+    - 3306:3306

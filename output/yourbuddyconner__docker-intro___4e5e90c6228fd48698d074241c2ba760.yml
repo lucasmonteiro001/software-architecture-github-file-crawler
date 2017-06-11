@@ -1,0 +1,8 @@
+# Presentation Container
+presentation:
+  build: .
+  ports:
+    - "8000:8000"
+  volumes: 
+    - .:/src
+  command: "grunt serve"

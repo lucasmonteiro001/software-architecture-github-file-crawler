@@ -1,0 +1,37 @@
+version: '2'
+services:
+    postgres:
+        container_name: postgres
+        image: postgres:9.5
+        expose:
+          - "5432"
+        environment:
+          POSTGRES_USER: aio-web-sandbox
+          POSTGRES_DB: aio-web-sandbox
+    alembic:
+        build:
+          context: .
+          dockerfile: Dockerfile_alembic
+          args:
+            PIP_EXTRA_INDEX_URL: $PIP_EXTRA_INDEX_URL
+            PIP_TRUSTED_HOST: $PIP_TRUSTED_HOST
+        environment:
+            FOO_SQLALCHEMY_URL: postgresql+psycopg2://aio-web-sandbox@postgres/aio-web-sandbox
+        links:
+          - postgres
+    foo:
+        container_name: foo
+        build:
+          context: .
+          args:
+            PIP_EXTRA_INDEX_URL: $PIP_EXTRA_INDEX_URL
+            PIP_TRUSTED_HOST: $PIP_TRUSTED_HOST
+        environment:
+            FOO_LOG_DIR: /var/log
+            FOO_DSN: "dbname=aio-web-sandbox host=postgres user=aio-web-sandbox"
+            FOO_SQLALCHEMY_URL: postgresql+psycopg2://aio-web-sandbox@postgres/aio-web-sandbox
+        ports:
+        - "8000:8000"
+        links:
+          - postgres
+          - alembic

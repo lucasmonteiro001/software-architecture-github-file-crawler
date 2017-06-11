@@ -1,0 +1,35 @@
+version: '2'
+services:
+  deluge:
+    image: linuxserver/deluge
+    restart: always
+    network_mode: host
+    env_file: ./envfile
+    volumes:
+      - /mediaserver/downloads:/downloads
+      - /mediaserver/deluge:/config
+  sonarr:
+    image: linuxserver/sonarr
+    restart: always
+    env_file: ./envfile
+    network_mode: host
+    depends_on:
+      - deluge
+    volumes:
+      - /dev/rtc:/dev/rtc:ro
+      - /mediaserver/appdata:/config
+      - /mediaserver/tvshows:/tv
+      - /mediaserver/downloads:/downloads
+  plex:
+    image: linuxserver/plex
+    restart: always
+    network_mode: host
+    env_file: ./envfile
+    depends_on:
+      - sonarr
+    volumes:
+      - /mediaserver/database:/config
+      - /mediaserver/tvshows:/data/tvshows
+      - /mediaserver/movies:/data/movies
+      - /mediaserver/transcode:/transcode
+

@@ -1,0 +1,127 @@
+version: '2'
+services:
+  assets:
+    image: nginx:alpine      
+    command: "nginx -g 'daemon off;'"
+    restart: always
+    ports:
+      - '8080:80'
+    volumes:
+      - ./assets/maphubsnginx_assets.template:/etc/nginx/nginx.conf
+      - ./assets/assets:/data/assets
+      - ./assets/public:/data/public
+      - ../iD:/data/iD
+  gateway:
+    image: nginx:alpine
+    volumes:
+      - ./env/maphubsnginx.template:/etc/nginx/nginx.conf
+    env_file:
+     - ./env/dev/host.env
+    command: "/bin/sh -c \"until nc -z web 4000; do sleep 10; done; nginx -g 'daemon off;'\""
+    dns:
+      - 8.8.8.8
+    restart: always
+    depends_on:
+      - web
+      - tiles
+      - assets
+    ports:
+      - '8888:8888'
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    env_file:
+      - ./env/dev/db.env
+      - ./env/dev/web.env
+      - ./env/dev/host.env
+      - ./env/dev/secret/db-pass.env
+      - ./env/dev/secret/web-secret.env
+      - ./env/dev/id-config.env
+      - ./env/dev/secret/id-secret.env
+    depends_on:
+        - db
+    expose:
+      - '4000'
+    volumes:
+      - ./src:/app/src
+      - ./assets:/app/assets
+      - ./temp:/app/temp
+      - ./logs:/app/logs
+      - ../iD:/app/iD
+      - ./deploy:/app/deploy
+  db:
+    build:
+      context: ./db-server
+    env_file:
+      - ./env/dev/db.env
+      - ./env/dev/id-config.env
+      - ./env/dev/secret/db-pass.env
+      - ./env/dev/secret/db-server-pass.env
+      - ./env/dev/secret/id-secret.env
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    ports:
+      - '5432:5432'
+    restart: always
+  tiles:
+    build:
+      context: ../maphubs-tileserver
+    env_file:
+      - ./env/dev/host.env
+      - ./env/dev/db.env
+      - ./env/dev/secret/db-pass.env
+      - ./env/dev/tiles.env
+      - ./env/dev/secret/web-secret.env
+    volumes:
+      -  ../maphubs-tileserver/data:/data
+    ports:
+      - '4001:4001'
+    restart: always
+    depends_on:
+      - db
+  manet:
+    image: 'quay.io/maphubs/manet:latest'
+    links:
+      - gateway:maphubs.dev
+    ports:
+      - '8891:8891'
+    restart: always
+  elasticsearch1:
+    image: docker.elastic.co/elasticsearch/elasticsearch:5.2.2
+    container_name: elasticsearch1
+    environment:
+      - cluster.name=maphubs-cluster
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms128m -Xmx128m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    mem_limit: 256m
+    cap_add:
+      - IPC_LOCK
+    volumes:
+      - esdata1:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+  kibana:
+    image: docker.elastic.co/kibana/kibana:5.2.2
+    environment:
+      SERVER_NAME: maphubs.dev
+      SERVER_PORT: 5601
+      ELASTICSEARCH_URL: http://elasticsearch1:9200
+    ports:
+      - '5601:5601'
+    depends_on:
+      - elasticsearch1
+volumes:
+  esdata1:
+    external:
+      name: search-db-data
+  db-data:
+    external:
+      name: maphubs-db-data

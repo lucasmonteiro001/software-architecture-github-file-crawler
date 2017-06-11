@@ -1,0 +1,19 @@
+version: '2'
+
+services:
+   webapp:
+     image: yellowduckychat-backend:latest
+     ports:
+       - "8080:9000"
+     depends_on:
+       - db
+       - ws
+
+   db:
+     image: mongo
+  
+   ws:
+     image: wsserver
+     ports:
+       - "8888:8888"
+    

@@ -1,0 +1,11 @@
+ghost-blog:
+  image: "ghost:0.11.2"
+  ports:
+    - "2368:2368"
+  volumes:
+    - '.:/var/lib/ghost'
+sass:
+  build: "https://github.com/trflagg/sass-docker.git"
+  volumes:
+    - '.:/src'
+  command:  --watch /src/sass:/src/themes
