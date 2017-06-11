@@ -1,0 +1,40 @@
+nginx:
+  restart: always
+  image: restlastic/restlastic-nginx:0.9.0
+  #build: ./nginx
+  ports:
+    - "80:80"
+    - "5601:5601"
+    - "1337:1337"
+    - "9200:9200"
+  volumes:
+    - /www/public
+  volumes_from:
+    - restlastic
+  links:
+    - restlastic:restlastic
+    - kibana:kibana
+    - elasticsearch:elasticsearch
+
+restlastic:
+  restart: always
+  image: restlastic/restlastic:0.9.0
+  links:
+    - elasticsearch
+  volumes:
+    - .:/app
+  environment:
+    - ELASTICSEARCH_HOST=elasticsearch
+
+elasticsearch:
+  restart: always
+  image: elasticsearch:2.2
+  command: elasticsearch -Des.network.host=0.0.0.0
+  volumes:
+    - /usr/share/elasticsearch/data:/usr/share/elasticsearch/data
+
+kibana:
+  restart: always
+  image: kibana:4.4
+  links:
+    - elasticsearch

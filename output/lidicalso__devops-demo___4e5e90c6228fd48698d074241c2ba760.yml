@@ -1,0 +1,180 @@
+nexus:
+  build: ./nexus
+  ports:
+    - "18081:8081"
+jenkins:
+  build: ./jenkins
+  ports:
+    - "18080:8080"
+  links:
+    - nexus:nexus
+    - gitlab:gitlab
+    - sonar:sonar
+    - selhub:hub
+    - ldap:ldapserver
+sonar:
+  build: ./sonar
+  ports:
+    - "19000:9000"
+    - "5432:5432"
+  environment:
+    - SONARQUBE_JDBC_URL=jdbc:postgresql://localhost:5432/sonar
+selhub:
+  image: "selenium/hub:2.48.2"
+  ports:
+    - "4444:4444"
+nodeff:
+  image: selenium/node-firefox-debug
+  ports:
+    - 5900
+  links:
+    - "selhub:hub"
+nodechrome:
+  image: "selenium/node-chrome-debug:2.48.2"
+  ports:
+    - 5900
+  links:
+    - "selhub:hub"
+gitlab:
+  image: "sameersbn/gitlab:8.1.4"
+  links:
+    - redis:redisio
+    - gitlabdb:postgresql
+    - ldap:ldapserver
+  ports:
+    - "10080:80"
+    - "10022:22"
+  environment:
+    - TZ=Europe/Berlin
+    - GITLAB_TIMEZONE=Berlin
+    - GITLAB_SECRETS_DB_KEY_BASE=long-and-random-alphanumeric-string
+    - GITLAB_HOST=localhost
+    - GITLAB_PORT=10080
+    - GITLAB_SSH_PORT=10022
+    - GITLAB_NOTIFY_ON_BROKEN_BUILDS=true
+    - GITLAB_NOTIFY_PUSHER=false
+    - GITLAB_EMAIL=notifications@example.com
+    - GITLAB_EMAIL_REPLY_TO=noreply@example.com
+    - GITLAB_INCOMING_EMAIL_ADDRESS=reply@example.com
+    - GITLAB_BACKUPS=daily
+    - GITLAB_BACKUP_TIME=01:00
+    - GITLAB_BUILDS_DIR=/home/git/data/blds
+    - SMTP_ENABLED=false
+    - SMTP_DOMAIN=www.example.com
+    - SMTP_HOST=smtp.gmail.com
+    - SMTP_PORT=587
+    - SMTP_USER=mailer@example.com
+    - SMTP_PASS=password
+    - SMTP_STARTTLS=true
+    - SMTP_AUTHENTICATION=login
+    - IMAP_ENABLED=false
+    - IMAP_HOST=imap.gmail.com
+    - IMAP_PORT=993
+    - IMAP_USER=mailer@example.com
+    - IMAP_PASS=password
+    - IMAP_SSL=true
+    - IMAP_STARTTLS=false
+    - LDAP_ENABLED=true
+    - LDAP_HOST=ldapserver
+    - LDAP_PORT=389
+    - LDAP_UID=uid
+    - LDAP_BIND_DN=cn=admin,dc=lidicalso,dc=org
+    - LDAP_PASS=lidipassword
+    - LDAP_ACTIVE_DIRECTORY=false
+    - LDAP_BASE=ou=users,dc=lidicalso,dc=org
+    - LDAP_ALLOW_USERNAME_OR_EMAIL_LOGIN=true
+  volumes:
+    - "/opt/docker/gitlab/gitlab:/home/git/data"
+redis:
+  image: "sameersbn/redis:latest"
+  volumes:
+    - "/opt/docker/gitlab/redis:/var/lib/redis"
+sonardb:
+  image: "postgres:9.4.5"
+  net: "container:sonar"
+  environment:
+    POSTGRES_USER: sonar
+    POSTGRES_PASSWORD: sonar
+gitlabdb:
+  image: "sameersbn/postgresql:9.4-8"
+  environment:
+    DB_USER: gitlab
+    DB_PASS: password
+    DB_NAME: gitlabhq_production
+  volumes:
+    - "/opt/postgreSQL_data:/var/lib/postgresql"
+redminedb:
+  image: sameersbn/postgresql:9.4-8
+  environment:
+    - DB_USER=redmine
+    - DB_PASS=password
+    - DB_NAME=redmine_production
+  volumes:
+    - /opt/docker/redmine/postgresql_data:/var/lib/postgresql
+redmine:
+  build: ./redmine
+  links:
+    - redminedb:postgresql
+    - ldap:ldap
+  environment:
+    - TZ=Asia/Kolkata
+    - REDMINE_PORT=10083
+    - SMTP_ENABLED=false
+    - SMTP_DOMAIN=www.example.com
+    - SMTP_HOST=smtp.gmail.com
+    - SMTP_PORT=587
+    - SMTP_USER=mailer@example.com
+    - SMTP_PASS=password
+    - SMTP_STARTTLS=true
+    - SMTP_AUTHENTICATION=:login
+  ports:
+    - "10083:80"
+  volumes:
+    - /opt/docker/redmine/data:/home/redmine/data
+ldap:
+  image: osixia/openldap
+  environment:
+    - LDAP_ORGANISATION=LIDICalSo
+    - LDAP_ADMIN_PASSWORD=lidipassword
+    - LDAP_DOMAIN=lidicalso.org
+  volumes:
+    - /opt/docker/ldap/config:/etc/ldap/slapd.d
+    - /opt/docker/ldap/ldap_data:/var/lib/ldap
+ldapui:
+  image: osixia/phpldapadmin
+  ports:
+    - "443:443"
+  links:
+    - ldap:ldap
+  environment:
+    - PHPLDAPADMIN_LDAP_HOSTS=ldap
+reviewboarddb:
+  image: sameersbn/postgresql:9.4-8
+  environment:
+    - DB_USER=reviewboard
+    - DB_PASS=reviewboard
+    - DB_NAME=reviewboard
+  volumes:
+    - /opt/docker/reviewboard/postgresql_data:/var/lib/postgresql
+  ports:
+    - "5432:5432"
+reviewboardcache:
+  image: sylvainlasnier/memcached
+  ports:
+    - "11211:11211"
+reviewboard:
+  image: ikatson/reviewboard
+  environment:
+    - PGPORT=5432
+  ports:
+    - "8000:8000"
+  links:
+    - reviewboarddb:pg
+    - reviewboardcache:memcached
+    - ldap:ldapserver
+    - gitlab:gitlab
+    - redmine:redmine
+  volumes:
+    - /opt/docker/reviewboard/media:/media
+    - /opt/docker/reviewboard/ssh:/.ssh
+

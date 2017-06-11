@@ -1,0 +1,12 @@
+version: '2'
+
+services:
+  ci-build:
+    image: microsoft/dotnet:1.1.0-sdk-msbuild-rc3
+    volumes:
+      - .:/src
+    working_dir: /src
+    environment:
+      - Version=${Version}
+      - GitHubToken=${GitHubToken}
+    command: /bin/bash docker-build.sh

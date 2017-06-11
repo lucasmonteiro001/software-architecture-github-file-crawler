@@ -1,0 +1,32 @@
+version: '2'
+
+services:
+  mongo:
+    image: quay.io/jlospinoso/rivest-mongo:v0.3.4
+    expose:
+    - "27017"
+    restart: always
+  rivestment:
+    image: quay.io/jlospinoso/rivestment:v0.3.4
+    ports:
+    - "80:80"
+    restart: always
+    links:
+    - mongo:mongo
+    entrypoint: npm start
+    environment:
+    - MONGO_URL=mongodb://mongo:27017/rivestment
+    - BOT_NAME=rivestment
+    - CHALLENGE_COST=5
+    - COLLECTION_NAME=profiles
+    - DEBUG_MODE=True
+    - DIFFICULTY_RANGE=10
+    - MAX_SUBMISSIONS=100
+    - MAX_LEVEL=25
+    - MAX_SCRAPS=350
+    - N_CHALLENGES=25
+    - PASSWORD_SIZE=6
+    - PASSWORD_RANGE=abcdefghijklmnopqrstuvwxyz0123456789
+    - PREIMAGE_RANGE=migs
+    - SLACK_TOKEN=!!PUT-YOUR-TOKEN-HERE!!
+    - STARTING_SCORE=1000

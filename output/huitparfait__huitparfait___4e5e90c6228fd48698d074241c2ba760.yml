@@ -1,0 +1,65 @@
+version: '2'
+
+services:
+
+    traefik:
+        image: containous/traefik:pr-433
+        command: --web --docker --docker.domain=huitparfait.fr --logLevel=DEBUG
+        restart: always
+        ports:
+            - "80:80"
+            - "443:443"
+            - "127.0.0.1:8080:8080"
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+            - ./traefik.toml:/etc/traefik/traefik.toml
+            - ./acme:/acme
+
+    huitparfait-front:
+        image: huitparfait/huitparfait-front
+        restart: always
+        labels:
+            - "traefik.backend=huitparfait-front"
+            - "traefik.protocol=http"
+            - "traefik.port=80"
+            - "traefik.frontend.rule=Host:huitparfait.fr"
+
+    huitparfait-auth:
+        build: ./huitparfait-auth
+        image: huitparfait/huitparfait-auth
+        restart: always
+        volumes:
+            - ./keys:/jwt-keys
+        environment:
+            NODE_ENV: production
+            SERVER_URL: http://localhost:3000
+            SERVER_PORT: 3000
+            PROXY_API_URL: http://huitparfait-api:3000
+            JWT_PUBLIC_KEY_PATH: /jwt-keys/jwt-public.pem
+            JWT_PRIVATE_KEY_PATH: /jwt-keys/jwt-private.pem
+            FACEBOOK_CLIENT_ID: FACEBOOK_CLIENT_ID
+            FACEBOOK_CLIENT_SECRET: FACEBOOK_CLIENT_SECRET
+            GOOGLE_CLIENT_ID: GOOGLE_CLIENT_ID
+            GOOGLE_CLIENT_SECRET: GOOGLE_CLIENT_SECRET
+            YAHOO_CLIENT_ID: YAHOO_CLIENT_ID
+            YAHOO_CLIENT_SECRET: YAHOO_CLIENT_SECRET
+        labels:
+            - "traefik.backend=huitparfait-auth"
+            - "traefik.protocol=http"
+            - "traefik.port=3000"
+            - "traefik.frontend.rule=Host:huitparfait.fr;PathPrefix:/api,/auth"
+
+    huitparfait-api:
+        build: ./huitparfait-api
+        image: huitparfait/huitparfait-api
+        restart: always
+        volumes:
+            - ./keys:/jwt-keys
+        environment:
+            NODE_ENV: production
+            SERVER_URL: http://localhost:3000
+            SERVER_PORT: 3000
+            JWT_PUBLIC_KEY_PATH: /jwt-keys/jwt-public.pem
+            JWT_PRIVATE_KEY_PATH: /jwt-keys/jwt-private.pem
+            API_ANALYTICS_API_KEY: API_ANALYTICS_API_KEY
+            HTTP_SECRET: HTTP_SECRET

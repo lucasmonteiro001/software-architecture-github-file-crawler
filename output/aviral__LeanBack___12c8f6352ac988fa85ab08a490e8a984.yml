@@ -1,0 +1,8 @@
+version: '2'
+
+services:
+  leanback:
+    image: leanback
+    build:
+      context: .
+      dockerfile: Dockerfile

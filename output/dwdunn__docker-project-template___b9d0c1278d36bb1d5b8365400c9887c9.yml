@@ -1,0 +1,21 @@
+node:
+  command: node index.js
+  image: node
+  links:
+    - postgres:postgres
+    - redis:redis
+  ports:
+    - "3000:3000"
+  volumes:
+    - ./src/:/usr/src/
+  working_dir: /usr/src/
+postgres:
+  environment:
+    - "POSTGRES_PASSWORD=postgres"
+  image: postgres
+  ports:
+    - "5432:5432"
+redis:
+  image: redis
+  ports:
+    - "6379:6379"

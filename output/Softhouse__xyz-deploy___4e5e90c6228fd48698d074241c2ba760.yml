@@ -1,0 +1,72 @@
+version: '2'
+services:
+    mongodb:
+        image: mongo
+        hostname: mongodb
+        ports:
+        - 27017
+        volumes:
+        - /var/mongo/db:/data/db
+        networks:
+        - mongo
+        - service
+        restart: unless-stopped
+    katalog:
+        build: github.com/joakimbeng/katalog.git
+        ports:
+        - 5005
+        privileged: true
+        volumes:
+        - /var/run/docker.sock:/var/run/docker.sock
+        - /var/katalog/data:/app/data
+        - /var/katalog/nginx:/app/nginx
+        restart: unless-stopped
+    sitewatcher:
+        build: github.com/joakimbeng/nginx-site-watcher.git
+        hostname: sitewatcher
+        ports:
+        - 80
+        volumes:
+        - /var/katalog/nginx:/etc/nginx/sites-enabled
+        - ./sitewatcher/nginx.conf:/etc/nginx/nginx.conf
+        networks:
+            service:
+                aliases:
+                - xyz
+            proxy:
+        restart: unless-stopped
+    api:
+        build: github.com/Softhouse/laughing-batman.git
+        volumes:
+        - ./api/config:/app/config
+        env_file: github_secret.env
+        environment:
+        - KATALOG_VHOSTS=default/api
+        - MONGO_HOST=mongodb
+        networks:
+        - service
+    builder:
+        build: github.com/Softhouse/flaming-computing-machine.git
+        volumes:
+        - /var/run/docker.sock:/var/run/docker.sock
+        - /usr/bin/docker:/usr/bin/docker
+        - ./builder/ssh:/ssh
+        env_file: github_secret.env
+        environment:
+        - MONGO_HOST=mongodb
+        - SERVICE_NET=xyzdeploy_service
+        networks:
+        - mongo
+        restart: unless-stopped
+    proxy:
+        build: proxy
+        hostname: proxy
+        ports:
+        - 80:80
+        networks:
+        - proxy
+        restart: unless-stopped
+networks:
+    service:
+    proxy:
+    mongo:

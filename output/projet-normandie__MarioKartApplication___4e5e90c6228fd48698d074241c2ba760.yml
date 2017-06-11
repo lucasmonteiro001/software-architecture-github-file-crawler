@@ -1,0 +1,31 @@
+version: '2'
+
+services:
+  phpapache:
+    container_name: mario-kart-phpapache
+    build: ./docker/phpapache
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - .:/var/www/html
+    links:
+      - mysql:mysql
+    hostname: phpapache.dev
+    domainname: mario-kart.dev
+    environment:
+      - VIRTUAL_HOST=mario-kart.dev
+
+  mysql:
+      image: mysql:5.6
+      container_name: mario-kart-mysql
+      ports:
+       - "3306:3306"
+      environment:
+         - MYSQL_ROOT_PASSWORD=root
+         - MYSQL_DATABASE=normandie
+         - MYSQL_USER=normandie
+         - MYSQL_PASSWORD=normandie
+      hostname: mysql
+      volumes:
+        - ./docker/data:/var/lib/mysql

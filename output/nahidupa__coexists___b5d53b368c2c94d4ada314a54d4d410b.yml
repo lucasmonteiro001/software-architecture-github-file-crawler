@@ -1,0 +1,5 @@
+dockeryweb:
+  build: .
+  ports:
+   - "5043:80"
+  

@@ -1,0 +1,29 @@
+version: '2'
+services:
+  client:
+    container_name: ltc-client
+    networks: 
+        - ltc
+    image: coinvault/litecoin
+    ports: 
+        - 5004:5000
+        - 9333:9333
+  nako:
+    container_name: ltc-nako
+    networks: 
+        - ltc
+    image: coinvault/nako
+    command: LTC
+    ports: 
+        - 9004:9000
+    depends_on:
+        - mongo
+        - client
+  mongo:
+    container_name: ltc-mongo
+    networks: 
+        - ltc
+    image: mongo:3.2
+networks:
+    ltc:
+      driver: bridge

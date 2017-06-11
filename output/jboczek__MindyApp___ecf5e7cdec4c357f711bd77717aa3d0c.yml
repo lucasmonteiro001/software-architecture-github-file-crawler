@@ -1,0 +1,16 @@
+version: '2'
+
+services:
+  mindy.document.api:
+    #container_name: document-api
+    image: mindy.document.api
+    build:
+      context: ../Mindy.Document/Mindy.Document.Api
+      dockerfile: Dockerfile
+
+  mindy.document.processor:
+    #container_name: document-processor
+    image: mindy.document.processor
+    build:
+      context: ../Mindy.Document/Mindy.Document.Processor
+      dockerfile: Dockerfile

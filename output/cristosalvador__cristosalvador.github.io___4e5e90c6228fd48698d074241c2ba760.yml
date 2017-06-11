@@ -1,0 +1,10 @@
+jekyll:
+  image: jekyll/jekyll:3.2
+  command: bundle exec jekyll serve
+  volumes:
+   - /home/gethin/covodev/clients/cristosalvador/cristosalvador.github.io:/srv/jekyll
+  ports:
+   - "4000:4000"
+
+# Didn't seem to work so I did this
+docker run --rm -v /home/gethin/covodev/clients/cristosalvador/cristosalvador.github.io:/site -p 4000:4000 andredumas/github-pages serve --watch

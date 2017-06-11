@@ -1,0 +1,10 @@
+version: '2'
+services:
+  dummy:
+    build:
+      context: .
+      dockerfile: Dockerfile.dummy
+  hello:
+    build:
+      context: .
+      dockerfile: Dockerfile.hello

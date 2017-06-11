@@ -1,0 +1,29 @@
+version: '2'
+
+services:
+  redis:
+    container_name: redis.${DOMAIN}
+    network_mode: test
+    image: redis
+    expose:
+      - 6379
+  web:
+    container_name: ${DOMAIN}
+    network_mode: test
+    image: isotop/php:5.6-apache
+    expose:
+      - 80
+    volumes:
+      - ${HOME}/.ssh:/root/.ssh
+      - .:/var/www/html
+    environment:
+      - BEFORE_APACHE_FILE=/var/www/html/docker/scripts/before-apache.sh
+      - SITEPATH=/var/www/html/web
+      - VIRTUAL_HOST=${DOMAIN}
+      - LETSENCRYPT_HOST=${DOMAIN}
+      - LETSENCRYPT_EMAIL=user@example.com
+      - VIRTUAL_PORT=80
+      - WP_ENV=docker
+      - MAIL_TO=${EMAIL}
+    depends_on:
+      - redis

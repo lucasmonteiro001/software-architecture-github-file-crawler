@@ -1,0 +1,11 @@
+blgse:
+  build: ./blgse
+  ports:
+    - "9000:9000"
+
+nginx:
+  build: ./nginx
+  ports:
+   - "80:80"
+  links:
+    - blgse

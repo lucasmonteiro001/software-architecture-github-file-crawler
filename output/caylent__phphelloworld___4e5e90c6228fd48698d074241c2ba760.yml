@@ -1,0 +1,7 @@
+version: '2'
+
+services:
+    web-app:
+        image: caylent/phphelloworld
+        environment:
+            - "constraint:location==local"

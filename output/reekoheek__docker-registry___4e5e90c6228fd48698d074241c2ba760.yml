@@ -1,0 +1,6 @@
+registry:
+  extends:
+    file: base.yml
+    service: registry
+  volumes:
+    - ./srv/registry:/var/lib/registry

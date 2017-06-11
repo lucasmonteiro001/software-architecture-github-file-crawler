@@ -1,0 +1,8 @@
+version: '2'
+services:
+  logging-server:
+    build: .
+    container_name: logging-server
+    hostname: logging-server.weave.local
+    network_mode: "weave"
+    restart: always

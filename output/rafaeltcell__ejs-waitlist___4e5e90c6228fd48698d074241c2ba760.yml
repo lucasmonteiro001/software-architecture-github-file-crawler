@@ -1,0 +1,43 @@
+version: '2'
+services:
+  mongodbhost:
+    image: mongo:3.3.5
+
+  init-mongodbhost:
+    image: mongo:3.3.5
+    links:
+      - mongodbhost
+    volumes:
+      - ./fixtures:/fixtures
+    command: sh -c "timeout 5 bash -c '</dev/tcp/mongodbhost/27017' 2>/dev/null && (mongoimport --host mongodbhost --type json --db ejs_waitlist_dev --collection waitlistentries --file /fixtures/waitlist_entries.json --jsonArray) || echo 'mongodbhost failed to start!!!!!'"
+
+  web:
+    build: .
+    command: sh -c "npm prune && npm install && npm start"
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+    links:
+      - mongodbhost
+
+  tcell_web:
+    build: .
+    command: sh -c "npm prune && npm install tcell-agent && npm install && npm start"
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+    links:
+      - mongodbhost
+
+  tcell_local_web:
+    build: .
+    command: sh -c "npm prune && npm install /tcellagent_src && npm install && npm start"
+    ports:
+      - "3000:3000"
+    volumes:
+      - ../nodeagent-tcell:/tcellagent_src
+      - .:/app
+    links:
+      - mongodbhost

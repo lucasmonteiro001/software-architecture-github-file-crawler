@@ -1,0 +1,23 @@
+app:
+ build: ./
+ links:
+ - mongo:mongo
+ ports:
+ - 3000
+ environment:
+  - MONGODB=mongodb://mongo:27017/resume
+  - VIRTUAL_HOST=myresume.com
+ volumes:
+  - ./package.json:/app/package.json
+  - ./app.js:/app/app.js
+  - ./config:/app/config
+  - ./controllers:/app/controllers
+  - ./models:/app/models
+  - ./public:/app/public
+  - ./test:/app/test
+  - ./views:/app/views
+ command: node-dev app.js
+ restart: always
+mongo:
+ image: mongo
+ command: --smallfiles

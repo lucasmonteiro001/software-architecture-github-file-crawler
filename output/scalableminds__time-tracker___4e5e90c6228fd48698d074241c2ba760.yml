@@ -1,0 +1,55 @@
+version: '2'
+
+services:
+
+  time-tracker:
+    image: scalableminds/time-tracker:$DOCKER_TAG
+    ports:
+      - "9000:9000"
+    links:
+      - mongo
+    command:
+      - -Dconfig.file=conf/application.conf
+      - -Dmongodb.db=time-tracker
+      - -Dmongodb.url=mongo
+      - -Dmongodb.port=27017
+      - -Dmongodb.uri=mongodb://mongo:27017/time-tracker
+      - -Dhttp.port=9000
+      - -Dlogger.file=conf/application-logger-prod.xml
+
+  time-tracker-sbt:
+    image: scalableminds/sbt:$SBT_VERSION_TAG
+    volumes:
+      - ".:/project"
+      - "~/.m2:/root/.m2"
+      - "~/.ivy2:/root/.ivy2"
+      - "~/.sbt:/root/.sbt"
+    entrypoint: sbt
+
+  time-tracker-sbt-run:
+    extends:
+      service: time-tracker-sbt
+    entrypoint: >
+      sbt
+      -Dconfig.file=conf/application_dev.conf
+      -Dmongodb.db=time-tracker
+      -Dmongodb.url=mongo
+      -Dmongodb.port=27017
+      -Dmongodb.uri=mongodb://mongo:27017/time-tracker
+      $FLAGS
+    command: run
+    ports:
+      - "9000:9000"
+    environment:
+      - dev
+    links:
+      - mongo
+
+  time-tracker-webpack:
+    extends:
+      service: time-tracker-sbt
+    entrypoint: bash
+    command: -c "cd /project && npm install --unsafe-perm && node_modules/.bin/webpack"
+
+  mongo:
+    image: mongo

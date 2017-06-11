@@ -1,0 +1,10 @@
+service:
+  build: service
+gatekeeper:
+  build: gatekeeper
+  links:
+  - service:service
+  ports:
+   - "8085:80"
+  expose:
+   - 8085

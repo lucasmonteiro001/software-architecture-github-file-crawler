@@ -1,0 +1,69 @@
+version: '2'
+services:
+  app:
+    build: .
+    volumes:
+      - "./src:/opt/app/src"
+      - "./views:/opt/app/views"
+      - "./media:/opt/app/media"
+      - "./tests:/opt/app/tests"
+      - "./project-cms:/opt/app/project-cms"
+      - "./cms-tests:/opt/app/cms-tests"
+      - "./cms-mods:/opt/app/cms-mods"
+    ports:
+      - 8000:8000
+    links:
+      - mysql
+      - hoster
+      - ipfs
+    environment:
+      NODE_ENV: "development"
+      PORT: 8000
+      SECRET: "foo"
+      IPFS_API_URL: "http://ipfs:5001"
+      HOSTER_RPC_URL: "http://hoster:8100"
+      DATABASE_URL: "mysql://user:pass@mysql:3306/dbname"
+    command: ./run.sh
+  hoster:
+    build: project-hoster/hoster
+    ports:
+      - "8000"
+      - "8100"
+    links:
+      - ipfs
+    volumes:
+      - ./project-hoster/hoster/src:/opt/app/src
+    environment:
+      IPFS_API_URL: "http://ipfs:5001"
+      IPFS_GATEWAY_URL: "http://ipfs:8080"
+      LANDING_URL: "https://example.com"
+      REDIRECT_PROTOCOL: "http"
+      DOMAIN_NAME: "localhost"
+    command: ./run.sh
+  cacher:
+    build: project-hoster/cacher
+    ports:
+      - "80:80"
+    links:
+      - hoster
+    environment:
+      PURGE_TOKEN: "foo"
+    logging:
+      driver: none
+  mysql:
+    image: mysql
+    environment:
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+      MYSQL_USER: user
+      MYSQL_PASSWORD: pass
+      MYSQL_DATABASE: dbname
+  ipfs:
+    image: ipfs/go-ipfs
+    #build: https://github.com/ipfs/go-ipfs.git
+    ports:
+      - "4001"
+      - "4002/udp"
+      - "5001"
+      - "8080"
+    #volumes:
+    #  - ./ipfs-data:/data/ipfs

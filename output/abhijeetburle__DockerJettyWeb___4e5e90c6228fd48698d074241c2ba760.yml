@@ -1,0 +1,21 @@
+version: '2'
+services:
+  web:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    expose:
+      - 8080
+    volumes:
+      - ./deployments/webapps:/var/lib/jetty/webapps
+      - ./deployments/log:/var/log/jetty
+  lb:
+    image: dockercloud/haproxy:1.6.0
+    depends_on:
+      - web
+    ports:
+      - "80:80"
+    links:
+      - web
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock

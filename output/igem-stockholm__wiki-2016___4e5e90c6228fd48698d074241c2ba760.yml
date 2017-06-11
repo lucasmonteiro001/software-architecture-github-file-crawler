@@ -1,0 +1,12 @@
+ghost:
+  image: ghost
+  ports:
+    - '2368:2368'
+  restart: always
+  volumes:
+    - .:/var/lib/ghost/themes/wiki-2016
+    - /var/lib/ghost/themes/wiki-2016/.git
+    - ./temp:/var/lib/ghost/data
+  environment:
+    - NODE_ENV=development
+    - GHOST_URL=http://localhost

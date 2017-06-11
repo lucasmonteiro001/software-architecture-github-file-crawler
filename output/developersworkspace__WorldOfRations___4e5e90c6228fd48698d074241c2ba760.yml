@@ -1,0 +1,25 @@
+version: '2'
+services:
+    api:
+        build: api
+        ports:
+        - "8083:8083"
+        links: 
+        - mysql
+        volumes:
+        - /logs:/logs
+    web:
+        build: web
+        ports:
+        - "8084:8084"
+    mysql:
+        build: mysql
+        environment:
+        - MYSQL_ROOT_PASSWORD=password
+        - MYSQL_DATABASE=worldofrations
+        - MYSQL_USER=worldofrations_user
+        - MYSQL_PASSWORD=worldofrations_password
+        volumes:
+        - /docker/mysql:/var/lib/mysql
+        
+        

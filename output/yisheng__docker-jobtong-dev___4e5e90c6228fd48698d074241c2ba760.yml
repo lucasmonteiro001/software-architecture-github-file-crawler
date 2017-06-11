@@ -1,0 +1,45 @@
+nginx:
+    build: ./nginx
+    ports:
+        - "80:80"
+    links:
+        - php-fpm
+    volumes_from:
+        - php-fpm
+
+php-fpm:
+    build: ./php-fpm
+    ports:
+        - "9000:9000"
+    links:
+        - mysql
+    volumes:
+        - ~/PHP/jobtong/branches/yangdesheng:/opt/www
+
+mysql:
+    image: mysql
+    ports:
+        - "3306:3306"
+    environment:
+        MYSQL_ROOT_PASSWORD: 123456
+        MYSQL_DATABASE: jobtong
+    # Default data source
+    # volumes:
+    #     - ~/Downloads/jobtong.sql:/var/jobtong.sql
+
+crond:
+    build: ./crond
+    volumes_from:
+        - php-fpm
+
+gearmand:
+    image: yangdesheng/gearmand
+    ports:
+        - "4730:4730"
+
+supervisord:
+    build: ./supervisord
+    links:
+        - gearmand
+    volumes_from:
+        - php-fpm

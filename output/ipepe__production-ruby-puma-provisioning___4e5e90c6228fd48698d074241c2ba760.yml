@@ -1,0 +1,21 @@
+version: '2'
+services:
+  pgsql:
+    restart: always
+    build: ./pgsql
+    image: pgsql
+    volumes:
+     - "/opt/docker/volumes/dbdata:/var/lib/postgresql/data"
+    ports:
+     - "5432:5432"
+  puma_rails:
+    restart: always
+    build: ./puma_rails
+    image: puma_rails
+    tty: true
+    volumes:
+      - "/opt/docker/volumes/apps:/home/deploy/apps"
+    links:
+      - pgsql
+    ports:
+      - "2222:22"

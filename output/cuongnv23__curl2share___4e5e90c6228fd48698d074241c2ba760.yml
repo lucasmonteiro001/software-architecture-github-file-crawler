@@ -1,0 +1,28 @@
+version: '2'
+services:
+    proxy:
+        build:
+            context: .
+            dockerfile: docker/nginx/Dockerfile
+        ports:
+            - "8888:80"
+        links:
+            - app
+        volumes:
+            - /tmp/uploads:/tmp/uploads
+
+    app:
+        build:
+            context: .
+            dockerfile: docker/gunicorn/Dockerfile
+        ports:
+            - "5000:5000"
+        links:
+            - redis
+        volumes:
+            - /tmp/uploads/:/tmp/uploads
+
+    redis:
+        image: redis:alpine
+        expose:
+            - "6379"

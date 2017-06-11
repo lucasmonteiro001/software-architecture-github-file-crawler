@@ -1,0 +1,26 @@
+version: '2'
+services:
+  dmptool:
+    build:
+      context: .
+      args:
+        GIT: ${DMPTOOL_REPOSITORY}
+        RELEASE: ${DMPTOOL_RELEASE}
+        JOBS: ${CPU_CORES}
+    network_mode: "host"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ${MYSQLD_SOCKET}:/var/run/mysqld/mysqld.sock
+      - ./conf/etc/apache2/conf/custom.conf:/etc/apache2/conf/custom.conf
+      - ./conf/etc/apache2/conf/name.conf:/etc/apache2/conf/name.conf
+      - ./conf/etc/apache2/conf/ssl.conf:/etc/apache2/conf/ssl.conf
+      - ./conf/etc/shibboleth/attribute-map.xml:/etc/shibboleth/attribute-map.xml
+      - ./conf/etc/shibboleth/shibboleth2.xml:/etc/shibboleth/shibboleth2.xml
+      - ./conf/etc/ssl/extern/:/etc/ssl/extern/
+      - ./conf/var/www/app/config/app_config.yml:/var/www/app/config/app_config.yml
+      - ./conf/var/www/app/config/layout.rb:/var/www/app/config/layout.rb
+      - ./conf/var/www/app/config/database.yml:/var/www/app/config/database.yml
+      - ./conf/var/www/app/config/shibboleth.yml:/var/www/app/config/shibboleth.yml
+      - ./conf/db/schema.rb:/var/www/app/db/schema.rb

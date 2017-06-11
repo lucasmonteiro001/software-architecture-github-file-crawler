@@ -1,0 +1,52 @@
+nginx:
+  build: build/nginx
+  restart: always
+  container_name: nginx
+
+  # links:
+  #   - ghost:ghost
+
+  ports:
+    - "80:80"
+    - "443:443"
+
+  volumes:
+    - /var/logs/nginx:/var/logs/nginx
+    - /etc/nginx:/etc/nginx
+    - /var/www:/var/www
+
+# postgres:
+#   restart: always
+#   container_name: postgres
+
+#   image: sameersbn/postgresql:9.4-9
+#   ports:
+#     - "5432:5432"
+#   environment:
+#     - DEBUG=false
+#     - DB_USER=
+#     - DB_PASS=
+#     - DB_NAME=blog
+#     - REPLICATION_MODE=
+#     - REPLICATION_USER=
+#     - REPLICATION_PASS=
+#     - REPLICATION_SSLMODE=
+#   volumes:
+#     - /srv/docker/postgresql:/var/lib/postgresql
+
+# ghost:
+#   build: build/ghost
+#   restart: always
+#   container_name: ghost
+
+#   environment:
+#    - BLOG_DOMAIN=https://blog.rott.org.ua
+#    - NODE_ENV=production
+
+#   ports:
+#     - "2368:2368"
+#   volumes:
+#     - ./:/var/www/blog.rott.org.uag
+#   links:
+#     - postgres:postgres
+

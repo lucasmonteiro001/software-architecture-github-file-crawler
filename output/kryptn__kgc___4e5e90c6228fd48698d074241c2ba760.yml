@@ -1,0 +1,5 @@
+worker:
+  build: .
+  command: python update.py
+  volumes:
+    - .:/krogergooglecalendar/data

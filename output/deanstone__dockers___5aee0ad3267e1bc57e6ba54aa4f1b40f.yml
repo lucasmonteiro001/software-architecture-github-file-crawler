@@ -1,0 +1,54 @@
+version: '2'
+services:
+  kafka-node1:
+    hostname: kafka-node1
+    image: kafka_2.11_0.10.0.1
+    volumes:
+      - ./server-node1.properties:/usr/local/kafka/config/server.properties
+      - ./kafka-node1-data:/tmp
+      - ./zookeeper.properties:/usr/local/kafka/config/zookeeper.properties
+      - ./bootstrap.sh:/etc/bootstrap.sh
+    environment:
+      - tz=Asia/Hong_Kong
+    networks:
+      - back-zoo
+  
+  kafka-node2:
+    hostname: kafka-node2
+    image: kafka_2.11_0.10.0.1
+    volumes:
+      - ./server-node2.properties:/usr/local/kafka/config/server.properties
+      - ./kafka-node2-data:/tmp
+      - ./zookeeper.properties:/usr/local/kafka/config/zookeeper.properties
+      - ./bootstrap.sh:/etc/bootstrap.sh
+    environment:
+      - tz=Asia/Hong_Kong
+    networks:
+      - back-zoo
+
+  kafka-node3:
+    hostname: kafka-node3
+    image: kafka_2.11_0.10.0.1
+    volumes:
+      - ./server-node3.properties:/usr/local/kafka/config/server.properties
+      - ./kafka-node3-data:/tmp
+      - ./zookeeper.properties:/usr/local/kafka/config/zookeeper.properties
+      - ./bootstrap.sh:/etc/bootstrap.sh
+    environment:
+      - tz=Asia/Hong_Kong
+    networks:
+      - back-zoo
+
+networks:
+  back-zoo:
+    external:
+      name: back-zoo
+  back-kafka:
+    external:
+      name: back-kafka
+  back-hadoop:
+    external:
+      name: back-hadoop
+  back-hbase:
+    external:
+      name: back-hbase

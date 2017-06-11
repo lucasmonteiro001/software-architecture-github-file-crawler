@@ -1,0 +1,7 @@
+version: '2'
+
+services:
+  flatten:
+    build:
+      context: .
+    image: frncmx/intercom-flatten

@@ -1,0 +1,20 @@
+version: '3'
+services:
+    server:
+        build: .
+        ports:
+            - "3000:3000"
+        environment:
+            AUTH0_DOMAIN: "${AUTH0_DOMAIN}"
+            AUTH0_CLIENT_ID: "${AUTH0_CLIENT_ID}"
+            AUTH0_CLIENT_SECRET: "${AUTH0_CLIENT_SECRET}"
+        network_mode: "host"
+        restart: always
+    database:
+        image: mongo:latest
+        ports:
+            - "27017:27017"
+        environment:
+            MONGODB_DATABASE: "venturerealm"
+        network_mode: "host"
+        restart: always

@@ -1,0 +1,33 @@
+---
+version: "2"
+services:
+  umaine_myhousing_service:
+    build: ./myhousing
+    ports:
+     - "5000:5000"
+    volumes:
+     - ./myhousing:/app
+     
+  umaine_user_service:
+    build: ./userserver
+    environment:
+     - "DB_PASSWORD=foobar"
+    ports:
+     - "5001:5001"
+    volumes:
+     - ./userserver:/app
+    depends_on:
+     - mysql
+     
+  mysql:
+    environment:
+      - "MYSQL_ROOT_PASSWORD=foobar"
+      - "MYSQL_DATABASE=umaine_users"
+    image: mysql
+     
+  umaine_mainestreet_service:
+    build: ./mainestreet
+    ports:
+     - "5002:5002"
+    volumes:
+     - ./mainestreet:/app

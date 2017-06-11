@@ -1,0 +1,63 @@
+node1:
+  extends:
+    file: common.yml
+    service: node1
+  build: ./fsharp-calculator
+
+node2:
+  extends:
+    file: common.yml
+    service: node2
+  build: ./python-calculator
+
+node3:
+  extends:
+    file: common.yml
+    service: node3
+  build: ./csharp-calculator
+  links:
+   - mongodb
+
+node4:
+  extends:
+    file: common.yml
+    service: node4
+  build: ./nodejs-calculator
+
+node5:
+  extends:
+    file: common.yml
+    service: node5
+  build: ./spring-services
+  links:
+   - mongodb
+
+website:
+  extends:
+    file: common.yml
+    service: website
+  build: ./personal-website
+
+mongodb:
+  extends:
+    file: common.yml
+    service: mongodb
+  image: mongo:3.3.15
+
+nginx:
+  links:
+   - node1
+   - node2
+   - node3
+   - node4
+   - node5
+   - website
+  build: ./lb-nginx
+  ports:
+   - "8080:8080"
+   - "8070:8070"
+   - "80:80"
+  expose:
+   - "8070"
+   - "8080"
+   - "80"

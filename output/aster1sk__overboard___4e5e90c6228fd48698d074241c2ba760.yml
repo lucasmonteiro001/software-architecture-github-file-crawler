@@ -1,0 +1,26 @@
+lb:
+    build: lb
+    ports: 
+    - "80:80"
+    - "443:443"
+    volumes:
+    - ${PWD}/lb/conf/default.conf:/etc/nginx/conf.d/default.conf
+    - ${PWD}/lb/site:/usr/share/nginx/www
+    
+app:
+    build: app
+    ports:
+    - "5000:8000"
+    volumes:
+    - ${PWD}/lb/conf/default.conf:/app/default.conf
+    - /var/run/docker.sock:/var/run/docker.sock
+
+mongo:
+    build: mongo
+    ports:
+    - "27017:27017"
+    links:
+    - "app"
+    volumes:
+    - ${PWD}/mongo/data:/data/db
+

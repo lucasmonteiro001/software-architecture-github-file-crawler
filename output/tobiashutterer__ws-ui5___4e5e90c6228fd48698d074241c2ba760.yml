@@ -1,0 +1,30 @@
+version: "2"
+
+services: 
+  server:
+    build: ./server
+    command: nodemon --debug -L server.js #default port debug port 5858
+    volumes:
+      - ./server:/app
+    ports:
+      - "4000:4000"
+      - "5858:5858"
+    networks:
+      - front-tier
+      - back-tier
+
+  ui:
+    build: ./ui
+    command: nodemon --debug -L server.js #default port debug port 5858    
+    volumes:
+      - ./ui:/ui
+    ports:
+      - "3000:3000"
+      - "5959:5858"
+    networks:
+      - front-tier
+      - back-tier      
+
+networks:
+    front-tier:
+    back-tier:

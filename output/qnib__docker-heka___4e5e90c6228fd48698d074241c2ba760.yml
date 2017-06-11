@@ -1,0 +1,28 @@
+consul:
+  image: qnib/consul
+  ports:
+   - "8500:8500"
+  environment:
+   - DC_NAME=dc1
+   - CONSUL_BOOTSTRAP=true
+  dns: 127.0.0.1
+  hostname: consul
+  container_name: consul
+  privileged: true
+
+heka:
+   image: qnib/heka
+   hostname: heka
+   container_name: heka
+   dns: 127.0.0.1
+   ports:
+   - 4352:4352
+   - 5514:5514
+   - 8125/udp:8125/udp
+   environment:
+   - DC_NAME=dc1
+   - FORWARD_TO_HEKA=true
+   links:
+   - consul:consul
+   volumes:
+   - ./etc/heka/:/etc/heka/

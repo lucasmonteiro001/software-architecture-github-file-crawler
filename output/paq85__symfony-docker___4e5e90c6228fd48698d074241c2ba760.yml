@@ -1,0 +1,41 @@
+# This is an example file
+# Adjust it for your project's needs
+application:
+    image: paq85/symfony-app
+    volumes:
+        - ./symfony/:/var/www/symfony
+    tty: true
+db:
+    image: mysql/mysql-server:5.6
+    ports:
+        - "7306:3306"
+    environment:
+        MYSQL_ROOT_PASSWORD: "root"
+        MYSQL_DATABASE: "symfony"
+        MYSQL_USER: "symfonyuser"
+        MYSQL_PASSWORD: "symfonypass"
+php:
+    image: paq85/symfony-php
+    ports:
+        - "7022:22"
+    expose:
+        - 9000:9000
+    volumes:
+        - ./symfony/docker/php/50-symfony.ini:/etc/php5/cli/conf.d/50-symfony.ini
+        - ./symfony/docker/php/50-symfony.ini:/etc/php5/fpm/conf.d/50-symfony.ini
+        - ./symfony/docker/php/symfony.pool.conf:/etc/php5/fpm/pool.d/symfony.pool.conf
+    volumes_from:
+        - application
+    links:
+        - db
+nginx:
+    image: paq85/symfony-nginx
+    ports:
+        - "7080:80"
+    links:
+        - php
+    volumes:
+        - ./symfony/docker/nginx/nginx.conf:/etc/nginx/nginx.conf
+        - ./symfony/docker/nginx/symfony.conf:/etc/nginx/sites-enabled/symfony.conf
+    volumes_from:
+        - application

@@ -1,0 +1,10 @@
+ version: '2'
+ services:
+   jarch-site:
+     image: jarch/jarch-site-web-static
+     container_name: jarch-site-static-web
+     ports:
+       - "8480:8080"
+     restart: always
+     environment: 
+       VIRTUAL_HOST: www.joericearchitect.com

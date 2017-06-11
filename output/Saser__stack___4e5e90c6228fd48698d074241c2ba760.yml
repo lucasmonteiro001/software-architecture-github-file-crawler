@@ -1,0 +1,23 @@
+# The development environment.
+dev:
+    build: .
+    dockerfile: Dockerfile.dev
+    env_file:
+        - ./db/dev/postgres.env
+    links:
+        - postgres_dev:db
+    ports:
+        # gin, the live reloading tool, runs on port 3000 by default.
+        # We map it to 8080 since that is the default port for gin the web
+        # framework.
+        - "8080:3000"
+    volumes:
+        - .:/go/src/app
+postgres_dev:
+    image: postgres:9.5.2
+    env_file:
+        - ./db/dev/postgres.env
+    ports:
+        - "5432:5432"
+    volumes:
+        - ./db/dev/sql:/docker-entrypoint-initdb.d

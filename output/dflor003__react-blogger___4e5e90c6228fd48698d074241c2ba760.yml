@@ -1,0 +1,36 @@
+version: '2'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: DockerfileApp
+    ports:
+      - 3000:3000
+    environment:
+      OAUTH_CLIENT_ID: '6PCPeiJR2EVqk2wf9QwiQ6eIEUBUc8hN'
+      OAUTH_DOMAIN: 'danilf.auth0.com'
+      GRAPHQL_ENDPOINT: 'http://localhost:3001/graphql'
+
+  server:
+    build:
+      context: .
+      dockerfile: DockerfileServer
+    ports:
+      - 3001:3001
+    environment:
+      DEBUG: 'true'
+      PORT: '3001'
+      DB_DATABASE: 'blogger'
+      DB_USER: 'postgres'
+      DB_PASS: 'password'
+      DB_SERVER: 'db'
+      DB_PORT: '5432'
+
+  db:
+    image: postgres:9.6
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_DB: 'blogger'
+      POSTGRES_USER: 'postgres'
+      POSTGRES_PASSWORD: 'password'

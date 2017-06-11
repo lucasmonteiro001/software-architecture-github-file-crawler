@@ -1,0 +1,23 @@
+db:
+  image: jamesbrink/postgresql:latest
+  env_file: conf.env
+
+api:
+  build: api
+  env_file: conf.env
+  links:
+   - db
+   - routing:brouter
+  volumes:
+   - ./api/app:/home/docker/code/app
+  ports:
+   - "80:80"
+
+worker:
+  build: worker
+  env_file: conf.env
+  links:
+   - db
+
+routing:
+  build: routing

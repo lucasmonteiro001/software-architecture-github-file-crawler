@@ -1,0 +1,21 @@
+gl2server:
+  build: gl2server
+  restart: on-failure
+  links:
+    - fg2server
+  volumes:
+    - ./gl2server:/usr/src/gl2server
+  volumes_from:
+    - fg2server
+  ports:
+    - "8080:8080"
+  environment:
+    VIRTUAL_HOST: gl2server.docker
+
+fg2server:
+  build: fg2server
+  restart: on-failure
+  volumes:
+    - ./rawdata:/usr/src/fg2data
+  ports:
+    - "8123:8123"

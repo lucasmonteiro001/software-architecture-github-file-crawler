@@ -1,0 +1,29 @@
+# Development compose file.
+
+version: '2'
+services:
+  web:
+    build: . # Can't be below this since we have to add files in public/
+    ports:
+     - "127.0.0.1:8082:80"
+    volumes:
+     - .:/var/www/html
+    links:
+     - db
+    environment:
+     - ENVIRONMENT=DEV
+     - DRUPAL_INSTALL=TRUE
+     - SITE_URL=http://localhost:8082
+     - HTPASSWD_USER=${HTPASSWD_USER}
+     - HTPASSWD_PASSWORD=${HTPASSWD_PASSWORD}
+  db:
+    image: mysql:5.7
+    environment:
+     - MYSQL_ROOT_PASSWORD=docker
+     - MYSQL_DATABASE=drupal
+     - MYSQL_USER=drupal
+     - MYSQL_PASSWORD=drupalpw
+    volumes:
+     - data:/var/lib/mysql
+volumes:
+  data: {}

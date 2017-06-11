@@ -1,0 +1,26 @@
+version: '2'
+services:
+  api:
+    build: "./gateway"
+    ports:
+      - "8080:80"
+    environment:
+      - DOCKER_HOST=172.17.0.1
+    volumes:
+      - "./conf.d:/etc/nginx/conf.d/api"
+  php:
+    build: "./endpoints/php/"
+    ports:
+      - "9000:9000"
+  node:
+    build: "./endpoints/node/"
+    ports:
+      - "10000:10000"
+  python:
+    build: "./endpoints/python/"
+    ports:
+      - "11000:11000"
+  websocket:
+    build: "./endpoints/websocket/"
+    ports:
+      - "20000:20000"

@@ -1,0 +1,16 @@
+version: '2'
+services:
+    cache:
+        image: redis
+    
+    pydbg:
+        build: .
+        links:
+            - cache
+        volumes:
+            # Use this for debug
+            - ${HOST_SRC_PATH}:/tmp/py-project
+        ports:
+            - "5000:5000"
+            # debug
+            - "3000:3000"

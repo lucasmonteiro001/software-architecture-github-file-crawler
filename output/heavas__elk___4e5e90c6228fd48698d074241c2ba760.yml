@@ -1,0 +1,29 @@
+elasticsearch:
+  image: elasticsearch:latest
+  command: elasticsearch -Des.network.host=0.0.0.0
+  volumes:
+    - ./elasticsearch/data:/usr/share/elasticsearch/data
+    - ./elasticsearch/config:/usr/share/elasticsearch/config
+  ports:
+    - "9200:9200"
+    - "9300:9300"
+logstash:
+  image: logstash:latest
+#  command: logstash --debug -f /etc/logstash/conf.d/csvimport.conf
+  command: logstash -f /etc/logstash/conf.d/logstash.conf
+#  command: /bin/bash
+  volumes:
+    - ./logstash/config:/etc/logstash/conf.d
+    - ./logstash/data:/etc/logstash/data
+  ports:
+    - "5000:5000"
+  links:
+    - elasticsearch
+kibana:
+  build: kibana/
+  volumes:
+    - ./kibana/config/kibana.yml:/opt/kibana/config/kibana.yml
+  ports:
+    - "5601:5601"
+  links:
+    - elasticsearch

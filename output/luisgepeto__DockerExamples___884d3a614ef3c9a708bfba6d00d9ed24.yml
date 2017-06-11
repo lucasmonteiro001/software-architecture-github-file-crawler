@@ -1,0 +1,44 @@
+version: '2'
+
+services:
+  mongo:
+    build:
+      context: .docker/
+      dockerfile: mongo.dockerfile
+    networks:      
+      - mongo
+      - api       
+    env_file: 
+      - ./.docker/env/mongo.${APP_ENV}.env
+    container_name: mongo
+    
+  mongo-seed:
+    build:
+      context: .docker/
+      dockerfile: mongo-seed.dockerfile
+    depends_on:
+      - mongo    
+    networks:
+      - mongo
+    env_file: 
+      - ./.docker/env/mongo.${APP_ENV}.env
+    container_name: mongo-seed
+  
+  api:
+    build:
+      context: .
+      dockerfile: .docker/api.dockerfile
+    networks:
+      - mongo
+      - api
+    ports:
+      - "8080:5000"    
+    env_file: 
+      - ./.docker/env/api.${APP_ENV}.env
+    container_name: api
+
+networks:  
+  mongo:
+    driver: bridge
+  api:
+    driver: bridge

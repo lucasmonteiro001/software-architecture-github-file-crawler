@@ -1,0 +1,9 @@
+apachephpzorba:
+    build: docker-apache-php-zorba
+    ports:
+        - "8081:80"
+    volumes:
+        - ../sources:/var/www
+    stdin_open: true
+    tty: true
+

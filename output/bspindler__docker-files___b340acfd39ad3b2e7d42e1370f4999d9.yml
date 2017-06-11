@@ -1,0 +1,10 @@
+version: '2'
+services:
+# to fire up a psql client
+# docker run -it --rm --link postgres:postgres postgres:9.3 psql -h postgres -U postgres
+  db:
+    image: postgres:9.3
+    environment:
+      - POSTGRES_PASSWORD=postgres
+
+

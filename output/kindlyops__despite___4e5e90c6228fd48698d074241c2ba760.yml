@@ -1,0 +1,39 @@
+version: '2'
+services:
+  build-go:
+    image: kindlyops/golang
+    working_dir: /code
+    volumes:
+      - .:/code
+    links:
+      - db
+  build-node:
+    image: kindlyops/node
+    working_dir: /code
+    volumes:
+      - .:/code
+      - /code/node_modules
+  db:
+    image: postgres:9.5
+
+  web:
+    build: .
+    command: [despite, "--dburi=postgres://postgres@db/postgres?sslmode=disable", table-size]
+    ports:
+     - "5000:5000"
+    working_dir: /code
+    volumes:
+     - .:/code
+    links:
+     - db
+     - metrics
+  dashboard:
+    image: grafana/grafana:3.0.4
+    links:
+      - metrics
+    ports:
+      - "3000:3000"
+  metrics:
+    image: prom/prometheus:0.19.1
+    ports:
+      - "9090:9090"

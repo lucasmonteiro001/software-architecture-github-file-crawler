@@ -1,0 +1,77 @@
+redismaster:
+  image: redis
+  ports:
+    - "6379"
+redisslave:
+  image: redis
+  command: redis-server --slaveof redismaster 6379
+  ports:
+    - "6379"
+  links:
+    - redismaster
+redissentinel:
+  image: redis
+  command: redis-sentinel /etc/redis/sentinel.conf
+  volumes:
+    - ./redis/sentinel.conf:/etc/redis/sentinel.conf
+  ports:
+    - "26379"
+  links:
+    - redismaster
+    - redisslave
+web0:
+  build: .
+  command: bundle exec puma -b tcp://0.0.0.0:5000
+  volumes:
+    - .:/usr/src/app
+  ports:
+    - "5000"
+  links:
+    - redismaster
+    - redisslave
+    - redissentinel
+  environment:
+    REDIS_URL: redis://mymaster
+    REDIS_SENTINEL: redissentinel
+    SESSION_SECRET: supersavesecret
+    NAME: WEB0
+web1:
+  build: .
+  command: bundle exec puma -b tcp://0.0.0.0:5000
+  volumes:
+    - .:/usr/src/app
+  ports:
+    - "5000"
+  links:
+    - redismaster
+    - redisslave
+    - redissentinel
+  environment:
+    REDIS_URL: redis://mymaster
+    REDIS_SENTINEL: redissentinel
+    SESSION_SECRET: supersavesecret
+    NAME: WEB1
+web2:
+  build: .
+  command: bundle exec puma -b tcp://0.0.0.0:5000
+  volumes:
+    - .:/usr/src/app
+  ports:
+    - "5000"
+  links:
+    - redismaster
+    - redisslave
+    - redissentinel
+  environment:
+    REDIS_URL: redis://mymaster
+    REDIS_SENTINEL: redissentinel
+    SESSION_SECRET: supersavesecret
+    NAME: WEB2
+haproxy:
+  build: ./haproxy
+  ports:
+    - "8081:8081"
+  links:
+    - web0
+    - web1
+    - web2

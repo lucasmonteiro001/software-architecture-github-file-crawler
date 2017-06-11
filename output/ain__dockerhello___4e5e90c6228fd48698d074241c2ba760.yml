@@ -1,0 +1,16 @@
+web:
+  build: .
+  volumes:
+    - .docker:/docker
+  volumes_from:
+    - data
+  ports:
+    - "80:80"
+  expose:
+    - "80"
+data:
+  image: aintohvri/dockerhello-data:latest
+  #build: containers/data
+  command: true
+  volumes:
+    - /data

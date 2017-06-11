@@ -1,0 +1,105 @@
+    # Set APP_ENV environment variable to proper value in Dockerfile-redis (default is "development")
+    #    export APP_ENV=development
+    # Run docker-compose build
+    # Run docker-compose up
+    # Live long and prosper
+
+version: "2.1"
+
+services:
+
+  nginx:
+    container_name: nginx
+    build:
+      context: .
+      dockerfile: .docker/nginx.${APP_ENV}.dockerfile
+    links:
+      - workbench1:workbench1
+      - api-engine1:api-engine1
+    ports:
+      - "80:80"
+      - "443:443"
+    env_file:
+      - ./.docker/env/app.${APP_ENV}.env
+    networks:
+      - mockify-network
+
+  workbench1:
+    container_name: workbench1
+    build:
+      context: .
+      dockerfile: .docker/workbench.${APP_ENV}.dockerfile
+    ports:
+      - "32600:8080"
+      - "32601:5005"
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - .:/var/www
+      - /tmp:/tmp
+    working_dir: /var/www/server/workbench
+    env_file:
+      - ./.docker/env/app.${APP_ENV}.env
+    networks:
+      - mockify-network
+
+  api-engine1:
+    container_name: api-engine1
+    build:
+      context: .
+      dockerfile: .docker/api-engine.${APP_ENV}.dockerfile
+    ports:
+      - "32700:8080"
+      - "32701:5005"
+      - "38081:8081"
+    depends_on:
+      - postgres
+      - redis
+      - workbench1
+    volumes:
+      - .:/var/www
+      - /tmp:/tmp
+    working_dir: /var/www/server/api-engine
+    environment:
+      - NODE_ID=1
+    env_file:
+      - ./.docker/env/app.${APP_ENV}.env
+    networks:
+      - mockify-network
+
+  postgres:
+    container_name: postgres
+    build:
+      context: .
+      dockerfile: .docker/postgres.${APP_ENV}.dockerfile
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: "pg_isready -h localhost -p 5432 -q -U postgres"
+      interval: 3s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+    env_file:
+      - ./.docker/env/app.${APP_ENV}.env
+      - ./.docker/env/postgres.${APP_ENV}.env
+    networks:
+      - mockify-network
+
+  redis:
+    container_name: redis
+    build:
+      context: .
+      dockerfile: .docker/redis.${APP_ENV}.dockerfile
+    ports:
+      - "6379:6379"
+    env_file:
+      - ./.docker/env/app.${APP_ENV}.env
+    networks:
+      - mockify-network
+
+networks:
+  mockify-network:
+    driver: bridge

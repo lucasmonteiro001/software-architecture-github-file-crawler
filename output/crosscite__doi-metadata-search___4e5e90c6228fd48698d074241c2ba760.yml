@@ -1,0 +1,17 @@
+version: '2'
+
+services:
+  search:
+    env_file:
+      - .env
+    image: crosscite/doi-metadata-search
+    build: .
+    ports:
+      - "8000:80"
+    volumes:
+      - ./config:/home/app/webapp/config
+      - ./lib:/home/app/webapp/lib
+      - ./public:/home/app/webapp/public
+      - ./spec:/home/app/webapp/spec
+      - ./views:/home/app/webapp/views
+      - ./app.rb:/home/app/webapp/app.rb

@@ -1,0 +1,12 @@
+discoveryservice:
+  image: baseggio-docker/discovery-service
+  ports:
+  - "8761:8761"
+configurationservice:
+  image: baseggio-docker/configuration-service
+  ports:
+  - "8888:8888"
+  links:
+  - discoveryservice
+
+

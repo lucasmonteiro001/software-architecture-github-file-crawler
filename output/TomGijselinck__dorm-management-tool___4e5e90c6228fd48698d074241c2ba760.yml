@@ -1,0 +1,27 @@
+db:
+  image: mysql:5.7
+  environment:
+     - MYSQL_ROOT_PASSWORD=${DM_MYSQL_ROOT_PW}
+     - MYSQL_DATABASE=${DM_MYSQL_DATABASE}
+  volumes_from:
+     - db_data
+backend:
+  build: ./backend/dorm-management
+  ports:
+    - "3000:3000"
+  links:
+    - db
+  volumes:
+    - ./backend/dorm-management:/app/backend
+  volumes_from:
+    - bundle
+  env_file: .container_env
+  command: ./script/start.sh
+bundle:
+  image: busybox
+  volumes:
+    - /bundle
+db_data:
+  image: busybox
+  volumes:
+    - /var/lib/mysql

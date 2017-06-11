@@ -1,0 +1,85 @@
+version: '2'
+
+services:
+  loadbalancer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    networks:
+     - balancer
+     - back
+    depends_on:
+      - mongodb
+      - redis
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=mypass
+      - MONGO_HOST=mongodb
+      - MONGO_PORT=27017
+      - MONGO_USERNAME=user
+      - MONGO_PASSWORD=mypass
+      - MONGO_DATABASE=mydatabase
+      - JOB_SERVERS_INTERVAL_SECONDS=180
+      - JOB_APPS_INTERVAL_SECONDS=400
+
+  mongodb:
+    image: tutum/mongodb
+    ports:
+      - "27017:27017"
+    networks:
+      - back
+    environment:
+      - MONGODB_USER=user
+      - MONGODB_PASS=mypass
+      - MONGODB_DATABASE=mydatabase
+
+  redis:
+    image: tutum/redis
+    ports:
+      - "6379:6379"
+    networks:
+      - back
+    environment:
+      - REDIS_PASS=mypass
+
+  microservice1:
+    build:
+      context: .
+      dockerfile: Dockerfile-java
+    ports:
+      - "8080:8080"
+    networks:
+     - balancer
+     - back
+    depends_on:
+      - loadbalancer
+    environment:
+      - loadBalancerHost=loadbalancer
+      - server.port=8080
+      - spring.data.mongodb.uri=mongodb://user:mypass@mongodb:27017/mydatabase
+
+  microservice2:
+    build:
+      context: .
+      dockerfile: Dockerfile-java
+    ports:
+      - "8081:8081"
+    depends_on:
+      - loadbalancer
+    networks:
+     - balancer
+     - back
+    environment:
+      - loadBalancerHost=loadbalancer
+      - server.port=8081
+      - spring.data.mongodb.uri=mongodb://user:mypass@mongodb:27017/mydatabase
+
+
+networks:
+  balancer:
+    driver: bridge
+  back:
+    driver: bridge

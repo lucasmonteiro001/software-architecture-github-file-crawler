@@ -1,0 +1,13 @@
+version: '2'
+services:
+  client:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ".:/home/app/mv"
+      - "/home/app/mv/node_modules"
+    ports:
+      - "4200:4200"
+      - "49152:49152"
+    command: "npm start"

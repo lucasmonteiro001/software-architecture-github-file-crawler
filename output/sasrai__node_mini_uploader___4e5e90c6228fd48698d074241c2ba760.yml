@@ -1,0 +1,21 @@
+version: '2'
+
+services:
+  datastore:
+    image: busybox
+    user: 1000:1000
+    volumes:
+      - "./server:/app"
+      - "./data/node_modules:/app/node_modules"
+      - "${SCHEMATICS_DIRECTORY}:/app/schematics"
+  uploader:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    user: 1000:1000
+    command: 'npm run start.dev'
+    ports:
+      - "${HOSTPORT}:8334"
+    volumes_from:
+      - "datastore"
+

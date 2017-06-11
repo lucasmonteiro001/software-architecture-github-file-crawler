@@ -1,0 +1,13 @@
+rediskill:
+  image: node:0.10
+  command: "bash -c 'npm install'"
+  working_dir: /project
+  volumes:
+    - .:/project
+  links:
+    - redis
+redis:
+  image: redis:3.0
+  command: "bash -c 'redis-server --loglevel debug'"
+  ports:
+      - "6379:6379"

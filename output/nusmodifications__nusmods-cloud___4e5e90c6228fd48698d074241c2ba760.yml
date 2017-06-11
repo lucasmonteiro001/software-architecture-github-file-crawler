@@ -1,0 +1,21 @@
+db:
+  image: postgres:9.4.4
+  volumes:
+    - /shared/db:/var/lib/postgresql/data
+
+web:
+  image: xinan/nusmods-cloud
+  command: bundle exec puma -C config/puma.rb
+  ports:
+    - "3000:3000"
+  env_file:
+    - .env
+  environment:
+    RAILS_ENV: production
+    RACK_ENV: production
+    DATABASE_HOST: db
+    DATABASE_USER: postgres
+  volumes:
+    - /shared/web/log:/var/www/nusmods-cloud/log
+  links:
+    - db

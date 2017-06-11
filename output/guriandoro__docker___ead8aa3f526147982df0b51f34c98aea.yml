@@ -1,0 +1,49 @@
+version: '2'
+services:
+  node01:
+    image: ${IMAGE}:${TAG}
+    container_name: ${COMPOSE_PROJECT_NAME}_node01
+    networks:
+      pxc_network:
+    environment:
+      CLUSTER_NAME: ${CLUSTER_NAME}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      XTRABACKUP_PASSWORD: ${XTRABACKUP_PASSWORD}
+      CLUSTER_JOIN:
+    volumes:
+      - ./my.cnf.node01:/etc/mysql/my.cnf
+
+  node02:
+    image: ${IMAGE}:${TAG}
+    container_name: ${COMPOSE_PROJECT_NAME}_node02
+    networks:
+      pxc_network:
+    environment:
+      CLUSTER_NAME: ${CLUSTER_NAME}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      XTRABACKUP_PASSWORD: ${XTRABACKUP_PASSWORD}
+      CLUSTER_JOIN: ${COMPOSE_PROJECT_NAME}_node01
+    depends_on:
+      - node01
+    volumes:
+      - ./my.cnf.node02:/etc/mysql/my.cnf
+
+  node03:
+    image: ${IMAGE}:${TAG}
+    container_name: ${COMPOSE_PROJECT_NAME}_node03
+    networks:
+      pxc_network:
+    environment:
+      CLUSTER_NAME: ${CLUSTER_NAME}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      XTRABACKUP_PASSWORD: ${XTRABACKUP_PASSWORD}
+      CLUSTER_JOIN: ${COMPOSE_PROJECT_NAME}_node02
+    depends_on:
+      - node02
+    volumes:
+      - ./my.cnf.node03:/etc/mysql/my.cnf
+
+networks:
+  pxc_network:
+    driver: bridge
+

@@ -1,0 +1,105 @@
+version: '2'
+
+volumes:
+   api_symfony_cache:
+   api_symfony_logs:
+   api_symfony_sessions:
+   api_mysql_data:
+   api_rabbit_data:
+
+services:
+  api-mysql:
+    image: mysql:5.6
+    container_name: api-mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=symfony
+      - MYSQL_USER=symfony
+      - MYSQL_PASSWORD=password
+    ports:
+      - "33306:3306"
+    volumes:
+      - api_mysql_data:/var/lib/mysql
+
+  api-nginx:
+    build: docker/nginx
+    container_name: api-nginx
+    volumes_from:
+      - api-php-fpm
+    ports:
+      - "8080:80"
+    links:
+      - api-php-fpm
+
+  api-php-fpm:
+    build: docker/php-fpm
+    container_name: api-php-fpm
+    volumes:
+      - ./:/var/www/api
+      - api_symfony_cache:/var/www/api/app/cache
+      - api_symfony_logs:/var/www/api/app/logs
+      - api_symfony_sessions:/var/www/api/var/sessions
+    links:
+      - api-mysql
+      - api-rabbitmq
+      - api-redis
+      - api-elasticsearch
+
+  api-phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: api-phpmyadmin
+    links:
+      - api-mysql:mysql
+    environment:
+      - MYSQL_USERNAME=root
+      - MYSQL_ROOT_PASSWORD=root
+      - PMA_ARBITRARY=1
+    ports:
+      - 8090:80
+      
+  api-rabbitmq:
+    image: rabbitmq:3-management
+    container_name: api-rabbitmq
+    volumes:
+      - api_rabbit_data:/var/lib/rabbitmq
+    ports:
+      - "25671:5672"
+      - "25672:15672"
+    environment:
+      RABBITMQ_ERLANG_COOKIE: rabbit
+      RABBITMQ_DEFAULT_USER: ruser
+      RABBITMQ_DEFAULT_PASS: rpass
+      RABBITMQ_DEFAULT_VHOST: /
+
+  api-redis:
+    container_name: api-redis
+    build: docker/redis
+
+  api-elasticsearch:
+    image: elasticsearch:latest
+    container_name: api-elasticsearch
+    command: elasticsearch -Des.network.host=0.0.0.0
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+
+  api-logstash:
+    image: logstash:latest
+    container_name: api-logstash
+    command: logstash -f /etc/logstash/conf.d/logstash.conf
+    volumes:
+      - ./docker/logstash:/etc/logstash/conf.d
+    ports:
+      - "5000:5000"
+    links:
+      - api-elasticsearch
+
+  api-kibana:
+    build: docker/kibana
+    container_name: api-kibana
+    volumes:
+      - ./docker/kibana/config/:/opt/kibana/config/
+    ports:
+      - "5601:5601"
+    links:
+      - api-elasticsearch

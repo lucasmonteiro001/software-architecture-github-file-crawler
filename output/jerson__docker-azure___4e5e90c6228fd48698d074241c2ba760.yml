@@ -1,0 +1,10 @@
+version: '2'
+services:
+   node:
+        build: .
+        image: jerson/node-webpack:7.7
+        ports:
+           - '3005:3000'
+        volumes:
+          - ./:/www
+        entrypoint: /www/entrypoint.sh

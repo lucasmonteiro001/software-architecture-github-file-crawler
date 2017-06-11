@@ -1,0 +1,11 @@
+version: '2'
+services:
+  consul-server:
+    build: "."
+    container_name: "consul-server"
+    hostname: "consul-server.weave.local"
+    volumes:
+      - "/var/log/consul"
+      - "/etc/consul.d"
+    network_mode: "weave"
+

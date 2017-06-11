@@ -1,0 +1,29 @@
+version: '2'
+services:
+    booster:
+        build: .
+        image: booster
+        command: gulp
+        #command: sleep 100000
+        environment:
+            - DB_HOST=mongo:27017
+            - NODE_PATH=/app #so modules can be require()'d relative to project root
+        volumes:
+            - .:/app
+            - /app/node_modules
+            - /app/.static
+            - /app/client/lib
+        links:
+            - mongo
+        ports:
+            - "3000:3000"
+    test:
+        build: .
+        image: booster
+        command: mocha --harmony-async-await "booster/test/**/*.js"
+    mongo:
+        image: mongo:3.4.1
+        volumes:
+            - ./database/data:/data/db
+        ports:
+            - "27017:27017"

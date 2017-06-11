@@ -1,0 +1,18 @@
+web:
+   image: centos:latest
+   ports: 
+      - 8000:8000
+   volumes:
+      - ./web-root:/web
+   working_dir: /web
+   command: python -m SimpleHTTPServer 8000
+proxy2web:
+  image: haproxy:1.5
+  ports:
+   - "8888:80"
+   - "8080:8080"
+  volumes:
+   - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
+  links:
+    - web:web
+

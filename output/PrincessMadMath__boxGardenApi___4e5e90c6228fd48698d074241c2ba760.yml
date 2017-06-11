@@ -1,0 +1,18 @@
+nginx:
+    build: ./nginx
+    links:
+        - node:node
+    ports:
+        - "80:80"
+node:
+    build: ./node
+    links:
+        - mongodb
+    ports:
+        - "3000"
+mongodb:
+    build: ./mongodb
+    volumes:
+        - /data/db:/data/db
+    ports:
+        - "27017:27017"

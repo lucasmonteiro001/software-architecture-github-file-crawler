@@ -1,0 +1,10 @@
+web:
+  build: .
+  command: 'bash -c ''node --expose-gc index.js'''
+  working_dir: /app/user
+  environment:
+    CORS_ORIGINS: '*'
+    PORT: 8080
+    VIRTUAL_PORT: 8080
+  expose:
+    - '8080'

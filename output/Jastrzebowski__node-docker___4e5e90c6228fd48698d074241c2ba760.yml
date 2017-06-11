@@ -1,0 +1,58 @@
+# logs =========================================================================
+logs:
+  image: debian:jessie
+  tty: true
+  volumes:
+    - /var/log/nginx
+    - /var/log/varnish
+  volumes_from:
+    - nginx
+    - varnish
+  working_dir: /var/log
+# application ==================================================================
+application:
+  image: debian:jessie
+  tty: true
+  volumes:
+    - ./application:/var/www
+  working_dir: /var/www
+# nginx ========================================================================
+nginx:
+  build: nginx
+  ports:
+    - 80:80
+    - 443:443
+    - 1984:1984
+  links:
+    - node:node
+    - varnish:varnish
+  volumes:
+    - /var/log/nginx
+  working_dir: /var/www
+# node ========================================================================
+node:
+  image: node:5-onbuild
+  command: 'npm start'
+  environment:
+    PORT: 1138
+  ports:
+    - 1138:1138
+  volumes_from:
+    - application
+  working_dir: /var/www
+# varnish ======================================================================
+varnish:
+  build: varnish
+  links:
+    - node:node
+  tty: true
+# elk ==========================================================================
+elk:
+  image: willdurand/elk
+  ports:
+    - 1234:80
+  volumes:
+    - ./elk/logstash:/etc/logstash
+    - ./elk/logstash/patterns:/opt/logstash/patterns
+  volumes_from:
+    - nginx

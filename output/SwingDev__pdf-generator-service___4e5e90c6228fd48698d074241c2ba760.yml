@@ -1,0 +1,11 @@
+version: '2'
+services:
+  pdf-generator-service:
+    build: .
+    restart: always
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./src:/app/src
+      - ./test:/app/test
+    command: npm run dev

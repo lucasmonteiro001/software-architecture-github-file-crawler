@@ -1,0 +1,18 @@
+version: '2'
+volumes:
+  embedded-scoreboard-db:
+    driver: local
+services:
+  web:
+    image: mitrectf/embedded-ctf-scoreboard
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    depends_on:
+      - db
+    env_file: .env
+  db:
+    image: postgres
+    volumes:
+      - embedded-scoreboard-db:/var/lib/postgresql/data
+    restart: unless-stopped

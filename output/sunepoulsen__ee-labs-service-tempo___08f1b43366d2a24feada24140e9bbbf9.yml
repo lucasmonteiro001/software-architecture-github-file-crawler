@@ -1,0 +1,22 @@
+version: "2"
+services:
+  tempo-db:
+    image: postgres:latest
+    environment:
+      - POSTGRES_DB=tempo
+      - POSTGRES_USER=tempo
+      - POSTGRES_PASSWORD=jukilo90
+
+  tempo-service:
+    image: tempo-service:latest
+    environment:
+      - SPRING_PROFILES_ACTIVE=local
+      - JAVA_OPTS=-agentlib:jdwp=transport=dt_socket,address=8000,suspend=n,server=y
+    ports:
+      - "14080:8080"
+      - "14880:8000"
+    links:
+      - tempo-db:db
+    volumes:
+      - "./config:/opt/app/config"
+      - "../../target/docker/local/logs:/opt/logs"

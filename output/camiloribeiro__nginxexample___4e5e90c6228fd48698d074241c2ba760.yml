@@ -1,0 +1,26 @@
+version: "2"
+services:
+  nginx-maroto:
+    image: nginx:1.11
+    ports:
+      - "80:80"
+    tty: true
+    depends_on:
+      - servicea
+      - serviceb
+    volumes:
+      - "$PWD/nginx:/etc/nginx:ro"
+
+  servicea:
+    image: camiloribeiro/rest_shifter:latest
+    volumes:
+      - "$PWD/servicea1.flavor:/root/.rest_shifter/flavors/servicea1.flavor:ro"
+      - "$PWD/servicea2.flavor:/root/.rest_shifter/flavors/servicea2.flavor:ro"
+    command: -s
+
+  serviceb:
+    image: camiloribeiro/rest_shifter:latest
+    volumes:
+      - "$PWD/serviceb1.flavor:/root/.rest_shifter/flavors/serviceb1.flavor:ro"
+      - "$PWD/serviceb2.flavor:/root/.rest_shifter/flavors/serviceb2.flavor:ro"
+    command: -s

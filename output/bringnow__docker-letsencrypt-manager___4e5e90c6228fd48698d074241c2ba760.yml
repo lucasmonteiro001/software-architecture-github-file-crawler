@@ -1,0 +1,17 @@
+version: '2.1'
+services:
+  cli:
+    image: bringnow/letsencrypt-manager:latest
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt
+      - /var/lib/letsencrypt:/var/lib/letsencrypt
+      - /var/acme-webroot:/var/acme-webroot
+
+  cron:
+    image: bringnow/letsencrypt-manager:latest
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt
+      - /var/lib/letsencrypt:/var/lib/letsencrypt
+      - /var/acme-webroot:/var/acme-webroot
+    command: cron-auto-renewal
+    restart: always

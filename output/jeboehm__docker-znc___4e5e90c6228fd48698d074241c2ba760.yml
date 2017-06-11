@@ -1,0 +1,15 @@
+version: '2'
+services:
+  znc:
+    build: .
+    restart: on-failure:50
+    read_only: true
+    volumes:
+      - data:/znc-data
+    ports:
+      - "127.0.0.1:8080:8080"
+      - "127.0.0.1:6667:6667"
+
+volumes:
+  data:
+    driver: local

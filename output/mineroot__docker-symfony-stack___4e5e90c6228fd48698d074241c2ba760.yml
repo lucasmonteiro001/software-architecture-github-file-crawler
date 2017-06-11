@@ -1,0 +1,35 @@
+version: '2'
+
+services:
+    app:
+        build: ./app/build
+        image: mineroot/app:v1
+        volumes:
+            - ./app:/usr/src/app
+        tty: true
+    php-fpm:
+        build: ./services/php-fpm
+        image: mineroot/php-fpm:v1
+        volumes_from:
+            - app
+    nginx:
+        build: ./services/nginx
+        image: mineroot/nginx:v1
+        ports:
+            - "80:80"
+        links:
+            - php-fpm
+        volumes_from:
+            - app
+    maria-db:
+        build: ./services/maria-db
+        image: mineroot/maria-db:v1
+        ports:
+            - "3306:3306"
+        environment:
+            MYSQL_ROOT_PASSWORD: toor
+            MYSQL_DATABASE: symfony
+            MYSQL_USER: symfony
+            MYSQL_PASSWORD: NeEl7Let
+    
+

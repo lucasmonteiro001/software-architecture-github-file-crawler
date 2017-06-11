@@ -1,0 +1,9 @@
+sandy:
+  build: apps/sandy
+  mem_limit: 500m
+  ports:
+    - 8080:8080
+    - 5005:5005
+  environment:
+    JAVA_OPTS: -Xmx512m
+    DEBUG_OPTS: -agentlib:jdwp=transport=dt_socket,server=y,address=5005,suspend=n

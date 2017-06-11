@@ -1,0 +1,24 @@
+version: '2'
+services:
+    news-db:
+        image: mysql
+        ports:
+            - 33060:3306
+        volumes:
+            - ./storage/mysql:/var/lib/mysql
+        environment:
+            MYSQL_ROOT_PASSWORD: root
+            MYSQL_DATABASE: swing-news
+            MYSQL_USER: boogie
+            MYSQL_PASSWORD: woogie
+    news-php:
+        build: ./conf/php
+        ports:
+            - 80:80
+            - 443:443
+        volumes:
+            - ./:/var/www/swing-news-api
+            - ./conf/php/php.ini:/usr/local/etc/php/php.ini
+            - ./storage/log/apache2:/var/log/apache2
+        links:
+            - news-db

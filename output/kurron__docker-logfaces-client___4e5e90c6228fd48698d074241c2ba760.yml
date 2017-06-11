@@ -1,0 +1,15 @@
+version: '2'
+services:
+    logfaces:
+        build: .
+        container_name: "logfaces"
+        network_mode: "host"
+        environment:
+            DISPLAY: unix:0.0
+        volumes:
+        - /tmp/.X11-unix:/tmp/.X11-unix
+        - /home/vagrant:/home/developer
+        user: 1000:1000
+        stdin_open: false
+        tty: false
+

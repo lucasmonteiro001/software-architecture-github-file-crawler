@@ -1,0 +1,17 @@
+version: '2'
+services:
+  zookeeper:
+    image: jplock/zookeeper:3.4.6
+    container_name: zookeeper
+  kafka:
+    image: ches/kafka:0.10.0.1
+    links:
+      - zookeeper:zookeeper
+    environment:
+      - ZOOKEEPER_IP=zookeeper
+    depends_on:
+      - zookeeper
+    ports:
+      - 2181:2181
+  #scylla:
+  #  image: scylla

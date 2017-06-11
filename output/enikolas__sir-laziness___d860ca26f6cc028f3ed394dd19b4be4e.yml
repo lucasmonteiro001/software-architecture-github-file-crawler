@@ -1,0 +1,14 @@
+version: '2'
+services:
+  chrome:
+    image: selenium/standalone-chrome:3.0.1-dysprosium
+    environment:
+      JAVA_OPTS: -Dselenium.LOGGER.level=SEVERE
+  timekeeper:
+    image: enikolas/timekeeper
+    ports:
+      - "0.0.0.0:6969:6969"
+    depends_on:
+      - chrome
+    links:
+      - chrome

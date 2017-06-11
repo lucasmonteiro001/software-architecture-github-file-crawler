@@ -1,0 +1,31 @@
+api:
+  image: mersocarlin/aspnet
+  command: dnx web
+  volumes:
+    - ./BankService/BankService.Api:/app
+  ports:
+    - "5000:5000"
+  environment:
+    MONGODB_DATABASE: bank
+    MONGODB_PORT: 27017
+    MONGODB_SERVER: mongo
+    REDIS_KEY_TIMEOUT: 30
+    REDIS_PORT: 6379
+    REDIS_SERVER: redis
+  links:
+    - mongo
+    - redis
+
+mongo:
+  image: mongo
+  ports:
+    - "27017:27017"
+  volumes:
+    - mongo-aspnet-core-docker:/data/db
+    
+redis:
+  image: redis:alpine
+  ports:
+    - "6379:6379"
+  volumes:
+    - redis-aspnet-core-docker:/data  

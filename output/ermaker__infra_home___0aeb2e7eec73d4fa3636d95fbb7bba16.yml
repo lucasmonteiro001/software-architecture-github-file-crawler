@@ -1,0 +1,23 @@
+version: '2'
+services:
+  fetcher:
+    image: ermaker/fetcher
+    volumes:
+      - inbox:/usr/src/app/inbox
+    environment:
+      - constraint:node==data
+    restart: always
+  samba:
+    image: dreamcat4/samba
+    command: -s 'inbox;/mount;no;no;;'
+    volumes:
+      - inbox:/mount
+    ports:
+      - 139:139
+      - 445:445
+    environment:
+      - constraint:node==data
+    network_mode: bridge
+    restart: always
+volumes:
+  inbox: {}

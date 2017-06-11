@@ -1,0 +1,46 @@
+version: "2"
+
+services:
+
+  app:
+    build: .
+    image: keboola/elastic-writer
+    tty: true
+    stdin_open: true
+    volumes:
+      - ./:/code
+    links:
+      - elasticsearch13
+      - elasticsearch22
+      - sshproxy
+    entrypoint: bash
+
+  app-tests:
+    image: keboola/elastic-writer
+    entrypoint: sh
+    command: -c 'sleep 10 && ./phpunit.sh'
+    tty: true
+    stdin_open: true
+    links:
+      - elasticsearch13
+      - elasticsearch22
+      - sshproxy
+
+  elasticsearch13:
+    image: elasticsearch:1.3
+    command: elasticsearch  -Des.cluster.name="SAPI-Testing-13"
+
+  elasticsearch22:
+    image: elasticsearch:2.2
+    command: elasticsearch -Des.cluster.name="SAPI-Testing-22"
+
+  sshproxy:
+    build: ./tests/env/sshproxy
+    volumes:
+        - ./tests/env/sshproxy:/code
+    working_dir: /code
+    ports:
+      - "2222:22"
+    links:
+      - elasticsearch13
+      - elasticsearch22

@@ -1,0 +1,22 @@
+version: "2"
+
+services:
+  # InfluxDB container
+  influxdb:
+    image: influxdb:1.1-alpine
+    environment:
+      PRE_CREATE_DB: "ontrack"
+
+  # Grafana container
+  grafana:
+    image: grafana/grafana:4.1.1
+    links:
+      - "influxdb:influxdb"
+
+  # Ontrack container
+  ontrack:
+    image: nemerosa/ontrack:latest
+    environment:
+      JAVA_OPTIONS: "${JAVA_OPTIONS}"
+    links:
+      - "influxdb:influxdb"

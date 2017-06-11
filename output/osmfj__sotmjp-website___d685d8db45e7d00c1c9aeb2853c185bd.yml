@@ -1,0 +1,18 @@
+web:
+  image: miurahr/sotmjp-website:latest
+  command: app:start
+  ports:
+    - "8000:8000"
+  links:
+    - postgresql:postgresql
+    - redis:redis
+postgresql:
+  image: sameersbn/postgresql:9.4
+  environment:
+    - DB_USER=symposion
+    - DB_PASS=phathowvhsukeuwo
+    - DB_NAME=sotmjp2015_staging
+  volumes:
+    - /opt/postgresql/data:/var/lib/postgresql
+redis:
+  image: redis

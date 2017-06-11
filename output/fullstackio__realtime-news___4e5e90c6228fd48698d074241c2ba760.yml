@@ -1,0 +1,44 @@
+version: "2"
+
+services:
+  nginx-proxy:
+    image: jwilder/nginx-proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - /etc/nginx/certs
+      - /var/lib/hosting/vhost.d:/etc/nginx/vhost.d
+      - /usr/share/nginx/html
+    restart: always
+    networks:
+      - proxy-tier
+
+  app:
+    build: .
+    container_name: app
+    volumes:
+      - "./deploy/templates/conf.d/:/etc/nginx/conf.d"
+    environment:
+      VIRTUAL_PORT: 8001
+      VIRTUAL_HOST: twit.local.dev
+      NODE_ENV: development
+    ports:
+      - 8001:8001
+    depends_on:
+      - redis
+    networks:
+      - proxy-tier
+    env_file: .env
+
+  redis:
+    image: redis
+    restart: always
+    ports:
+      - 6379:6379
+    networks:
+      - proxy-tier
+
+networks:
+  proxy-tier:

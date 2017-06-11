@@ -1,0 +1,12 @@
+---
+
+adamalib:
+  build: .
+  ports:
+    - "8889:8888"
+  environment:
+    PASSWORD: designsafe
+    USE_HTTP: 1
+  volumes:
+    - .:/adamalib
+    - notebooks:/data/local

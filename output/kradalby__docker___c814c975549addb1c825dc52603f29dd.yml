@@ -1,0 +1,9 @@
+version: '2'
+services:
+  tftpd:
+    build: .
+    volumes:
+      - ./data:/srv/tftp
+    ports:
+      - "69:69/udp"
+    restart: never

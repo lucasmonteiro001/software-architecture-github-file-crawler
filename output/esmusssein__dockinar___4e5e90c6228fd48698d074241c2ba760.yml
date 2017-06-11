@@ -1,0 +1,14 @@
+app:
+  build: .
+  ports:
+    - "8080:80"
+  volumes:
+    - .:/src
+  environment:
+    - PORT=80
+    - REDIS_PORT=6379
+    - REDIS_HOST=redis
+  links:
+    - redis
+redis:
+  image: redis:3.0.5

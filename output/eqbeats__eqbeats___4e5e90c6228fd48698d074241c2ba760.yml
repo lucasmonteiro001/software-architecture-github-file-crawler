@@ -1,0 +1,42 @@
+eqbeats:
+    build: .
+    links:
+        - db
+        - redis
+web:
+    image: nginx:latest
+    links:
+        - eqbeats
+        - takeout
+    volumes:
+        - ./conf/docker/nginx/:/etc/nginx/conf.d/
+        - ./static/:/usr/share/eqbeats/static/
+    volumes_from:
+        - eqbeats
+    ports:
+        - "8642:8642"
+db:
+    image: postgres:latest
+redis:
+    image: redis:latest
+takeout:
+    build: takeout/
+    dockerfile: server.Dockerfile
+    links:
+        - db
+        - redis
+    volumes:
+        - ./takeout/:/usr/src/app/
+    volumes_from:
+        - eqbeats
+takeoutworker:
+    build: takeout/
+    dockerfile: worker.Dockerfile
+    links:
+        - redis
+        - web
+    environment:
+        - AWS_ACCESS_KEY_ID
+        - AWS_SECRET_ACCESS_KEY
+    volumes_from:
+        - eqbeats

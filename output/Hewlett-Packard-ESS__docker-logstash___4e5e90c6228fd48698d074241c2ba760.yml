@@ -1,0 +1,7 @@
+logstash:
+  build: ./pluginExample
+  hostname: logstash
+  environment:
+    DEBUG: 'true'
+  ports:
+    - "9303:9303/udp"

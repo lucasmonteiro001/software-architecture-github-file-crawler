@@ -1,0 +1,55 @@
+web:
+  image: nginx
+  volumes:
+    - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+  links:
+    - backend1
+    - backend2
+    - backend3
+    - frontend
+  ports:
+    - "8080:80"
+
+backend1:
+  extends:
+    file: docker-backend.yml
+    service: backend
+  links:
+    - mongodb
+    - redis
+
+backend2:
+  extends:
+    file: docker-backend.yml
+    service: backend
+  links:
+    - mongodb
+    - redis
+
+backend3:
+  extends:
+    file: docker-backend.yml
+    service: backend
+  links:
+    - mongodb
+    - redis
+
+frontend:
+  image: node
+  volumes:
+    - ../:/usr/src/app
+  command: make -C /usr/src/app/docker run-frontend
+  environment:
+    - NODE_ENV=development
+  ports:
+    - "49152:49152"
+
+mongodb:
+  extends:
+    file: docker-backend.yml
+    service: mongodb
+
+redis:
+  extends:
+    file: docker-backend.yml
+    service: redis

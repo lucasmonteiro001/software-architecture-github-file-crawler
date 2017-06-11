@@ -1,0 +1,271 @@
+version: '2'
+
+services:
+
+ mysql:
+  image: 'mysql:latest'
+  domainname: example.com
+  hostname: mysql
+  networks:
+   - devenv
+  restart: always
+  environment:
+   - MYSQL_ROOT_PASSWORD="Password1!"
+   - MYSQL_USER="example-user"
+   - MYSQL_PASSWORD="my-secret-pw"
+   - MYSQL_DATABASE="example-database"
+# ports:
+#  - '3306:3306'
+  volumes_from:
+   - mysqldata
+
+ mysqldata:
+  build: mysql-data
+ 
+ postgresql:
+  image: 'postgres:latest'
+  domainname: example.com
+  hostname: postgresql
+  networks:
+   - devenv
+  restart: always
+  environment:
+   - POSTGRES_PASSWORD=Password1!
+   - POSTGRES_USER=root
+   - POSTGRES_DB=example-database
+# ports:
+#  - '5432:5432'
+  volumes_from:
+   - postgresqldata
+
+ postgresqldata:
+  build: postgresql-data
+
+ git:
+  build: git
+  domainname: example.com
+  hostname: git
+  networks:
+   - devenv
+  volumes_from:
+   - gitdata
+  ports:
+   - "2222:22"
+  restart: always
+
+ gitdata:
+  build: git-data
+
+ jenkins:
+  build: jenkins
+  domainname: example.com
+  hostname: jenkins
+  networks:
+   - devenv
+  restart: always
+  volumes_from:
+   - jenkinsdata
+  ports:
+#  - "8080:8080"
+   - "50000:50000"
+
+ jenkinsdata:
+  build: jenkins-data
+
+ gitlab:
+  image: 'gitlab/gitlab-ce:latest'
+  domainname: example.com
+  hostname: gitlab
+  networks:
+   - devenv
+  restart: always
+  environment:
+   GITLAB_OMNIBUS_CONFIG: |
+    external_url 'http://gitlab.example.com'
+    gitlab_rails['gitlab_shell_ssh_port'] = 2224
+  ports:
+#  - '80:80'
+   - '2224:22'
+  volumes_from:
+   - gitlabdata
+
+ gitlabdata:
+  build: gitlab-data
+
+ gitlabrunner:
+  image: 'gitlab/gitlab-runner'
+  domainname: example.com
+  hostname: gitlabrunner
+  networks:
+   - devenv
+  restart: always
+  volumes:
+   - /var/run/docker.sock:/var/run/docker.sock
+  volumes_from:
+   - gitlabrunnerdata
+
+ gitlabrunnerdata:
+  build: gitlabrunner-data
+
+
+ redmine:
+  image: 'redmine'
+  domainname: example.com
+  hostname: redmine
+  networks:
+   - devenv
+  restart: always
+  volumes_from:
+   - redminedata
+#  ports:
+#  - '3000:3000'
+
+ redminedata:
+  image: busybox
+  volumes:
+   - /usr/src/redmine/files
+  command: 'true'
+
+ openproject:
+  image: 'openproject/community:5.0'
+  domainname: example.com
+  hostname: openproject
+  networks:
+   - devenv
+  restart: always
+  volumes_from:
+   - openprojectdata
+  environment:
+   - SECRET_KEY_BASE=secret
+   - EMAIL_DELIVERY_METHOD=smtp
+   - SMTP_ADDRESS=smtp.gmail.com
+   - SMTP_PORT=587
+   - SMTP_DOMAIN=smtp.gmail.com
+   - SMTP_AUTHENTICATION=plain
+   - SMTP_ENABLE_STARTTLS_AUTO=true
+   - SMTP_USER_NAME="MYMAIL@gmail.com"
+   - SMTP_PASSWORD="Password1!"
+#  ports:
+#   - '8080:80'
+
+ openprojectdata:
+  image: busybox
+  volumes:
+   - /srv/var/opt/openproject/pgdata:/var/lib/postgresql/9.4/main
+   - /srv/var/opt/openproject/logs:/var/log/supervisor
+   - /srv/var/opt/openproject/static:/var/db/openproject
+  command: 'true'
+
+ nginx:
+  build: nginx
+  domainname: example.com
+  hostname: nginx
+  networks:
+   - devenv
+  volumes_from:
+   - nginxdata
+  ports:
+   - "80:80"
+   - "443:443"
+  restart: always
+
+ nginxdata:
+  build: nginx-data
+
+ downloads:
+  image: httpd
+  domainname: example.com
+  hostname: download
+  restart: always
+  networks:
+   - devenv
+  volumes_from:
+   - downloadsdata
+#  ports:
+#   - "80:80"
+
+ downloadsdata:
+  image: busybox
+  volumes:
+   - /srv/downloads:/usr/local/apache2/htdocs/
+  command: 'true'
+
+ ldapaccountmanager:
+  build: ldap-account-manager
+  domainname: example.com
+  hostname: ldapaccountmanager
+  networks:
+   - devenv
+  restart: always
+# ports:
+#  - "80:80"
+
+
+
+
+#samba:
+# build: samba-ad-dc
+# volumes_from:
+#  - sambadata
+# privileged: true
+# restart: always
+# ports:
+#  - '53:53'
+#  - '88:88'
+#  - '135:135'
+#  - '137:137'
+#  - '138:138'
+#  - '139:139'
+#  - '389:389'
+#  - '445:445'
+#  - '464:464'
+#  - '636:636'
+#  - '3268:3268'
+#  - '3269:3269'
+
+# environment:
+#  SAMBA_DOMAIN: "samba"
+#  SAMBA_REALM: "example.com"
+#  SAMBA_PASSWORD: "Password1!"
+#  SAMBA_DNS_FORWARDER: "8.8.8.8"
+#  workgroup: "workgroup"
+
+#sambadata:
+# build: samba-data
+
+ openldap:
+  image: osixia/openldap
+  domainname: example.com
+  hostname: openldap
+  networks:
+   - devenv
+  volumes_from:
+   - openldapdata
+  restart: always
+  ports:
+ #  - '389:389'
+   - '636:636'
+  environment:
+   LDAP_DOMAIN: "example.com"
+   LDAP_BASE_DN: "dc=example,dc=com"
+   LDAP_ADMIN_PASSWORD: "Password1!"
+   LDAP_CONFIG_PASSWORD: "Password1!"
+
+ openldapdata:
+  build: openldap-data
+
+ ldapadmin:
+  image: osixia/phpldapadmin
+  domainname: example.com
+  hostname: ldapadmin
+  networks:
+   - devenv
+  restart: always
+  environment:
+   PHPLDAPADMIN_LDAP_HOSTS: "#PYTHON2BASH:[{'openldap': [{'server': [{'tls': True}]},{'login': [{'bind_id': 'cn=admin,dc=example,dc=com'}]}]}]"
+
+######
+
+networks:
+ devenv:
+

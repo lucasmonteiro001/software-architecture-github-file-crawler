@@ -1,0 +1,37 @@
+crawler:
+    build: .
+    links:
+        - redis
+        - influxdb
+    command: /app/crawler -depth 3 -seed-url 'https://www.youtube.com/watch?v=zNdkrtfZP8I' -search='^.*\/watch\?v=[a-zA-Z0-9\-]+' -crawlers 50
+    environment:
+        - INFLUXDB_NAME="root"
+        - INFLUXDB_PASSWORD="temppwd"
+
+redis:
+    image: redis:latest
+    ports:
+        - 6379:6379
+
+influxdb:
+    image: tutum/influxdb:latest
+    ports:
+        - 8086:8086
+        - 8083:8083
+    environment:
+        - PRE_CREATE_DB="crawler"
+        - ADMIN_USER="root"
+        - INFLUXDB_INIT_PWD="temppwd"
+
+telegraf:
+    image: telegraf:latest
+    volumes:
+        - ./conf/telegraf.conf:/etc/telegraf/telegraf.conf:ro
+    links:
+        - redis
+        - influxdb
+
+grafana:
+    image: grafana/grafana:latest
+    ports:
+        - 3000:3000

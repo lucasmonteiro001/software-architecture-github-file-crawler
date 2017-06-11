@@ -1,0 +1,34 @@
+version: '2'
+
+services:
+  spm-client:
+   image: sematext/spm-client
+   container_name: spm-client-tc
+   # net: host
+   hostname: spm-client-tc
+   privileged: true
+   volumes: 
+    # spm-client > v1.31.65 requires access to docker socket
+    - /var/run/docker.sock:/var/run/docker.sock
+   environment:
+    - SPM_CONFIG=${SPM_TOKEN} tomcat javaagent
+    # SPM Token from http://apps.sematext.com
+    #- SPM_CONFIG=${SPM_TOKEN} tomcat standalone jvmname:default jmxhost:tomcat jmxport:3000
+    #links: 
+    #  - tomcat:tc
+
+  tomcat:
+   image: tomcat:latest
+   hostname: tomcat
+   depends_on: 
+     - spm-client
+   ports:
+     - "8888:8080"
+     - "3000:3000"
+   environment: 
+     #- 'CATALINA_OPTS=$CATALINA_OPTS -Djava.rmi.server.hostname=tomcat -Dcom.sun.management.jmxremote.port=3000 -Dcom.sun.management.jmxremote  -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false'
+     -  'CATALINA_OPTS=$CATALINA_OPTS -Dcom.sun.management.jmxremote -javaagent:/opt/spm/spm-monitor/lib/spm-monitor-tomcat.jar=${SPM_TOKEN}::default'
+   volumes_from:
+     - spm-client:rw
+
+  

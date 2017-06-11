@@ -1,0 +1,19 @@
+nginx:
+  build: nginx
+  ports:
+    - "80:80"
+  links:
+    - ghost
+
+ghost:
+  build: ghost
+  ports:
+    - "2368:2368"
+  volumes_from:
+    - content
+  environment:
+    - BLOG_URL=http://brage.switchbit.local.io
+
+content:
+  build: content
+  command: echo "Ghost content volume"

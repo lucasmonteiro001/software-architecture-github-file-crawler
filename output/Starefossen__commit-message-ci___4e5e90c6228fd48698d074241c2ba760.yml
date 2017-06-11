@@ -1,0 +1,27 @@
+mongo:
+    image: tutum/mongodb:latest
+    environment:
+        - AUTH=no
+
+redis:
+    image: tutum/redis:latest
+    environment:
+        - REDIS_PASS=**None**
+
+dev:
+    image: node:argon
+    working_dir: /usr/src/app
+    ports:
+        - 8080
+    links:
+        - mongo
+        - redis
+    volumes:
+        - .:/usr/src/app
+    command: npm run dev
+    env_file: .env.dev
+    environment:
+        - NODE_ENV=development
+        - VIRTUAL_HOST=ci.starefossen.privat
+        - VIRTUAL_PORT=8080
+        - MONGO_DB=test

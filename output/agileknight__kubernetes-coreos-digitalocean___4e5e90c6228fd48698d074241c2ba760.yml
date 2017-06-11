@@ -1,0 +1,9 @@
+manage-cluster:
+  build: .
+  env_file: .env
+  environment:
+    MASTER_HOST: 46.101.187.209
+  volumes:
+    - ./gen-certs/certs:/opt/certs
+    - ./digitalocean:/opt/digitalocean
+

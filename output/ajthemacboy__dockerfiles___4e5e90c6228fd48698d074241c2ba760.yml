@@ -1,0 +1,19 @@
+minecraft-server:
+  ports:
+    - "${PORT}:25565"
+
+  environment:
+    EULA: "TRUE"
+    TYPE: "PAPER"
+    VERSION: "LATEST"
+    MAX_MEMORY: "256M"
+
+  image: ajthemacboy/minecraft-server
+
+  container_name: minecraft_${UUID}
+
+  tty: true
+  stdin_open: true
+  restart: always
+  volumes:
+    - /dock/minecraft/${UUID}:/data

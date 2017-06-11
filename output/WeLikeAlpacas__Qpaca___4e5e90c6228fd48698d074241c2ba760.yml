@@ -1,0 +1,42 @@
+publisher:
+    image: csarcom/qpaca
+    command: gunicorn -b 0.0.0.0:8000 example.publisher:app
+    environment:
+        - PYTHONUNBUFFERED=0
+    ports:
+        - "8000:8000"
+    links:
+        - rabbitmq
+        - influxdb
+    volumes:
+        - ./:/app
+subscriber:
+    image: csarcom/qpaca
+    command: python example/subscriber.py
+    environment:
+        - PYTHONUNBUFFERED=0
+    links:
+        - rabbitmq
+        - influxdb
+    volumes:
+        - ./:/app
+rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+        - "15672:15672"
+        - "5672:5672"
+influxdb:
+    image: tutum/influxdb
+    ports:
+        - "8083:8083"
+        - "8086:8086"
+    environment:
+        - PRE_CREATE_DB=cs_queue
+grafana:
+    image: grafana/grafana
+    ports:
+        - "3000:3000"
+    links:
+        - influxdb
+    volumes:
+         - ./grafana:/var/lib/grafana

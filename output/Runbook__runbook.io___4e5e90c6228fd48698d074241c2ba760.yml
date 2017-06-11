@@ -1,0 +1,15 @@
+rethinkdb:
+  image: rethinkdb:latest
+  ports:
+    - "8080:8080"
+redis:
+  image: redis:latest
+  ports:
+    - "6379:6379"
+runbook:
+  build: ./ 
+  ports:
+    - "80:8000"
+  links:
+    - rethinkdb
+    - redis

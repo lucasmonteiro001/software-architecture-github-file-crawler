@@ -1,0 +1,28 @@
+rabbitmq:
+  image: rabbitmq:latest
+
+mysql:
+  image: mysql:latest
+  environment:
+    - MYSQL_DATABASE=micro
+    - MYSQL_ROOT_PASSWORD=micro
+
+backend:
+  build: rest-server
+  links:
+    - mysql:mysql
+  ports:
+    - 8080:8080
+
+frontend:
+  build: frontend
+  links:
+    - rabbitmq:rabbitmq
+  ports:
+    - 80:3000
+
+worker:
+  build: worker
+  links:
+    - rabbitmq:rabbitmq
+    - backend:rest-server

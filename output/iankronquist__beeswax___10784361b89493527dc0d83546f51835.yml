@@ -1,0 +1,15 @@
+---
+mysql:
+  image: mariadb 
+  environment:
+    MYSQL_PASSWORD: wp
+    MYSQL_USER: wp
+    MYSQL_DATABASE: wp
+    MYSQL_ROOT_PASSWORD: root
+
+wordpress:
+  build: .
+  ports:
+    - "80:80"
+  links:
+    - mysql:db

@@ -1,0 +1,13 @@
+version: '2'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: infrastructure/Dockerfile
+    image: realpage/asset-publisher:web
+    env_file: .env
+    volumes:
+      - ./:/var/www/html
+    ports:
+      - "80:80"

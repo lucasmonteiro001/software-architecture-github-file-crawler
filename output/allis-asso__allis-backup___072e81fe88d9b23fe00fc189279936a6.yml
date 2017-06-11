@@ -1,0 +1,28 @@
+# allis-backup storage persistent data
+storage-data:
+  image: ubuntu
+  volumes:
+    - /backup
+
+storage:
+  build: storage
+  volumes_from:
+    - storage-data
+
+# client data container
+client-data:
+  image: debian
+  volumes:
+    - ../backup.py:/usr/bin/backup.py
+    - ../backend/:/usr/lib/python3/dist-packages/backend
+    - ../fs/:/usr/lib/python3/dist-packages/fs
+
+# client container
+client:
+  build: client
+  ports:
+    - "8022:22"
+  links:
+    - storage
+  volumes_from:
+    - client-data

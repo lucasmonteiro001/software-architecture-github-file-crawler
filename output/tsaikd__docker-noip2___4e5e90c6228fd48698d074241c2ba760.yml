@@ -1,0 +1,7 @@
+noip2:
+  image: tsaikd/noip2
+  volumes:
+    - etc:/usr/local/etc
+  stdin_open: true
+  tty: true
+

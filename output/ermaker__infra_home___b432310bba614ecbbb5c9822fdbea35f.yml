@@ -1,0 +1,27 @@
+version: '2'
+services:
+  consul:
+    image: progrium/consul
+    container_name: consul
+    command: -server -bootstrap
+    mem_limit: 50m
+    memswap_limit: 50m
+    ports:
+      - 8500:8500
+    network_mode: bridge
+    restart: always
+  fluentd:
+    image: ermaker/fluentd-home
+    container_name: fluentd
+    mem_limit: 90m
+    memswap_limit: 90m
+    environment:
+      - ES_URI=$ES_URI
+    ports:
+      - 24224:24224
+    volumes:
+      - fluentd:/buffer
+    network_mode: bridge
+    restart: always
+volumes:
+  fluentd: {}

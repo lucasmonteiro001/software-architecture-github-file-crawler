@@ -1,0 +1,46 @@
+version: '2'
+services:
+   e2e:
+     image: node:6
+     command: npm run start-ci
+     volumes:
+      - ./:/usr/src/app
+      - node_modules:/usr/src/app/node_modules
+     working_dir: /usr/src/app
+   selenium:
+     image: selenium/standalone-chrome
+     ports:
+      - "4444:4444"
+     links:
+      - e2e
+      - stubby
+   stubby:
+     image: node:6
+     command: npm run stubby
+     volumes:
+      - ./:/usr/src/app
+      - node_modules:/usr/src/app/node_modules
+     working_dir: /usr/src/app
+   install:
+     image: node:6
+     command: npm install
+     volumes:
+      - ./:/usr/src/app
+      - node_modules:/usr/src/app/node_modules
+     working_dir: /usr/src/app
+   test:
+     image: node:6
+     command: npm run test-once
+     volumes:
+      - ./:/usr/src/app
+      - node_modules:/usr/src/app/node_modules
+     working_dir: /usr/src/app
+   test-e2e:
+     image: node:6
+     command: npm run e2e -- -s false -c protractor-selenium.conf.js
+     volumes:
+      - ./:/usr/src/app
+      - node_modules:/usr/src/app/node_modules
+     working_dir: /usr/src/app
+volumes:
+  node_modules:

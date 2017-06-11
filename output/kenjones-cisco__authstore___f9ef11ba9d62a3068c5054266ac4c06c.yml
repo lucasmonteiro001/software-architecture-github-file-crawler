@@ -1,0 +1,10 @@
+consul:
+  container_name: consul
+  build: .
+  expose:
+    - "8301"
+    - "8302"
+    - "8400"
+    - "8500"
+    - "8600"
+

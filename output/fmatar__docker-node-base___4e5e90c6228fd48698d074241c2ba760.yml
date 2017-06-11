@@ -1,0 +1,6 @@
+node:
+  image: centos:centos7
+  volumes:
+    - /opt/microservices/base:.
+  ports:
+    - "8080:8080"

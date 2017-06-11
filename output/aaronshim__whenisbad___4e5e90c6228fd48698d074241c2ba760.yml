@@ -1,0 +1,10 @@
+version: '3'
+services:
+  whenisbad:
+    build: .
+    volumes:
+      - .:/home/host/whenisbad
+    ports:
+      - "3000:3000"
+    stdin_open: true
+    tty: true

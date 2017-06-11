@@ -1,0 +1,29 @@
+version: '2'
+services:
+  client:
+    container_name: mtr-client
+    networks: 
+        - mtr
+    image: coinvault/mastertrader
+    ports: 
+        - 5016:5000
+        - 14475:14475
+  nako:
+    container_name: mtr-nako
+    networks: 
+        - mtr
+    image: coinvault/nako
+    command: MTR
+    ports: 
+        - 9016:9000
+    depends_on:
+        - mongo
+        - client
+  mongo:
+    container_name: mtr-mongo
+    networks: 
+        - mtr
+    image: mongo:3.2
+networks:
+    mtr:
+      driver: bridge

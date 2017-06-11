@@ -1,0 +1,24 @@
+db:
+    image: redis:latest
+    ports:
+        - "6379:6379"
+
+broker:
+    image: rabbitmq:3-management
+    ports:
+        - "4369:4369"
+        - "5671:5671"
+        - "5672:5672"
+        - "25672:25672"
+
+tasks:
+    image: bones
+    links:
+        - broker
+        - db
+    entrypoint: /bones/entrypoint.sh
+    volumes:
+        - /ginkgo/bitome/users/giles/code/bones:/bones
+        - /ginkgo/bitome:/ginkgo/bitome
+    environment:
+        - BONES_OUTPUT_DIR=/ginkgo/bitome/user/giles/bones

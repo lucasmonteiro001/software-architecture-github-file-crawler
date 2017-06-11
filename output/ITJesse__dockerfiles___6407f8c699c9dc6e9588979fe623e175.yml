@@ -1,0 +1,10 @@
+dante:
+  image: vimagick/dante
+  ports:
+    - "1080:1080"
+  volumes:
+    - ./sockd.conf:/etc/sockd.conf
+  environment:
+    - DANTE_USERNAME=dante
+    - DNATE_PASSWORD=dante
+  restart: always

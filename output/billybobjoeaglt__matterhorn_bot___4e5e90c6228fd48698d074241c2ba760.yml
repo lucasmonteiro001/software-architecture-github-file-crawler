@@ -1,0 +1,17 @@
+version: '2'
+services:
+  bot:
+    build:
+      context: .
+      args:
+        - version
+    ports:
+         - "8080:8080"
+    depends_on:
+     - redis
+    command: -http_port=8080 ${PROGRAM_ARGS}
+  redis:
+    image: redis
+    command: redis-server --appendonly yes
+    volumes:
+     - ./data:/data

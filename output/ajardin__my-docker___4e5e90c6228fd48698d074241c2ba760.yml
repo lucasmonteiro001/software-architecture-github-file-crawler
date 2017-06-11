@@ -1,0 +1,56 @@
+version: "3"
+
+services:
+  web:
+    build: web
+    env_file: docker-env
+    ports:
+      - "8080:80"
+    volumes:
+      - "~/www:/var/www/html"
+    tty: true
+
+  mailcatcher:
+    image: schickling/mailcatcher
+    env_file: docker-env
+    ports:
+      - "1080:1080"
+
+  mysql:
+    build: mysql
+    env_file: docker-env
+    ports:
+      - "3306:3306"
+    volumes:
+      - "percona:/var/lib/mysql"
+    tty: true
+
+  mongo:
+    image: mongo:latest
+    env_file: docker-env
+    ports:
+      - "27017:27017"
+    volumes:
+      - "mongo:/data/db"
+    tty: true
+
+  redis:
+    image: redis:latest
+    env_file: docker-env
+    ports:
+      - "6379:6379"
+    tty: true
+
+  varnish:
+    build: varnish
+    env_file: docker-env
+    depends_on:
+      - web
+    ports:
+      - "80:8080"
+      - "6082:6082"
+    tty: true
+
+volumes:
+  percona: {}
+  mongo: {}

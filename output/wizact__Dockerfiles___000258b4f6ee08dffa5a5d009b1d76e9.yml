@@ -1,0 +1,14 @@
+# Composing a Mongo primary node with a linked volume container
+datacontainer:
+  #image: bashed
+  build: ../bash
+  volumes: 
+    - /data/db:/data/db
+mongo:
+  #image: mongoed
+  build: ../mongo
+  ports:
+    - "27017:27017"
+    - "28017:28017"
+  volumes_from:
+    - datacontainer

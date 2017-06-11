@@ -1,0 +1,5 @@
+# image: gi4nks/mvn-volume:01.00.00
+# docker tag mvnvolume-mvnvolume gi4nks/mvn-volume:01.00.00
+mvnvolume:
+  build: . 
+  privileged: true

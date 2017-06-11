@@ -1,0 +1,21 @@
+version: '2'
+services:
+  piwik:
+    build: .
+    volumes:
+      - ${PIWIK_HOME}:/usr/src/piwik:cached
+      - ./piwik.php.ini:/usr/local/etc/php/php.ini
+    working_dir: /usr/src/piwik
+    depends_on:
+      - mariadb
+    ports:
+      - "3000:3000"
+    command: php -S piwik:3000
+  mariadb:
+    image: mariadb
+    environment:
+      MYSQL_ROOT_PASSWORD: pass
+    volumes:
+      - ./mariadb:/var/lib/mysql:delegated
+  redis:
+    image: redis:3-alpine

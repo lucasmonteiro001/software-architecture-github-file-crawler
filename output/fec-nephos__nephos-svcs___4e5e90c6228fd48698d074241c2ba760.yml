@@ -1,0 +1,57 @@
+version: '2.0'
+services:
+    user-svc:
+      build: src/user-svc
+      environment:
+       - MONGO_HOSTNAME=mongo
+      ports:
+       - "8084:8080"
+       - "8094:8088"
+      depends_on:
+       - mongo
+    datasource-svc:
+      build: src/datasource-svc
+      environment:
+       - MONGO_HOSTNAME=mongo
+      ports:
+       - "8085:8080"
+       - "8095:8088"
+      depends_on:
+       - mongo
+    cds-svc:
+      build: src/cds-svc
+      environment:
+       - S3_HOSTNAME=minio:9000
+       - S3_ACCESS_KEY=FAUSTO55EXAMPLE
+       - S3_ACCESS_SECRET=fAUSTO55EXAMPLEKEY
+      ports:
+       - "8086:8080"
+       - "8096:8088"
+      depends_on:
+       - mongo
+       - minio
+    mongo-express:
+      image: mongo-express
+      ports:
+       - "9001:8081"
+      depends_on:
+       - mongo
+    mongo:
+      image: mongo
+      ports:
+       - "27017:27017"
+      volumes:
+       - /media/espinal/mongodb:/data/db
+    minio:
+      image: minio/minio
+      environment:
+       - MINIO_ACCESS_KEY=FAUSTO55EXAMPLE
+       - MINIO_SECRET_KEY=fAUSTO55EXAMPLEKEY
+      ports:
+       - "9000:9000"
+      volumes:
+       - /media/espinal/minio/data:/export
+       - /media/espinal/minio/config:/root/.minio
+      command: server /export
+
+

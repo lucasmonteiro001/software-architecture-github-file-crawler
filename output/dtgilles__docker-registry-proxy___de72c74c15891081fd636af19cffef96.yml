@@ -1,0 +1,60 @@
+##### authorize web-requests and certificate authority
+authorize:
+   build: authorize
+   volumes:
+     - %%data_dir%%/authorize:/data
+   environment:
+     - CI_ENV=yes
+     - START_NGNIX=yes
+     - RootKey=
+     - CaBase=/data/pki
+     - AuthText=registry-proxy
+     - BasicAuth=#
+     - CaPwdIm=%%CaPwdIm%%
+     - HostKeys=/data/sshd_keys
+     - TmpUri=https://localhost:44300/tmp
+     - SecondsUntilCleanTmp=120
+   ports:
+     - "1120:80"
+     - "1122:22"
+
+##### this is the central control server
+dregit:
+   #image: dtgilles/gitolite
+   build: dregit
+   volumes:
+     - %%data_dir%%/dregit:/data
+   links:
+     - authorize
+   environment:
+     - CI_ENV=yes
+     - RootKey=
+     - SSH_KEY=
+     - HostKeys=/data/sshd_keys
+     - GIT_DATA=/data/git
+     - EnableFeature=D
+     - DisableFeature=daemon gitweb
+     - TRUST_HOSTS=authorize
+     - SshGwRepo=sshgw
+   ports:
+     - "1140:22"
+
+registry:
+   image: registry:2
+   ports:
+     - "5000"
+
+rep:
+   build: rep
+   volumes:
+     - %%data_dir%%/rep:/data
+   environment:
+     - DataDir=/data
+     - ServerName=reverse.dreg.com
+   #volumes_from:
+   #  - vol_ssl:rw
+   ports:
+     - "44300:443"
+   links:
+     - registry
+     - authorize

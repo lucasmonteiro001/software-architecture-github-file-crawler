@@ -1,0 +1,28 @@
+boulder:
+    build: .
+    dockerfile: Dockerfile
+    net: bridge
+    ports:
+      - 4000:4000
+      - 4002:4002
+      - 4003:4003
+      - 4430:4430
+    links:
+      - bmysql:boulder-mysql
+      - brabbitmq:boulder-rabbitmq
+    extra_hosts:
+      - boulder:127.0.0.1
+bmysql:
+    container_name: boulder-mysql
+    image: mariadb:10.0
+    net: bridge
+    environment:
+        MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+    command: mysqld --bind-address=0.0.0.0
+brabbitmq:
+    container_name: boulder-rabbitmq
+    image: rabbitmq:3
+    net: bridge
+    environment:
+        RABBITMQ_NODE_IP_ADDRESS: "0.0.0.0"
+    log_driver: "none"

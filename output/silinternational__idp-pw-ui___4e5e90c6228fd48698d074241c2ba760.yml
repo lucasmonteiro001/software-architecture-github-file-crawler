@@ -1,0 +1,38 @@
+version: '2'
+
+services:
+
+  frontend:
+    build: .
+    working_dir: /data
+    ports:
+      - "9000:9000"
+
+  frontend-mock:
+    build: .
+    working_dir: /data
+    ports:
+      - "9000:9000"
+    command: ["grunt", "init", "backend:mock", "serve:dist"]
+
+  mock-server:
+    image: silintl/api-mock:latest
+    volumes:
+      - ./selenium-test/mock-server:/mock/
+    ports:
+      - "3000:3000"
+
+  selenium:
+    build:
+      context: ./selenium-test
+    env_file:
+      - local.env
+
+networks:
+    default:
+        driver: bridge
+        ipam:
+            driver: default
+            config:
+            - subnet: 10.20.34.0/24
+              gateway: 10.20.34.1

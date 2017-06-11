@@ -1,0 +1,20 @@
+server:
+  build: .
+  command: scripts/server.sh
+  ports:
+    - '8080:8080'
+  volumes:
+    - '$DOCKER_CERT_PATH:/home/.docker'
+    - '/var/run/docker.sock:/var/run/docker.sock'
+  environment:
+    - DOCKER_CERT_PATH=/home/.docker
+    - DOCKER_HOST
+    - DOCKER_TLS_VERIFY
+    - DOCKER_HOST_RUNNERS
+    - REPOSITORY
+    - TAG
+    - TEST_OPTS
+    - NEW_RELIC_LICENSE_KEY
+    - NEW_RELIC_APP_NAME
+    - CODECLIMATE_REPO_TOKEN
+  user: root

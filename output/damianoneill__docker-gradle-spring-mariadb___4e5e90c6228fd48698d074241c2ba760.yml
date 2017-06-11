@@ -1,0 +1,19 @@
+backend:
+    image: oraclejdk8
+    links:
+      - mariadb:db
+    ports:
+      - "8080:8080"
+      - "2000:2000"
+    volumes:
+     - ./docker/volume-backend:/volume
+     - ./docker/volume-log:/log
+    command: ["/volume/backend/bin/backend"]
+mariadb:
+  image: mariadb:latest
+  environment:
+    MYSQL_DATABASE: sample
+    MYSQL_USER: mysql
+    MYSQL_PASSWORD: mysql
+    MYSQL_ROOT_PASSWORD: supersecret
+    TERM: dumb

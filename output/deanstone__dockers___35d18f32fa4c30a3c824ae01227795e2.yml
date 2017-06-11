@@ -1,0 +1,63 @@
+version: '2'
+services:
+  hadoop-master:
+    hostname: hadoop-master
+    image: hadoop_2.7.3
+    ports:
+      - "50010:50010"
+      - "50020:50020"
+      - "50070:50070"
+      - "50075:50075"
+      - "50090:50090"
+      - "8020:8020"
+      - "9000:9000"
+      - "19888:19888"
+      - "8030:8030"
+      - "8031:8031"
+      - "8032:8032"
+      - "8033:8033"
+      - "8040:8040"
+      - "8042:8042"
+      - "8088:8088"
+      - "49707:49707"
+      - "22:22"
+    volumes:
+      - ../data_master:/hdfs
+      - ./bootstrap_master.sh:/etc/bootstrap.sh
+      - ./slaves:/usr/local/hadoop/etc/hadoop/slaves
+    environment:
+      - tz=Asia/Hong_Kong
+    networks:
+      - back-hadoop
+    links:
+      - hadoop-slave1
+      - hadoop-slave2
+
+  hadoop-slave1:
+    hostname: hadoop-slave1
+    image: hadoop_2.7.3
+    networks:
+      - back-hadoop
+    volumes:
+      - ../data_slave1:/hdfs
+      - ./bootstrap_slave.sh:/etc/bootstrap.sh
+      - ./core-site.xml:/usr/local/hadoop/etc/hadoop/core-site.xml
+    environment:
+      - tz=Asia/Hong_Kong
+
+  hadoop-slave2:
+    hostname: hadoop-slave2
+    image: hadoop_2.7.3
+    networks:
+      - back-hadoop
+    volumes:
+      - ../data_slave2:/hdfs
+      - ./bootstrap_slave.sh:/etc/bootstrap.sh
+      - ./core-site.xml:/usr/local/hadoop/etc/hadoop/core-site.xml
+    environment:
+      - tz=Asia/Hong_Kong
+
+networks:
+  back-hadoop:
+    external:
+      name: back-hadoop

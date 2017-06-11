@@ -1,0 +1,13 @@
+version: "2"
+services:
+  resizer:
+    ports:
+     # Put into /etc/profile on the Docker host: export PRIVATE_IP=$(/sbin/ifconfig eth0 | grep 'inet addr' | cut -d: -f2 | awk '{print $1}')
+     - "${PRIVATE_IP}:80:8080"
+    image: "quay.io/hellofresh/resizer:latest"
+    restart: always
+    container_name: resizer
+    environment:
+      RESIZER_ENDPOINT: https://d3hvwccx09j84u.cloudfront.net
+      RESIZER_CACHE_PATH: /var/resizer_cache/storage
+

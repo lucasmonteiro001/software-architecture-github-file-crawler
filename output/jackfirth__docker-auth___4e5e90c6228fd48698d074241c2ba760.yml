@@ -1,0 +1,19 @@
+db:
+  build: ./db
+  environment:
+    POSTGRES_USER: auth
+    POSTGRES_PASSWORD: auth
+
+auth:
+  build: ./auth
+  links:
+    - db
+    - backend
+  environment:
+    DB_USER: auth
+    DB_PASSWORD: auth
+    TARGET_SERVICE_HOST: backend:8000
+    DEBUG_MODE: false
+
+backend:
+  build: ./example-backend

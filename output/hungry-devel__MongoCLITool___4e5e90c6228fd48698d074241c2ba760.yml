@@ -1,0 +1,11 @@
+php:
+  build: .
+  volumes:
+    - ./:/app
+  links:
+    - mongo
+
+mongo:
+  image: mongo:3.3
+  ports:
+    - "27017:27017"

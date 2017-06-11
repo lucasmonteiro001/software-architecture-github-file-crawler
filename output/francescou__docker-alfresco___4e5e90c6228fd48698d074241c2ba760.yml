@@ -1,0 +1,20 @@
+alfresco:
+  image: francescou/docker-alfresco
+  links:
+  - 'mysql:DB_HOST'
+  environment:
+  - JAVA_OPTS=-Ddb.dbname=alfresco -Ddb.username=alfresco -Ddb.password=alfrescopw
+  volumes:
+  - "./supervisor-logs/:/var/log/supervisor/"
+  entrypoint: "supervisord -n -c /etc/supervisord.conf"
+  ports:
+  - '8080:8070'
+
+mysql:
+  image: mysql
+  environment:
+  - MYSQL_ROOT_PASSWORD=foobar
+  volumes:
+  - './docker-entrypoint-initdb.d/:/docker-entrypoint-initdb.d/'
+
+

@@ -1,0 +1,11 @@
+jira2SlackWebHookBridge:
+  image: node:5.6-onbuild
+  restart: always
+  ports:
+    - 3000
+  volumes:
+    - .:/usr/src/jira2slack-webhook-bridge
+  working_dir: /usr/src/jira2slack-webhook-bridge
+  command: npm start
+  environment:
+    - VIRTUAL_HOST=jira2slack-webhook-bridge.localhost

@@ -1,0 +1,13 @@
+database:
+    build: containers/database/
+elasticsearch:
+    build: containers/elasticsearch/
+application:
+    build: containers/application/
+    links:
+    - database:mysql
+    - elasticsearch:es
+    volumes:
+    - ./:/srv/gamemooch
+    ports:
+    - "3000:3000"

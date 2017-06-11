@@ -1,0 +1,100 @@
+
+version: '2'
+
+volumes:
+
+  languages:
+    external:
+      name: ${CYBER_DOJO_START_POINT_LANGUAGES}
+  exercises:
+    external:
+      name: ${CYBER_DOJO_START_POINT_EXERCISES}
+  custom:
+    external:
+      name: ${CYBER_DOJO_START_POINT_CUSTOM}
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+services:
+
+  web:
+    build:
+      context: .
+      args:
+        - CYBER_DOJO_HOME
+    user: cyber-dojo
+    image: cyberdojo/web
+    container_name: cyber-dojo-web
+    environment:
+      - CYBER_DOJO_HOME
+    mem_limit: 2G
+    memswap_limit: 2G
+    restart: on-failure
+    depends_on:
+      - runner
+      - runner_stateless
+      - storer
+      - differ
+      - zipper
+    volumes:
+      - languages:${CYBER_DOJO_HOME}/start_points/languages:ro
+      - exercises:${CYBER_DOJO_HOME}/start_points/exercises:ro
+      - custom:${CYBER_DOJO_HOME}/start_points/custom:ro
+
+  storer:
+    user: root
+    image: cyberdojo/storer
+    container_name: cyber-dojo-storer
+    read_only: true
+    tmpfs: /tmp
+    environment:
+      - CYBER_DOJO_KATAS_ROOT
+    mem_limit: 2G
+    memswap_limit: 2G
+    restart: on-failure
+
+  runner:
+    user: root
+    image: cyberdojo/runner
+    container_name: cyber-dojo-runner
+    read_only: true
+    tmpfs: /tmp
+    mem_limit: 2G
+    memswap_limit: 2G
+    restart: on-failure
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  runner_stateless:
+    user: root
+    image: cyberdojo/runner_stateless
+    container_name: cyber-dojo-runner-stateless
+    read_only: true
+    tmpfs: /tmp
+    mem_limit: 2G
+    memswap_limit: 2G
+    restart: on-failure
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  differ:
+    user: nobody
+    image: cyberdojo/differ
+    container_name: cyber-dojo-differ
+    read_only: true
+    tmpfs: /tmp
+    mem_limit: 1G
+    memswap_limit: 1G
+    restart: on-failure
+
+  zipper:
+    user: zipper
+    image: cyberdojo/zipper
+    container_name: cyber-dojo-zipper
+    read_only: true
+    tmpfs: /tmp
+    mem_limit: 50M
+    memswap_limit: 50M
+    restart: on-failure
+    depends_on:
+      - storer

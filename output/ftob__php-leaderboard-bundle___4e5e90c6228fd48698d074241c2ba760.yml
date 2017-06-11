@@ -1,0 +1,8 @@
+php:
+    container_name: leaderboard_php
+    build: ./
+    volumes:
+      - .:/usr/local/app
+    tty: true
+    ports:
+      - "8000:8000"

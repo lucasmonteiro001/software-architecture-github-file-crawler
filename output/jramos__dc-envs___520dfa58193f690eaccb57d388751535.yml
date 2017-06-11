@@ -1,0 +1,27 @@
+web:
+  build: .
+  working_dir: /var/www
+  command: bundle exec rails server -p 3000 -b 0.0.0.0 -e development
+  ports:
+    - "3000:3000"
+  environment:
+    RACK_ENV: development
+    RAILS_ENV: development
+    DATABASE_URL: postgres://myapp:mypassword@postgres:5432/myapp_development?pool=1
+    REDIS_URL: redis://redis:6379/myapp_development
+  links:
+    - redis
+    - postgres
+  volumes:
+    - .:/var/www
+
+redis:
+  image: redis:3.0
+  command: redis-server --maxmemory 512mb --maxmemory-policy allkeys-lru
+
+postgres:
+  image: postgres:9.4
+  environment:
+    POSTGRES_DB: myapp_development
+    POSTGRES_USER: myapp
+    POSTGRES_PASSWORD: mypassword

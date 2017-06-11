@@ -1,0 +1,43 @@
+version: "3"
+services:
+    webcord-bot:
+        image: "kettui/webcord-bot:latest"
+        container_name: webcord-bot
+        restart: always
+        expose:
+            - "Same as BOT_PORT"
+        volumes:
+            - /logs:/usr/src/webcord-bot/logs
+        environment:
+            - AUTH_SECRET= # Secret for validating JWT's when connecting from an external application, should be same as in the other app
+            - BOT_HOST= # Host for the feathers app
+            - BOT_PORT= # Port for the feathers app
+            - BOT_COMMAND_PREFIX=
+            - BOT_DB_NAME= # RethinkDB db name
+            - BOT_OWNER= # ID of the discord user
+            - DISCORD_TOKEN= # Bot token
+            - DISCORD_CLIENT_ID= # Bot's Discord ID
+            - DISCORD_SECRET= # Bot secret
+            - JWT_AUDIENCE= # JWT configs are needed when connecting from an external app
+            - JWT_ALGORITHM=
+            - JWT_EXPIRES_IN= # eg. 5h, 1d etc.
+            - JWT_SUBJECT=
+            - NODE_ENV=
+            - RETHINKDB_HOST=
+            - RETHINKDB_PORT=
+            - S3_REGION=
+            - S3_BUCKET=
+            - STATISTICS_AUTOCOLLECT= # Boolean
+            - TWITCH_CLIENT_ID= # For Twitch API calls
+            - YOUTUBE_API_KEY= # Optional, not in use currently
+            - OPENWEATHER_API_KEY= # Optional, not in use currently
+        command: node ./app.js
+    rethinkdb:
+        image: rethinkdb:latest
+        container_name: rethinkdb
+        expose:
+            - "28015"
+        ports:
+            - "8080:8080" # Expose admin panel
+        volumes:
+            - /data:/data

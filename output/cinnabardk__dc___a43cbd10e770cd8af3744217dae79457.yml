@@ -1,0 +1,33 @@
+dbdata:
+  image: mysql:latest
+  volumes:
+    - /var/lib/mysql
+
+db:
+  image: mysql:latest
+  volumes_from:
+    - dbdata
+  environment:
+    - MYSQL_ROOT_PASSWORD=Memzoh78
+    - MYSQL_DATABASE=wp
+    - MYSQL_USER=wp_demo
+    - MYSQL_PASSWORD=Xumkos26
+
+wpdata:
+  image: wordpress:latest
+  volumes:
+    - /var/www/html
+
+wp:
+  image: wordpress:latest
+  links:
+    - db:mysql
+  volumes_from:
+    - wpdata
+  expose:
+    - "80"
+  environment:
+    - VIRTUAL_HOST=gb-wp.allancorfix.dk
+    - WORDPRESS_DB_NAME=wp
+    - WORDPRESS_DB_USER=wp_demo
+    - WORDPRESS_DB_PASSWORD=Xumkos26

@@ -1,0 +1,33 @@
+version: '2'
+services:
+  nodejs:
+      image: bitgandtter/nodejs
+      environment:
+          - MySQLHOST=mysql
+          - MySQLPORT=3306
+          - MySQLUSER=root
+          - MySQLPASSWORD=root
+          - MySQLDBNAME=nodetrine-dbal
+            
+          - PgSQLHOST=postgres
+          - PgSQLPORT=5432
+          - PgSQLUSER=root
+          - PgSQLPASSWORD=root
+          - PgSQLDBNAME=nodetrine-dbal
+      volumes:
+        - .:/runtime
+  mysql:
+      image: mariadb
+      environment:
+          - MYSQL_ROOT_PASSWORD=root
+          - MYSQL_DATABASE=nodetrine-dbal
+      volumes:
+          - ./development_tools/mysql_data:/var/lib/mysql
+  postgres:
+      image: postgres
+      environment:
+          - POSTGRES_PASSWORD=root
+          - POSTGRES_USER=root
+          - POSTGRES_DB=nodetrine-dbal
+      volumes:
+          - ./development_tools/postgres_data:/var/lib/postgres

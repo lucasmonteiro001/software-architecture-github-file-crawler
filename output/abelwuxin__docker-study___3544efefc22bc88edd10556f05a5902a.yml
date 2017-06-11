@@ -1,0 +1,43 @@
+consul:
+  command: -server -bootstrap
+  image: progrium/consul
+  ports:
+    - "8400:8400"
+    - "8500:8500"
+    - "8600:53/udp"
+    - "53:53/udp"
+
+registrator:
+  command:  -ip=mob.abeldeng.com consul://consul:8500
+  image: gliderlabs/registrator:latest
+  volumes:
+    - "/var/run/docker.sock:/tmp/docker.sock"
+  links:
+    - consul
+
+lb:
+  build: ./lb
+  links:
+    - consul
+  ports:
+    - "80:80"
+  environment:
+    CONSUL_URL: consul:8500
+  volumes:
+    - ./lb/consul-template:/etc/consul-template
+
+wordpress:
+  image: wordpress
+  restart: always
+  links:
+  - db:mysql
+  ports:
+  - '80'
+  environment:
+    SERVICE_NAME: wp
+    SERVICE_TAGS: production
+db:
+  image: mysql
+  restart: always
+  environment:
+  - MYSQL_ROOT_PASSWORD=example

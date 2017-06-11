@@ -1,0 +1,38 @@
+# development configuration
+casbot-dev:
+  build: .
+  ports:
+    - "5000:5000"
+  environment:
+    - NODE_ENV development
+  env_file: .env
+  dockerfile: Dockerfile.development
+  volumes:
+    - ".:/app"
+  links:
+    - "devdb:mongodb"
+
+
+devdb:
+    image: mongo:latest
+    volumes:
+      - "/tmp/mongo:/data/db"
+      
+      
+# production configuration
+casbot-prod:
+  image: audibleblink/casbot2016:latest
+  restart: always
+  ports:
+    - "5000:5000"
+  environment:
+    - NODE_ENV production
+  env_file: .env
+  links:
+    - proddb:mongodb
+
+
+proddb:
+    image: mongo:latest
+    volumes:
+      - "/data/mongo/:/data/db"

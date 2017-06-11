@@ -1,0 +1,21 @@
+version: "2"
+services:
+  mosquitto:
+    image: toke/mosquitto
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+  todos-micro:
+    build:
+      context: services/todos-service
+    command: 'node server.js'
+    ports:
+      - "30000:3000"
+    links:
+      - mosquitto
+      - mongodb
+  mongodb:
+    image: mongo:3.2
+    ports:
+      - "37017:27017"
+      - "38017:28017"

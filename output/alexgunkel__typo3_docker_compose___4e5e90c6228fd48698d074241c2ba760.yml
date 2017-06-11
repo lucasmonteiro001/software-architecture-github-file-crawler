@@ -1,0 +1,44 @@
+web:
+    image: nginx:latest
+    ports:
+        - "80:80"
+    volumes:
+        - ./:/www
+        - ./serverconfig/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    links:
+        - php
+    environment:
+        - TYPO3_CONTEXT=Development/alexgunkel
+php:
+    build: ./serverconfig/php/fpm
+    links:
+        - mariadb:db
+    volumes:
+        - ./:/www
+    environment:
+        - TYPO3_CONTEXT=${TYPO3_CONTEXT}
+php-cli:
+    build: ./serverconfig/php/cli
+    links:
+        - mariadb:db
+    volumes:
+        - ./:/www
+    environment:
+        - TYPO3_CONTEXT=${TYPO3_CONTEXT}
+mariadb:
+    image: mariadb:latest
+    ports:
+        - 3306:3306
+    volumes:
+        - ./serverconfig/mariadb/dbDataVolume:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=${mariaDbRootPassword}
+      - MYSQL_USER=${mariaDbUser}
+      - MYSQL_PASSWORD=${mariaDbPassword}
+      - MYSQL_DATABASE=${mariaDb}
+phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    ports:
+     - 8080:80
+    volumes:
+     - /sessions

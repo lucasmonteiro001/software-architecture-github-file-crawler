@@ -1,0 +1,43 @@
+
+version: '2'
+
+volumes:
+  postgres_data: {}
+
+services:
+
+  # for the setup
+  db:
+    image: mdillon/postgis:9.6 
+    volumes:
+      - postgres_data:/var/lib/postgresql/data    
+    tmpfs:
+     - /tmp
+    environment:
+     - POSTGRES_DB=osm
+     - POSTGRES_USER=osm
+     - POSTGRES_PASSWORD=osm 
+
+  # for the setup & development  
+  taginfo_dev:
+    extends:
+      file: common-services.yml
+      service: taginfo_job
+    volumes:
+     - ./dev_data/ca/ni/data:/osm/data
+     - ./dev_data/ca/ni:/osm/cfg
+     - ./dev_data:/osm/taginfo_data
+     - ./import:/osm/import
+     - ./service:/osm/service
+     - ./setup:/osm/setup
+     - ./sh:/osm/sh
+    environment:
+     - INPUT_OSM=central-america-latest.osm.pbf
+     - AREA_ID=ni
+    links:
+     - db:db
+    environment:
+     - PGHOST=db         
+     - PGUSER=osm
+     - PGDATABASE=osm
+     - PGPASSWORD=osm

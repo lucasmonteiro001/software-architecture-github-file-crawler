@@ -1,0 +1,19 @@
+nginx:
+  image: "elegoev/nginx"
+  ports:
+    - "80:80"
+  links:
+    - dockerui:dockerui
+    - drupal-drush:drupal-drush
+  volumes:
+    - ./data/auth/:/etc/nginx/conf.d
+    - ./data/html:/usr/share/nginx/html
+
+drupal-drush:
+  image: "elegoev/drupal-drush-7"
+
+dockerui:
+  image: "elegoev/dockerui"
+  privileged: true
+  volumes:
+    - /var/run/docker.sock:/var/run/docker.sock

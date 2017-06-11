@@ -1,0 +1,16 @@
+web:
+    build: .
+    ports:
+      - "80:80"
+    links:
+        - database
+    volumes:
+        - .:/app
+
+database:
+    image: mysql
+    environment:
+        MYSQL_ROOT_PASSWORD: aqwsderfgt
+        MYSQL_DATABASE: symfony
+        MYSQL_USER: symfony
+        MYSQL_PASSWORD: symfony

@@ -1,0 +1,18 @@
+version: '2'
+services:
+  db:
+    image: postgres
+    environment:
+      POSTGRES_USER: "asmweb"
+      POSTGRES_PASSWORD: "asmweb"
+    ports:
+      - "5432:5432"
+  web:
+    build: .
+    entrypoint: /code/tools/docker/startup.sh
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db

@@ -1,0 +1,64 @@
+db-data:
+  container_name: db-data
+  image: busybox:latest
+  volumes:
+    - /mnt/owncloud/mysql:/var/lib/mysql
+
+owncloud-data:
+  container_name: owncloud-data
+  image: busybox:latest
+  volumes:
+    - /mnt/owncloud/config:/var/www/owncloud/config
+    - /mnt/owncloud/data:/var/www/owncloud/data
+#    - /mnt/owncloud/apps:/var/www/owncloud/apps
+    - /mnt/owncloud/logs/nginx:/var/log/nginx
+
+db:
+  container_name: db
+  image: mariadb:latest
+  restart: always
+  volumes_from:
+    - db-data
+  environment:
+    - MYSQL_ROOT_PASSWORD=mysqlpass
+    - MYSQL_DATABASE=owncloud
+
+redis:
+  container_name: redis
+  image: redis
+
+owncloud:
+  container_name: owncloud
+  image: owncloud
+  links:
+    - db
+    - redis
+  environment:
+    - DB_TYPE=mysql
+    - DB_HOST=db
+    - DB_NAME=owncloud
+    - DB_USER=root
+    - DB_PASS=mysqlpass
+    - ADMIN_USER=dmg
+    - ADMIN_PASS=flame
+    - HTTPS_ENABLED=false
+    - TIMEZONE=Europe/Riga
+    - TERM=xterm
+  volumes_from:
+    - owncloud-data
+  ports:
+    - 8080:80
+
+web:
+  container_name: caddy
+  image: abiosoft/caddy
+  restart: always
+  links:
+    - owncloud
+  volumes:
+    - ./Caddyfile:/etc/Caddyfile
+    - /mnt/owncloud/logs/web:/tmp/owncloud
+  ports:
+    - 80:80
+    - 443:443
+

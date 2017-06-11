@@ -1,0 +1,10 @@
+web:
+  build: .
+  ports:
+    - "3000:3000"
+    - 80
+    - 443
+  volumes:
+    - .:/usr/src/app
+  command: bundle exec rails server -b 0.0.0.0
+  env_file: .env

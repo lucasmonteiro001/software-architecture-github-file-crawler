@@ -1,0 +1,16 @@
+version: '2'
+services:
+  heartspark-db:
+    image: "mysql:5.7"
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=h34rtsp4rk
+      - MYSQL_DATABASE=heartspark
+      - MYSQL_USER=hsadmin
+      - MYSQL_PASSWORD=hsadmin
+    container_name: heartspark-db
+    volumes:
+      - mysql-data:/var/lib/mysql
+volumes:
+  mysql-data:

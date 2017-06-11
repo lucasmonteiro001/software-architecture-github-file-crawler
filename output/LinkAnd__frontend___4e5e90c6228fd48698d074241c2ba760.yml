@@ -1,0 +1,12 @@
+elasticsearch:
+   image: elasticsearch:latest
+   command: elasticsearch -Des.cluster.name="linkand" -Des.node.master="true" -Des.node.data="true" -Des.http.cors.enabled="true" -Des.http.cors.allow-origin="*" -Des.bootstrap.mlockall="true"
+   ports:
+      - "9200:9200"
+      - "9300:9300"
+web:
+   build: .
+   dockerfile: Dockerfile
+   container_name: frontend
+   ports:
+     - "8080:80"

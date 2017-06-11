@@ -1,0 +1,26 @@
+version: '2'
+services:
+  db:
+    image: postgres
+  redis:
+    image: redis
+  web:
+    build:
+        context: .
+        dockerfile: Dockerfile-web
+    image: stockallj/python-test-web-frontend:latest
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/code
+    depends_on:
+      - db
+      - redis
+  worker:
+    build:
+        context: .
+        dockerfile: Dockerfile-worker
+    image: stockallj/python-test-web-worker:latest
+    depends_on:
+      - redis
+    

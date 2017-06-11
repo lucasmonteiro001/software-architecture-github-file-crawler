@@ -1,0 +1,12 @@
+mysql:
+        build: marina/mysql
+        networks:
+            hlc:
+                ipv4_address: 172.16.4.10
+
+networks:
+    hlc:
+        driver: bridge
+        ipam:
+            config:
+            - subnet: 172.16.0.0/16

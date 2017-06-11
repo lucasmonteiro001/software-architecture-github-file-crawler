@@ -1,0 +1,23 @@
+version: '2'
+
+services:
+  # Flask Main Application
+  app:
+    build: .
+    image: elpaso/app
+    environment:
+      - GUNICORN_WORKERS=3
+      - GUNICORN_LOGLEVEL=info
+    volumes:
+      - .:/app
+      - /tmp:/logs
+
+
+  # Proxy
+  nginx:
+    image: nginx
+    ports:
+      - "8080:80"
+    volumes:
+      - ./static:/static:ro
+      - ./docs/elpaso_nginx_docker.conf:/etc/nginx/conf.d/default.conf:ro

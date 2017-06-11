@@ -1,0 +1,33 @@
+ version: '2'
+ services:
+   drupal-db:
+     image: mysql:5.7
+     container_name: jarch-blog-drupal-mysql
+     volumes:
+       - "~/docker-volumes/blog-drupal/.data/db:/var/lib/mysql"
+     restart: always
+     ports:
+      - "3307:3306"
+     environment:
+       MYSQL_ROOT_PASSWORD: root
+       MYSQL_DATABASE: drupal
+       MYSQL_USER: drupal
+       MYSQL_PASSWORD: drupal
+
+   drupal-web:
+     depends_on:
+       - drupal-db
+     image: drupal:8
+     container_name: jarch-blog-drupal-ui
+     links:
+       - drupal-db
+     ports:
+       - "8380:80"
+     restart: always
+     environment:
+       DRUPAL_PROFILE: standard
+       DRUPAL_SITE_NAME: Drupal
+       DRUPAL_USER: admin
+       DRUPAL_PASS: admin
+       DRUPAL_DBURL: mysql://drupal:drupal@drupal-db:3306/drupal
+       VIRTUAL_HOST: blog-dp.joericearchitect.com

@@ -1,0 +1,23 @@
+# Designed for tutum. Might need to be trimmed for docker-compose
+
+boinc:
+  image: 'ltgt/boinc-fedora:latest'
+  autoredeploy: true
+  deployment_strategy: every_node
+  environment:
+    - BOINC_MGR_PASSWORD=<password>
+    - 'BOINC_MGR_URL=http://bam.boincstats.com'
+    - BOINC_MGR_USER=<user>
+  restart: always
+  volumes_from:
+    - boinc-data
+  tags:
+    - boinc
+boinc-data:
+  image: fedora:latest
+  deployment_strategy: every_node
+  volumes:
+    - /data
+  command: /bin/true
+  tags:
+    - boinc

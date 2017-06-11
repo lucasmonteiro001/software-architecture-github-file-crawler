@@ -1,0 +1,16 @@
+version: '2'
+services:
+  elasticsearch:
+    image: elasticsearch:latest
+    ports:
+      - "9209:9200"
+  logstash:
+    build:
+      context: ./
+    entrypoint: /docker-entrypoint.sh
+    depends_on:
+     - elasticsearch
+  kibana:
+    image: kibana:latest
+    ports:
+      - "5609:5601"

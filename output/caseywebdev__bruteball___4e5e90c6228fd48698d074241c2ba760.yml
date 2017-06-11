@@ -1,0 +1,48 @@
+version: '3'
+
+volumes:
+  build:
+  pg-data:
+
+services:
+  postgres:
+    image: postgres:9.6.2
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+
+  cogs: &shared
+    image: quay.io/coderiety/bruteball:5c587e3ea6b03730cfcbcdff677a18932e9e07e6
+    command: bin/watch-build
+    environment:
+      LIVERELOAD_URL: http://localhost:8081
+    volumes:
+      - ./.eslintrc:/code/.eslintrc
+      - ./.stylelintrc:/code/.stylelintrc
+      - ./bin:/code/bin
+      - ./etc:/code/etc
+      - ./package.json:/code/package.json
+      - ./src:/code/src
+      - build:/code/build
+
+  livereload:
+    <<: *shared
+    command: bin/livereload
+    ports:
+      - 8081:80
+
+  client:
+    <<: *shared
+    command: bin/client
+    depends_on:
+      - livereload
+      - signal
+    ports:
+      - 80:80
+
+  signal:
+    <<: *shared
+    command: bin/watch-signal
+    depends_on:
+      - postgres
+    ports:
+      - 8080:80

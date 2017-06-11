@@ -1,0 +1,33 @@
+configuration:
+    image: spiroid/cozy-conf
+
+couchdata:
+    image: spiroid/cozy-couchdb-data
+
+couchdb:
+    image: spiroid/cozy-couchdb
+    volumes_from:
+        - couchdata
+        - configuration
+    volumes:
+        - $HOME/cozy-cloud/var/log/couchdb:/var/log/couchdb
+
+dataindexer:
+    image: spiroid/cozy-data-indexer
+    hostname: dataindexer
+    volumes_from:
+        - configuration
+
+controller:
+    image: spiroid/cozy-controller
+    links:
+        - couchdb
+        - dataindexer
+    volumes_from:
+        - configuration
+        - dataindexer
+    volumes:
+        - $HOME/cozy-cloud/var/log/cozy:/usr/local/var/log/cozy
+    ports:
+        - "9104:9104"
+

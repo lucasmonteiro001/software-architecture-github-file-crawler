@@ -1,0 +1,47 @@
+redis1:
+  image: registry.aliyuncs.com/abeldeng/docker-abel-single-redis
+  hostname: redis1
+  ports:
+    - "7000:7000"
+
+redis2:
+  image: registry.aliyuncs.com/abeldeng/docker-abel-single-redis
+  hostname: redis2
+  ports:
+    - "7001:7000"
+
+redis3:
+  image: registry.aliyuncs.com/abeldeng/docker-abel-single-redis
+  hostname: redis3
+  ports:
+    - "7002:7000"
+
+redis4:
+  image: registry.aliyuncs.com/abeldeng/docker-abel-single-redis
+  hostname: redis4
+  ports:
+    - "7003:7000"
+
+redis5:
+  image: registry.aliyuncs.com/abeldeng/docker-abel-single-redis
+  hostname: redis5
+  ports:
+    - "7004:7000"
+
+redis6:
+  image: registry.aliyuncs.com/abeldeng/docker-abel-single-redis
+  hostname: redis6
+  ports:
+    - "7005:7000"
+
+rediser:
+  image: registry.aliyuncs.com/abeldeng/docker-abel-single-redis
+  hostname: rediser
+  links:
+    - redis1:redis1
+    - redis2:redis2
+    - redis3:redis3
+    - redis4:redis4
+    - redis5:redis5
+    - redis6:redis6
+

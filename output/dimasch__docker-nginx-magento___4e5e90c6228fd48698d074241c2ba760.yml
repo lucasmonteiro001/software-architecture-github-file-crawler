@@ -1,0 +1,12 @@
+web:
+ image: komplizierte/docker-nginx-magento:latest
+ dns: 8.8.8.8
+ ports:
+  - "80:80"
+ extra_hosts:
+  - "mysql:192.168.99.100"
+ #volumes:
+  #- ./html/app/design/frontend/:/var/www/magento/app/design/frontend/
+  #- ./html/skin/frontend:/var/www/magento/skin/frontend
+ environment:
+  BASE_URL: http://m.local/

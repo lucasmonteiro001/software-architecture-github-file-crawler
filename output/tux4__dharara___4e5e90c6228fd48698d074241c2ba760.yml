@@ -1,0 +1,11 @@
+keystone:
+  build: .
+  command: sh /dharara/go.sh
+  ports:
+   - "8080:3000"
+  volumes:
+   - .:/dharara
+  links:
+   - mongodb
+mongodb:
+  image: mongo

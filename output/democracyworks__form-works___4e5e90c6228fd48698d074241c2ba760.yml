@@ -1,0 +1,21 @@
+---
+version: '2'
+services:
+  app:
+    build: .
+    depends_on:
+    - rabbitmq
+    environment:
+      RABBITMQ_PORT_5672_TCP_ADDR: rabbitmq
+      RABBITMQ_PORT_5672_TCP_PORT: 5672
+      FORM_WORKS_AWS_ACCESS_KEY: ''
+      FORM_WORKS_AWS_SECRET_KEY: ''
+      FORM_WORKS_AWS_S3_BUCKET: ''
+      FORM_WORKS_RENDER_THREADS: 2
+      NEW_RELIC_LICENSE_KEY: ''
+  rabbitmq:
+    image: rabbitmq:3.6.5-management
+    ports:
+    - 45672:5672
+    - 55672:15672
+    hostname: rabbitmq

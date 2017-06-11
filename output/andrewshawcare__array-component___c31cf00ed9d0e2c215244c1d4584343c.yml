@@ -1,0 +1,9 @@
+version: "2"
+services:
+  workshop:
+    image: andrewshawcare/component-workshop
+    ports:
+      - '80:80'
+      - '35729:35729'
+    volumes:
+      - ./:/usr/src/app/component

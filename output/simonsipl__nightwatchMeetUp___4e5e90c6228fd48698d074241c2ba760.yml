@@ -1,0 +1,34 @@
+version: "2"
+services:
+  selenium_hub:
+    image: selenium/hub
+    ports:
+      - "4444"
+  selenium_firefox:
+    image: selenium/node-firefox
+    links:
+      - selenium_hub
+    environment:
+      - no_proxy=""
+      - HUB_PORT_4444_TCP_ADDR=selenium_hub
+      - HUB_PORT_4444_TCP_PORT=4444
+
+  selenium_chrome:
+    image: selenium/node-chrome
+    links:
+      - selenium_hub
+    environment:
+      - no_proxy=""
+      - HUB_PORT_4444_TCP_ADDR=selenium_hub
+      - HUB_PORT_4444_TCP_PORT=4444
+
+  nightwatch:
+    image: tshio/node-yarn-jre
+    volumes:
+      - ./:/app
+    links:
+      - selenium_hub
+    depends_on:
+      - selenium_firefox
+      - selenium_chrome
+

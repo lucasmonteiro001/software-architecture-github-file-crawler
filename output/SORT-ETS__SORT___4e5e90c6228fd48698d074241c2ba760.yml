@@ -1,0 +1,22 @@
+version: '2'
+services:
+  server:
+    build:
+      context: ./server
+      args:
+        CUDA: 'false'
+    volumes:
+      - ./server/:/usr/src/server/
+    ports:
+      - "5000:5000"
+  web-client:
+    build: ./web-client/
+    ports:
+      - "6088:6088"
+    volumes:
+      - ./web-client/public/:/usr/src/app/public/
+      - ./web-client/server.js:/usr/src/app/server.js
+    depends_on:
+      - server
+    environment:
+      PROXY: server:5000

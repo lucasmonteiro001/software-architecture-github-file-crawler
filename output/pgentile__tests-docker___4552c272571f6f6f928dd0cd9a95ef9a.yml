@@ -1,0 +1,38 @@
+version: "2"
+
+services:
+
+  grafana:
+    image: "grafana/grafana"
+    ports:
+      - "3000:3000"
+    networks:
+      - graphite
+    links:
+      - graphite
+
+  graphite:
+    image: pgentile/graphite-api
+    volumes_from:
+      - "carbon:ro"
+    networks:
+      - graphite
+    links:
+      - carbon
+      - redis
+
+  carbon:
+    image: pgentile/go-carbon
+    ports:
+      - "2003:2003"
+    networks:
+      - graphite
+
+  redis:
+    image: redis
+    networks:
+      - graphite
+
+networks:
+  graphite:
+    driver: bridge

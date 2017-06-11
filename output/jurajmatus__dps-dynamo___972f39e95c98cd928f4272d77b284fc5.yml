@@ -1,0 +1,8 @@
+version: '2'
+services:
+  haproxy:
+    build: .
+    container_name: haproxy
+    hostname: haproxy.weave.local
+    network_mode: "weave"
+    restart: always

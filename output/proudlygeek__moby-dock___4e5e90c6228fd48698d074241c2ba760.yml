@@ -1,0 +1,9 @@
+node-box:
+    build: .
+    ports: 
+        - 8000
+    volumes:
+        - /home/proudlygeek/vhosts/codebox.gbargel.li/workspace/moby-dock/app:/src/app
+        - /var/run/docker.sock:/var/run/docker.sock
+    environment: 
+        VIRTUAL_HOST: dock.gbargel.li

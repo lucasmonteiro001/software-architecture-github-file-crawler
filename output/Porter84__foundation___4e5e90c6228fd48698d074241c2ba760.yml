@@ -1,0 +1,4 @@
+foundation:
+  build: .
+  ports:
+  - "3002:3002"

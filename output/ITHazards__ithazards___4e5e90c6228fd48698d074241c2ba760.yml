@@ -1,0 +1,47 @@
+version: '3'
+services:
+  search:
+    container_name: elasticsearch
+    image: elasticsearch:1.7-alpine
+    ports:
+      - "9200-9300:9200-9300"
+    network_mode: bridge
+    healthcheck:
+      test: "curl -f http://localhost:9200/_cluster/health | grep green"
+  parser:
+    build: tflow/
+    container_name: tflow
+    command: lein run -- -i http://elasticsearch:9200 https://static.nvd.nist.gov/feeds/xml/cve/nvdcve-2.0-2002.xml.gz
+    network_mode: bridge
+    depends_on:
+      - search
+    links:
+      - search
+  api:
+    build: anakata/
+    container_name: anakata
+    environment:
+      - ES_URL=http://elasticsearch:9200
+    ports:
+      - "3001:3001"
+    network_mode: bridge
+    depends_on:
+      - search
+      - parser
+    links:
+      - search
+    healthcheck:
+      test: "curl -f http://localhost:3001/ | grep -i swagger"
+  web:
+    build: phiber-optik/
+    container_name: phiber-optik
+    ports:
+      - "3000:3000"
+      - "3449:3449"
+    network_mode: bridge
+    depends_on:
+      - api
+    links:
+      - api
+    healthcheck:
+      test: "curl -f http://localhost:3000/ | grep -i app.js"

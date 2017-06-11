@@ -1,0 +1,5 @@
+dnscrypt_dnsmasq:
+  build: dnscrypt_dnsmasq
+  ports:
+    - "53:53/udp"
+  restart: always

@@ -1,0 +1,98 @@
+version: '2'
+
+volumes:
+  etcd-data: {}
+
+services:
+  etcd:
+    network_mode: host
+    restart: always
+    volumes:
+      - etcd-data:/var/etcd/data
+    image: quay.io/coreos/etcd:v${ETCD_VERSION}
+    command: |
+      --listen-client-urls=http://0.0.0.0:4001
+      --advertise-client-urls=http://127.0.0.1:4001
+      --data-dir=/var/etcd/data
+
+  kubelet:
+    privileged: true
+    network_mode: host
+    pid: host
+    restart: always
+    volumes:
+      - /:/rootfs:ro
+      - /sys:/sys:ro
+      - /dev:/dev
+      - /var/lib/docker/:/var/lib/docker:rw
+      - /var/lib/kubelet/:/var/lib/kubelet:rw
+      - /var/run:/var/run:rw
+    image: gcr.io/google_containers/hyperkube-amd64:v${K8S_VERSION}
+    depends_on:
+      - apiserver
+    command: |
+      /hyperkube kubelet
+        --containerized
+        --hostname-override=127.0.0.1
+        --address=0.0.0.0
+        --api-servers=http://127.0.0.1:8080
+        --cluster-dns=10.0.0.10
+        --cluster-domain=cluster.local
+        --allow-privileged=true
+        --v=1
+        --logtostderr=true
+
+  apiserver:
+    network_mode: host
+    restart: always
+    image: gcr.io/google_containers/hyperkube-amd64:v${K8S_VERSION}
+    depends_on:
+      - etcd
+    command: |
+      /hyperkube apiserver
+        --insecure-bind-address=0.0.0.0
+        --insecure-port=8080
+        --service-cluster-ip-range=10.0.0.1/24
+        --etcd-servers=http://127.0.0.1:4001
+        --min-request-timeout=300
+        --allow-privileged=true
+        --v=1
+        --logtostderr=true
+
+  controller-manager:
+    network_mode: host
+    restart: always
+    image: gcr.io/google_containers/hyperkube-amd64:v${K8S_VERSION}
+    depends_on:
+      - apiserver
+    command: |
+      /hyperkube controller-manager
+        --master=http://127.0.0.1:8080
+        --min-resync-period=3m
+        --v=1
+        --logtostderr=true
+
+  scheduler:
+    network_mode: host
+    restart: always
+    image: gcr.io/google_containers/hyperkube-amd64:v${K8S_VERSION}
+    depends_on:
+      - apiserver
+    command: |
+      /hyperkube scheduler
+        --master=http://127.0.0.1:8080
+        --v=1
+        --logtostderr=true
+
+  proxy:
+    network_mode: host
+    restart: always
+    privileged: true
+    image: gcr.io/google_containers/hyperkube-amd64:v${K8S_VERSION}
+    depends_on:
+      - apiserver
+    command: |
+      /hyperkube proxy
+        --master=http://127.0.0.1:8080
+        --v=1
+        --logtostderr=true

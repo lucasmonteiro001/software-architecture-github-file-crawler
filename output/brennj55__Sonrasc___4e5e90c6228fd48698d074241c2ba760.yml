@@ -1,0 +1,122 @@
+################################
+#      OCR Microservices       #
+################################
+
+nginx:
+    build: ./sonrasc-nginx-proxy
+    dockerfile: Dockerfile
+    links:
+        - web-front-1:web-front-1
+        - web-front-2:web-front-2
+    ports:
+        - "80:80"
+
+# Start messaging broker
+rabbitmq:
+  build: ./sonrasc-image-processing/
+  dockerfile: Dockerfile-rabbitmq
+  dns: ["8.8.8.8"]
+  environment:
+    - "RABBITMQ_PASS=test"
+
+# Start transformation worker
+strokewidthtransform:
+  build: ./sonrasc-image-processing/
+  dockerfile: Dockerfile-open-ocr-preprocessor
+  dns: ["8.8.8.8"]
+  links:
+    - rabbitmq
+  command: "bash /opt/open-ocr/open-ocr-preprocessor.sh -amqp_uri amqp://admin:test@rabbitmq/ -preprocessor stroke-width-transform"
+
+# Start OCR worker
+openocrworker:
+  build: ./sonrasc-image-processing/
+  dockerfile: Dockerfile-open-ocr
+  dns: ["8.8.8.8"]
+  links:
+    - rabbitmq
+  command: "bash /opt/open-ocr/open-ocr-worker.sh -amqp_uri amqp://admin:test@rabbitmq/"
+
+# Start http server
+openocr:
+  build: ./sonrasc-image-processing/
+  dockerfile: Dockerfile-open-ocr
+  dns: ["8.8.8.8"]
+  links:
+    - rabbitmq
+  ports:
+    - "9292:9292"
+  command: "bash /opt/open-ocr/open-ocr-httpd.sh -amqp_uri amqp://admin:test@rabbitmq/ -http_port 9292"
+
+################################
+#    Front-end Microservices   #
+################################
+web-front-1:
+  build: ./sonrasc-front/
+  dockerfile: Dockerfile
+  dns: ["8.8.8.8"]
+  volumes:
+    - "./sonrasc-front/:/src/"
+    - /src/node_modules
+  ports:
+    - "8080"
+  links:
+    - web-ocr-api
+    - db-api
+  command: "npm run serve"
+
+web-front-2:
+  build: ./sonrasc-front/
+  dockerfile: Dockerfile
+  dns: ["8.8.8.8"]
+  volumes:
+    - "./sonrasc-front/:/src/"
+    - /src/node_modules
+  ports:
+    - "8080"
+  links:
+    - web-ocr-api
+    - db-api
+  command: "npm run serve"
+
+web-ocr-api:
+  build: ./sonrasc-ocr-api/
+  dockerfile: Dockerfile
+  dns: ["8.8.8.8"]
+  volumes:
+    - "./sonrasc-ocr-api/:/src/"
+    - /src/node_modules
+  ports:
+    - "9005:9005"
+  links:
+    - openocr
+    - language-processing
+    - db-api
+  command: "npm run start"
+
+language-processing:
+  build: ./sonrasc-language-processing/
+  dockerfile: Dockerfile
+  dns: ["8.8.8.8"]
+  ports:
+    - "9080:9080"
+  volumes:
+    - "./sonrasc-language-processing/:/src/"
+    - /src/node_modules
+  command: "npm run start"
+
+db-api:
+  build: ./sonrasc-db-api/
+  dockerfile: Dockerfile
+  dns: ["8.8.8.8"]
+  links:
+    - db
+  ports:
+    - "7004:7004"
+  volumes:
+    - "./sonrasc-db-api/:/src/"
+    - /src/node_modules
+  command: "npm run start"
+
+db:
+  image: mongo:3.2.4

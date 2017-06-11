@@ -1,0 +1,64 @@
+version: '2'
+
+services:
+  postgres:
+    image: postgres
+    container_name: asciinema_postgres
+    restart: unless-stopped
+    volumes:
+      - ./volumes/postgres:/var/lib/postgresql/data
+    ### See https://hub.docker.com/_/postgres/ for more
+    ### configuration options for this image.
+
+  redis:
+    image: redis
+    container_name: asciinema_redis
+    restart: unless-stopped
+    volumes:
+      - ./volumes/redis:/data
+    ### See https://hub.docker.com/_/redis/ for more
+    ### configuration options for this image.
+
+  sidekiq:
+    build: .
+    image: asciinema/asciinema.org
+    container_name: asciinema_worker
+    restart: unless-stopped
+    links:
+      - redis
+      - postgres
+      - smtp
+    env_file: .env.production
+    command: "bundle exec sidekiq"
+    volumes:
+      - ./uploads:/app/uploads
+      - ./log:/app/log
+      - /tmp/asciinema-web:/tmp
+
+  smtp:
+    image: namshi/smtp
+    container_name: asciinema_smtp
+    restart: unless-stopped
+    env_file: .env.production
+    ### See https://github.com/namshi/docker-smtp for more SMTP configuration
+    ### options for this image.
+
+  web:
+    build: .
+    image: asciinema/asciinema.org
+    container_name: asciinema_web
+    restart: unless-stopped
+    links:
+      - redis
+      - postgres
+      - smtp
+    depends_on:
+      - sidekiq
+    env_file: .env.production
+    ports:
+      - "3000:80"
+    volumes:
+      - ./uploads:/app/uploads
+      - ./log:/app/log
+      - /tmp/asciinema-web:/tmp
+      - ./volumes/cache:/cache

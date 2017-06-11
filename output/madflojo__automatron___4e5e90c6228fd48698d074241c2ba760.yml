@@ -1,0 +1,23 @@
+version: '2'
+services:
+  automatron:
+    build: .
+    depends_on:
+      - redis
+  redis:
+    image: redis
+  test:
+    build: .
+    command: python /tests.py
+  mkdocs:
+    build:
+      context: .
+      dockerfile: docs/Dockerfile
+    volumes:
+      - ./:/tmp/mkdocs
+    ports:
+      - 8000:8000
+    command: mkdocs serve -a 0.0.0.0:8000
+  coverage:
+    build: .
+    command: coverage run tests.py && coverage report

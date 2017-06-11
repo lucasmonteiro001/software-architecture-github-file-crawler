@@ -1,0 +1,45 @@
+
+web:
+  restart: always
+  image: nginx:alpine
+  ports:
+    - "80:80"
+  volumes:
+    - "./web:/usr/share/nginx/html"
+  #entrypoint: sh -c 'nginx -g daemon-off;'
+
+
+jupyter:
+  image: mikebirdgeneau/jupyter
+  ports:
+    - "8888:8888"
+  volumes:
+    - ./data:/opt/app/data
+  entrypoint: sh -c 'jupyter notebook --ip=* --port=8888 --no-browser --notebook-dir=/opt/app/data'
+
+jupyterlab:
+  image: mikebirdgeneau/jupyterlab
+  ports:
+    - "8989:8888"
+  volumes:
+    - ./data:/opt/app/data
+  entrypoint: sh -c 'jupyter lab --ip=* --port=8888 --no-browser --notebook-dir=/opt/app/data'
+
+rstudio:
+  image: mikebirdgeneau/rstudio
+  ports:
+    - "8787:8787"
+  volumes:
+    - ./data:/home/rstudio/data
+  environment:
+    - ROOT = TRUE
+    - USER = jupyter
+    - PASSWORD = jupyter
+
+shiny:
+  image: rocker/shiny
+  ports:
+    - "3838:3838"
+  volumes:
+    - ./data/shinyapps/:/srv/shiny-server/
+    - ./data/shinylog/:/var/log/

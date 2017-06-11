@@ -1,0 +1,6 @@
+build:
+  build: .buildkite/
+  command: "make build"
+  volumes:
+    - .:/src
+  working_dir: /src

@@ -1,0 +1,35 @@
+# DESCRIPTION: intelligent server mock
+server:
+  image: 'dekka/node:latest'
+  environment:
+    DEKKA_APP_NAME: imock-server
+  volumes:
+    - ${DEKKA_SERVEUR_VOLUME_NAME}:/opt/node
+  ports:
+    - ${DEKKA_SERVEUR_PORT}:3000/tcp
+    - 8058:5858/tcp
+  links:
+    - redis
+
+gui:
+  image: 'dekka/node:latest'
+  environment:
+    DEKKA_APP_NAME: imock-gui
+  volumes:
+    - ${DEKKA_GUI_VOLUME_NAME}:/opt/node
+  ports:
+    - ${DEKKA_GUI_PORT}:3000/tcp
+    - 8059:5858/tcp
+  links:
+    - redis
+
+redis-commander:
+  image: 'dekka/redis-commander:latest'
+  command: --redis-host redis
+  ports:
+    - ${DEKKA_REDIS_CMD__PORT}:8081/tcp  
+  links:
+    - redis
+
+redis:
+  image: 'dekka/redis:latest'

@@ -1,0 +1,8 @@
+myapp:
+  build: .
+  dockerfile: Dockerfile    
+  ports:
+    - '3000:3000'
+  volumes:
+    - .:/home/app/myapp
+    - /home/app/myapp/node_modules 

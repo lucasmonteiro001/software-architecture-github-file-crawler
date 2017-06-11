@@ -1,0 +1,56 @@
+version: '2'
+
+services:
+  defocus:
+    build: .
+    extends:
+      file: compose/services.yml
+      service: defocus
+    depends_on:
+      - rabbitmq
+      - redis
+    ports:
+      - 127.0.0.1:5000:5000
+      - 8000:8000
+
+  rabbitmq:
+    extends:
+      file: compose/services.yml
+      service: rabbitmq
+    ports:
+      - 127.0.0.1:5672:5672
+    networks:
+      - backtier
+
+  redis:
+    extends:
+      file: compose/services.yml
+      service: redis
+    networks:
+      - backtier
+
+  celery:
+    build: .
+    container_name: df.celery
+    extends:
+      file: compose/services.yml
+      service: defocus
+    depends_on:
+      - defocus
+    command: 'workers start'
+
+  beat:
+    build: .
+    container_name: df.beat
+    extends:
+      file: compose/services.yml
+      service: defocus
+    depends_on:
+      - defocus
+    command: 'beat start'
+
+volumes:
+  df.redis:
+
+networks:
+  backtier:

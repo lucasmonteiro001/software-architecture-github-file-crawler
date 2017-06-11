@@ -1,0 +1,48 @@
+version: '2'
+services:
+    # master container hosting sources and launching node server
+    master:
+        image: node:argon
+        container_name: dockernode-master
+        command: npm start --unsafe-perm
+#        restart: always
+        expose:
+            - "8000"
+        ports:
+            - "8000:8000"
+        depends_on:
+            - data
+        volumes:
+            - .:/usr/src/app
+        volumes_from:
+            - data
+        working_dir: /usr/src/app
+        environment:
+            PATH: /usr/src/node_modules/.bin:${PATH}
+    # data-volume container hosting dependencies packages
+    data:
+        build:
+            context: .
+            dockerfile: docker/data/Dockerfile
+        container_name: dockernode-data
+        volumes:
+           - /usr/src/node_modules
+           - /usr/src/app/bower_components
+    # Pandoc service for PDF generation
+    pandoc-pdf:
+        extends:
+            file: docker/pandoc/pandoc-compose.yml
+            service: pandoc
+        container_name: playerapi-pdf
+        volumes:
+            - ./doc:/source
+        command: -o file.pdf -V geometry:margin=1in --latex-engine=xelatex
+    pandoc-docx:
+        extends:
+            file: docker/pandoc/pandoc-compose.yml
+            service: pandoc
+        container_name: playerapi-docx
+        volumes:
+            - ./doc:/source
+        command: -o file.docx # --reference-docx=template.docx
+

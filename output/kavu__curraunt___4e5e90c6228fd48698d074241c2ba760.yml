@@ -1,0 +1,8 @@
+curraunt:
+  image: kavu/curraunt:latest
+  restart: always
+  hostname: curraunt
+  container_name: curraunt
+  read_only: true
+  environment:
+    SERVICE_80_NAME: curraunt

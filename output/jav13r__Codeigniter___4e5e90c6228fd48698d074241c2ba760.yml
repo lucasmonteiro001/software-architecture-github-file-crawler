@@ -1,0 +1,62 @@
+version: '2'
+
+services:
+  nginx:
+    image: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - $PWD/nginx/default:/etc/nginx/conf.d/default.conf
+      - $PWD/nginx/logs/nginx-error.log:/var/log/nginx/error.log
+      - $PWD/nginx/logs/nginx-access.log:/var/log/nginx/access.log
+      - $PWD:/usr/share/nginx/html
+    depends_on:
+      - phpfpm
+
+  phpfpm:
+    image: cytopia/php-fpm-5.4
+    ports:
+      - "9000:9000"
+    environment:
+      TIMEZONE: America/Bogota
+      ENABLE_MAIL: 0
+      PHP_XDEBUG_ENABLE: 0
+      FORWARD_MYSQL_PORT_TO_LOCALHOST: 1
+      MOUNT_MYSQL_SOCKET_TO_LOCALDISK: 0
+      MYSQL_REMOTE_ADDR: 172.18.0.2
+      MYSQL_REMOTE_PORT: 3306
+      MYSQL_LOCAL_PORT: 3306
+    command: sh -c 'chmod -R 775 /usr/share/nginx/html'
+    working_dir: /usr/share/nginx/html
+    volumes:
+      - $PWD:/usr/share/nginx/html
+
+  composer:
+    image: composer
+    working_dir: /usr/share/nginx/html
+    command: composer install
+    volumes:
+      - $PWD:/usr/share/nginx/html
+    links:
+      - phpfpm
+
+  mariadb:
+    image: mariadb
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    restart: always
+    links:
+      - mariadb
+    ports:
+      - 8183:80
+    environment:
+      MYSQL_USER: admin
+      MYSQL_ROOT_PASSWORD: admin
+      PMA_ARBITRARY: 1
+    depends_on:
+      - mariadb

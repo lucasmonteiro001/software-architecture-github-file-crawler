@@ -1,0 +1,17 @@
+version: '3.2'
+
+services:
+  app:
+    build:
+      context: ../
+      dockerfile: ./.docker/app/Dockerfile
+    restart: always
+    ports:
+      - 80:80
+    container_name: symfonysi
+    networks:
+      - symfonysi
+
+networks:
+  symfonysi:
+    driver: bridge

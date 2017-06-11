@@ -1,0 +1,36 @@
+consul:
+  image: viljaste/consul:latest
+  hostname: consul
+  restart: always
+  ports:
+    - "8300:8300"
+    - "8301:8301"
+    - "8301:8301/udp"
+    - "8302:8302"
+    - "8302:8302/udp"
+    - "8400:8400"
+    - "8500:8500"
+    - "8600:8600"
+    - "8600:8600/udp"
+  volumes_from:
+    - consuldata
+  links:
+    - conntrack
+  environment:
+    - SERVER=Off
+    - BOOTSTRAP_EXPECT=
+    - ADVERTISE_ADDR=
+    - RETRY_JOIN=
+    - ENCRYPT=
+consuldata:
+  image: viljaste/data:latest
+  hostname: consuldata
+  volumes:
+    - /consul
+conntrack:
+  image: viljaste/conntrack:latest
+  hostname: conntrack
+  command: -F
+  net: "host"
+  cap_add:
+    - NET_ADMIN

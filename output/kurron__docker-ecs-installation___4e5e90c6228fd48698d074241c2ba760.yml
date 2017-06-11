@@ -1,0 +1,17 @@
+ecs-installation:
+    build: .
+    container_name: "ecs-installation"
+    net: "host"
+    environment:
+        AWS_ACCESS_KEY_ID: CHANGE ME 
+        AWS_SECRET_ACCESS_KEY: CHANGE ME 
+        AWS_REGION: us-west-2
+        BRANCH: master
+        MAJOR: 1
+        MINOR: 0
+        PATCH: 12
+        GROUP: com.transparent.al
+        RELEASE_URL: http://192.168.254.81:81/artifactory/transparent-release
+        MILESTONE_URL: http://192.168.254.81:81/artifactory/transparent-milestone
+        ARTIFACT_ID: hid-generator
+

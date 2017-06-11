@@ -1,0 +1,11 @@
+app:
+  build: ../
+  dockerfile: Dockerfile
+  command: "/bin/true"
+  user: wiggum
+
+postgres:
+  image: "postgres:9.4"
+  environment:
+    POSTGRES_PASSWORD: clancy_wiggum
+    POSTGRES_USER: wiggum

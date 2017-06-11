@@ -1,0 +1,65 @@
+###########################################################
+#      MAINTAINER: Mahmoud Zalt <mahmoud@zalt.me>         #
+###########################################################
+
+# PHP + NGINX Container #----------------------------------
+php-nginx:
+  image: laradock/phpnginx:latest
+  container_name: php-nginx
+  ports:
+    - "80:80"
+  volumes:
+    - ./settings/nginx:/etc/nginx/sites-available
+    - ../laravel:/var/www
+    - ./logs/nginx:/var/log/nginx
+  links:
+    - mysql
+    - redis
+  privileged: true
+  # extra_hosts:
+  #   - "laravel.dev:xxx.xxx.xxx.xxx"
+
+# MySQL Container #----------------------------------------
+mysql:
+  image: laradock/mysql:latest
+  container_name: mysql
+  ports:
+    - "3306:3306"
+  volumes_from:
+    - data
+  environment:
+    MYSQL_DATABASE: laravel-database
+    MYSQL_USER: root
+    MYSQL_PASSWORD: pass
+  privileged: true
+
+# Redis Container #----------------------------------------
+redis:
+  image: laradock/redis:latest
+  container_name: redis
+  ports:
+    - "6379:6379"
+  volumes_from:
+    - data
+  volumes:
+    - ./logs/redis:/var/log/redis
+  restart: always
+  privileged: true
+
+# Data Volume Container #----------------------------------
+data:
+  image: laradock/data:latest
+  container_name: data
+  volumes:
+    - /var/lib/mysql
+    - /var/lib/redis
+
+# Beanstalkd Container #-----------------------------------
+# beanstalkd:
+#   image: laradock/beanstalkd:latest
+#   container_name: beanstalkd
+#   ports:
+#     - "11300:11300"
+#   privileged: true
+
+#----------------------------------------------------------

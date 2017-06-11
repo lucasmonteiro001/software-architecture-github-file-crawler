@@ -1,0 +1,9 @@
+server:
+    build: server
+    expose:
+        - 8000
+
+fetcher:
+    build: fetcher
+    links:
+        - server

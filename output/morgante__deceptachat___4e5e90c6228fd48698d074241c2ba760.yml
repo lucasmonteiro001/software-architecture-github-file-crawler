@@ -1,0 +1,11 @@
+web:
+  build: .
+  env_file: service.env
+  ports:
+    - "48380:8000"
+  links:
+    - redis
+  volumes:
+    - /home/vagrant/code/COREA-AD19/deceptachat:/usr/src/app/
+redis:
+  image: redis

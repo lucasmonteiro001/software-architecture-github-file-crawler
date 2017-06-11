@@ -1,0 +1,52 @@
+version: '2'
+
+services:
+
+  #######
+  # 7.1 #
+  #######
+
+  7.1-fpm:
+    build:  ./7.1/fpm
+    image:  cubicmushroom/php:7.1-fpm
+
+  7.1-fpm-dev:
+    build:  ./7.1/fpm/dev
+    image:  cubicmushroom/php:7.1-fpm-dev
+    depends_on:
+      - 7.1-fpm
+
+  7.1-fpm-alpine:
+    build:  ./7.1/fpm/alpine
+    image:  cubicmushroom/php:7.1-fpm-alpine
+
+  7.1-fpm-alpine-dev:
+    build:  ./7.1/fpm/alpine/dev
+    image:  cubicmushroom/php:7.1-fpm-alpine-dev
+    depends_on:
+      - 7.1-fpm-alpine
+
+
+  #######
+  # 7.0 #
+  #######
+
+  7.0-fpm:
+    build:  ./7.0/fpm
+    image:  cubicmushroom/php:7.0-fpm
+
+  7.0-fpm-dev:
+    build:  ./7.0/fpm/dev
+    image:  cubicmushroom/php:7.0-fpm-dev
+    depends_on:
+      - 7.0-fpm
+
+  7.0-fpm-alpine:
+    build:  ./7.0/fpm/alpine
+    image:  cubicmushroom/php:7.0-fpm-alpine
+
+  7.0-fpm-alpine-dev:
+    build:  ./7.0/fpm/alpine/dev
+    image:  cubicmushroom/php:7.0-fpm-alpine-dev
+    depends_on:
+      - 7.0-fpm-alpine

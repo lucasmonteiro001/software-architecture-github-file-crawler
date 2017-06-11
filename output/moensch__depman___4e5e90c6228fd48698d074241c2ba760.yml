@@ -1,0 +1,20 @@
+depman:
+  build: .
+  volumes:
+   - /var/depman/data:/depman_data
+  ports:
+   - "8082:8082"
+  links:
+   - postgres
+  restart: always
+
+postgres:
+  build: ./postgres
+  volumes:
+   - ./pgdata:/var/lib/postgresql/data
+  environment:
+    POSTGRES_PASSWORD: postgres
+    PGDATA: /var/lib/postgresql/data/pgdata
+  ports:
+   - "5432:5432"
+  restart: always

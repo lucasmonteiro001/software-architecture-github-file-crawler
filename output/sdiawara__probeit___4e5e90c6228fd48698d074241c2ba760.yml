@@ -1,0 +1,9 @@
+app:
+  image: golang:1.4
+  ports:
+      - "3000:3000"
+  working_dir: /go/src/github.com/sdiawara/probeit
+  command: bash -c "go get github.com/kr/godep && godep go run main.go"
+  volumes:
+      - .:/go/src/github.com/sdiawara/probeit
+

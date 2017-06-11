@@ -1,0 +1,10 @@
+version: "2"
+services:
+  ipython:
+    build: .
+    ports:
+     - "8888:8888"
+    volumes:
+     - /Users/ds/code/2-labs/3-conda/project/project5:/home
+     - /Users/ds/code/2-labs/3-conda/project/project5
+    tty: true

@@ -1,0 +1,68 @@
+version: '2'
+services:
+
+  pydb:
+    image: sisap/pydb:2
+    command: python -c "import sidiap.service; sidiap.service.Listener()"
+    volumes:
+      - .:/sidiap:ro
+      - /tmp:/tmp
+    environment:
+      - PYTHONPATH=/sidiap
+      - TMP_FOLDER=/tmp
+      - APP_CHARSET=latin1
+      - AES_KEY=/sidiap/.aes
+      - INPUT=/sidiap/input
+      - HOST=${HOST}
+    ports:
+      - "50007:50007"
+
+  freeze:
+    image: mariadb:10.1
+    command: [mysqld,
+              --default-storage-engine=MyISAM,
+              --character-set-server=latin1,
+              --collation-server=latin1_general_ci,
+              --skip-character-set-client-handshake,
+              --open-files-limit=1000000]
+    volumes:
+      - /home/sidiap/data:/var/lib/mysql
+      - /tmp:/tmp
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+    restart: always
+    ports:
+      - "3306:3306"
+
+  projects:
+    image: mariadb:10.1
+    command: [mysqld,
+              --default-storage-engine=MyISAM,
+              --character-set-server=latin1,
+              --collation-server=latin1_general_ci,
+              --skip-character-set-client-handshake,
+              --max-heap-table-size=64M]
+    volumes:
+      - /home/sidiap/projects:/var/lib/mysql
+      - /tmp:/tmp
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+    restart: always
+    ports:
+      - "3307:3306"
+
+  redis:
+    image: redis:3.2-alpine
+    command: [redis-server, --save]
+
+  validation:
+    image: redis:3.2-alpine
+    command: [redis-server, --save]
+
+  nginx:
+    image: nginx:alpine
+    volumes:
+      - /home/sidiap/html:/usr/share/nginx/html:ro
+    restart: always
+    ports:
+      - "81:80"

@@ -1,0 +1,42 @@
+version: '2'
+services:
+  app:
+    build: ./app
+    volumes:
+        - uwsgi:/tmp/uwsgi
+    environment:
+      - POSTGRES_DB
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - LEAGUE_ROOT_PASS
+      - SLACK_CHANNEL
+      - SLACK_WEBHOOK
+      - SERVER_NAME
+    depends_on:
+      - db
+
+  webserver:
+    build: ./webserver
+    volumes_from:
+        - app:rw
+    ports:
+        - '8080:80'
+    depends_on:
+      - app
+    volumes:
+      - uwsgi:/tmp/uwsgi
+
+  db:
+    build: ./db
+    environment:
+      - POSTGRES_DB
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+    ports:
+      - '5432:5432'
+    volumes:
+      - db_data:/var/lib/league/db
+
+volumes:
+    uwsgi:
+    db_data:

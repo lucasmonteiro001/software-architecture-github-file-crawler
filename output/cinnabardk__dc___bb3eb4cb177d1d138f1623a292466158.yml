@@ -1,0 +1,17 @@
+db:
+ image: 'tutum/mysql:5.5'
+ environment:
+ - MYSQL_PASS=g3mpx4k
+ restart: 'always'
+wp:
+ image: 'tutum/wordpress-stackable:latest'
+ environment:
+ - DB_NAME=wordpress
+ - DB_PASS=g3mpx4k
+ - DB_USER=admin
+ - VIRTUAL_HOST=dk-wp.allancorfix.dk
+ links:
+ - db
+ expose:
+ - '80'
+ restart: 'always'

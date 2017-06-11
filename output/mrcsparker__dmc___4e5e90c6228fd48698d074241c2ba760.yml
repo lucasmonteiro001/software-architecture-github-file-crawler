@@ -1,0 +1,180 @@
+version: '2'
+services:
+
+  nzbget:
+    container_name: nzbget
+    hostname: nzbget
+    image: linuxserver/nzbget
+    env_file: env
+    restart: always
+    ports:
+      - 6789:6789
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./data/config/nzbget:/config
+      - ./data/downloads:/downloads
+      - ./data/scripts:/downloads/scripts
+
+  sonarr:
+    container_name: sonarr
+    hostname: sonarr
+    image: linuxserver/sonarr
+    env_file: env
+    restart: always
+    ports:
+      - 8989:8989
+    depends_on:
+      - nzbget
+      - transmission
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /dev/rtc:/dev/rtc:ro
+      - ./data/config/sonarr:/config
+      - ./data/media/tv:/tv
+      - ./data/downloads:/downloads
+
+  couchpotato:
+    container_name: couchpotato
+    hostname: couchpotato
+    image: linuxserver/couchpotato
+    env_file: env
+    restart: always
+    ports:
+      - 5050:5050
+    depends_on:
+      - nzbget
+      - transmission
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./data/config/couchpotato:/config
+      - ./data/downloads:/downloads
+      - ./data/media/movies:/movies
+
+  plex:
+    container_name: plex
+    hostname: plex
+    image: linuxserver/plex:latest
+    restart: always
+    network_mode: "host"
+    env_file: env
+    restart: always
+    ports:
+      # TCP: 32400 (for access to the Plex Media Server) [required]
+      - "32400:32400"
+      # UDP: 1900 (for access to the Plex DLNA Server)
+      - "1900:1900/udp"
+      # TCP: 3005 (for controlling Plex Home Theater via Plex Companion)
+      - "3005:3005"
+      # UDP: 5353 (for older Bonjour/Avahi network discovery)
+      - "5353:5353/udp"
+      # TCP: 8324 (for controlling Plex for Roku via Plex Companion)
+      - "8324:8324"
+      # UDP: 32410, 32412, 32413, 32414 (for current GDM network discovery)
+      - "32410:32410/udp"
+      - "32412:32412/udp"
+      - "32413:32413/udp"
+      - "32414:32414/udp"
+      # TCP: 32469 (for access to the Plex DLNA Server)
+      - "32469:32469"
+    depends_on:
+      - nzbget
+      - sonarr
+      - couchpotato
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./data/config/plex:/config
+      - ./data/media/tv:/data/tv
+      - ./data/media/movies:/data/movies
+      - ./data/media/music:/data/music
+      - ./data/transcode/plex:/transcode
+
+  plexpy:
+    container_name: plexpy
+    image: linuxserver/plexpy
+    restart: always
+    env_file: env
+    ports:
+      - "8181:8181"
+    depends_on:
+      - plex
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./data/config/plexpy:/config
+      - ./data/logs/plexpy:/logs
+
+  muximux:
+    container_name: muximux
+    hostname: muximux
+    image: linuxserver/muximux
+    restart: always
+    env_file: env
+    ports:
+      - "80:80"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./data/config/muximux:/config
+
+  transmission:
+    container_name: transmission
+    hostname: transmission
+    image: linuxserver/transmission
+    restart: always
+    env_file: env
+    ports:
+      - "9091:9091"
+      - "51413:51413"
+      - "51413:51413/udp"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./data/config/transmission:/config
+      - ./data/downloads:/downloads
+      - ./data/watch/transmission:/watch
+
+  samba:
+    container_name: samba
+    hostname: samba
+    image: dperson/samba
+    restart: always
+    env_file: env
+    ports:
+      - "139:139"
+      - "445:445"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./data:/mount
+    command:
+      - -s
+      - media;/mount/media;yes;no;yes;all
+      - -s
+      - watch;/mount/watch;yes;no;yes;all
+      - -s
+      - downloads;/mount/downloads;yes;no;yes;all
+
+  mylar:
+    container_name: mylar
+    hostname: mylar
+    image: linuxserver/mylar
+    restart: always
+    env_file: env
+    ports:
+      - "8090:8090"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./data/config/mylar:/config
+      - ./data/downloads:/downloads
+      - ./data/media/comics:/comics
+
+  glances:
+    container_name: glances
+    hostname: glances
+    image:  nicolargo/glances
+    restart: always
+    env_file: env
+    ports:
+      - "61208:61208"
+      - "61209:61209"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+

@@ -1,0 +1,10 @@
+nginx:
+  build: nginx
+  ports:
+    - "8080:80"
+varnish:
+  build: varnish
+  ports:
+    - "80:6081"
+  links:
+    - nginx:backend

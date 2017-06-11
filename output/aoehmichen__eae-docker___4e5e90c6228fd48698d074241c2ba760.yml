@@ -1,0 +1,129 @@
+version: '2'
+
+services:
+  # eAE Parts
+  jupytereae:
+    image: aoehmich/jupyter-eae:latest
+    hostname: jupyter
+    privileged: true
+    depends_on:
+      - interfaceeae
+    command: [-deamon, "X.X.X.X", "8443", jupytereae, "22"]
+    ports:
+      - "7180:7180"
+      - "7777:7777"
+      - "8888:8888"
+      - "18088:18088"
+    volumes:
+      - "./jupyter/jupyter_notebook_config.py:/root/jupyter_notebook_config.py"
+      - "./ssh/id_rsa:/root/id_rsa"
+      - "./ssh/id_rsa.pub:/root/id_rsa.pub"
+  interfaceeae:
+    image: aoehmich/interface-eae:latest
+    container_name: interfaceeae
+    hostname: interfaceeae
+    stdin_open: true
+    tty: true
+    depends_on:
+      - mongo
+    ports:
+      - "8443:8443"
+    volumes:
+      - "./interfaceEAE/Config.groovy:/home/eae/.grails/interfaceEAEConfig/Config.groovy"
+      - "./interfaceEAE/lsb.hosts:/opt/openlava-3.3/etc/lsb.hosts"
+      - "./interfaceEAE/lsb.queues:/opt/openlava-3.3/etc/lsb.queues"
+      - "./interfaceEAE/lsf.cluster.openlava:/opt/openlava-3.3/etc/lsf.cluster.openlava"
+      - "./ssh/id_rsa:/home/eae/.ssh/id_rsa"
+      - "./ssh/id_rsa.pub:/home/eae/.ssh/id_rsa.pub"
+  worker1:
+    image: aoehmich/worker-eae:latest
+    container_name: worker1
+    hostname: worker1
+    stdin_open: true
+    tty: true
+    depends_on:
+      - interfaceeae
+    volumes:
+      - "./interfaceEAE/lsf.cluster.openlava:/opt/openlava-3.3/etc/lsf.cluster.openlava"
+      - "./interfaceEAE/lsb.hosts:/opt/openlava-3.3/etc/lsb.hosts"
+      - "./interfaceEAE/lsb.queues:/opt/openlava-3.3/etc/lsb.queues"
+      - "./ssh/id_rsa:/home/eae/.ssh/id_rsa"
+      - "./ssh/id_rsa.pub:/home/eae/.ssh/id_rsa.pub"
+  worker2:
+    image: aoehmich/worker-eae:latest
+    container_name: worker2
+    hostname: worker2
+    stdin_open: true
+    tty: true
+    depends_on:
+      - interfaceeae
+    volumes:
+      - "./interfaceEAE/lsf.cluster.openlava:/opt/openlava-3.3/etc/lsf.cluster.openlava"
+      - "./interfaceEAE/lsb.hosts:/opt/openlava-3.3/etc/lsb.hosts"
+      - "./interfaceEAE/lsb.queues:/opt/openlava-3.3/etc/lsb.queues"
+      - "./ssh/id_rsa:/home/eae/.ssh/id_rsa"
+      - "./ssh/id_rsa.pub:/home/eae/.ssh/id_rsa.pub"
+  workerSpark:
+    image: aoehmich/worker-spark-eae:latest
+    container_name: workerSpark
+    hostname: workerSpark
+    stdin_open: true
+    tty: true
+    privileged: true
+    ports:
+      - "7181:7180"
+    depends_on:
+      - interfaceeae
+    volumes:
+      - "./interfaceEAE/lsf.cluster.openlava:/opt/openlava-3.3/etc/lsf.cluster.openlava"
+      - "./interfaceEAE/lsb.hosts:/opt/openlava-3.3/etc/lsb.hosts"
+      - "./interfaceEAE/lsb.queues:/opt/openlava-3.3/etc/lsb.queues"
+      - "./ssh/id_rsa:/home/eae/.ssh/id_rsa"
+      - "./ssh/id_rsa.pub:/home/eae/.ssh/id_rsa.pub"
+  mongo-initialize:
+    image: aoehmich/mongo-eae:latest
+    depends_on:
+      - mongo
+  mongo:
+    image: mongo:3.4.0
+
+  # tranSMART with the eAE plugin
+  tmweb:
+    image: httpd:alpine
+    restart: unless-stopped
+    network_mode: host
+    depends_on:
+      - tmapp
+    volumes:
+      - "./transmart-web/httpd-vhosts.conf:/usr/local/apache2/conf/extra/httpd-vhosts.conf"
+      - "./transmart-web/httpd.conf:/usr/local/apache2/conf/httpd.conf"
+  tmapp:
+    image: aoehmich/transmart-app-eae:latest
+    restart: unless-stopped
+    ports:
+      - "8009:8009"
+      - "8080:8080"
+    depends_on:
+      - tmdb
+      - tmsolr
+    volumes:
+      - "./transmart-app/Config.groovy:/root/.grails/transmartConfig/Config.groovy"
+      - "./transmart-app/DataSource.groovy:/root/.grails/transmartConfig/DataSource.groovy"
+      - "./transmart-app/setenv.sh:/usr/local/tomcat/bin/setenv.sh"
+  tmdb:
+    image: dennyverbeeck/transmart-db:etriks-v3.0
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:5432:5432"
+  tmsolr:
+    image: dennyverbeeck/transmart-solr:etriks-v3.0
+    restart: unless-stopped
+  tmrserve:
+    image: dennyverbeeck/transmart-rserve:etriks-v3.0
+    restart: unless-stopped
+    volumes_from:
+      - tmapp
+  tmload:
+    image: dennyverbeeck/transmart-load:etriks-v3.0
+    depends_on:
+      - tmdb

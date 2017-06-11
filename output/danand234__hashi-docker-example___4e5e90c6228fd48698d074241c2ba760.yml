@@ -1,0 +1,73 @@
+consul:
+  image: consul
+  hostname: consul-server-01
+  ports:
+    - "8300:8300"
+    - "8400:8400"
+    - "8500:8500"
+    - "8600:8600"
+  command: consul agent -server -ui -bootstrap-expect 1 -config-dir /consul/config
+  volumes:
+    - ./mounts/consul-server-config:/consul/config
+
+consul-client:
+  image: consul
+  hostname: consul-client-01
+  command: consul agent -config-dir /consul/config
+  links:
+    - consul:consul
+  volumes:
+    - ./mounts/consul-client-config:/consul/config
+
+vault:
+  image: vault:0.6.2
+  hostname: vault-01
+  ports:
+    - "8200:8200"
+  command: vault server -config=/vault/config/vault.hcl
+  links:
+    - consul-client:consul-client
+  volumes:
+    - ./mounts/vault-config:/vault/config
+
+nomad:
+  image: djenriquez/nomad
+  hostname: nomad-01
+  ports:
+    - "4656:4646"
+    - "4647:4647"
+    - "4648:4648"
+  command: nomad agent -config /nomad/config/server.conf
+#  environment:
+#    - NOMAD_LOCAL_CONFIG="{'advertise':{'http':'172.17.0.4:4646','rpc':'172.17.0.4:4647','serf':'172.17.0.4:4648'}"
+  links:
+    - consul-client:consul-client
+  volumes:
+    - ./mounts/nomad-config:/nomad/config
+
+nginx:
+  image: cloudhero/nginx-consul-loadbalancer
+  hostname: nginx-01
+  ports:
+    - "80:80"
+  environment:
+    - CONSUL=consul-client:8500
+    - SERVICE=jenkins
+  links:
+    - consul-client:consul-client
+    - vault:vault
+  volumes:
+    - ./mounts/nginx-config/nginx-vhost.conf.ctmpl:/etc/consul-templates/nginx-vhost.conf.ctmpl
+
+jenkins:
+  build: ./custom-docker/jenkins-01
+  hostname: jenkins-01
+  ports:
+    - "8080:8080"
+    - "5000:5000"
+  environment:
+    - NOMAD_ADDR="http://nomad:4646"
+    - CONSUL_ADDR="http://consul-client:8500"
+  links:
+    - nomad:nomad
+    - consul-client:consul-client

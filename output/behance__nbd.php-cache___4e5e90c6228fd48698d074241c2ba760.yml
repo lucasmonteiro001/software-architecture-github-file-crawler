@@ -1,0 +1,21 @@
+seven:
+  extends:
+    file: ./docker-compose.base.yml
+    service: application
+  links:
+   - cache
+   - redis
+
+fivesix:
+  dockerfile: Dockerfile-56
+  extends:
+    file: ./docker-compose.base.yml
+    service: application
+  links:
+   - cache
+   - redis
+
+cache:
+  image: behance/docker-memcached
+redis:
+  image: redis

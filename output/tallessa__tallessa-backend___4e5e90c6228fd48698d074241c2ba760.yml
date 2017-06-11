@@ -1,0 +1,33 @@
+version: '2'
+services:
+  backend:
+    build: .
+    command: scripts/wait-for-it.sh postgres:5432 -- python manage.py docker_start
+    ports:
+      - 8000:8000
+    links:
+      - postgres
+    volumes:
+      - .:/usr/src/app
+    environment:
+      DEBUG: 1
+  frontend:
+    build: ../tallessa-frontend
+    ports:
+      - 8080:8080
+    links:
+      - backend
+    volumes:
+      - ../tallessa-frontend:/usr/src/app
+    environment:
+      TALLESSA_BACKEND_URL: http://backend:8000
+  postgres:
+    image: postgres
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: tallessa
+      POSTGRES_PASSWORD: tallessa
+      POSTGRES_DB: tallessa
+volumes:
+  postgres-data: {}

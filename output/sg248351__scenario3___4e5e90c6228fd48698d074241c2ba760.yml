@@ -1,0 +1,64 @@
+version: '2'
+
+# Creating 3 services for: IBM Integration Bus, Message Queue and Secure Gateway.
+services:
+
+  # Creating the MQ service from an image stored in Docker Hub and exposing port 5672(AMQP).
+  mq:
+    image: sg248351/eventqm
+    ports:
+      - "5672"
+      - "1414"
+    environment:
+      - LICENSE=${LICENSE}
+    networks:
+      sc3-net:
+        aliases:
+          - mq
+
+#  mongodb:
+#    image: mongo
+#    command: [--auth]
+#    ports:
+#      - "27017"
+#    networks:
+#      sc3-net:
+#        aliases:
+#          - mongo
+
+  # Creating the IIB service from an image stored in Docker Hub and exposing ports 1414(MQ Admin), 4414(IIB Admin) and 7800(IIB Runtime).
+  iib-op:
+    build: 99_docker/iib/
+    image: sg248351/iib-op
+    depends_on:
+      - mq
+    ports:
+      - "1414"
+      - "4414"
+      - "7800"
+    environment:
+      - LICENSE=${LICENSE}
+      - MSGHUBUSER=${MSGHUBUSER}
+      - MSGHUBPASS=${MSGHUBPASS}
+    networks:
+      sc3-net:
+        aliases:
+          - iib
+
+  # Creating the SG service buy building the image on the fly,
+  # with the Secure Gateway info stored in environment variables
+  # and using the Dockerfile and ACL file downloaded from GitHub.
+  sgc:
+    build: 99_docker/sgc/
+    image: sg248351/secure-gateway-client
+    depends_on:
+      - mq
+      - iib-op
+    command: [$SC3_SGWID, -F, /tmp/aclfile.txt, --sectoken, $SC3_SECTOKEN]
+    networks:
+      sc3-net:
+
+# Creating a dedicated network for this scenario, to which all containers will be connected.
+networks:
+  sc3-net:
+    driver: bridge

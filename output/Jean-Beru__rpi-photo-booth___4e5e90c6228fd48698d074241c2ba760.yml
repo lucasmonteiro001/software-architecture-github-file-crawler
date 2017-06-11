@@ -1,0 +1,7 @@
+app:
+    build: ./docker
+    container_name: rpi_photo_booth
+    volumes:
+        - .:/app
+    environment:
+        NODE_ENV: development

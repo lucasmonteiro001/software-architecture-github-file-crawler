@@ -1,0 +1,54 @@
+
+redis:
+    build: pixeldragon/redis:24
+    volumes:
+       - /data/redis:/data
+
+celery:
+    build: pixeldragon/celery
+    links:
+        - redis
+    volumes:
+        - /code/pixeldragon/code:/code
+        - /data/ids/public:/data
+      
+flower:
+    build: celery/flower
+    ports:
+        - "5555:5555"
+    links:
+        - redis
+        - ids
+
+iipsrv:         
+    build: celery/iipsrv
+    ports:
+        - "9000:80"
+    volumes:
+        - /data/ids/public:/data
+        - /data/log/iipsrv:/log
+        
+# loris:         
+#    build: ./loris
+#    ports:
+#        - "5004:5004"
+#    volumes:
+#        - /data/ids/public:/usr/local/share/images
+        
+ 
+nginx:
+    build: celery/nginx
+    ports:
+        - "80:80"
+        - "443:443"
+    links:
+        - flower
+        - iipsrv
+#        - loris
+        
+    volumes:
+        - ./nginx/conf.d:/etc/nginx/conf.d
+        - ./nginx/html:/usr/share/nginx/html
+        - /data/log/nginx:/var/log/nginx
+        - /data/cache/nginx:/var/cache/nginx
+        

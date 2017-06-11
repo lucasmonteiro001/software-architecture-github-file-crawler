@@ -1,0 +1,27 @@
+---
+version: '2'
+services:
+  app:
+    build: .
+    depends_on:
+      - rabbitmq
+      - datomic
+    environment:
+      PARTNER_WORKS_DATOMIC_URI: datomic:dev://datomic:4334/partner-works
+      RABBITMQ_PORT_5672_TCP_ADDR: rabbitmq
+      RABBITMQ_PORT_5672_TCP_PORT: 5672
+  datomic:
+    image: quay.io/democracyworks/datomic-tx:0.9.5544
+    ports:
+      - "4334:4334"
+      - "4335:4335"
+      - "4336:4336"
+    environment:
+      ALT_HOST: localhost
+    hostname: datomic
+  rabbitmq:
+    image: rabbitmq:3.5.3-management
+    ports:
+      - "45672:5672"
+      - "55672:15672"
+    hostname: rabbitmq

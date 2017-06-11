@@ -1,0 +1,21 @@
+version: '2'
+
+services:
+  nts:
+    image: koolkode/async:nts
+    build:
+      context: .
+      dockerfile: docker-nts
+    restart: always
+    volumes:
+      - './:/app:ro'
+    command: '/app/vendor/bin/phpunit -c /app/test/phpunit.xml'
+  zts:
+    image: koolkode/async:zts
+    build:
+      context: .
+      dockerfile: docker-zts
+    restart: always
+    volumes:
+      - './:/app:ro'
+    command: '/app/vendor/bin/phpunit -c /app/test/phpunit.xml'

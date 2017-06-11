@@ -1,0 +1,27 @@
+web:
+  image: daocloud.io/niuba/python-django-sample
+  build: .
+  ports:
+    - "8000:8000"
+  links:
+    - mysql:mysql
+    - redis:redis
+  environment:
+    - MYSQL_INSTANCE_NAME=psboca
+    - MYSQL_USERNAME=root
+    - MYSQL_PASSWORD=kusokuso
+  command: /code/manage.py runserver 0.0.0.0:8000
+
+mysql:
+  image: daocloud.io/mysql:latest
+  environment:
+    - MYSQL_DATABASE=psboca
+    - MYSQL_ROOT_PASSWORD=kusokuso
+  ports:
+    - "3306:3306"
+
+redis:
+  image: daocloud.io/redis:latest
+  ports:
+    - "6379:6379"
+

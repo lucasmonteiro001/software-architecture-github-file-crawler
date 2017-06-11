@@ -1,0 +1,62 @@
+# docker-compose file which starts up Zookeeper, Kafka, and a PostgreSQL instance with Bottled water extension installed.  PostgreSQL data is in a separate container.
+# More info on Bottled Water extension: https://github.com/confluentinc/bottledwater-pg
+
+zookeeper:
+  image: confluent/zookeeper
+  container_name: zookeeper
+  hostname: zookeeper
+  ports:
+    - "2181:2181"
+    - "15001:15000"
+  volumes:
+    - /tmp/docker/zk1/logs:/logs
+    - /tmp/docker/zk1/data:/data
+
+
+kafka:
+  image: confluent/kafka
+  container_name: kafka
+  hostname: kafka
+  ports:
+    - "9092:9092"
+    - "15002:15000"
+  links:
+    - zookeeper:zookeeper
+  volumes:
+    - /tmp/docker/kafka1/logs:/logs
+    - /tmp/docker/kafka1/data:/data
+  environment:
+    KAFKA_LOG_CLEANUP_POLICY: compact
+
+
+schemaregistry:
+  image: confluent/schema-registry
+  container_name: schema-registry
+  hostname: schema-registry
+  ports:
+    - "8081:8081"
+  links:
+    - zookeeper:zookeeper
+    - kafka:kafka
+  environment:
+    SCHEMA_REGISTRY_AVRO_COMPATIBILITY_LEVEL: none
+
+
+dbdata:
+  image: busybox
+  container_name: postgres-data
+  volumes:
+    - /var/lib/postgresql/data
+  command: "true"
+
+
+ 
+postgres:
+  image: confluent/postgres-bw:0.1
+  container_name: postgres
+  hostname: postgres
+  volumes_from:
+    - dbdata
+  ports:
+    - "5432:5432"
+

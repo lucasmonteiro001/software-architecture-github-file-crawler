@@ -1,0 +1,24 @@
+redis:
+  image: redis
+  command: redis-server --appendonly yes
+
+postgres:
+  image: postgres
+
+web:
+  build: .
+  links:
+    - redis:redis
+    - postgres:postgres
+  ports:
+    - 5000:5000
+  env_file: .env
+
+worker:
+  build: .
+  links:
+    - redis:redis
+    - postgres:postgres
+  env_file: .env
+  command: bin/worker --no-debug
+

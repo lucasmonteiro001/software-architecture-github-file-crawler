@@ -1,0 +1,41 @@
+memcached:
+  log_driver: ''
+  labels:
+    io.rancher.container.pull_image: always
+  tty: true
+  log_opt: {}
+  image: memcached
+  stdin_open: true
+magento-db:
+  environment:
+    MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    MYSQL_USER: ${MYSQL_USER}
+    MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    MYSQL_DATABASE: ${MYSQL_DATABASE}
+  log_driver: ''
+  labels:
+    io.rancher.container.pull_image: always
+  tty: true
+  log_opt: {}
+  image: mysql
+  stdin_open: true
+magento:
+  environment:
+    MYSQL_HOST: magento-db
+    MEMCACHED_HOST: memcached
+  log_driver: ''
+  labels:
+    io.rancher.container.pull_image: always
+  tty: true
+  log_opt: {}
+  image: usman/magento:multinode
+  stdin_open: true
+magento-lb:
+  ports:
+  - 80:80
+  tty: true
+  image: rancher/load-balancer-service
+  links:
+  - magento:magento
+  stdin_open: true
+

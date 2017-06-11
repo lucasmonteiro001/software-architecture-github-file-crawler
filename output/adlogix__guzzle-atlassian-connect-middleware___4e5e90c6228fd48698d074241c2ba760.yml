@@ -1,0 +1,71 @@
+version: "2"
+
+services:
+    proxy:
+        image: jwilder/nginx-proxy:latest
+        ports:
+          - "80:80"
+        volumes:
+          - /var/run/docker.sock:/tmp/docker.sock:ro
+          - ./nginx-vhost.d:/etc/nginx/vhost.d:ro
+        depends_on:
+            - ngrok
+            - php
+            - nginx
+        networks:
+            - proxy
+
+    ngrok:
+        image: wernight/ngrok
+        volumes:
+          - .:/var/www
+        networks:
+            - proxy
+        expose:
+            - '4040'
+        depends_on:
+            - nginx
+
+        environment:
+            VIRTUAL_HOST: ngrok.dev
+
+        command: ngrok start --config /var/www/ngrok.yml --all
+
+    application:
+        image: debian:jessie
+        volumes:
+            - .:/var/www/atlconnect
+
+    nginx:
+        image: he8us/nginx:latest
+        expose:
+            - "80"
+        environment:
+            VIRTUAL_HOST: atlassian-connect.dev
+            DOCUMENT_ROOT: /var/www/atlconnect
+            LOG_FILE: atlconnect
+        volumes_from:
+            - application
+        depends_on:
+            - php
+        networks:
+            - proxy
+            - backend
+
+
+    php:
+        image: he8us/php-fpm-dev:7.0
+        expose:
+            - "9000"
+        environment:
+            APPLICATION_ENV: dev
+            TIMEZONE: "Europe/Brussels"
+        volumes_from:
+            - application
+        networks:
+            - backend
+
+
+networks:
+    proxy:
+    backend:

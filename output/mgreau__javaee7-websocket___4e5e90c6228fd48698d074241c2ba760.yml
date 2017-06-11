@@ -1,0 +1,22 @@
+# Cache for Maven (.m2 repository)
+cache:
+  image: busybox
+  volumes:
+   - ./cache/.m2/repository:/root/.m2/repository
+
+# Backend:: Project CodeBase
+sources:
+  image: busybox
+  volumes:
+   - .:/myproject
+
+# Backend:: Build project
+build:
+  image: maven:3.2.3-jdk-8
+  command: mvn clean package -DfinalName=usopen
+  volumes_from:
+   - cache
+   - sources
+  working_dir: /myproject
+  environment:
+    MAVEN_OPTS: -Xshare:auto -Xms128M -Xmx1G

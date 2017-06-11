@@ -1,0 +1,13 @@
+gocdio-server:
+  labels:
+    gocd.role: server
+  tty: true
+  image: gocd/gocd-server:v17.3.0
+  volumes:
+  - ${data_volume}:/godata
+  volume_driver: ${volume_driver}
+  ports:
+  - ${public_port}:8153
+  - ${ssh_port}:8154
+  labels:
+    io.rancher.container.hostname_override: container_name

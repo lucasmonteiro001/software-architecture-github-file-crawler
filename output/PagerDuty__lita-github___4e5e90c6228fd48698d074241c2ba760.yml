@@ -1,0 +1,23 @@
+---
+version: '3'
+services:
+  lita-github:
+    image: 'ruby:2.1'
+    expose:
+      - '8080'
+    volumes:
+      - '.:/usr/src/app'
+      - 'lita-github-bundle:/usr/local/bundle'
+    working_dir: '/usr/src/app'
+    environment:
+      - 'BUNDLE_PATH=/usr/local/bundle'
+      - 'RSPEC_REDIS_HOST=redis'
+    command: 'bundle exec lita'
+    depends_on:
+      - 'redis'
+  redis:
+    image: 'redis'
+    expose:
+      - '8080'
+volumes:
+  lita-github-bundle: {}

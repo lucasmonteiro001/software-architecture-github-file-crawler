@@ -1,0 +1,18 @@
+version: '2'
+
+services:
+   nginx:
+      build: ./docker/nginx
+      ports:
+         - "5001:80"
+      links:
+         - fpm:pe
+   fpm:
+      build:
+         context: .
+         dockerfile: Dockerfile-Github-Oauth
+         args:
+            GITHUB_OAUTH: ${GITHUB_OAUTH}
+      volumes:
+         - ./web:/app/web
+        

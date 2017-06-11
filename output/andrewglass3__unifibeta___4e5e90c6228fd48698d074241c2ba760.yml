@@ -1,0 +1,20 @@
+version: '2'
+services:
+  unifi:
+    image: andrewglass3/unifibeta
+    ports:
+    - "8081:8081"
+    - "8080:8080"
+    - "8443:8443"
+    - "8843:8843"
+    - "3478:3478"
+    restart: always
+    volumes:
+    - /opt/docker/unifibeta/var/lib/unifi:/var/lib/unifi:rw
+    - /opt/docker/unifibeta/usr/lib/unifi/lib/:/usr/lib/unifi/lib:rw
+    - /opt/docker/unifibeta/var/log/unifi:/var/log/unifi:rw
+    - /opt/docker/unifibeta/var/run/unifi:/var/run/unifi:rw
+    - /opt/docker/unifibeta/usr/lib/unifi/logs:/usr/lib/unifi/logs:rw
+
+    
+

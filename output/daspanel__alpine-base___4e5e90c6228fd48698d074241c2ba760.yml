@@ -1,0 +1,21 @@
+version: '2'
+services:
+    daspanel-alpine-base:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        image: daspanel/alpine-base
+        volumes:
+            - ./data:/opt/daspanel/data
+        networks:
+            - frontend
+            - backend
+        env_file:
+            - daspanel.env
+networks:  
+  frontend:
+    driver: bridge
+  backend:
+    driver: bridge
+
+

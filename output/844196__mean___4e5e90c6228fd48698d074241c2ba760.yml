@@ -1,0 +1,24 @@
+version: '2'
+
+services:
+  db:
+    build: container/db
+    volumes:
+      - ./data/db:/data/db
+  webapi:
+    build: container/webapi
+    links:
+      - db
+    environment:
+      - API_PORT=3000
+      - DB_URI=db
+      - DB_PORT=27017
+      - NODE_ENV=production
+  proxy:
+    build: container/proxy
+    ports:
+      - 8080:8080
+    volumes:
+      - ./data/frontend:/www/app:ro
+    links:
+      - webapi

@@ -1,0 +1,24 @@
+version: "2"
+
+services:
+  
+  mongo1:
+    build: .
+    ports:
+      - "27018:27017"
+    networks:
+      - mongors
+      
+  mongo2:
+    build: .
+    networks:
+      - mongors
+      
+  mongo3:
+    build: .
+    networks:
+      - mongors
+
+networks:
+  mongors:
+    driver: bridge

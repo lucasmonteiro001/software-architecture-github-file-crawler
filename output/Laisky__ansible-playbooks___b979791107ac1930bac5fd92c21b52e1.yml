@@ -1,0 +1,15 @@
+# Install docker-compose
+
+---
+- name: Install docker compose
+  tags: docker
+  become: yes
+  copy:
+    src: docker-compose-Linux-x86_64
+    dest: /usr/local/bin/docker-compose
+    mode: 0755
+
+- name: Initial docker-compose
+  tags: docker
+  become: yes
+  shell: /usr/local/bin/docker-compose -v

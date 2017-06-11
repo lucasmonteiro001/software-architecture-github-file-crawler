@@ -1,0 +1,28 @@
+version: "2"
+
+services:
+
+  koa-api-db:
+    container_name: koa-api-db
+    image: alpine-postgres
+    build:
+      context: ./docker-config
+      dockerfile: postgresql.dockerfile
+    environment:
+      - POSTGRES_PASSWORD=dev
+      - POSTGRES_DB=api
+
+  koa-api-node:
+    container_name: koa-api-node
+    image: koa-api-node
+    build:
+      context: ./docker-config
+      dockerfile: node.dockerfile
+    links:
+      - koa-api-db:db
+    volumes:
+      - ./:/src
+    ports:
+      - 3000:3000
+
+

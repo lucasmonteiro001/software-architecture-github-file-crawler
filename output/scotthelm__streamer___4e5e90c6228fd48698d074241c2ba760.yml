@@ -1,0 +1,18 @@
+app: &base
+  build: .
+  dockerfile: Dockerfile
+  volumes:
+    - ".:/usr/src/app"
+  environment:
+    - "GNTP_NOTIFY=true"
+  volumes_from:
+    - bundle_data
+  command: "rake test"
+guard:
+  <<: *base
+  command: "nohup guard start --no-interactions"
+  ports: []
+bundle_data:
+  image: tianon/true
+  volumes:
+    - /usr/local/bundle

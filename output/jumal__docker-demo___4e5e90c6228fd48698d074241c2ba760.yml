@@ -1,0 +1,14 @@
+load_balancer:
+ image: tutum/haproxy
+ links:
+   - web
+ ports:
+   - "80:80"
+web:
+  build: .
+  ports:
+   - "8080"
+  links:
+   - mongodb
+mongodb:
+  image: mongo

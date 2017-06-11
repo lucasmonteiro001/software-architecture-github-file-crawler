@@ -1,0 +1,55 @@
+version: '2'
+
+services:
+
+  elastic:
+    container_name: elastic
+    image: elasticsearch:2.4
+    ports:
+      - "9200:9200"
+
+  mysql:
+    container_name: mysql
+    image: mysql:5.7
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=syrup
+      - MYSQL_USER=syrup
+      - MYSQL_PASSWORD=syrup
+      - LANG=en_US.UTF-8
+    entrypoint:
+      - "docker-entrypoint.sh"
+      - "--sql-mode=ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION"
+      - "--character-set-server=utf8"
+      - "--collation-server=utf8_general_ci"
+
+  tests:
+    build: .
+    tty: true
+    stdin_open: true
+    entrypoint: /code/tests.sh
+    environment:
+      - SYRUP_APP_NAME
+      - DATABASE_HOST
+      - DATABASE_USER
+      - DATABASE_PASSWORD
+      - DATABASE_NAME
+      - DATABASE_PORT
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+      - AWS_REGION
+      - AWS_S3_BUCKET
+      - AWS_S3_BUCKET_LOGS_PATH
+      - ELASTICSEARCH_HOST
+      - SAPI_TOKEN
+      - AWS_SQS_DEFAULT_QUEUE
+      - AWS_SQS_TEST_QUEUE_NAME
+      - CODECLIMATE_REPO_TOKEN
+    links:
+      - mysql
+      - elastic
+    volumes:
+      - ./:/code
+      - ./docker/php.ini:/usr/local/etc/php/php.ini

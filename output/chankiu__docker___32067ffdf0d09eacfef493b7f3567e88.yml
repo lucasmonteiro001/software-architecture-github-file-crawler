@@ -1,0 +1,15 @@
+version: '2'
+services:
+  transmission:
+    image: linuxserver/transmission
+    ports:
+      - "9091:9091"
+      - "51413:51413"
+      - "51413:51413/udp"
+    volumes:
+      - "/store/transmission/config:/config"
+      - "/store/transmission/scratch:/scratch"
+      - "/store/transmission/data:/data"
+    environment:
+      - TZ=EST
+

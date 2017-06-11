@@ -1,0 +1,10 @@
+aloe:
+  build: .
+  links:
+   - mongo
+  expose:
+   - "3000:3000"
+mongo:
+  image: mongo
+  volumes:
+   - /var/mongo:/data/db

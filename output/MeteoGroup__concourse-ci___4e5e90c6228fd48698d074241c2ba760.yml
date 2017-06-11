@@ -1,0 +1,28 @@
+concourse-web:
+  image: meteogroup/concourse-ci
+  entrypoint: /concourse-web.sh
+  environment:
+    CONCOURSE_URL:
+    CONCOURSE_LOGIN:
+    CONCOURSE_PASSWORD:
+    CONCOURSE_GITHUB_AUTH_CLIENT_ID:
+    CONCOURSE_GITHUB_AUTH_CLIENT_SECRET:
+    CONCOURSE_GITHUB_AUTH_ORGANIZATION:
+    CONCOURSE_GITHUB_AUTH_TEAM:
+    CONCOURSE_GITHUB_AUTH_USER:
+    CONCOURSE_PUBLICLY_VIEWABLE:
+  volumes:
+  - /var/lib/concourse/keys
+  ports:
+  - 8080:8080
+  - 2222:2222
+
+concourse-worker:
+  image: meteogroup/concourse-ci
+  entrypoint: /concourse-worker.sh
+  privileged: true
+  environment:
+    CONTAINER_DELAY: 5 #seconds, wait for the TSA setup
+  volumes_from:
+  - concourse-web
+  net: container:concourse-web

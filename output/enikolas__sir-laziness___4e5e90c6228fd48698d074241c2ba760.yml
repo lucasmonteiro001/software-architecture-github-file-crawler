@@ -1,0 +1,66 @@
+version: '2'
+services:
+  chrome:
+    image: selenium/standalone-chrome:latest
+    ports:
+      - "0.0.0.0:4444:4444"
+    environment:
+      JAVA_OPTS: -Dselenium.LOGGER.level=SEVERE
+
+  mongodb:
+    image: mongo:3.4.1
+    ports:
+      - "0.0.0.0:27017:27017"
+
+  config:
+    image: enikolas/config-service:latest
+    ports:
+      - "0.0.0.0:8888:8888"
+
+  eureka:
+    image: enikolas/eureka-service:latest
+    ports:
+      - "0.0.0.0:8761:8761"
+    depends_on:
+      - config
+    links:
+      - config
+
+  timekeeper:
+    image: enikolas/timekeeper:latest
+    ports:
+      - "0.0.0.0:6969:6969"
+    depends_on:
+      - config
+      - eureka
+      - chrome
+    links:
+      - config
+      - eureka
+      - chrome
+
+  passwordManager:
+    image: enikolas/password-manager:latest
+    ports:
+      - "0.0.0.0:6968:6968"
+    depends_on:
+      - config
+      - eureka
+      - mongodb
+    links:
+      - config
+      - eureka
+      - mongodb
+
+  bot:
+    image: enikolas/sir-laziness-bot:latest
+    depends_on:
+      - config
+      - eureka
+      - passwordManager
+      - timekeeper
+    links:
+      - config
+      - eureka
+      - passwordManager
+      - timekeeper

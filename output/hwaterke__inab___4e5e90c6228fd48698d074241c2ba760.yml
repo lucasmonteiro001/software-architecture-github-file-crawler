@@ -1,0 +1,23 @@
+version: '2'
+services:
+  client:
+    image: node
+    environment:
+      API_HOST: api
+    ports:
+      - "3000:3000"
+      - "3001:3001"
+    volumes:
+      - ./client:/app
+    working_dir: /app
+    command: bash -c "npm install && npm start"
+  api:
+    build:
+      context: server
+      dockerfile: Dockerfile-dev
+    volumes:
+      - ./server:/app/server
+      - ./client/public:/app/client/public:ro
+    ports:
+      - "8080:8080"
+    command: "rerun --background -- bundle exec rackup --host :: -p 8080 -s thin"

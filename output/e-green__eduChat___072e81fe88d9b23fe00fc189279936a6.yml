@@ -1,0 +1,13 @@
+# Let's Chat: Docker Compose
+# https://docs.docker.com/compose/
+#
+# Usage: docker-compose up
+
+app:
+  image: egreen/edu-chat:latest
+  links:
+    - mongo:chatapp-mongo
+  ports:
+    - 5000:8080
+    - 5222:5222
+

@@ -1,0 +1,29 @@
+version: '2'
+
+services:
+  webapp:
+    build: webapp/
+    volumes:
+      - ./webapp/html:/var/www/html
+    ports:
+      - "80:80"
+    networks:
+      - docker_web
+
+  mariadb:
+    build: mariadb/
+    environment:
+      - MYSQL_ROOT_PASSWORD=root_password
+      - MYSQL_DATABASE=webapp
+      - MYSQL_USER=webapp
+      - MYSQL_PASSWORD=webapp
+    volumes:
+      - ./mariadb/database:/var/lib/mysql
+    # ports:
+    #   - "3306:3306"
+    networks:
+      - docker_web
+
+networks:
+  docker_web:
+    driver: bridge

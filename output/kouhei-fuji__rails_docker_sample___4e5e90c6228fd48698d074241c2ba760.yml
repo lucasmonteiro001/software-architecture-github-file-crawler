@@ -1,0 +1,27 @@
+---
+datastore:
+  image: busybox:latest
+  volumes:
+    - /etc/localtime:/etc/localtime:ro
+    - '${PWD}:${PWD}'
+    - /data/mysql:/var/lib/mysql
+
+mysql:
+  image: mysql:latest
+  ports:
+    - '3306:3306'
+  volumes_from:
+    - datastore
+  environment:
+    MYSQL_ALLOW_EMPTY_PASSWORD: yes
+
+app:
+  build: .
+  links:
+    - 'mysql:mysql'
+  ports:
+    - '3000:3000'
+  volumes_from:
+    - datastore
+  environment:
+    RAILS_ENV: development

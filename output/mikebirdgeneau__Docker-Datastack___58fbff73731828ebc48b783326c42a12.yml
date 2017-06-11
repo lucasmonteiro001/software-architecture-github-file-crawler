@@ -1,0 +1,27 @@
+
+jupyter:
+  build: ./jupyter
+  ports:
+    - "8888:8888"
+  volumes:
+    - ./data:/opt/app/data
+  entrypoint: sh -c 'jupyter notebook --ip=* --port=8888 --no-browser --notebook-dir=/opt/app/data'
+
+rstudio:
+  build: ./rstudio
+  ports:
+    - "8787:8787"
+  volumes:
+    - ./data:/home/rstudio/data
+  environment:
+    - ROOT = TRUE
+    - USER = jupyter
+    - PASSWORD = jupyter
+
+shiny:
+  image: rocker/shiny
+  ports:
+    - "3838:3838"
+  volumes:
+    - ./data/shinyapps/:/srv/shiny-server/
+    - ./data/shinylog/:/var/log/

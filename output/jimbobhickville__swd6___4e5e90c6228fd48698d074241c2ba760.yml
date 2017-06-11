@@ -1,0 +1,35 @@
+version: '2'
+services:
+  api:
+    build:
+      context: ./api
+    environment:
+      - API_PORT=8080
+      - API_HOST=localhost
+      - WORKER_COUNT=4
+    links:
+      - db
+    ports:
+      - '8080:8080'
+    volumes:
+      - ./api:/opt/swd6/api
+#  ui:
+#    build:
+#      context: ./ui
+#    environment:
+#      - UI_PORT=9090
+#    links:
+#      - api
+#    ports:
+#      - '9090:9090'
+#    volumes:
+#      - ./ui:/opt/swd6/ui
+  db:
+    image: postgres
+    ports:
+      - '5433:5432'
+    environment:
+      - POSTGRES_PASSWORD=swd6
+      - POSTGRES_USER=swd6
+    volumes:
+      - ./pgdata:/docker-entrypoint-initdb.d

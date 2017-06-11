@@ -1,0 +1,24 @@
+nginx:
+  image: nginx
+  ports:
+    - 80:80
+    - 443:443
+  volumes:
+    - nginx.conf:/etc/nginx/nginx.conf:ro
+    - nginx.crt:/etc/nginx/ssl/nginx.crt:ro
+    - nginx.key:/etc/nginx/ssl/nginx.key:ro
+    - logs:/var/log/nginx
+  links:
+    - magento
+mysql:
+  image: mysql:5.6.23
+  env_file:
+    - env
+magento:
+  image: alexcheng/magento
+  ports:
+    - 8080:80
+  links:
+    - mysql
+  env_file:
+    - env

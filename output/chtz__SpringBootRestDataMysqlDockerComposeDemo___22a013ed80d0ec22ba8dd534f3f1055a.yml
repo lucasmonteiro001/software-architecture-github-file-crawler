@@ -1,0 +1,24 @@
+version: '2'
+services:
+  app:
+    build:
+      context: ./../../..
+      dockerfile: src/main/docker/Dockerfile
+    ports:
+     - "8080:8080"
+    links:
+     - db
+    environment:
+     - DB_PORT_3306_TCP_ADDR=db
+     - DB_PORT_3306_TCP_PORT=3306
+     - DB_ENV_MYSQL_DATABASE=db
+     - DB_ENV_MYSQL_USER=root
+     - DB_ENV_MYSQL_PASSWORD=s3cret
+     - API_USER_PASSWORD=verySecret!
+  db:
+    image: mysql:5.7
+    environment:
+     - MYSQL_ROOT_PASSWORD=s3cret
+     - MYSQL_DATABASE=db
+     - MYSQL_USER=user
+     - MYSQL_PASSWORD=pazz

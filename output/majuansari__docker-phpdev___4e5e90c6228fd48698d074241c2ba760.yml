@@ -1,0 +1,179 @@
+version: '2'
+
+services:
+
+### Code Box ###
+    codebox:
+        build:
+            context: ./docker/codebox
+            args:
+                - INSTALL_DRUSH=${INSTALL_DRUSH}
+                - INSTALL_RUNNER=${INSTALL_RUNNER}
+                - PUID=${PUID}
+                - PGID=${PGID}
+        volumes_from:
+            - volumes_source
+        ports:
+           - "22:22"
+        tty: true
+        env_file: .env
+
+### PHP-FPM  ###
+
+    php-fpm:
+        build:
+            context: ./docker/php-fpm/${PHP_VERSION}
+        volumes_from:
+            - volumes_source
+        expose:
+            - "9000"
+        links:
+            - codebox
+        env_file: .env
+
+
+#### Apache ###
+
+    apache2:
+        build:
+            context: ./docker/apache2
+            args:
+                - PHP_SOCKET=${PHP_SOCKET}
+                - WEB_DOCUMENT_ROOT=${WEB_DOCUMENT_ROOT}
+        volumes_from:
+            - volumes_source
+        volumes:
+            - ./logs/apache2:/var/log/apache2
+        ports:
+            - "8080:80"
+            - "443:443"
+        links:
+            - php-fpm
+        env_file: .env
+
+#### Nginx ####
+
+    nginx:
+        build:
+            context: ./docker/nginx
+            args:
+                - PHP_UPSTREAM=${PHP_UPSTREAM}
+        volumes_from:
+            - volumes_source
+        volumes:
+            - ./logs/nginx/:/var/log/nginx
+        ports:
+            - "81:80"
+            - "444:443"
+        links:
+            - php-fpm
+        env_file: .env
+
+### MySQL ###
+
+    mysql:
+        build:
+            context: ./docker/mysql/${MYSQL_VERSION}
+        volumes_from:
+            - volumes_data
+        ports:
+            - "3306:3306"
+        env_file: .env
+
+### PG ###
+
+    pg:
+        build:
+            context: ./docker/postgres/${PG_VERSION}
+        volumes_from:
+            - volumes_data
+        ports:
+            - "5432:5432"
+        env_file: .env
+
+### Sonarqube###
+
+    sonarqube:
+        build:
+            context: ./docker/sonar
+        ports:
+            - "9000:9000"
+        links:
+            - mysql
+        env_file: .env
+        restart: always
+
+### Phpmyadmin ###
+
+    phpmyadmin:
+        build:
+            context: ./docker/phpmyadmin
+        environment:
+            - PMA_ARBITRARY=1
+        restart: always
+        ports:
+            - 8181:80
+        volumes_from:
+            - volumes_data
+        links:
+            - mysql
+
+### Mailcatcher ###
+
+    mailcatcher:
+        build:
+            context: ./docker/mailcatcher
+        ports:
+            - 1080:1080
+        restart: always
+
+### Redis ###
+
+    redis:
+        build:
+            context: ./docker/redis
+        restart: always
+        volumes_from:
+            - volumes_data
+### Memcached ###
+
+    memcached:
+        build:
+            context: ./docker/memcached
+        restart: always
+
+### Lamp environment shortkey ###
+
+    lamp:
+        image: tianon/true
+        depends_on:
+            - php-fpm
+            - apache2
+            - mysql
+
+### Lemp environment shortkey ###
+
+    lemp:
+        image: tianon/true
+        depends_on:
+            - php-fpm
+            - nginx
+            - mysql
+#### Web source ###
+
+    volumes_source:
+        image: tianon/true
+        volumes:
+            - ${HOST_APP_DIRECTORY}:/var/www/
+
+###  Data source ###
+
+    volumes_data:
+        image: tianon/true
+        volumes:
+            - ./data/mysql:/var/lib/mysql
+            - ./data/postgres:/var/lib/postgresql/data
+            - ./data/sessions:/sessions
+            - ./data/sonarqube:/opt/sonarqube
+            - ./data/memcached:/var/lib/memcached
+            - ./data/redis:/data

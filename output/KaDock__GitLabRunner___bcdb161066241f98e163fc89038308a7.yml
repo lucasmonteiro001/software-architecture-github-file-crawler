@@ -1,0 +1,14 @@
+version: '2'
+services:
+  runner:
+    container_name: gitlab_runner
+    image: gitlab/gitlab-runner:alpine
+    domainname: example.com
+    hostname: gitlab
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:Z
+      - config:/etc/gitlab-runner:Z
+
+volumes:
+  config:
+    driver: local

@@ -1,0 +1,17 @@
+web:
+  restart: always
+  image: jimsst/meanseed:1605.2012.4009.0131
+  links:
+   - db
+  ports:
+   - "3000:3000"
+   - "5858:5858"
+   - "35729:35729"
+  environment:
+   - NODE_ENV=development
+db:
+  image: mongo:3.2
+  container_name: db_1
+  restart: always
+  ports:
+   - "27017:27017"

@@ -1,0 +1,38 @@
+version: '2'
+
+services:
+  db:
+    image: postgres:9.6
+    network_mode: default
+    volumes:
+      - db:/var/lib/postgresql/data
+
+  back:
+    build: .
+    network_mode: default
+    volumes:
+      - media:/media
+      - ./settings_local.py:/src/settings/local.py:ro
+    links:
+      - 'db:db'
+    command: uwsgi --plugins /usr/lib/uwsgi/python3_plugin.so --master --processes 1 --threads 2 --chdir /src --wsgi taiga.wsgi --http-socket :8000 --stats :9191
+
+  front:
+    build: .
+    network_mode: default
+    volumes:
+      - media:/media
+    environment:
+      - TAIGA_FRONT_URL=http://localhost
+    links:
+      - 'back:back'
+    ports:
+      - '80:80/tcp'
+    command: nginx
+
+
+volumes:
+  db:
+    driver: local
+  media:
+    driver: local

@@ -1,0 +1,17 @@
+db:
+  image: 'mongo'
+
+personalhunt:
+  image: 'fuzzyio/personalhunt'
+  links:
+    - 'db:db'
+  ports:
+    - '80:80'
+  environment:
+    PORT: 80
+    DRIVER: 'mongodb'
+    PARAMS: '{"host": "db", "dbname": "personalhunt"}'
+    CLIENT_ID: "Your client ID"
+    CLIENT_SECRET: "Your client secret"
+    SECRET: "My dog has fleas"
+    FUZZY_IO_API_KEY: "Your fuzzy.ai API key"

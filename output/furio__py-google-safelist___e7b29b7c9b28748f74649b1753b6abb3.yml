@@ -1,0 +1,29 @@
+version: '2'
+services:
+    cache:
+        image: redis
+        networks:
+            - back
+    
+    safelist:
+        build:
+            context: ../
+            dockerfile: Dockerfile.production   
+        networks:
+            - back
+            - front     
+        links:
+            - cache
+        volumes:
+            - leveldb:/opt/app/save
+            - config:/opt/app/conf-files
+        ports:
+            - "5000:5000"
+volumes:
+    leveldb:
+    config:
+        external:
+            name: pysafe-config
+networks:
+    back:
+    front:

@@ -1,0 +1,28 @@
+version: '2'
+volumes:
+  data-volume: {}
+services:
+  mysql:
+    image: mariadb
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: pwd
+      MYSQL_DATABASE: users_db
+    volumes:
+      - data-volume:/var/lib/mysql
+      - ./resources/sql:/docker-entrypoint-initdb.d
+  redis:
+    image: "redis:alpine"
+    ports:
+      - "6379:6379"
+  backend:
+    image: varapp
+    ports:
+      - "8000:80"
+    depends_on:
+      - mysql
+      - redis
+    links:
+      - mysql
+      - redis

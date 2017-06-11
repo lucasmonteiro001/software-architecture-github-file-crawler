@@ -1,0 +1,9 @@
+mongodb:
+  image: mongo:latest
+  
+tomcat:
+  image: telosystoolssaas/back
+  ports:
+    - "10080:8080"
+  links:
+    - mongodb

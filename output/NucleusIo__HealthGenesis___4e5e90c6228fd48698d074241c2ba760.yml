@@ -1,0 +1,133 @@
+version: '2'
+volumes:
+  dbvolume:
+  mongovolume:
+services:
+  bootstrap:
+    build: monitored-geth-client
+    restart: on-failure
+    container_name: bootstrap
+    hostname: bootstrap
+    ulimits:
+      nofile:
+        soft: 2048
+        hard: 4096
+    links:
+      - netstats
+    entrypoint: /root/start.sh
+    command: '--datadir=~/.ethereum/devchain --nodekeyhex=091bd6067cb4612df85d9c1ff85cc47f259ced4d4cd99816b14f35650f59c322 --ipcapi="admin,db,eth,debug,miner,net,shh,txpool,personal,web3" --rpcapi "db,personal,eth,net,web3" --rpccorsdomain="*" --networkid=456719 --rpc --rpcaddr="0.0.0.0"'
+    volumes:
+      - ./files/password:/root/files/password:ro
+      - ./files/genesis.json:/root/files/genesis.json:ro
+      - ./files/keystore:/root/.ethereum/devchain/keystore:rw
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - "30303:30303"
+      - "30303:30303/udp"
+      - "8545:8545"
+  eth:
+    build: monitored-geth-client
+    restart: on-failure
+    ulimits:
+      nofile:
+        soft: 2048
+        hard: 4096
+    links:
+      - bootstrap
+      - netstats
+    entrypoint: /root/start.sh
+    volumes:
+      - ./files/password:/root/files/password:ro
+      - ./files/genesis.json:/root/files/genesis.json:ro
+      - ./files/keystore:/root/.ethereum/devchain/keystore:rw
+      - /etc/localtime:/etc/localtime:ro
+    command: '--datadir=~/.ethereum/devchain --rpccorsdomain="*" --networkid=456719 --rpc --bootnodes="enode://288b97262895b1c7ec61cf314c2e2004407d0a5dc77566877aad1f2a36659c8b698f4b56fd06c4a0c0bf007b4cfb3e7122d907da3b005fa90e724441902eb19e@XXX:30303"'
+  netstats:
+    build: eth-netstats
+    restart: on-failure
+    container_name: netstats
+    environment:
+      - WS_SECRET=eth-net-stats-secret
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - "3000:3000"
+  orthanc:
+    image: jodogne/orthanc-plugins
+    restart: on-failure
+    container_name: orthanc
+    volumes:
+      - dbvolume:/var/lib/orthanc/db
+      - ./orthanc:/etc/orthanc:ro
+    command: /etc/orthanc/
+    entrypoint: Orthanc
+    ports:
+      - "4242:4242"
+      - "8042:8042"
+  mongodb:
+    image: mongo:3.2
+    restart: on-failure
+    volumes:
+      - mongovolume:/data/db
+    command: --smallfiles
+  auth-proxy:
+    image: docker-meteor
+    restart: on-failure
+    ports:
+      - "9042:9042"
+    links:
+      - mongodb
+    volumes:
+      - /tmp/authProxy/build:/home/meteor/www
+    environment:
+      PORT: "3010"
+      ROOT_URL: "http://localhost:3010"
+      MONGO_URL: "mongodb://:mongodb:27017/meteor"
+      PROXIED_SERVER: "http://orthanc:8042"
+      ETH_INSTANCE_URL: "http://bootstrap:8545"
+  phr-app:
+    image: docker-meteor
+    restart: on-failure
+    ports:
+      - "3020:3020"
+    links:
+      - mongodb
+    volumes:
+      - /tmp/phrApp/build:/home/meteor/www
+    environment:
+      PORT: "3020"
+      ROOT_URL: "http://localhost:3020"
+      MONGO_URL: "mongodb://mongodb:27017/meteor"
+      ETH_INSTANCE_URL: "http://bootstrap:8545"
+  share-app:
+    image: docker-meteor
+    restart: on-failure
+    ports:
+      - "3030:3030"
+    links:
+      - mongodb
+      - bootstrap
+    volumes:
+      - /tmp/shareApp/build:/home/meteor/www
+    environment:
+      PORT: "3030"
+      ROOT_URL: "http://localhost:3030"
+      MONGO_URL: "mongodb://mongodb:27017/meteor"
+      ETH_INSTANCE_URL: "http://bootstrap:8545"
+  viewer-app:
+    image: docker-meteor
+    restart: on-failure
+    ports:
+      - "3004:3004"
+    links:
+      - mongodb
+      - auth-proxy
+    volumes:
+      - /tmp/viewerApp/build:/home/meteor/www
+      - ./viewerApp/config:/home/meteor/config
+    environment:
+      PORT: "3004"
+      ROOT_URL: "http://localhost:3004"
+      MONGO_URL: "mongodb://mongodb:27017/meteor"
+      SETTINGS_FILE: "/home/meteor/config/orthancDICOMWebDocker.json"
+      ETH_INSTANCE_URL: "http://bootstrap:8545"

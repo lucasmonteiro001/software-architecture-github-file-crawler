@@ -1,0 +1,38 @@
+
+version: '2'
+
+services:
+  nginx:
+    image: substratus/nginx:20160531a
+    build: nginx
+    volumes:
+      - ./nginx/sites-enabled:/etc/nginx/sites-enabled
+    ports:
+      - 443:443
+      - 8080:80
+    depends_on:
+      - scout
+      - cdris
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: "127.0.0.1:24284"
+        fluentd-tag: nginx
+
+# Your apps go below.
+# For example:
+  todowebapp:
+    hostname: todo
+    image: example/todo:today
+    build: todowebapp
+    volumes:
+      - ./todowebapp:/var/www/todowebapp
+    environment:
+      - TERM=xterm
+    ports:
+      - 80:80
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: "127.0.0.1:24284"
+        fluentd-tag: todowebapp

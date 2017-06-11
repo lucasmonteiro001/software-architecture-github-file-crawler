@@ -1,0 +1,109 @@
+redis:
+  labels:
+    io.rancher.container.pull_image: always
+  tty: true
+  image: redis:3-alpine
+  stdin_open: true
+
+MobileApp-Apache:
+  labels:
+    io.rancher.container.pull_image: always
+  tty: true
+  image: dkrs.co/netagame-laevo
+  volumes:
+  - /logs/${NAME}:/var/log/apache2
+  - /web/${NAME}/m:/var/www/html
+  stdin_open: true
+  environment:
+    ENABLE_PAGESPEED: ${PAGESPEED}
+    DB_HOSTNAME : ${DB_HOSTNAME}
+    DB_DATABASE : ${DB_DATABASE}
+    DB_PASSWORD : ${DB_PASSWORD}
+    DB_USERNAME : ${DB_USERNAME}
+    BASE_URL : ${BASE_URL}
+    SUPPORT_EMAIL : ${SUPPORT_EMAIL}
+    MOBILE_URL : ${MOBILE_URL}
+    DASHBOARD_HOST : ${DASHBOARD_HOST}
+    CATEGORY_METHOD : ${CATEGORY_METHOD}
+    CATEGORY_TYPES : ${CATEGORY_TYPES}
+    CDN_ICON_URL : ${CDN_ICON_URL}
+    NETENT_MERCHANTID : ${NETENT_MERCHANTID}
+    NETENT_PASSWORD : ${NETENT_PASSWORD}
+    NETENT_SOAPAPI : ${NETENT_SOAPAPI}
+
+BaseApp-Apache:
+  labels:
+    io.rancher.container.pull_image: always
+  tty: true
+  image: dkrs.co/netagame-laevo
+  volumes:
+  - /logs/${NAME}:/var/log/apache2
+  - /web/${NAME}:/var/www/html
+  stdin_open: true
+  environment:
+    ENABLE_PAGESPEED: ${PAGESPEED}
+    DB_HOSTNAME : ${DB_HOSTNAME}
+    DB_DATABASE : ${DB_DATABASE}
+    DB_PASSWORD : ${DB_PASSWORD}
+    DB_USERNAME : ${DB_USERNAME}
+    BASE_URL : ${BASE_URL}
+    SUPPORT_EMAIL : ${SUPPORT_EMAIL}
+    MOBILE_URL : ${MOBILE_URL}
+    DASHBOARD_HOST : ${DASHBOARD_HOST}
+    CATEGORY_METHOD : ${CATEGORY_METHOD}
+    CATEGORY_TYPES : ${CATEGORY_TYPES}
+    CDN_ICON_URL : ${CDN_ICON_URL}
+    NETENT_MERCHANTID : ${NETENT_MERCHANTID}
+    NETENT_PASSWORD : ${NETENT_PASSWORD}
+    NETENT_SOAPAPI : ${NETENT_SOAPAPI}
+
+AffiliatesApp-Apache:
+  labels:
+    io.rancher.container.pull_image: always
+  tty: true
+  image: dkrs.co/netagame-laevo
+  volumes:
+  - /logs/${NAME}:/var/log/apache2
+  - /web/${NAME}/affiliates:/var/www/html
+  stdin_open: true
+  environment:
+    ENABLE_PAGESPEED: ${PAGESPEED}
+    DB_HOSTNAME : ${DB_HOSTNAME}
+    DB_DATABASE : ${DB_DATABASE}
+    DB_PASSWORD : ${DB_PASSWORD}
+    DB_USERNAME : ${DB_USERNAME}
+    BASE_URL : ${BASE_URL}
+    SUPPORT_EMAIL : ${SUPPORT_EMAIL}
+    MOBILE_URL : ${MOBILE_URL}
+    DASHBOARD_HOST : ${DASHBOARD_HOST}
+    CATEGORY_METHOD : ${CATEGORY_METHOD}
+    CATEGORY_TYPES : ${CATEGORY_TYPES}
+    CDN_ICON_URL : ${CDN_ICON_URL}
+    NETENT_MERCHANTID : ${NETENT_MERCHANTID}
+    NETENT_PASSWORD : ${NETENT_PASSWORD}
+    NETENT_SOAPAPI : ${NETENT_SOAPAPI}
+
+LoadBalancer-services:
+  ports:
+  - ${PORT}:80
+  labels:
+    io.rancher.scheduler.global: 'true'
+    io.rancher.loadbalancer.target.AffiliatesApp-Apache: affiliates.${DOMAINNAME}=80,affiliates-dashboard.${DOMAINNAME}=80
+    io.rancher.loadbalancer.target.BaseApp-Apache: ${DOMAINNAME}=80,www.${DOMAINNAME}=80,affiliate.${DOMAINNAME}=80,dashboard.${DOMAINNAME}=80,move.${DOMAINNAME}=80
+    io.rancher.loadbalancer.target.MobileApp-Apache: m.${DOMAINNAME}=80,mobile-dashboard.${DOMAINNAME}=80
+  tty: true
+  image: rancher/load-balancer-service
+  links:
+  - AffiliatesApp-Apache:AffiliatesApp-Apache
+  - BaseApp-Apache:BaseApp-Apache
+  - MobileApp-Apache:MobileApp-Apache
+  stdin_open: true
+
+fix-file-permissions:
+  labels:
+    io.rancher.container.pull_image: always
+    io.rancher.container.start_once: 'true'
+  tty: true
+  image: dkrs.co/util-perms
+  volumes:
+  - /web/${NAME}:/files

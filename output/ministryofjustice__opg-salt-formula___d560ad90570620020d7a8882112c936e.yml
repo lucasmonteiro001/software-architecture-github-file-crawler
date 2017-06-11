@@ -1,0 +1,20 @@
+version: '2'
+
+services:
+  ecs-agent:
+    image: amazon/amazon-ecs-agent
+    logging:
+        driver: syslog
+        options:
+          syslog-address: "tcp://monitoring:2514"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/log/ecs:/log
+      - /var/lib/ecs/data:/data
+
+    env_file: /etc/ecs/ecs.config
+    network_mode: "host"
+
+#  registrator:
+#  consul:
+

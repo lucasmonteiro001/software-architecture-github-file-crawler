@@ -1,0 +1,29 @@
+web:
+  build: .
+  dockerfile: ./config/dockerfiles/Dockerfile.web
+  environment:
+    RACK_ENV: development
+    RAILS_ENV: development
+  links:
+    - db:ch-db
+    - redis:ch-redis
+  volumes:
+    - .:/app
+  volumes_from:
+    - ch_data
+db:
+  environment:
+    POSTGRES_PASSWORD: password
+  image: postgres
+  volumes_from:
+    - ch_data
+redis:
+  image: redis
+proxy:
+  image: nginx
+  links:
+    - web:ch-web
+  ports:
+    - "80:80"
+  volumes:
+    - ./config/nginx.conf:/etc/nginx/nginx.conf

@@ -1,0 +1,24 @@
+version: '2'
+services:
+  node0:
+    container_name: mariadb-node-0
+    image: mariadb:latest
+    env_file:
+      - vars.env
+      - secrets.env
+    volumes:
+      - ./data/node0:/var/lib/mysql
+      - ./conf.d:/etc/mysql/conf.d
+    command: ['--wsrep-new-cluster']
+  node1:
+    extends:
+      service: node0
+    container_name: mariadb-node-1
+    volumes:
+      - ./data/node1:/var/lib/mysql
+      - ./conf.d:/etc/mysql/conf.d
+      - ./wait4mysql.sh:/usr/local/bin/wait4mysql.sh
+    entrypoint:
+      - wait4mysql.sh
+      - mariadb-node-0
+      - docker-entrypoint.sh

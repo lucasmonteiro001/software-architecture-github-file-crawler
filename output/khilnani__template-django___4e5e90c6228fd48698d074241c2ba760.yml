@@ -1,0 +1,105 @@
+version: '2'
+services:
+    {{ project_name }}-postgres:
+        container_name: {{ project_name }}-postgres
+        image: postgres:9.6
+        restart: always
+        environment:
+            - POSTGRES_USER={{ project_name }}
+            - POSTGRES_PASSWORD={{ project_name }}
+            - POSTGRES_DB={{ project_name }}
+        volumes:
+            - ./data/postgresql-data:/var/lib/postgresql/data
+        expose:
+            - 5432
+        ports:
+            - "5432:5432"
+    {{ project_name }}-memcached:
+        container_name: {{ project_name }}-memcached
+        image: memcached:1.4
+        restart: always
+        expose:
+            - 11211
+        ports:
+            - "11211:11211"
+    {{ project_name }}-rabbit:
+        container_name: {{ project_name }}-rabbit
+        image: rabbitmq:3.6-management
+        restart: always
+        environment:
+            - RABBITMQ_DEFAULT_USER=guest
+            - RABBITMQ_DEFAULT_PASS=guest
+            - RABBITMQ_DEFAULT_VHOST=/
+        volumes:
+            - ./data/rabbitmq-mnesia:/var/lib/rabbitmq/mnesia/
+        expose:
+            - 5672
+            - 15672
+        ports:
+            - "5672:5672"
+            - "15672:15672"
+    {{ project_name }}-app:
+        container_name: {{ project_name }}-app
+        image: khilnani/pythonlite:latest
+        depends_on:
+            - {{ project_name }}-postgres
+            - {{ project_name }}-rabbit
+            - {{ project_name }}-memcached
+        restart: always
+        environment:
+            - ENV=production
+            - PORT=8080
+            - DATABASE_HOST={{ project_name }}-postgres
+            - "MEMCACHED_HOST={{ project_name }}-memcached:11211"
+            - RABBITMQ_USER=guest
+            - RABBITMQ_PASSWORD=guest
+            - RABBITMQ_HOST={{ project_name }}-rabbit
+            - RABBITMQ_VHOST=/
+        volumes:
+            - .:/opt/{{ project_name }}
+        ports:
+            - "8080:8080"
+            - "8090:8090"
+        entrypoint: /bin/sh /opt/{{ project_name }}/env/entrypoint-app.sh
+    {{ project_name }}-worker:
+        container_name: {{ project_name }}-worker
+        image: khilnani/pythonlite:latest
+        depends_on:
+            - {{ project_name }}-postgres
+            - {{ project_name }}-rabbit
+            - {{ project_name }}-memcached
+            - {{ project_name }}-app
+        restart: always
+        environment:
+            - ENV=production
+            - PORT=8080
+            - DATABASE_HOST={{ project_name }}-postgres
+            - "MEMCACHED_HOST={{ project_name }}-memcached:11211"
+            - RABBITMQ_USER=guest
+            - RABBITMQ_PASSWORD=guest
+            - RABBITMQ_HOST={{ project_name }}-rabbit
+            - RABBITMQ_VHOST=/
+        volumes:
+            - .:/opt/{{ project_name }}
+        entrypoint: /bin/sh /opt/{{ project_name }}/env/entrypoint-worker.sh
+    {{ project_name }}-beat:
+        container_name: {{ project_name }}-beat
+        image: khilnani/pythonlite:latest
+        depends_on:
+            - {{ project_name }}-postgres
+            - {{ project_name }}-rabbit
+            - {{ project_name }}-memcached
+            - {{ project_name }}-app
+        restart: always
+        environment:
+            - ENV=production
+            - PORT=8080
+            - DATABASE_HOST={{ project_name }}-postgres
+            - "MEMCACHED_HOST={{ project_name }}-memcached:11211"
+            - RABBITMQ_USER=guest
+            - RABBITMQ_PASSWORD=guest
+            - RABBITMQ_HOST={{ project_name }}-rabbit
+            - RABBITMQ_VHOST=/
+        volumes:
+            - .:/opt/{{ project_name }}
+        entrypoint: /bin/sh /opt/{{ project_name }}/env/entrypoint-beat.sh

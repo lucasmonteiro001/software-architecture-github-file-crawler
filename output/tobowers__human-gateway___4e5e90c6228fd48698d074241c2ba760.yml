@@ -1,0 +1,20 @@
+web:
+  build: .
+  ports:
+    - 3000:3000
+  command: bundle exec rails s -p 3000 -b '0.0.0.0'
+  links:
+    - mongo
+  volumes:
+    - .:/usr/src/app
+
+mongo:
+  image: mongo:3.0.7
+  volumes_from:
+    - mongoData
+
+mongoData:
+  image: mongo:3.0.7
+  volumes:
+    - /data/db
+  command: echo 'just a data container'

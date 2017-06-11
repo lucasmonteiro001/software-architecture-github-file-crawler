@@ -1,0 +1,6 @@
+www:
+  build: .
+  ports:
+    - 20007:20007
+  volumes:
+    - data:code/data

@@ -1,0 +1,26 @@
+mysql:
+# https://github.com/docker-library/docs/blob/master/mysql/README.md
+  image: mysql:5.5
+  environment:
+    MYSQL_ROOT_PASSWORD: root # mysql access root/root
+    MYSQL_DATABASE: midrupal #Customize your database name
+  volumes:
+    - ./mysql:/etc/mysql/conf.d
+  ports:
+    - "3306:3306"
+redis:
+  image: redis:2.8
+  ports:
+    - "6379:6379"
+web:
+  image: juanjol/docker-drupal-nginx:php-5.6.x
+  ports:
+   - "80:80"
+   - "443:443"
+   - "2222:22"
+  volumes:
+   - ../:/var/www/web  ## Update this to mount your code in nginx folder I.e.:/home/enfuse/mycode:/var/www
+   - ./redis:/usr/local/etc/redis ## redis config
+  links:
+   - mysql
+   - redis

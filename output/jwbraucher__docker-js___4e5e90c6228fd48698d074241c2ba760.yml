@@ -1,0 +1,13 @@
+js:
+  build: container
+  dockerfile: "${dockerfile}"
+  ports:
+    - '9000:9000'
+    - '35729:35729'
+  volumes:
+    - "./container:/opt/container"
+  command: "${command}"
+  environment:
+    APP: "${app}"
+    APP_USER: 'app'
+    APP_HOME: '/opt/container'

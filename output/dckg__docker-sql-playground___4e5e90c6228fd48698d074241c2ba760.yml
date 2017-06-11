@@ -1,0 +1,24 @@
+version: '2.0'
+
+services: 
+  sqld:
+    image: mysql:5.6
+    ports:
+      - "${PORT_SQLD}:3306"
+    volumes:
+      - .data/sqld:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: "${PASSWORD}"
+    restart: always
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:4.6
+    links:
+      - sqld:mysql
+    ports:
+      - "127.0.0.1:${PORT_PHPMYADMIN}:80"
+    environment:
+      PMA_HOST: sqld
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: "${PASSWORD}"
+    restart: always

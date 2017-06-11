@@ -1,0 +1,56 @@
+mongo:
+  image: mongo
+  volumes:
+# These two lines if you want your volumes as host mounted bind-dir
+#    - ./data/runtime/db:/data/db
+#    - ./data/dump:/dump
+# These two lines if you want volumes, but not host mounted
+    - /data/db
+    - /dump
+
+  command: mongod --smallfiles --oplogSize 128
+
+# nginx, used as an TLS frontend
+rocketchat:
+  build: nginx-tls-proxy
+  links:
+    - rocketchatserver
+  ports:
+    - 443:443
+
+rocketchatserver:
+  image: rocketchat/rocket.chat:latest
+  volumes:
+#    - ./uploads:/app/uploads
+    - /app/uploads
+  environment:
+  # this is what port rocketchat will listen on
+    - PORT=3000
+    # change to be your frontend URL to your TLS frontend
+    - ROOT_URL=https://localhost
+    - MONGO_URL=mongodb://mongo:27017/rocketchat
+    # you'll probably want this for e-mail password resets, etc.
+    #- MAIL_URL = 
+  links:
+    - mongo
+# Don't need this since we're front-ending with nginx
+#  ports:
+#    - 3000:3000
+
+# hubot, the popular chatbot (add the bot user first and change the password before starting this image)
+hubot:
+  image: rocketchat/hubot-rocketchat
+  environment:
+    - ROCKETCHAT_URL=rocketchatserver:3000
+    - ROCKETCHAT_ROOM=GENERAL
+    - ROCKETCHAT_USER=bot
+    - ROCKETCHAT_PASSWORD=botpassword
+    - BOT_NAME=bot
+# you can add more scripts as you'd like here, they need to be installable by npm
+    - EXTERNAL_SCRIPTS=hubot-help,hubot-seen,hubot-links,hubot-diagnostics
+  links:
+    - rocketchatserver:rocketchatserver
+# this is used to expose the hubot port for notifications on the host on port 3001, e.g. for hubot-jenkins-notifier
+  ports:
+    - 3001:8080
+

@@ -1,0 +1,9 @@
+vault:
+  container_name: vault
+  build: .
+  cap_add:
+    - IPC_LOCK
+  expose:
+    - "8200"
+    - "8500"
+

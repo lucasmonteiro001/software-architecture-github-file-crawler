@@ -1,0 +1,37 @@
+version: "2"
+
+services:
+  image:
+    build: .
+    image: fredrikaverpil/saltstack:2016.11.2
+    container_name: salt_image
+
+  master:
+    image: fredrikaverpil/saltstack:2016.11.2
+    container_name: salt
+    hostname: salt
+    ports:
+      - "4505:4505"
+      - "4506:4506"
+    volumes:
+      - ./assets/master/etc/supervisor:/etc/supervisor
+      - ./assets/master/etc/salt:/etc/salt
+      - ./assets/master/var/cache/salt:/var/cache/salt
+      - ./assets/master/var/log/salt:/var/log/salt
+      - ./assets/master/srv:/srv
+    privileged: true
+    command: /usr/bin/supervisord -c /etc/supervisor/supervisord.conf
+
+  minion:
+    image: fredrikaverpil/saltstack:2016.11.2
+    container_name: minion # prevents scaling
+    hostname: minion # should be removed if scaling
+    ports:
+      - "14505:4505"
+      - "14506:4506"
+    volumes:
+      - ./assets/minion/etc/salt:/etc/salt
+      - ./assets/minion/var/cache/salt:/var/cache/salt
+      - ./assets/minion/var/log/salt:/var/log/salt
+    privileged: true
+    command: /usr/bin/salt-minion --log-file=/var/log/salt/salt-minion.log --log-file-level=debug

@@ -1,0 +1,54 @@
+version: "2"
+
+services:
+    image:
+      build: .
+      image: tractor_image:2.2.1614082
+      container_name: tractor-image
+      volumes:
+        - ./assets/opt/pixar/rpms:/opt/pixar/rpms:ro
+
+    data:
+      image: tractor_image:2.2.1614082
+      container_name: tractor-data
+      hostname: tractor-data
+      volumes:
+        - /var/spool/tractor
+        - ./assets/var/log:/var/log
+        - ./assets/etc/supervisor:/etc/supervisor
+        - ./assets/opt/pixar/license:/opt/pixar/license
+        - ./assets/opt/pixar/config:/opt/pixar/config
+        - /etc/localtime:/etc/localtime:ro
+    license:
+      image: tractor_image:2.2.1614082
+      container_name: pixar-license
+      hostname: pixar-license
+      restart: always
+      # mac_address: xx:xx:xx:xx:xx:xx # could be used to set specific mac address
+      ports:
+        - "9010:9010"
+      volumes_from:
+        - data
+      command: /opt/pixar/PixarLicense-LA-11.0/PixarLicenseServer -x /opt/pixar/license/pixar.license -log /var/log/pixar-license.log
+
+    engine:
+      image: tractor_image:2.2.1614082
+      container_name: tractor-engine
+      hostname: tractor-engine
+      restart: always
+      ports:
+        - "80:80"
+        - "80/udp:80/udp"
+        - "9005:9005"
+        - "9180:9180"
+      volumes_from:
+        - data
+      command: /opt/pixar/Tractor-2.2/bin/tractor-engine --configdir=/opt/pixar/config --log=/var/log/engine.log --debug --verbose
+      #command: /usr/bin/supervisord -c /etc/supervisor/supervisord.conf
+
+    blade:
+      image: tractor_image:2.2.1614082
+      container_name: tractor-blade # prevents scaling if uncommented
+      hostname: tractor-blade
+      restart: always
+      command: /opt/pixar/Tractor-2.2/bin/tractor-blade --log=/var/log/blade.log --engine=tractor-engine --debug --verbose

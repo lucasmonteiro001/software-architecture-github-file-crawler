@@ -1,0 +1,22 @@
+version: '2'
+services:
+  rethink-master:
+    image: rethinkdb
+    ports:
+      - "9080:8080"
+      - "28015:28015"
+    networks:
+      - rethinknet
+
+
+  rethink-slaves:
+    image: rethinkdb
+    depends_on:
+      - "rethink-master"
+    networks:
+      - rethinknet
+    command: ["rethinkdb", "--bind", "all", "--join", "rethink-master:29015"]
+
+networks:
+  rethinknet:
+    driver: bridge

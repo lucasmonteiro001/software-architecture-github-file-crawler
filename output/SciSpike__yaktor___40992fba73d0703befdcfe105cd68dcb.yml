@@ -1,0 +1,79 @@
+version: '2'
+networks:
+  default:
+    driver: bridge
+services:
+  vpn:
+    privileged: true
+    ports:
+      - 4444
+    image: bobrik/socat
+    command: -d TCP-LISTEN:4444,fork TUN
+  app:
+    build:
+      context: ./docker
+    image: ${APP_NAME}:${APP_TAG}
+    cap_add:
+      - NET_ADMIN
+    environment:
+      LOG_LEVEL: silly
+      MONGO_HOSTS_0_HOST: mongo
+      SERVERS_DEFAULT_HOST_HOSTNAME: www.${APP_NAME}.yaktor
+      SERVERS_DEFAULT_HOST_PORT: 80
+      DEBUG: yaktor:config
+#      CASSANDRA_ENABLE: 1
+#      CASSANDRA_HOSTS: cassandra
+#      KAFKA_ENABLE: 1
+    depends_on:
+      - mongo
+#      - cassandra
+#      - kafka
+    volumes:
+      - ./:/app
+      - ~/.npmrc:/home/docker/.npmrc
+      - ~/.npm:/home/docker/.npm
+    networks:
+      default:
+        aliases:
+          - www.${APP_NAME}.yaktor
+    working_dir: /app
+    ports:
+      - 5858:5858
+      - 8888:80
+  mongo:
+    command: --smallfiles
+    image: mongo:3.0.4
+    networks:
+      default:
+        aliases:
+          - mongo.${APP_NAME}.yaktor
+  dns:
+    image: andyshinn/dnsmasq
+    cap_add:
+      - NET_ADMIN
+    command: --max-cache-ttl=30 --max-ttl=30
+#  zookeeper:
+#    image: zookeeper:3.4.9
+#    networks:
+#      default:
+#        aliases:
+#          - zookeeper.${APP_NAME}.yaktor
+#  kafka:
+#    image: wurstmeister/kafka:0.10.1.0
+#    environment:
+#      KAFKA_ADVERTISED_HOST_NAME: kafka
+#      KAFKA_ADVERTISED_PORT: 9092
+#      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+#    depends_on:
+#      - zookeeper
+#    networks:
+#      default:
+#        aliases:
+#          - kafka.${APP_NAME}.yaktor
+#  cassandra:
+#    image: scylladb/scylla:1.3.0 # choose scylla
+#    image: cassandra:2.1         #     or cassandra
+#    networks:
+#      default:
+#        aliases:
+#          - cassandra.${APP_NAME}.yaktor

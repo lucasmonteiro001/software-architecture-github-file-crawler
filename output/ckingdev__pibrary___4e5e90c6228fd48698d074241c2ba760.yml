@@ -1,0 +1,19 @@
+psql:
+  build: containers/psql
+  volumes:
+    - ./_psqldata/data:/var/lib/postgresql/data
+
+upgradedb:
+  build: backend/psql/migrations
+  links:
+    - psql
+  volumes:
+    - ./backend/psql/migrations:/migrations
+
+shell:
+  build: shell
+  links:
+    - psql
+  volumes:
+    - .:/go/src/github.com/ckingdev/pibrary
+  command: go run /go/src/github.com/ckingdev/pibrary/shell/shell.go

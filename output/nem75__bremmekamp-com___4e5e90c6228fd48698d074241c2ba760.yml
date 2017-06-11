@@ -1,0 +1,25 @@
+wp:
+  image: wordpress
+  links:
+    - db:mysql
+  ports:
+    - 8080:80
+  volumes_from:
+    - wp-data
+
+wp-data:
+  image: wordpress
+  command: /bin/true
+  volumes:
+    - /var/www/html
+
+db:
+  image: mariadb
+  volumes_from:
+    - db-data
+
+db-data:
+  image: mariadb
+  command: /bin/true
+  volumes:
+    - /var/lib/mysql

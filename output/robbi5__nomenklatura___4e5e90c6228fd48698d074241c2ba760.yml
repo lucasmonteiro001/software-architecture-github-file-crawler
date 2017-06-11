@@ -1,0 +1,18 @@
+nomenklatura:
+  build: .
+  ports:
+    - "8080:8080"
+  volumes:
+    - .:/usr/src/app
+  links:
+    - database
+  environment:
+    DATABASE_URL: postgres://nomenklatura:@database/nomenklatura
+    SECRET_KEY: CHANGE_ME
+    GITHUB_CLIENT_ID: CHANGE_ME
+    GITHUB_CLIENT_SECRET: CHANGE_ME
+
+database:
+  image: postgres:9.4
+  environment:
+    POSTGRES_USER: nomenklatura

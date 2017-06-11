@@ -1,0 +1,8 @@
+version: '2'
+services:
+  frontend_builder:
+    build:
+      context: ./
+      dockerfile: ./docker/Dockerfile.builder
+    volumes:
+     - .:/usr/src/app

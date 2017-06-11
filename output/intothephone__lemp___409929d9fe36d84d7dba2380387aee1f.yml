@@ -1,0 +1,23 @@
+nginx:
+    image: nginx:1.11.5
+    ports:
+        - "80:80"
+    links:
+        - phpfpm
+    volumes:
+        - /etc/localtime:/etc/localtime:ro
+        - /data/docker/nginx/wwwroot:/home/wwwroot:ro
+        - /data/docker/nginx:/etc/nginx:ro
+phpfpm:
+    image: php:fpm-withext
+    links:
+        - mysql
+    volumes:
+        - /data/docker/php/conf:/usr/local/etc/php
+        - /data/docker/nginx/wwwroot:/var/www/html
+mysql:
+  image: mysql:5.6.34
+  volumes:
+       - /data/docker/mysql/db:/var/lib/mysql
+  environment:
+    MYSQL_ROOT_PASSWORD: 12345678

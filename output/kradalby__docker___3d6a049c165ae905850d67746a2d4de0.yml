@@ -1,0 +1,8 @@
+nsd:
+    build: .
+    ports:
+        - "53:53/udp"
+    volumes:
+        - ./test/etc/nsd:/etc/nsd:ro
+        - ./test/log/nsd:/var/log/nsd
+    restart: always

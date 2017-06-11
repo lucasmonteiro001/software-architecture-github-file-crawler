@@ -1,0 +1,15 @@
+gocdio-agent:
+  labels:
+    io.rancher.scheduler.affinity:container_label_soft_ne: io.rancher.stack_service.name=$${stack_name}/$${service_name}
+    io.rancher.container.hostname_override: container_name
+    gocd.role: agent
+  tty: true
+  image: gocd/gocd-agent-ubuntu-16.04:v17.3.0
+  external_links:
+  - ${goserver_ip}:gocdio-server
+  environment:
+  - AGENT_AUTO_REGISTER_KEY=${reg_key}
+  - GO_SERVER=gocdio-server.rancher.internal
+  - GO_SERVER_PORT=${goserver_port}
+  volumes:
+  - /var/run/docker.sock:/var/run/docker.sock

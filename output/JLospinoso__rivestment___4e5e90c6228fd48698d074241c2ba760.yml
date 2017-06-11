@@ -1,0 +1,33 @@
+version: '2'
+
+services:
+  mongo:
+    build: ./Mongo
+    expose:
+    - "27017"
+    restart: always
+  rivestment:
+    build: ./Rivestment
+    ports:
+    - "80:80"
+    restart: always
+    links:
+    - mongo:mongo
+    entrypoint: npm start
+    environment:
+    - MONGO_URL=mongodb://mongo:27017/rivestment
+    - COLLECTION_NAME=profiles
+    - BOT_NAME=rivestment
+    - PREIMAGE_RANGE=hsoj
+    - PASSWORD_RANGE=abcdefghijklmnopqrstuvwxyz0123456789
+    - N_CHALLENGES=25
+    - PASSWORD_SIZE=6
+    - CHALLENGE_COST=5
+    - INCORRECT_PENALTY=5
+    - MAX_LEVEL=25
+    - MAX_SCRAPS=350
+    - SLACK_TOKEN=!!PUT-YOUR-TOKEN-HERE!!
+    - STARTING_SCORE=1000
+    - MAX_SUBMISSIONS=350
+    - DIFFICULTY_RANGE=10
+    - DEBUG_MODE=True

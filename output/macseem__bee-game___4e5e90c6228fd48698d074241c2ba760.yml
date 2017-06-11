@@ -1,0 +1,20 @@
+nginx:
+  image: nginx
+  links:
+    - "php"
+  ports:
+    - "80:80"
+  volumes:
+    - "./docker/nginx-sites/:/etc/nginx/conf.d/"
+    - "./var/log/:/var/log/nginx/"
+  volumes_from:
+    - "codedatastore"
+php:
+  build: docker/php
+  volumes_from:
+    - codedatastore
+
+codedatastore:
+  image: busybox
+  volumes:
+    - "./:/var/www/html"

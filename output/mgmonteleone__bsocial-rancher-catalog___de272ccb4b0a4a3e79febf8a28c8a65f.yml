@@ -1,0 +1,30 @@
+wp-bsocial-new:
+  ports:
+  - ${PORT}:80/tcp
+  environment:
+    app_name: ${NAME}
+    enable_pagespeed: ${PAGESPEED}
+    SESSION_MCACHE_SERVS : "tcp://wp-memcached:11211"
+    WP_DB_HOST : wp-galeria-lb
+    WP_DB_NAME : ${DBNAME}
+  external_links:
+  - couchbase/memached-cb:wp-memcached
+  labels:
+    io.rancher.service.hash: 82e0be0df2694d524855865755046abea211c1ea
+  tty: true
+  image: eu.gcr.io/carbide-ratio-704/${NAME}:latest
+  volumes:
+  - /web/${NAME}:/usr/share/nginx/html
+  - /logs/${NAME}:/var/log/nginx
+  stdin_open: true
+
+wp-mysql:
+  external_links:
+  - mysql-cluster/wp-galera-lb:wp-galera-lb
+  expose:
+  - 3306:3306/tcp
+  labels:
+    io.rancher.scheduler.global: 'true'
+  tty: true
+  image: rancher/load-balancer-service
+  stdin_open: true

@@ -1,0 +1,25 @@
+version: "2"
+services:
+  app:
+    image: kevineye/airplay-to-bluetooth
+    build: .
+    devices:
+      - /dev/bus/usb # or set a specific device
+    volumes:
+      - ./devices:/var/lib/bluetooth
+    network_mode: host
+    cap_add:
+      - NET_ADMIN
+    environment:
+      BT_DEVICE:
+
+  shell:
+    extends:
+      service: app
+    volumes:
+      - ./app:/app
+      - ./test:/tmp/test
+    stdin_open: true
+    tty: true
+    command: 'sh'
+    working_dir: /app

@@ -1,0 +1,78 @@
+postgres:
+  build: ./compose/postgres
+  volumes:
+    - /var/lib/postgresql/data:/var/lib/postgresql/data
+    - /var/lib/postgresql/config:/home/postgres
+    - /var/backups/postgresql:/var/backups/postgresql
+  restart: always
+  env_file: .env
+  links:
+    - redis  # For log management
+
+mariadb:
+  build: ./compose/mariadb
+  env_file: .env
+  volumes:
+      - /var/lib/mariadb:/data
+  restart: always
+
+sendy:
+  build: ./compose/sendy
+  volumes:
+      - /var/lib/app/sendy:/app
+  restart: always
+  links:
+    - mariadb
+
+redis:
+  hostname: redis
+  image: redis:alpine
+  volumes:
+      - /var/lib/redis:/data
+  restart: always
+
+projectvelo:
+  image: ameriks/project_velo:latest
+  links:
+    - postgres
+    - redis
+  volumes:
+      - /var/lib/app/project_velo:/app
+      - /var/lib/app/sendy/uploads/templates:/sendy
+  env_file: .env
+  restart: always
+
+
+mainrouter:
+  build: ./compose/nginx
+  links:
+    - projectvelo
+    - sendy
+    - elk
+  ports:
+    - "80:80"
+    - "443:443"
+  volumes:
+    - /var/lib/app/letsencrypt:/var/lib/app/letsencrypt:ro
+    - /var/lib/app/letsencrypt_certs:/etc/letsencrypt:ro
+    - /var/lib/nginx/cache:/var/lib/nginx/cache
+    - /var/lib/app/project_velo/staticfiles:/var/lib/app/project_velo/staticfiles:ro
+    - /var/lib/app/project_velo/velo/media:/var/lib/app/project_velo/velo/media:ro
+  restart: always
+
+
+letsencrypt:
+  build: ./compose/letsencrypt
+  volumes:
+      - /var/lib/app/letsencrypt:/var/lib/app/letsencrypt
+      - /var/lib/app/letsencrypt_certs:/etc/letsencrypt
+  restart: always
+
+
+duplicity:
+  build: ./compose/duplicity
+  volumes:
+    - /var/lib/postgresql/config:/root # GPG
+    - /var/lib/app/project_velo/velo/media:/var/lib/app/project_velo/velo/media:ro
+  env_file: .env_duplicity
+  command: duply main backup

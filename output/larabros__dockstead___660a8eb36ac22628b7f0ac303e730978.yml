@@ -1,0 +1,41 @@
+nginx:
+    build: ./docker/nginx/
+    links:
+        - php
+    volumes_from:
+        - app
+    environment:
+        VIRTUAL_HOST: "dockstead.app"
+
+php:
+    build: ./docker/php/
+    expose:
+        - 9000
+    links:
+        - mysql
+    volumes_from:
+        - app
+
+app:
+    build: ./docker/app/
+    volumes:
+        - .:/var/www/html
+    command: "true"
+
+mysql:
+    image: mariadb:latest
+    ports:
+        - 3306:3306
+    volumes_from:
+        - data
+    environment:
+        MYSQL_ROOT_PASSWORD: secret
+        MYSQL_DATABASE: homestead
+        MYSQL_USER: homestead
+        MYSQL_PASSWORD: secret
+
+data:
+    image: mariadb:latest
+    volumes:
+        - /var/lib/mysql
+    command: "true"

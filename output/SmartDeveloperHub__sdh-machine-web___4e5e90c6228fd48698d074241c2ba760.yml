@@ -1,0 +1,87 @@
+ldap:
+  build: ldap
+  hostname: ldap
+  domainname: localdomain
+  ports:
+    - "9005:80"
+    - "9010:389"
+    - "9011:636"
+
+sdhapi:
+  build: sdhapi
+  hostname: sdhapi
+  domainname: localdomain
+  links:
+    - ldap:ldap
+  environment:
+    - SESSION_INFO_URL=
+    - "SESSION_INFO_BINDDN='cn=admin,dc=ldap,dc=smartdeveloperhub,dc=org'"
+    - "SESSION_INFO_BINDCREDENTIALS=ldapsdh12345"
+    - "SESSION_INFO_SEARCHBASE='cn=users,dc=ldap,dc=smartdeveloperhub,dc=org'"
+    - "SESSION_INFO_SEARCHFILTER=(uid={{username}})"
+    - SESSION_DURATION=3600000
+    - SESSION_GARBAGE_COLLECTOR=600000
+    - RABBITHOST=
+    - EXCHANGE=sdh
+    - ROUTINGKEY=scholar.request.query
+    - RABBITPORT=5672
+    - BACKUP_LOAD_ON=false
+    - BACKUP_ON=false
+    - BACKUP_UPDATE_METRICS_ON=false
+    - SWAGGER_URL=
+    - SWAGGER_PORT=80
+    - SWAGGER_URL_SCHEMA=https
+    - TERM=xterm
+  ports:
+    - "9002:80"
+
+mysql:
+  build: mysql
+  hostname: mysql
+  domainname: localdomain
+  environment:
+    - MYSQL_PASS=secret
+
+phpmyadmin:
+  hostname: phpmyadmin
+  domainname: localdomain
+  image: smartdeveloperhub/phpmyadmin
+  environment:
+    - MYSQL_USER=root
+    - MYSQL_PASS=secret
+    - MYSQL_ADDR=mysql
+    - MYSQL_PORT=3306
+
+  links:
+    - mysql:mysql
+
+laravelweb:
+  hostname: laravelweb
+  domainname: localdomain
+  build: laravel
+  environment:
+    - MYSQL_USER=root
+    - MYSQL_PASS=secret
+    - MYSQL_ADDR=mysql
+    - MYSQL_PORT=3306
+    - SDH_API_HOST=
+    - SDH_API_INTERNAL=http://api/
+    - LARAVEL_DB=homestead
+  links:
+    - mysql:mysql
+    - sdhapi:api
+  ports:
+    - "9000:80"
+
+nginx:
+  hostname: nginx
+  domainname: localdomain
+  build: nginx
+  links:
+    - sdhapi:sdhapi
+    - laravelweb:laravelweb
+  volumes:
+    - /opt/ssl
+  ports:
+    - "80:80"
+    - "443:443"

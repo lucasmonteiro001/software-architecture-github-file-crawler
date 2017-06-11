@@ -1,0 +1,40 @@
+reglivre:
+    image: registrolivre/java:latest
+    restart: always
+    ports:
+        - "80:8080"
+    links:
+        - db
+        - fake-s3
+    volumes:
+        - ./build/libs:/usr/registrolivre/
+    environment:
+        - REGISTROLIVRE_DATABASE_URL=postgres://registro_livre_user:registro_livre_user@db:5432/registro_livre
+        - REGISTROLIVRE_AWS_ACCESS_KEY_ID=$REGISTROLIVRE_AWS_ACCESS_KEY_ID
+        - REGISTROLIVRE_AWS_SECRET_ACCESS_KEY=$REGISTROLIVRE_AWS_SECRET_ACCESS_KEY
+        - REGISTROLIVRE_AWS_BUCKET_NAME=$REGISTROLIVRE_AWS_BUCKET_NAME
+
+db:
+    image: registrolivre/db
+    restart: always
+
+functional-tests:
+    image: registrolivre/protractor:dev
+    stdin_open: true
+    tty: true
+    volumes:
+        - $PWD:/project
+    links:
+        - reglivre:application
+        - fake-s3:s3amazon
+    environment:
+        - APP_PORT=8080
+        - PROTRACTOR_CONF=src/test/resources/functional/firefox-conf.js
+
+fake-s3:
+    image: 66pix/s3ninja
+    restart: always
+    expose:
+        - "9444"
+    ports:
+        - "9444:9444"

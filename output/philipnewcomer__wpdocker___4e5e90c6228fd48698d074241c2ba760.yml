@@ -1,0 +1,77 @@
+version: '2'
+services:
+
+  memcached:
+    image: memcached:1.4-alpine
+
+  mailcatcher:
+    image: pilothouseapp/mailcatcher:latest
+    ports:
+      - 1080:1080
+
+  mysql:
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    image: mariadb:10.1
+    ports:
+      - 3306:3306
+    volumes:
+      - "${MYSQL_CONFIG_FILE}:/etc/mysql/conf.d/pilothouse.cnf"
+      - "mysqldata:/var/lib/mysql"
+
+  nginx:
+    image: nginx:1.11-alpine
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - "${NGINX_CONFIG_FILE}:/etc/nginx/nginx.conf"
+      - "${NGINX_SHARED_CONFIG_FILE}:/etc/nginx/partials/shared.conf.inc"
+      - "./config/nginx/sites:/etc/nginx/conf.d"
+      - "${SITES_DIR}:/var/www/html"
+
+  php56:
+    image: pilothouseapp/php:5.6
+    environment:
+      - TERM=xterm
+    extra_hosts:
+      # Point `dockerhost` to a loopback interface on the host machine. This is an ugly hack, but it's required to allow
+      # Xdebug to connect back to the host machine due to limitations in Docker.
+      - "dockerhost:100.0.0.0"
+    volumes:
+      - "${PHP_CONFIG_FILE}:/usr/local/etc/php/conf.d/pilothouse.ini"
+      - "${PHP_FPM_CONFIG_FILE}:/usr/local/etc/php-fpm.d/pilothouse.conf"
+      - "${PHP_XDEBUG_CONFIG_FILE}:/usr/local/etc/php/conf.d/xdebug.ini"
+      - "${SITES_DIR}:/var/www/html"
+      - "${SSMTP_CONFIG_FILE}:/etc/ssmtp/ssmtp.conf"
+      - "./vendor:/usr/local/vendor"
+      - "${WPCLI_CONFIG_FILE}:/var/www/html/wp-cli.yml"
+      - "/home/www-data/.wp-cli"
+
+  php56-xdebug:
+    image: pilothouseapp/php:5.6-xdebug
+    extends:
+      service: php56
+
+  php70:
+    image: pilothouseapp/php:7.0
+    extends:
+      service: php56
+
+  php70-xdebug:
+    image: pilothouseapp/php:7.0-xdebug
+    extends:
+      service: php56
+
+  php71:
+    image: pilothouseapp/php:7.1
+    extends:
+      service: php56
+
+  php71-xdebug:
+    image: pilothouseapp/php:7.1-xdebug
+    extends:
+      service: php56
+
+volumes:
+  mysqldata:

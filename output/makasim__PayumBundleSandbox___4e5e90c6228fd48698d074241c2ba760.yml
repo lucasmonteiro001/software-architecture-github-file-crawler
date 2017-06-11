@@ -1,0 +1,56 @@
+version: '2'
+
+services:
+  web:
+    image: formapro/nginx-php-fpm:latest-all-exts
+    working_dir: /payum
+    depends_on:
+      - mongodb
+      - mysql
+    volumes:
+      - .:/payum
+      - /payumapp/cache
+      - /payumapp/logs
+    environment:
+      - VIRTUAL_HOST=payum.sandbox.loc
+      - NGINX_WEB_ROOT=/payum/web
+      - NGINX_PHP_FALLBACK=/app_dev.php
+      - NGINX_PHP_LOCATION=^/app_dev\.php(/|$$)
+      - SYMFONY__ENV_DATABASE_HOST=mysql
+      - SYMFONY__ENV_DATABASE_PORT=3306
+      - SYMFONY__ENV_DATABASE_NAME=payum
+      - SYMFONY__ENV_DATABASE_USER=root
+      - SYMFONY__ENV_DATABASE_PASSWORD=rootpass
+      - SYMFONY__ENV_MONGODB_HOST=mongodb
+      - SYMFONY__ENV_MONGODB_PORT=27017
+      - SYMFONY__ENV_MONGODB_NAME=payum
+
+  mysql:
+    image: mariadb:10
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./docker/container/mysql:/etc/mysql/conf.d
+      - mysql-data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+
+  mongodb:
+    image: mongo:3.0.4
+    volumes:
+      - mongo-data:/data/db
+    ports:
+      - "27017:27017"
+
+  front:
+    image: jwilder/nginx-proxy
+    ports:
+      - "80:80"
+    volumes:
+      - '/var/run/docker.sock:/tmp/docker.sock:ro'
+
+volumes:
+  mysql-data:
+    driver: local
+  mongo-data:
+    driver: local

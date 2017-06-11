@@ -1,0 +1,12 @@
+dbdata:
+  image: nachomezzadra/postgresql:9.4
+  volumes:
+    - /var/lib/postgresql
+  command: "true"
+ 
+db:
+  image: nachomezzadra/postgresql:9.4
+  volumes_from:
+    - dbdata
+  ports:
+    - "5432:5432"

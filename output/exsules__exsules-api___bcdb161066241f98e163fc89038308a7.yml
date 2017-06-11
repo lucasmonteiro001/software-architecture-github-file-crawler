@@ -1,0 +1,29 @@
+redis_data:
+  image: sameersbn/redis:latest
+  command: /bin/true
+postgresql_data:
+  image: sameersbn/postgresql:9.4-5
+  command: /bin/true
+postgresql:
+  image: sameersbn/postgresql:9.4-5
+  environment:
+    - DB_USER=exsules
+    - DB_PASS=password
+    - DB_NAME=exsules_development
+  volumes_from:
+    - postgresql_data
+redis:
+  image: sameersbn/redis:latest
+  volumes_from:
+    - redis_data
+api:
+  build: .
+  dockerfile: Dockerfile.dev
+  links:
+    - "redis:redisio"
+    - "postgresql:postgresql"
+  volumes:
+    - .:/app
+  ports: 
+    - "3000:3000"
+    - "8025:8025" # MailHog

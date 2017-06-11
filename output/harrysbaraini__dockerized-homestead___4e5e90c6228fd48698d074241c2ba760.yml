@@ -1,0 +1,30 @@
+web:
+    image: harrysbaraini/homestead:v1
+    container_name: dockerizedhomestead_web
+    restart: always
+    ports:
+        - "80:80" # web
+        - "22:22" # ssh
+        - "35729:35729" # live reload
+        - "9876:9876" # karma server
+    volumes:
+        - ~/.composer:/home/homestead/.composer # composer caching
+        - ~/.gitconfig:/home/homestead/.gitconfig # Git configuration ( access alias && config )
+        - ~/.ssh:/home/homestead/.ssh # Ssh keys for easy deployment inside the container
+        - ~/dev:/var/www/html # all apps
+        - ~/homestead-docker/volumes/sites-available:/etc/nginx/sites-available # nginx sites ( in case you recreate the container )
+        - ~/homestead-docker/volumes/sites-enabled:/etc/nginx/sites-enabled # nginx sites ( in case you recreate the container )
+    links:
+        - mariadb
+
+mariadb:
+    image: tutum/mariadb
+    container_name: dockerizedhomestead_mariadb
+    restart: always
+    ports:
+        - "3306:3306"
+    environment:
+        MARIADB_USER: admin # cannot be changed ( for info. only )
+        MARIADB_PASS: root
+    volumes:
+        - ~/homestead-docker/volumes/mysql:/var/lib/mysql # database files

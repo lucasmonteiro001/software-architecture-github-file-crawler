@@ -1,0 +1,19 @@
+version: '2'
+services:
+  qsaml:
+    image: qsaml:latest
+    restart: always
+    ports:
+    - "8080:8080"
+    volumes:
+    - /etc/localtime:/etc/localtime:ro
+    - $PWD/config:/usr/local/etc/qsaml
+    command:
+    - qsaml
+    - -sp-dir=/usr/local/etc/qsaml/sp
+    - -key-path=/usr/local/etc/qsaml/key.pem
+    - -cert-path=/usr/local/etc/qsaml/cert.pem
+    - -http-prefix=
+    - -assets-prefix=
+    - -ldap-addr=
+    - -ldap-bind-dn=

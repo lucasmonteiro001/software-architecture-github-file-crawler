@@ -1,0 +1,10 @@
+version: '2'
+
+services:
+   webpack:
+     image: webpack
+     ports:
+       - "3000:3000"
+     volumes:
+       - C:\Users\josej\Documents\GitHub\js-benchmark:/src
+     entrypoint: ["npm","run","dist"]

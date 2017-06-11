@@ -1,0 +1,144 @@
+---
+version: '2'
+services:
+  couchpotato:
+    image: "linuxserver/couchpotato:latest"
+    container_name: couchpotato
+    volumes:
+      - "/etc/localtime:/etc/localtime:ro"
+      - "/opt/appdata/couchpotato:/config"
+      - "/mnt/storage/downloads:/downloads"
+      - "/mnt/storage/movies:/movies"
+    ports:
+      - "5050:5050"
+    links:
+      - deluge
+    restart: unless-stopped
+    environment:
+      PUID: ${PUID}
+      PGID: ${PGID}
+  sickrage:
+    image: "linuxserver/sickrage:latest"
+    container_name: sickrage
+    depends_on:
+      - deluge
+    volumes:
+      - "/etc/localtime:/etc/localtime:ro"
+      - "/opt/appdata/sickrage:/config"
+      - "/mnt/storage/downloads:/downloads"
+      - "/mnt/storage/shows:/tv"
+    ports:
+      - "8081:8081"
+    links:
+      - deluge
+    restart: unless-stopped
+    environment:
+      PUID: ${PUID}
+      PGID: ${PGID}
+  vpn:
+    image: dperson/openvpn-client
+    cap_add:
+      - net_admin
+    #devices:
+    #  - /dev/net/tun:/dev/net/tun
+    dns:
+      - 8.8.4.4
+      - 8.8.8.8
+    environment:
+      TZ: America/Chicago
+      PUID: ${PUID}
+      PGID: ${PGID}
+    #network_mode: host
+    ports:
+      - "6891:6891"
+      - "6892:6892"
+    read_only: true
+    restart: unless-stopped
+    tty: true
+    tmpfs:
+      - /tmp
+    volumes:
+      - /dev/net:/dev/net:z
+      - /opt/appdata/openvpn:/vpn
+  deluge:
+    image: "linuxserver/deluge:latest"
+    container_name: deluge
+    depends_on:
+      - vpn
+    volumes:
+      - "/etc/localtime:/etc/localtime:ro"
+      - "/opt/appdata/deluge:/config"
+      - "/mnt/storage/downloads:/downloads"
+    network_mode: "service:vpn"
+    restart: unless-stopped
+    environment:
+      PUID: ${PUID}
+      PGID: ${PGID}
+  nginx:
+    image: nginx
+    container_name: nginx
+    depends_on:
+      - deluge
+    environment:
+      PUID: ${PUID}
+      PGID: ${PGID}
+      TZ: America/Chicago
+    links:
+      - vpn:deluge
+    ports:
+     - "80:80"
+     - "58846:58846"
+    restart: unless-stopped
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /opt/appdata/nginx/conf.d/deluge.conf:/etc/nginx/conf.d/default.conf
+      - /opt/appdata/nginx/nginx.conf:/etc/nginx/nginx.conf
+  plex:
+    container_name: plex
+    image: plexinc/pms-docker
+    restart: unless-stopped
+    ports:
+      - 32400:32400/tcp
+      - 3005:3005/tcp
+      - 8324:8324/tcp
+      - 32469:32469/tcp
+      - 1900:1900/udp
+      - 32410:32410/udp
+      - 32412:32412/udp
+      - 32413:32413/udp
+      - 32414:32414/udp
+    environment:
+      - TZ=America/Chicago
+      - PLEX_CLAIM=<claimToken>
+    hostname: Media
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /opt/appdata/plex:/config
+      - /opt/transcode:/transcode
+      - /mnt/storage/shows:/data/tvshows
+      - /mnt/storage/movies:/data/movies
+    environment:
+      PUID: ${PUID}
+      PGID: ${PGID}
+  plexrequests:
+    image: "linuxserver/plexrequests:latest"
+    container_name: requests
+    depends_on:
+      - couchpotato
+      - plex
+      - sickrage
+    volumes:
+      - "/etc/localtime:/etc/localtime:ro"
+      - "/opt/appdata/plexrequests:/config"
+      - "/mnt/storage:/data"
+    ports:
+      - "3000:3000"
+    links:
+      - couchpotato
+      - plex
+      - sickrage
+    restart: unless-stopped
+    environment:
+      PUID: ${PUID}
+      PGID: ${PGID}
+      URL_BASE: /

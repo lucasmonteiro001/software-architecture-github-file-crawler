@@ -1,0 +1,15 @@
+version: '2'
+services:
+  api:
+    build: ./api-server
+    command: npm start
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=develop
+  app:
+      build: .
+      ports:
+        - "80:80"
+      links:
+        - "api"

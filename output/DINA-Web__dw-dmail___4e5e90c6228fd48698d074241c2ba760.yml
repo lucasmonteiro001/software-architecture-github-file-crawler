@@ -1,0 +1,20 @@
+fs_mail:
+  image: tianon/true
+  volumes:
+    - ./spamassassin:/tmp/spamassassin/
+    - ./postfix:/tmp/postfix/
+    - ./letsencrypt/etc:/etc/letsencrypt
+
+mail:
+  image: tvial/docker-mailserver
+  hostname: mail
+  domainname: dina-web.net
+  environment:
+    - DMS_SSL=selfsigned
+  ports:
+    - "25:25"
+    - "143:143"
+    - "587:587"
+    - "993:993"
+  volumes_from:
+    - fs_mail

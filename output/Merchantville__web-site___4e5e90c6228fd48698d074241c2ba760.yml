@@ -1,0 +1,14 @@
+wordpress:
+  image: wordpress
+  container_name:  wordpress
+  links:
+    - "mysql:mysql"
+  ports:
+    - "80:80"
+  
+mysql:
+  image: mysql
+  container_name:  mysql
+  environment:
+    - "MYSQL_ROOT_PASSWORD=herpderp"
+

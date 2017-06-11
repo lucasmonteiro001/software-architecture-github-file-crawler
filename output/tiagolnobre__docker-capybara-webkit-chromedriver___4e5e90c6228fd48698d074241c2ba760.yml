@@ -1,0 +1,12 @@
+chromedriver:
+  build: .
+  dockerfile: Dockerfile
+
+sut:
+  build: ./uat-runner-chrome
+  dockerfile: Dockerfile_for_tests
+  links:
+    - chromedriver
+  volumes:
+    - /dev/shm:/dev/shm
+    - ./uat-runner-chrome/spec:/specs/spec

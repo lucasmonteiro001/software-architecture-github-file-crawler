@@ -1,0 +1,129 @@
+version: '2'
+services:
+  zookeeper:
+    image: zookeeper
+    restart: always
+    ports:
+      - "2181"
+    environment:
+      - ZOO_MY_ID=1
+      - ZOO_SERVERS=server.1=zoo1:2888:3888
+      - TCP_PORTS=2181
+
+  nifi:
+    build: ./nifi
+    image: nifi
+    environment:
+      - EXCLUDE_PORTS=8081,8082
+      - TCP_PORTS=9001
+      - VIRTUAL_HOST=nifi
+      - NIFI_HOME=/opt/nifi
+      - ZK_CONNECT_STRING=lb:2181
+      - NIFI_CLUSTER_MODE=true
+      - NIFI_ELECTION_MAX_CANDIDATES=3
+  
+  lb:
+    image: dockercloud/haproxy
+    links:
+      - nifi
+      - storm-nimbus
+      - portainer
+      - zk-web
+      - kafka
+      - zookeeper
+      - cassandra
+      - elasticsearch
+      - janusgraph
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "80:80"
+      - "9001:9001"
+      - "2181:2181"
+  
+  kafka:
+    build: ./kafka
+    image: kafka
+    ports:
+      - "9092"
+    environment:
+      - KAFKA_PORT=9092
+      - ZK_CONNECT_STRING=lb:2181
+
+  storm-nimbus:
+    build: ./storm/nimbus
+    image: storm-nimbus
+    ports:
+      - "13772:3772"
+      - "13773:3773"
+      - "16627:6627"
+      - "9090:8080"
+    environment:
+      - ZK_ADDR=lb
+      - VIRTUAL_HOST=storm
+      - APP_NAME=nimbus
+ 
+  storm-supervisor:
+    build: ./storm/supervisor
+    image: storm-supervisor
+    ports:
+      - "8000"
+    environment:
+      - ZK_ADDR=lb
+      - NIMBUS_ADDR=storm-nimbus
+      - APP_NAME=supervisor
+    depends_on:
+      - storm-nimbus
+ 
+  cassandra:
+    build: ./cassandra
+    image: cassandra
+    ports:
+      - "9160"
+      - "9042"
+
+  elasticsearch:
+    build: ./elasticsearch
+    image: elasticsearch
+    ports:
+      - "9200"
+      - "9300"
+
+  janusgraph:
+    build: ./janusgraph
+    image: janusgraph
+    ports:
+      - "8182"
+    depends_on:
+      - cassandra
+      - elasticsearch
+
+  portainer:
+    image: portainer/portainer
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "9000"
+    environment:
+      - VIRTUAL_HOST=portainer
+  
+  zk-web:
+    image: tobilg/zookeeper-webui
+    ports:
+      - "8080"
+    environment:
+      - USER=admin
+      - PASSWORD=password
+      - ZK_DEFAULT_NODE=lb:2181
+      - VIRTUAL_HOST=zkweb
+  
+#  kafka-manager:
+#    image: sheepkiller/kafka-manager
+#    ports:
+#      - "10002:9000"
+#    environment:
+#      - ZK_HOSTS=zookeeper:2181
+#      - APPLICATION_SECRET=kafka-manager
+#    depends_on:
+#      - zookeeper
+#      - kafka

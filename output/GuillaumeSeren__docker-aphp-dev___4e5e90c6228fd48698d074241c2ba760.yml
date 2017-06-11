@@ -1,0 +1,22 @@
+db:
+  image: mysql:latest
+  ports:
+    - "3306:3306"
+  volumes:
+    - ./var/mysql:/var/lib/mysql
+  environment:
+    - MYSQL_DATABASE=db
+    - MYSQL_USER=dbuser
+    - MYSQL_PASSWORD=dbpass
+
+web:
+  # image: eboraas/apache-php
+  image: alexisno/apache-php-dev
+  ports:
+    - "80:80"
+    - "443:443"
+  links:
+    - db
+  volumes:
+    - ./www:/app
+

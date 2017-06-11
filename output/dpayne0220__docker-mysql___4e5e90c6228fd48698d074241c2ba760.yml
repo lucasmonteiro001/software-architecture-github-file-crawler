@@ -1,0 +1,12 @@
+mysql:
+  build: images/mysql/5.6
+  ports:
+    - "3306:3306"
+  environment:
+    MYSQL_ROOT_PASSWORD: dfbADfbAabad
+    MYSQL_DATABASE: web
+    MYSQL_USER: web
+    MYSQL_PASSWORD: defjam
+    
+
+    

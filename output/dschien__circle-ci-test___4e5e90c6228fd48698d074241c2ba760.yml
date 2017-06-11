@@ -1,0 +1,16 @@
+#version: '2'
+#services:
+tester:
+  build: .
+#    image: python:3.5.1
+  volumes:
+    - .:/code
+  working_dir: "/code"
+  command: nosetests -v --with-xunit --xunit-file=circle_artifacts/nosetests.xml --with-coverage --cover-html --cover-html-dir=/circle_artifacts/coverage_html
+  links:
+    - db
+db:
+  image: postgres:latest
+  environment:
+    - POSTGRES_DB=test
+    - POSTGRES_PASSWORD=secret

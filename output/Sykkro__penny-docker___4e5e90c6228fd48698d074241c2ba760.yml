@@ -1,0 +1,19 @@
+penny-web:
+  links:
+      - penny-backend
+  build: ./penny-web
+  ports:
+    - "5000"
+
+penny-backend:
+  links:
+    - elasticsearch
+  build: ./penny-backend
+  ports:
+    - "3000"
+
+elasticsearch:
+  build: ./elasticsearch
+  ports:
+    - "9200"
+    - "9300"

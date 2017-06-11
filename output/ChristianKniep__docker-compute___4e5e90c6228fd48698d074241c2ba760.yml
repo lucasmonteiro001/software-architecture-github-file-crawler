@@ -1,0 +1,52 @@
+consul:
+    image: qnib/consul
+    ports:
+     - "8500:8500"
+    environment:
+    - DC_NAME=dc1
+    - RUN_SERVER=true
+    - BOOTSTRAP_CONSUL=true
+    dns: 127.0.0.1
+    hostname: consul
+
+slurmctld:
+    image: qnib/slurmctld
+    ports:
+     - "6817:6817"
+    links:
+     - consul:consul
+    environment:
+     - DC_NAME=dc1
+    volumes:
+     - /scratch/
+    dns: 127.0.0.1
+    hostname: slurmctld
+    privileged: true
+
+devel:
+    image: qnib/compute
+    hostname: devel
+    links:
+     - consul:consul
+    environment:
+     - DC_NAME=dc1
+     - SUPERVISOR_SKIP_SRV=slurm_update,slurmd
+    volumes_from:
+     - slurmctld
+    volumes:
+     - ./opt/qnib/src/:/opt/qnib/src/
+    dns: 127.0.0.1
+    privileged: true
+
+compute:
+    image: qnib/compute
+    links:
+     - consul:consul
+     - slurmctld:slurmctld
+    environment:
+     - DC_NAME=dc1
+    volumes_from:
+     - slurmctld
+    dns: 127.0.0.1
+    #hostname: slurmd
+    privileged: true

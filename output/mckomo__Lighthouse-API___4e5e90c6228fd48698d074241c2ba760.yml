@@ -1,0 +1,30 @@
+version: '2'
+
+services:
+  app:
+    build: .
+    volumes:
+      - ./:/var/www/lighthouse
+  nginx:
+    image: nginx:alpine
+    links:
+      - fpm
+    ports:
+      - "80:80"
+    volumes:
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d
+    volumes_from:
+      - app
+  fpm:
+    image: php:7.1-fpm-alpine
+    volumes_from:
+      - app
+  elasticsearch:
+    image: elasticsearch:2.3
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"

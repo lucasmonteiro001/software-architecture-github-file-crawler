@@ -1,0 +1,7 @@
+version: 2
+services:
+  registry:
+    image: registry
+    restart: always
+    volumes:
+    - /tmp:/var/lib/registry

@@ -1,0 +1,7 @@
+sculpin:
+  build: .
+  command: "sh /var/www/run.sh"
+  volumes:
+    - .:/var/www
+  ports:
+    - "8000:8000"

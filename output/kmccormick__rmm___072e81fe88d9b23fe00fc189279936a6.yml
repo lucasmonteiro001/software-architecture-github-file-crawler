@@ -1,0 +1,43 @@
+version: "2.1"
+
+# required: define POSTGRES_PASSWORD in .env or in your environment
+
+services:
+
+  app:
+    image: kmccormick/rmm
+    build: .
+    networks:
+      - default
+      - proxy
+      - private
+    depends_on:
+      - db
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=rmm
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    env_file:
+      - .env-hosting
+    volumes:
+      - ./local_settings.py:/local_settings.py
+
+  db:
+    image: postgres
+    networks:
+      - private
+    volumes:
+      - db:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=rmm
+      - TZ=America/Los_Angeles
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+
+volumes:
+  db:
+
+networks:
+  private:
+    internal: true
+  proxy:
+    external: true

@@ -1,0 +1,96 @@
+version: '2'
+
+services:
+
+  nginx-proxy:
+    hostname: nginx-proxy
+    image: jwilder/nginx-proxy
+    container_name: nginx-proxy
+    ports:
+      - "80:80"
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - ./nginx-proxy:/etc/nginx/vhost.d:ro 
+    networks:
+      - frontend
+  varnish:
+    hostname: varnish
+    build: 
+      context: ./varnish
+    networks:
+      - frontend
+    depends_on:
+      - arasaac
+    environment:
+      VARNISH_BACKEND_HOST: arasaac
+      VARNISH_BACKEND_PORT: 80
+      VIRTUAL_HOST: "www.arasaac.es,arasaac.es,www.arasaac.org,arasaac.org,www.arasaac.net,arasaac.net"
+  db:
+    hostname: db
+    image: mysql:5.5
+    container_name: db-arasaac
+    volumes:
+      - ./bbdd:/var/lib/mysql
+      - ./dump:/docker-entrypoint-initdb.d
+      - ./db/:/etc/mysql/conf.d
+    extends:
+      file: docker-users.yml
+      service: db-users
+    networks:
+      - backend
+  arasaac:
+    container_name: arasaac
+    hostname: arasaac
+    volumes:
+       - ./php:/var/www/html
+    depends_on:
+      - db
+    build: ./arasaac
+    restart: always
+    networks:
+      - frontend
+      - backend
+
+  phpmyadmin:
+    hostname: phpmyadmin
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    environment:
+     - PMA_ARBITRARY=1
+    restart: always
+    volumes:
+     - /sessions
+    environment:
+      VIRTUAL_HOST: "phpmyadmin.arasaac.catedu.aragon.es,www.phpmyadmin.arasaac.catedu.aragon.es,phpmyadmin.arasaac.org,www.phpmyadmin.arasaac.org"
+    networks:
+      - frontend
+      - backend   
+  sftp:
+    hostname: sftp
+    container_name: sftp-arasaac
+    image: atmoz/sftp
+    volumes:
+      - ./php:/home/arasaac/php
+      - ./backups:/home/arasaac/backups
+    ports:
+      - "8005:22"
+    command: arasaac:password:33:33
+    networks:
+      - frontend
+
+  admindb:
+    hostname: admindb
+    build: 
+      context: ./admindb
+    networks:
+      - backend 
+    depends_on:
+      - db
+    volumes:
+      - ./backups:/backups
+    extends:
+      file: docker-users.yml
+      service: db-users
+networks:
+  frontend:
+  backend:

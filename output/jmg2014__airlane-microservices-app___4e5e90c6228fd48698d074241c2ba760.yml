@@ -1,0 +1,56 @@
+discovery-service:
+  image: jflight/airlane-discovery-service
+  ports:
+   - 8761:8761
+  environment:
+   - SPRING_PROFILES_ACTIVE=docker
+   
+config-service:
+  image: jflight/airlane-config-service
+  environment:
+   - SPRING_PROFILES_ACTIVE=docker
+  ports:
+   - 8888:8888
+  links:
+   - discovery-service
+
+edge-service:
+  image: jflight/airlane-edge-service
+  environment:
+   - SPRING_PROFILES_ACTIVE=docker
+  ports:
+   - 9999:9999
+  links:
+   - discovery-service
+   - config-service
+   
+airlane-web:
+  image: jflight/airlane-web
+  environment:
+   - SPRING_PROFILES_ACTIVE=docker
+  ports:
+   - 8080:8080
+  links:
+   - discovery-service
+   - config-service
+
+airlane-employee-service:
+  image: jflight/airlane-employee-service
+  environment:
+   - SPRING_PROFILES_ACTIVE=docker
+  ports:
+   - 7000:7000
+  links:
+   - discovery-service
+   - config-service
+   - airlane-mysql  
+      
+airlane-mysql:
+  image: mysql:5.7
+  ports:
+   - 3306:3306
+  environment:
+    - MYSQL_ROOT_PASSWORD=root
+    - MYSQL_DATABASE=airlanedb
+    - MYSQL_USER=root
+    - MYSQL_PASSWORD=root

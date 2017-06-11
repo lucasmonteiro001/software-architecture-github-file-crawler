@@ -1,0 +1,73 @@
+version: '2'
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.node
+      args:
+        PACKAGE_PATH: ./frontend/package.json
+        WORKING_DIR: /src/frontend
+    environment:
+      BACKEND: api:9000
+    env_file:
+      - ./common.env
+    volumes:
+      - .:/src
+    depends_on:
+      - api
+    command: ["npm", "start"]
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.node
+      args:
+        PACKAGE_PATH: ./api/package.json
+        WORKING_DIR: /src/api
+    env_file:
+      - ./common.env
+      - ../aws-key.env
+    volumes:
+      - .:/src
+    depends_on:
+      - postgres
+      - redis
+      - migrate-seed
+    entrypoint: ./wait-for-it.sh -t 0 postgres:5432 --
+    command: ["npm", "start"]
+  postgres:
+    image: postgres:9.6.1
+    env_file:
+      - ./common.env
+  redis:
+    image: redis
+  migrate-seed:
+    build:
+      context: .
+      dockerfile: Dockerfile.node
+      args:
+        PACKAGE_PATH: ./api/package.json
+        WORKING_DIR: /src/api
+    env_file:
+      - ./common.env
+    volumes:
+      - .:/src
+    depends_on:
+      - postgres
+    entrypoint: ./wait-for-it.sh -t 0 postgres:5432 --
+    command: ["npm", "run", "-s", "migrate-seed"]
+  image-processor:
+    build:
+      context: .
+      dockerfile: Dockerfile.node
+      args:
+        PACKAGE_PATH: ./api/package.json
+        WORKING_DIR: /src/api
+    env_file:
+      - ./common.env
+      - ../aws-key.env
+    volumes:
+      - .:/src
+    depends_on:
+      - postgres
+    entrypoint: ./wait-for-it.sh -t 0 postgres:5432 --
+    command: ["npm", "run", "-s", "process-shared-queue"]

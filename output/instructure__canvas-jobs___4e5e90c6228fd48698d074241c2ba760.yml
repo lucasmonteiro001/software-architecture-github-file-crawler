@@ -1,0 +1,18 @@
+version: "2"
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.ci
+    environment:
+      TEST_DB_HOST: postgres
+      TEST_REDIS_CONNECTION: redis://redis:6379/
+    links:
+      - postgres
+      - redis
+
+  postgres:
+    image: postgres:9.3
+
+  redis:
+    image: redis:2.6

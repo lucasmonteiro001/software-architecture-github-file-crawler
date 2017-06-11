@@ -1,0 +1,23 @@
+version: '3'
+services:
+    nginx:
+        build: docker/nginx
+        ports:
+            - "8080:80"
+        volumes:
+            - ./:/app
+    php:
+        build: docker/php-fpm
+        volumes:
+            - ./:/app
+        working_dir: /app
+
+    mysql:
+        image: mysql:latest
+        ports:
+            - "3306:3306"
+        environment:
+            - MYSQL_ROOT_PASSWORD=admin
+            - MYSQL_DATABASE=tmtools
+            - MYSQL_USER=tmtoolsuser
+            - MYSQL_PASSWORD=tmtoolspass

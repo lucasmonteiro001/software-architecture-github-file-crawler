@@ -1,0 +1,40 @@
+
+neo4j:
+  extends:
+    file: base.yml
+    service: neo4j
+  links:
+  - consul:consul
+
+#inventory:
+#  extends:
+#    file: base.yml
+#    service: inventory
+#  links:
+#  - consul:consul
+#  - neo4j:neo4j
+#  volumes:
+#  - "./inventory/bin/:/opt/qnib/inventory/bin/"
+
+consul:
+  extends:
+    file: base.yml
+    service: consul
+
+fd20:
+    extends:
+        file: base.yml
+        service: fd20
+    links:
+    - consul:consul
+    volumes:
+    - ./data/:/data/
+
+#u14:
+#    extends:
+#        file: base.yml
+#        service: u14
+#    links:
+#    - consul:consul
+#    volumes:
+#    - ./data/:/data/

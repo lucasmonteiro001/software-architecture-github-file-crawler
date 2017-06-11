@@ -1,0 +1,8 @@
+server:
+  build: .
+  command: lein run
+  ports:
+   - "3000:3000"
+  volumes:
+   - ../:/home/pushify/code
+   - ~/.m2:/home/pushify/.m2

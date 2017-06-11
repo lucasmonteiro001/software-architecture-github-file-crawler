@@ -1,0 +1,25 @@
+# web:
+#   restart: always
+#   build: ./web
+#   expose:
+#     - "8000"
+#   links:
+#     - postgres:postgres
+#     - redis:redis
+#   volumes:
+#     - /usr/src/app/
+#   env_file: .envrc
+#   command: python /usr/src/app/apps/manage.py runserver
+
+postgres:
+  restart: always
+  image: macadmins/postgres
+  env_file: .envrc
+  ports:
+    - "5432:5432"
+
+redis:
+  restart: always
+  image: redis:latest
+  ports:
+    - "6378:6379"

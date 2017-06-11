@@ -1,0 +1,61 @@
+    # 1. Update config values (localhost --> mongo and localhost --> redis) in config.development.json
+    # 2. Set APP_ENV environment variable to proper value in Dockerfile-redis (default is "development")
+    #    export APP_ENV=development
+    # 3. Run docker-compose build
+    # 4. Run docker-compose up
+    # 5. Live long and prosper
+    
+version: "2"
+ 
+services:
+    php-apache:
+      container_name: php-apache
+      build: 
+        context: .
+        dockerfile: .docker/docker-php-apache.dockerfile
+      ports:
+        - "80:80"
+      env_file:
+        - ./.docker/env/php-apache.development.env        
+      volumes:
+        - .:/var/www/html
+
+      working_dir: /var/www/html
+
+      networks:
+        - jezsu-network
+
+    mysql:
+      container_name: mysql
+      build:
+        context: .
+        dockerfile: .docker/docker-mysql.dockerfile
+      ports:
+      - "3306:3306"
+      env_file:
+        - ./.docker/env/mysql.development.env        
+      volumes:
+        - ./.docker/mysql:/docker-entrypoint-initdb.d
+        - ./mysql:/var/lib/mysql
+      networks:
+        - jezsu-network
+
+    mssql:
+      container_name: mssql
+      privileged: true
+      build:
+        context: .
+        dockerfile: .docker/docker-mssql.dockerfile
+      ports:
+      - "1433:1433"
+      volumes:
+        - ./mssql:/var/opt/mssql/log
+      env_file:
+        - ./.docker/env/mssql.development.env        
+      networks:
+        - jezsu-network
+
+                   
+networks:
+    jezsu-network:
+      driver: bridge

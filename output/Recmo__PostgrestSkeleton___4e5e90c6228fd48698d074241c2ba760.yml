@@ -1,0 +1,66 @@
+# Sets up infrastructure where Nginx handles TLS and
+# static content. Nginx proxies API requests to the
+# server. The server is connected to a PostgreSQL
+# database.
+#
+# see https://docs.docker.com/compose/compose-file/
+#
+version: '2'
+services:
+   web:
+      image: nginx
+      volumes:
+         - ./www:/srv/www:ro
+         - ./log/web:/var/log/nginx:rw
+         - ./certificates:/etc/ssl/certs:ro
+         - ./empty:/var/empty:ro
+         - ./acme-challenge:/srv/acme-challenge:ro
+         - ./nginx-init:/nginx-init:ro
+      links:
+         - api
+      ports:
+         - "8080:80"
+      environment:
+         LE_RENEW_HOOK:            'docker kill -s HUP @CONTAINER_NAME@'
+      command: /nginx-init
+   api:
+      image: begriffs/postgrest
+      volumes:
+         - ./log/api:/var/log:rw
+      links:
+         - dbm
+      environment:
+         POSTGREST_JWT_SECRET:     '${JWT_SECRET}'
+         PG_ENV_POSTGRES_USER:     'authenticator'
+         POSTGREST_ANONYMOUS:      'anonymous'
+         PG_ENV_POSTGRES_PASSWORD: '${AUTHENTICATOR_PASSWORD}'
+         PG_ENV_POSTGRES_DB:       'db'
+         PG_PORT_5432_TCP_ADDR:    'dbm'
+         PG_PORT_5432_TCP_PORT:    '5432'
+         POSTGREST_MAX_ROWS:       '1000000'
+         POSTGREST_POOL:           '200'
+   dbm:
+      image: postgres:9.5
+      volumes:
+         - ./log/dbm:/var/log:rw
+         - ./database:/docker-entrypoint-initdb.d:ro
+         - ./data:/var/lib/postgresql/:rw
+      environment:
+         POSTGRES_DB:              'db'
+         POSTGRES_USER:            'postgres'
+         POSTGRES_PASSWORD:        '${POSTGRES_PASSWORD}'
+         AUTHENTICATOR_PASSWORD:   '${AUTHENTICATOR_PASSWORD}'
+   len:
+      image: kvaps/letsencrypt-webroot
+      volumes:
+         - ./log/len:/var/log:rw
+         - /etc/localtime:/etc/localtime:ro
+         - /var/run/docker.sock:/var/run/docker.sock:rw
+         - ./certificates:/etc/letsencrypt:rw
+         - ./acme-challenge:/tmp/acme-challenge:rw
+      links:
+         - web
+      environment:
+         WEBROOT_PATH:             '/tmp/acme-challenge'
+         EXP_LIMIT:                '30'
+         CHECK_FREQ:               '30'

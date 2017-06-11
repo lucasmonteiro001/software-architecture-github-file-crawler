@@ -1,0 +1,14 @@
+version: '2'
+services:
+  wiki:
+    build: .
+    image: icymind/gollum:alpine
+    container_name: gollum
+    ports:
+      - "80:80"
+    # command: "gollum --port 80 --no-edit --h1-title --no-live-preview --mathjax /wiki"
+    command: "gollum --port 80 --no-edit --h1-title --no-live-preview /wiki"
+    volumes:
+      # - "/mnt/Dropbox/PKM:/wiki"
+      - "$HOME/Dropbox/PKM:/wiki"
+    restart: always

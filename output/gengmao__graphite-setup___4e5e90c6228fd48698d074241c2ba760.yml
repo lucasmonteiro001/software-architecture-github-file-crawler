@@ -1,0 +1,33 @@
+web:
+  image: gengmao/graphite-web
+  environment:
+    CLUSTER_SERVERS: cachea:80,cacheb:80
+  ports:
+    - "80:80"
+  links:
+    - cachea
+    - cacheb
+
+relay:
+  image: gengmao/carbon-relay
+  ports:
+    - "2003:2003"
+  environment:
+    RELAY_METHOD: consistent-hashing
+    REPLICATION_FACTOR: 2
+    DESTINATIONS: cachea:2004, cacheb:2004
+  links:
+    - cachea
+    - cacheb
+
+cachea:
+  image: gengmao/carbon-cache
+
+cacheb:
+  image: gengmao/carbon-cache
+
+test:
+  build: ./test
+  links:
+    - web
+    - relay

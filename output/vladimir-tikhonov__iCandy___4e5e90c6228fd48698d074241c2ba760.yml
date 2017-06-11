@@ -1,0 +1,42 @@
+version: '2'
+services:
+  frontend:
+    build: docker/frontend-dev
+    command: npm run start
+    ports:
+     - "3000:3000"
+    volumes:
+      - ./frontend:/opt/frontend
+      - frontend_deps:/opt/frontend/node_modules
+      - frontend_dist:/opt/frontend/dist
+
+  backend:
+    build: docker/backend-dev
+    command: mix phoenix.server
+    ports:
+      - "4000:4000"
+    links:
+      - postgres
+    volumes:
+      - ./backend:/opt/backend
+      - backend_deps:/opt/backend/deps
+      - backend_build:/opt/backend/_build
+
+  postgres:
+    image: postgres:9.6
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    logging:
+      driver: "none"
+
+volumes:
+  frontend_deps:
+    driver: local
+  frontend_dist:
+    driver: local
+  pg_data:
+    driver: local
+  backend_deps:
+    driver: local
+  backend_build:
+    driver: local

@@ -1,0 +1,36 @@
+version: '2'
+services:
+  app:
+    image: bamx/node-seed
+    build: .
+    environment:
+      - LANG=en_US.UTF-8
+      - APP_ENV=local
+      - NODEPATH=/root/app
+      - DEBUG=app:*
+    volumes:
+      - ./app:/root/app
+    ports:
+      - '5000:5000'
+
+  eslint:
+    image: bamx/node-seed
+    build: .
+    volumes:
+      - ./app:/root/app
+    entrypoint: "../node_modules/.bin/eslint"
+    command: "./"
+
+  test:
+    image: bamx/node-seed
+    build: .
+    environment:
+      - LANG=en_US.UTF-8
+      - APP_ENV=test
+      - NODEPATH=/root/app
+      - DEBUG=app:*
+    command: test/runner.js
+    depends_on:
+      - app
+    volumes:
+      - ./app:/root/app

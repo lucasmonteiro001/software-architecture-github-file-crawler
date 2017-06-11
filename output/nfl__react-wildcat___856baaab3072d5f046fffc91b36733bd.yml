@@ -1,0 +1,15 @@
+version: '2'
+
+services:
+  wildcat:
+    extends:
+      file: ../docker-compose.yml
+      service: wildcat
+    build:
+      context: .
+    image: "nfl/react-wildcat-example:latest"
+    environment:
+      HOST: "www.example.dev"
+      STATIC_HOST: "static.example.dev"
+    entrypoint: "npm run"
+    command: "dev"

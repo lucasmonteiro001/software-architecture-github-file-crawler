@@ -1,0 +1,26 @@
+version: "2.1"
+
+services:
+
+  postgres:
+    container_name: mockify-test-postgres
+    image: postgres:9.6.2
+    ports:
+      - 5432
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    networks:
+      - mockify-test-network
+
+  redis:
+    container_name: mockify-test-redis
+    image: redis:latest
+    ports:
+      - 6379
+    networks:
+      - mockify-test-network
+
+networks:
+  mockify-test-network:
+    driver: bridge

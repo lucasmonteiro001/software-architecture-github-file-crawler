@@ -1,0 +1,29 @@
+version: "2"
+networks:
+  default:
+    external:
+      name: macvlan
+services:
+  vault:
+    image: mterron/vault
+    restart: always
+    mem_limit: 128m
+    ulimits:
+        memlock: 9223372036854775807
+    ports:
+        - 53
+        - "53/udp"
+        - 8200
+        - 8400
+        - 8501
+    expose:
+        - 8300
+        - 8301
+        - 8302
+    dns:
+      - 127.0.0.1
+    dns_search:
+      - service.consul
+    env_file: _env
+    environment:
+        - CONSUL_BOOTSTRAP_HOST

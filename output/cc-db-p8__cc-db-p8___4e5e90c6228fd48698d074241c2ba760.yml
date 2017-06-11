@@ -1,0 +1,7 @@
+web:
+  build: .
+  command: python blog/start_app.py
+  volumes:
+    - .:/code
+  ports:
+    - 8000:8000

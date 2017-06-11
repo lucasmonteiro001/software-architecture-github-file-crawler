@@ -1,0 +1,32 @@
+zookeeper:
+  image: "wurstmeister/zookeeper"
+  ports:
+    - "2181"
+
+kafka:
+  image: "wurstmeister/kafka"
+  ports:
+    - "9092"
+  links:
+    - "zookeeper:zk"
+  env_file: kafka.env
+  environment:
+    KAFKA_NUM_PARTITIONS: 3
+  volumes:
+    - "/var/run/docker.sock:/var/run/docker.sock"
+
+fanout:
+  build: "../fanout"
+  dockerfile: "./Dockerfile.dev"
+  ports:
+    - "4987"
+  links:
+    - "kafka:kafka"
+  command: "--id test_service --topic test_topic -vv"
+
+integration:
+  build: "../fanout"
+  dockerfile: "./integration/Dockerfile"
+  links:
+    - "kafka:kafka"
+    - "fanout:fanout"

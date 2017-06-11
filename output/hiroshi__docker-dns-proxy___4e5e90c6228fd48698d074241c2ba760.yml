@@ -1,0 +1,24 @@
+# Need: sudo bash -c 'echo "nameserver 192.168.99.100" > /etc/resolver/00'
+dnsmasq_out:
+  build: ./dnsmasq
+  ports:
+    - 192.168.99.100:53:53
+    - 192.168.99.100:53:53/udp
+  command: dnsmasq -u root --no-daemon --log-queries --address=/.00/192.168.99.100
+
+dnsmasq_in:
+  build: ./dnsmasq
+  net: '00'
+  ports:
+    - 192.168.99.100:5353:53
+    - 192.168.99.100:5353:53/udp
+  command: dnsmasq -u root --no-daemon --log-queries
+
+nginx:
+  build: ./nginx
+  net: '00'
+  ports:
+    - 80:80
+  volumes:
+    - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+  command: nginx

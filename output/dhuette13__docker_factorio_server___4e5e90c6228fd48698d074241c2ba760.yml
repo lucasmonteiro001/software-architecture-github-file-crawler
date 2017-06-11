@@ -1,0 +1,10 @@
+factorio:
+  build: .
+  ports: 
+    - 34197:34197/udp
+  volumes:
+    - saves:/opt/factorio/saves
+  env_file:
+    - .credentials
+    - settings.env
+  restart: always

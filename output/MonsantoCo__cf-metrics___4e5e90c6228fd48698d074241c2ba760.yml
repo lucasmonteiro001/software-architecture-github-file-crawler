@@ -1,0 +1,67 @@
+influxdb:
+  build: ./influxdb
+  ports: 
+  - "8083:8083"
+  - "8088:8088"
+  - "8086:8086"
+  environment:
+  - PRE_CREATE_DB=cf_np;cf_prd;bosh_np;bosh_prd
+  volumes: 
+  - ./data/influxdb:/data
+  restart: always
+heka:
+  build: ./heka
+  ports: 
+  - "2004:2004"
+  - "2005:2005"
+  - "8500:8500"
+  - "4352:4352"
+  - "2010:2010"
+  volumes:
+  - ./heka/hekad.toml:/etc/hekad/hekad.toml
+  links:
+  - influxdb
+  restart: always
+grafana:
+  build: ./grafana
+  ports:
+  - "3000:3000"
+  volumes:
+  - ./grafana/grafana.ini:/etc/grafana/grafana.ini:ro
+  - ./data/grafana:/usr/share/grafana/data
+  environment:
+  - GF_AUTH_ANONYMOUS_ENABLED=true
+  - GF_AUTH_ANONYMOUS_ORG_ROLE=Editor
+  - GF_DASHBOARDS_JSON_ENABLED=true
+  - GF_DASHBOARDS_JSON_PATH=/etc/grafana/dashboards
+  links: 
+  - influxdb 
+  restart: always
+nozzlenp: 
+  build: ./firehose-nozzle
+  environment:
+  - NOZZLE_UAAURL=https://uaa.cf-np.company.com
+  - NOZZLE_CLIENT=uaa_nozzle_client_id
+  - NOZZLE_CLIENT_SECRET=uaa_nozzle_client_secret
+  - NOZZLE_TRAFFICCONTROLLERURL=wss://doppler.cf-np.company.com:443
+  - NOZZLE_DEPLOYMENT=cf_aws_np
+  - NOZZLE_EVENT_FILTER=CounterEvent,ValueMetric
+  - NOZZLE_FIREHOSESUBSCRIPTIONID=cf-metrics
+  - NOZZLE_INFLUXDB_URL=http://heka:2010
+  links:
+  - heka
+  restart: always
+nozzleprd:
+  build: ./firehose-nozzle
+  environment:
+  - NOZZLE_UAAURL=https://uaa.cf-np.company.com
+  - NOZZLE_CLIENT=uaa_nozzle_client_id
+  - NOZZLE_CLIENT_SECRET=uaa_nozzle_client_secret
+  - NOZZLE_TRAFFICCONTROLLERURL=wss://doppler.cf-np.company.com:443
+  - NOZZLE_DEPLOYMENT=cf_aws_np
+  - NOZZLE_EVENT_FILTER=CounterEvent,ValueMetric
+  - NOZZLE_FIREHOSESUBSCRIPTIONID=cf-metrics
+  - NOZZLE_INFLUXDB_URL=http://heka:2010
+  links:
+  - heka
+  restart: always

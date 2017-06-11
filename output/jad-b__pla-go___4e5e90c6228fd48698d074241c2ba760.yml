@@ -1,0 +1,9 @@
+dev:
+  build: .
+  command: bash
+  ports:
+    - "127.0.0.1:8080:8080"
+  stdin_open: true
+  tty: true
+  volumes:
+    - .:/go/src/github.com/jad-b/pla-go

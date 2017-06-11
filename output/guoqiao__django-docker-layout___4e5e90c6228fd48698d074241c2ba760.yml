@@ -1,0 +1,16 @@
+web:
+  build: .
+  command: bash run.sh
+  volumes:
+    - .:/app
+  ports:
+    - "8000:8000"
+  links:
+      - mysql
+
+mysql:
+  image: mysql
+  environment:
+      - MYSQL_DATABASE=main
+      - MYSQL_ROOT_PASSWORD=root
+

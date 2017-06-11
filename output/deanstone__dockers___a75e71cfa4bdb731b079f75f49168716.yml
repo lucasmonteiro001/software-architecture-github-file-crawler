@@ -1,0 +1,54 @@
+version: '2'
+services:
+  hbase-node1:
+    hostname: hbase-node1
+    image: hbase_1.2.3
+    volumes:
+      - ./bootstrap_master.sh:/etc/bootstrap.sh
+      - ./hbase-env.sh:/usr/local/hbase/conf/hbase-env.sh
+      - ./hbase-site.xml:/usr/local/hbase/conf/hbase-site.xml
+      - ./regionservers:/usr/local/hbase/conf/regionservers
+    environment:
+      - tz=Asia/Hong_Kong
+    networks:
+      - back-hadoop
+      - back-hbase
+    links:
+      - hbase-node2
+      - hbase-node3
+
+  hbase-node2:
+    hostname: hbase-node2
+    image: hbase_1.2.3
+    networks:
+      - back-hadoop
+      - back-hbase
+    volumes:
+      - ./bootstrap_slave.sh:/etc/bootstrap.sh
+      - ./hbase-env.sh:/usr/local/hbase/conf/hbase-env.sh
+      - ./hbase-site.xml:/usr/local/hbase/conf/hbase-site.xml
+      - ./regionservers:/usr/local/hbase/conf/regionservers
+    environment:
+      - tz=Asia/Hong_Kong
+
+  hbase-node3:
+    hostname: hbase-node3
+    image: hbase_1.2.3
+    networks:
+      - back-hadoop
+      - back-hbase
+    volumes:
+      - ./bootstrap_slave.sh:/etc/bootstrap.sh
+      - ./hbase-env.sh:/usr/local/hbase/conf/hbase-env.sh
+      - ./hbase-site.xml:/usr/local/hbase/conf/hbase-site.xml
+      - ./regionservers:/usr/local/hbase/conf/regionservers
+    environment:
+      - tz=Asia/Hong_Kong
+
+networks:
+  back-hadoop:
+    external:
+      name: back-hadoop
+  back-hbase:
+    external:
+      name: back-hbase

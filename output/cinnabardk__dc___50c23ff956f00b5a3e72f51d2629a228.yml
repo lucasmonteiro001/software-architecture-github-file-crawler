@@ -1,0 +1,18 @@
+db:
+ image: 'tutum/mysql:5.5'
+ environment:
+ - MYSQL_PASS=g3mpx4k
+ - MYSQL_ROOT_PASSWORD=Memzoh78
+ - MYSQL_DATABASE=wp
+ - MYSQL_USER=wp_demo
+
+wp:
+ image: 'tutum/wordpress-stackable:latest'
+ environment:
+ - DB_PASS=g3mpx4k
+ - DB_USER=wp_demo
+ - VIRTUAL_HOST=gb-wp.allancorfix.dk
+ links:
+ - db
+ expose:
+ - '80'

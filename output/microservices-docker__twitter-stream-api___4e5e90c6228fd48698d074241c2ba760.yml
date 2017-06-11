@@ -1,0 +1,13 @@
+version: "2"
+
+services:
+  twitter-stream-api:
+    build: ./service
+    entrypoint: nodemon /usr/scr/app/microservice/www
+    volumes:
+      - ./service:/usr/src/microservice
+      - /usr/src/microservice/node_modules
+    ports:
+      - "3005:3000"
+    environment:
+      NODE_ENV: development

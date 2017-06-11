@@ -1,0 +1,26 @@
+version: '3'
+
+services:
+  identidock_component_tester:
+    build: 
+      context: ../..
+      dockerfile: tests/component/Dockerfile
+    image: aroyd/identidock_component_tester:${IDENTIDOCK_COMPONENT_TESTER_IMAGE_TAG:-latest}
+    depends_on:
+      - identidock
+  identidock:
+    build: ../..
+    image: aroyd/identidock_component_test:${IDENTIDOCK_COMPONENT_TEST_IMAGE_TAG:-latest}
+    environment:
+      ENV: COMPONENT_TEST 
+    depends_on:
+      - dnmonster
+      - redis
+  
+  dnmonster:
+    build: mountebank/dnmonster
+    image: aroyd/dnmoster_mountebank_stub:${DNMONSTER_MOUNTEBANK_STUB_IMAGE_TAG:-latest}
+    # image: amouat/dnmonster:1.0
+  
+  redis:
+    image: redis:3.0-alpine

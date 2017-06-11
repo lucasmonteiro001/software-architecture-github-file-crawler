@@ -1,0 +1,33 @@
+version: '2'
+
+services:
+    mysql:
+      image: mysql:5.7
+      container_name: friends_mysql
+      environment:
+        - MYSQL_ROOT_PASSWORD=root
+        - MYSQL_DATABASE=db
+        - TZ=Europe/Warsaw
+      volumes:
+        - ./mysql/data:/var/lib/mysql
+      ports:
+        - "1306:3306"
+
+    web:
+      container_name: friends_web
+      hostname: localhost
+      build: .
+      ports:
+        - "66:80"
+      volumes:
+        - .:/var/www
+      links:
+        - mysql
+      command: bash -c "composer install --no-interaction &&
+                             ./bin/console doctrine:database:drop --if-exists --no-interaction --force&&
+                             ./bin/console doctrine:database:create --if-not-exists --no-interaction &&
+                             ./bin/console d:s:u --force &&
+                             ./bin/console d:f:l --no-interaction &&
+                             mkdir -p var/sessions &&
+                             chmod -R o+w var/cache var/logs var/sessions &&
+                             /usr/sbin/apache2ctl -D FOREGROUND"

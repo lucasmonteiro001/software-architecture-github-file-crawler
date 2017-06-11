@@ -1,0 +1,40 @@
+version: '2'
+services:
+  node:
+    build:
+      context: ../development/server/
+    environment:
+      - DATABASE_ADDR=mongo
+      - OSS_ADDR=oss
+    links:
+      - mongo
+      - oss
+    depends_on:
+      - mongo
+      - oss
+    volumes:
+      - datavolume:/usr/src/app/uploads
+  mongo:
+    image: mongo
+    restart: always
+    volumes: 
+     - datavolume:/data/db
+  nginx:
+    build:
+     context: ../
+     dockerfile: provision/nginx/Dockerfile
+    links:
+      - node
+      - oss
+    volumes:
+      - datavolume:/usr/share/nginx/files
+    restart: always
+  oss:
+    build:
+     context: .
+     dockerfile: oss/Dockerfile
+    restart: always
+    volumes:
+      - datavolume:/files
+volumes:
+  datavolume: {}

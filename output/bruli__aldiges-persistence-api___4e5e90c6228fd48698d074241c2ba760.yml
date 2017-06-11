@@ -1,0 +1,12 @@
+db:
+  build: ./docs/docker/mysql
+  ports:
+    - 3306:3306
+apache2:
+  build: ./docs/docker/apache2
+  volumes:
+    - ".:/var/www"
+  links:
+    - db
+  ports:
+    - 81:80

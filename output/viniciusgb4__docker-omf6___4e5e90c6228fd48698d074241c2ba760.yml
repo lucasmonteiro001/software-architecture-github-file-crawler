@@ -1,0 +1,20 @@
+version: '2'
+services:
+  broker:
+      build:
+          context: ./broker
+      image: broker
+      container_name: broker
+      network_mode: "host"
+      volumes:
+          - ./broker/omf-images:/root/omf-images
+          - ./broker/data/omf_sfa:/root/omf_sfa
+          - /tftpboot:/tftpboot
+      restart: unless-stopped
+  pubsub:
+      image: sameersbn/openfire
+      container_name: pubsub
+      network_mode: "host"
+      volumes:
+          - ./openfire/data/:/var/lib/openfire
+      restart: unless-stopped

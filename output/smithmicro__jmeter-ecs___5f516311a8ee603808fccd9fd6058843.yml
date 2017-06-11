@@ -1,0 +1,25 @@
+version: '2'
+
+services:
+  gru:
+    build: .
+    image: smithmicro/jmeter:latest
+    volumes:
+      - ../plans:/plans
+      - ./logs:/logs
+    command: "/plans/demo.jmx"
+    links: 
+      - minion1
+      - minion2
+      - minion3
+    environment: 
+      - MINION_HOSTS=minion1,minion2,minion3
+      - JMETER_FLAGS=-X
+    ports:
+      - "4445:4445/udp"
+  minion1:
+    image: smithmicro/jmeter:latest
+  minion2:
+    image: smithmicro/jmeter:latest
+  minion3:
+    image: smithmicro/jmeter:latest

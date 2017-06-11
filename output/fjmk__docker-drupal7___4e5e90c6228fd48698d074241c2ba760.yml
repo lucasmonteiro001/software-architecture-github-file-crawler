@@ -1,0 +1,38 @@
+version: '2'
+
+# Docker and Docker Compose based environment for Drupal.
+
+services:
+# Web node
+  web:
+    hostname: web
+    image: fjmk/docker-drupal7:devel
+    environment:
+      - MY_USER=frans                           # change to your user
+      - UID_USER=1000
+      - DOCROOT=docroot                         # change to your drupal root (html, build)
+    volumes:
+      # Project root folder mapping
+      - &project_root ".:/var/www"
+      - "~/.ssh:/home/frans/.ssh:ro"                # change to your user
+    links:
+      - db
+    depends_on:
+      - "db"
+      
+  # DB node
+  db:
+    hostname: db
+    image: mariadb:latest
+    environment:
+      - MYSQL_ROOT_PASSWORD=admin123
+      - MYSQL_USER=drupal
+      - MYSQL_PASSWORD=123
+      - MYSQL_DATABASE=drupal
+  
+  # selenium2 node
+  # Uncomment the service definition section below and the link in the web service above to start using selenium2 driver for Behat tests requiring JS support.
+  browser:
+    hostname: browser
+    image: selenium/standalone-chrome
+

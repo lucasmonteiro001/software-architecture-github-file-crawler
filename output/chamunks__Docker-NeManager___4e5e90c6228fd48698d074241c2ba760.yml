@@ -1,0 +1,9 @@
+nema:
+  image: chamunks/docker-nemanager-wrapper
+  volumes:
+    - "./data:/data"
+    - "./jars:/jars"
+    - "./servers:/servers"
+  ports:
+    - "20000:20000"
+    - "25565-25629:25565-25629"

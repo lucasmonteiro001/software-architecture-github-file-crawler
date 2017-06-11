@@ -1,0 +1,16 @@
+main:
+  build: .
+  command: bash -c \
+           "pip install -e ./packages/kaggle-digit-recognizer/ && \
+           jupyter-notebook --ip=* --port=8889 --notebook-dir=."
+  ports:
+   - "8889:8889"
+   - "8081:8081"
+  volumes:
+   - .:/home/jovyan/work/packages/kaggle-digit-recognizer
+  working_dir: /home/jovyan/work/packages/kaggle-digit-recognizer
+  environment:
+   - GRANT_SUDO=yes
+   - ENVIRONMENT=development
+  privileged: true
+  log_driver: json-file

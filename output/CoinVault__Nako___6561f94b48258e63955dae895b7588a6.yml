@@ -1,0 +1,29 @@
+version: '2'
+services:
+  client:
+    container_name: grc-client
+    networks: 
+        - grc
+    image: coinvault/gridcoin
+    ports: 
+        - 5008:5000
+        - 32749:32749
+  nako:
+    container_name: grc-nako
+    networks: 
+        - grc
+    image: coinvault/nako
+    command: GRC
+    ports: 
+        - 9008:9000
+    depends_on:
+        - mongo
+        - client
+  mongo:
+    container_name: grc-mongo
+    networks: 
+        - grc
+    image: mongo:3.2
+networks:
+    grc:
+      driver: bridge

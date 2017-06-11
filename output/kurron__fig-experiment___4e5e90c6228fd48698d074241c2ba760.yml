@@ -1,0 +1,74 @@
+redis:
+    image: redis:latest 
+    hostname: redis
+    ports:
+        - "6379:6379"
+    volumes:
+        - /tmp/redis:/data
+    command: redis-server --appendonly yes 
+
+rabbitmq:
+    image: rabbitmq:latest 
+    hostname: rabbitmq
+    ports:
+        - "5672:5672"
+        - "15672:15672"
+    volumes:
+        - /tmp/rabbitmq:/var/lib/rabbitmq
+
+postgres:
+    image: postgres:latest 
+    hostname: postgres
+    ports:
+        - "5432:5432"
+    volumes:
+        - /tmp/postgresql:/var/lib/postgresql/data
+    environment:
+        POSTGRES_PASSWORD: posgres
+
+nginx:
+    image: nginx:latest 
+    hostname: nginx
+    ports:
+        - "8080:80"
+        - "8443:443"
+    volumes:
+        - /tmp/nginx:/var/cache/nginx
+
+mysql:
+    image: mysql:latest 
+    hostname: mysql
+    ports:
+        - "3306:3306"
+    volumes:
+        - /tmp/mysql:/var/lib/mysql
+    environment:
+        MYSQL_ROOT_PASSWORD: mysql
+        MYSQL_USER: mysql
+        MYSQL_PASSWORD: mysql
+        MYSQL_DATABASE: example
+
+mongodb:
+    image: mongo:latest 
+    hostname: mongodb
+    ports:
+        - "27017:27017"
+    volumes:
+        - /tmp/mongodb:/data/db
+
+memcached:
+    image: memcached:latest 
+    hostname: memcached
+    ports:
+        - "11211:11211"
+
+elasticsearch:
+    image: elasticsearch:latest 
+    hostname: elasticsearch
+    ports:
+        - "9200:9200"
+        - "9300:9300"
+    volumes:
+        - /tmp/elasticsearch:/usr/share/elasticsearch/data
+
+

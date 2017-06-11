@@ -1,0 +1,14 @@
+version: '3'
+services:
+  php:
+    image: 'php:7.1.2-apache'
+    ports:
+      - 80:80
+    restart: always
+    volumes:
+      - ./:/var/www/html
+
+  node:
+    image: 'node:7.6.0'
+    volumes:
+      - ./:/app

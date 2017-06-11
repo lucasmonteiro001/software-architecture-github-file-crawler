@@ -1,0 +1,25 @@
+frontend:
+  build: .
+  command: python /tmp/frontend.py
+  mem_limit: 128m
+  cpu_shares: 512
+  dns: 8.8.8.8
+  links:
+   - mongo
+   - rabbit
+  ports:
+   - "8888:8888"
+execnode:
+  build: .
+  command: python /tmp/execnode.py /tmp/bin/sdk.py foo
+  mem_limit: 64m
+  cpu_shares: 128 
+  links:
+   - mongo
+   - rabbit
+rabbit:
+  image: rabbitmq
+mongo:
+  image: mongo
+  volumes:
+   - /tmp/suricate:/data/db

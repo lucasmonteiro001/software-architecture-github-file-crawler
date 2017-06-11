@@ -1,0 +1,97 @@
+version: "2"
+#hostname must be same as app name
+services:
+  namenode:
+    image: bde2020/hadoop-namenode:1.0.0-hadoop2.7.1
+    container_name: namenode
+    volumes:
+      - ./data/namenode:/hadoop/dfs/name
+    environment:
+      - CLUSTER_NAME=test
+    env_file:
+      - ./hadoop-hive.env
+    #command: yarn resourcemanager
+    hostname: namenode
+  datanode:
+    hostname: datanode
+    image: bde2020/hadoop-datanode:1.0.0-hadoop2.7.1
+    container_name: datanode
+    volumes:
+      - ./data/datanode:/hadoop/dfs/data
+    env_file:
+      - ./hadoop-hive.env
+  resourcemanager:
+    image: bde2020/hadoop-resourcemanager:1.0.0
+    hostname: resourcemanager
+    container_name: resourcemanager
+    env_file:
+    - ./hadoop-hive.env
+  historyserver:
+    image: bde2020/hadoop-historyserver:1.0.0
+    hostname: historyserver
+    container_name: historyserver
+    env_file:
+    - ./hadoop-hive.env
+  hive-server:
+    hostname: hive-server
+    build: .
+    container_name: hive-server
+    env_file:
+      - ./hadoop-hive.env
+    environment:
+      - "HIVE_CORE_CONF_javax_jdo_option_ConnectionURL=jdbc:postgresql://hive-metastore/metastore"
+    ports:
+      - "10000:10000"
+  hive-metastore:
+    hostname: hive-metastore
+    build: .
+    container_name: hive-metastore
+    env_file:
+      - ./hadoop-hive.env
+    command: /opt/hive/bin/hive --service metastore
+  hive-metastore-postgresql:
+    hostname: hive-metastore-postgresql
+    image: bde2020/hive-metastore-postgresql:2.1.0
+  cloudera:
+    image: gethue/hue:latest
+    hostname: hue
+    container_name: development_hue
+    dns: 8.8.8.8
+    ports:
+     - "8888:8888"
+    command: ./build/env/bin/hue runserver_plus 0.0.0.0:8888
+    #command: tail -f /dev/null
+    volumes:
+      - ../../../apps/hbase/src:/hue/apps/hbase/src
+      - ./hue.ini:/hue/desktop/conf/hue.ini
+  oozie:
+    image:  andlaz/hadoop-oozie
+    hostname: oozie
+    container_name: oozie
+    ports: 
+      - "11000:11000"
+      - "11001:11001"
+    command: oozied.sh run
+  impala:
+    image: codingtony/impala
+    hostname: impala
+    container_name: impala
+    ports:
+      - "9000:9000"
+      - "50010:50010"
+      - "50020:50020"
+      - "50070:50070"
+      - "50075:50075"
+      - "21000:21000"
+      - "21050:21050"
+      - "25000:25000"
+      - "25010:25010"
+      - "25020:25020"
+  livy:
+    image: tobilg/livy
+    hostname: livy
+    ports:
+      - 8998:8998
+     
+  
+

@@ -1,0 +1,21 @@
+rundeck-data:
+  image: busybox
+  container_name: rundeck-data
+  command: "true"
+  volumes:
+      - /opt/rundeck/server/data
+      - /opt/rundeck/server/config
+      - /opt/rundeck/etc
+      - /opt/rundeck/projects
+
+rundeck:
+    build: .
+    labels:
+        org.kurron.description: "Rundeck"
+        org.kurron.version: "2.6.2"
+    container_name: "rundeck"
+    net: "host"
+#   volumes:
+#       - /tmp/.X11-unix:/tmp/.X11-unix
+    volumes_from:
+        - rundeck-data

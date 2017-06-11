@@ -1,0 +1,36 @@
+web:
+  build: .
+  command: python manage.py runserver 0.0.0.0:8000
+  entrypoint: ./scripts/start-docker.sh
+  ports:
+    - "8000:8000"
+  volumes:
+    - .:/code
+  links:
+    - memcached:memcached
+    - mysqld:mysqld
+    - elasticsearch:elasticsearch
+    - redis:redis
+  environment:
+    - DATABASE_URL=mysql://root:@mysqld/olympia
+    - MEMCACHE_LOCATION=memcached:11211
+    - ELASTICSEARCH_LOCATION=elasticsearch:9200
+    - REDIS_LOCATION=redis:6379
+    - MYSQL_ROOT_PASSWORD='docker'
+    - MYSQL_DATABASE='olympia'
+    - PYTHONDONTWRITEBYTECODE=1
+
+memcached:
+  image: memcached
+
+mysqld:
+  image: mysql
+  environment:
+    - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+    - MYSQL_DATABASE='olympia'
+
+elasticsearch:
+  image: elasticsearch:1.3
+
+redis:
+  image: redis

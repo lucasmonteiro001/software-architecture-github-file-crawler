@@ -1,0 +1,12 @@
+version: '2'
+services:
+  xonodock:
+    build:
+            context: .
+            args:
+                    XONOTICVERSION: "0.8.1"
+    ports:
+            - "0.0.0.0:26000:26000/udp"
+            - "0.0.0.0:26000:26000/tcp"
+    volumes:
+     - ./data:/root/.xonotic/data

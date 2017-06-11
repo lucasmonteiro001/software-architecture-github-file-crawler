@@ -1,0 +1,141 @@
+version: '2'
+services:
+
+  kafka:
+    image: openbmp/kafka:build-22
+    container_name: kafka
+    environment:
+      - "KAFKA_FQDN=kafka"
+    volumes:
+      - /etc/localtime:/etc/localtime
+      - kafka:/data/kafka
+    ports:
+      - "2181:2181"
+      - "9092:9092"
+      - "9999:9999"
+
+  bmp_collector:
+    image: openbmp/collector
+    container_name: bmp_collector
+    environment:
+      - "KAFKA_FQDN=kafka"
+    volumes:
+      - /etc/localtime:/etc/localtime
+      - bmp_collector:/config
+    ports:
+      - "5000:5000"
+    depends_on:
+      - kafka
+
+  bmp_db:
+    image: openbmp/mysql
+    container_name: bmp_db
+    environment:
+      - "KAFKA_FQDN=kafka"
+      - "MYSQL_ROOT_PASSWORD=openbmp"
+      - "MEM=8"
+      - "REINIT_DB=1"
+    volumes:
+      - mysql_1:/data/mysql 
+      - /etc/localtime:/etc/localtime
+    ports:
+      - "3306:3306"
+      - "8001:8001"
+    expose:
+      - "3306"
+      - "8001"
+    depends_on:
+      - kafka
+
+  network-rib_1:
+    build: network-rib/
+    container_name: network-rib_1
+    environment:
+      - "OPENBMP_REST_ADDR=bmp_db"
+      - "OPENBMP_REST_PORT=8001"
+      - "OPENBMP_REST_USER=openbmp"
+      - "OPENBMP_REST_PASSWORD=CiscoRA"
+      - "NETWORK_RIB_REST_PORT=4000"
+      - "NETWORK_RIB_REST_USER=juniper"
+      - "NETWORK_RIB_REST_PASSWORD=juniper"
+      - "OPENBMP_REST_ROUTES_PER_QUERY_LIMIT=900000"
+    volumes:
+      - /etc/localtime:/etc/localtime
+    ports:
+      - "4000:4000"
+
+
+  netflow-collector_1:
+    build: netflow-collector/
+    container_name: netflow-collector_1
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+     - "SERVICES_CLIENT=9995"
+     - "MYSQL_USER=juniper"
+     - "MYSQL_USER_PASSWORD=juniper123"
+     - "MYSQL_PASSWORD=juniper123"
+     - "MYSQL_DATABASE=pmacct"
+     - "MYSQL_PORT=3306"
+     - "NETFLOW_PORT=9995"
+    expose:
+      - "9995/udp"
+      - "3306/tcp"
+
+  netflow-collector_2:
+    build: netflow-collector/
+    container_name: netflow-collector_2
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+     - "SERVICES_CLIENT=9995"
+     - "MYSQL_USER=juniper"
+     - "MYSQL_USER_PASSWORD=juniper123"
+     - "MYSQL_PASSWORD=juniper123"
+     - "MYSQL_DATABASE=pmacct"
+     - "MYSQL_PORT=3306"
+     - "NETFLOW_PORT=9995"
+    expose:
+      - "9995/udp"
+      - "3306/tcp"
+
+  netflow-collector_3:
+    build: netflow-collector/
+    container_name: netflow-collector_3
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+     - "SERVICES_CLIENT=9995"
+     - "MYSQL_USER=juniper"
+     - "MYSQL_USER_PASSWORD=juniper123"
+     - "MYSQL_PASSWORD=juniper123"
+     - "MYSQL_DATABASE=pmacct"
+     - "MYSQL_PORT=3306"
+     - "NETFLOW_PORT=9995"
+    expose:
+      - "9995/udp"
+      - "3306/tcp"
+
+
+
+  lb:
+    build: lb/
+    container_name: lb
+    volumes:
+     - /var/run/docker.sock:/tmp/docker.sock:ro
+    environment:
+     - "SERVICES_LB=9995"
+    ports:
+     - "9995:9995/udp"
+
+
+#######################
+# Named container     #
+#######################
+ 
+volumes:
+  # Named volume
+  mysql_1:
+  kafka:
+  bmp_collector:
+

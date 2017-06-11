@@ -1,0 +1,19 @@
+# run tests: docker-compose run --rm web ./test
+postgres:
+  image: postgres:9.4.4
+  environment:
+    - POSTGRES_USER=someone
+    - POSTGRES_PASSWORD=secret
+
+web:
+  build: .
+  volumes:
+    - .:/go/src/app
+  links:
+    - postgres
+  ports:
+    - 49100:3000
+  environment:
+    - PORT=3000
+    - DATABASE_URL=postgres://someone:secret@postgres/?sslmode=disable
+  working_dir: /go/src/app

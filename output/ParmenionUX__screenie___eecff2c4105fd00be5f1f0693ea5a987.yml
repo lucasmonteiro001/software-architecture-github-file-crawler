@@ -1,0 +1,17 @@
+version: '2'
+
+services:
+  hub:
+    image: selenium/hub:3.2
+    ports:
+      - "$SCREENIE_DOCKER_WEBDRIVER_HUB_PORT:4444"
+
+  chrome:
+    image: selenium/node-chrome-debug:3.2
+    depends_on:
+      - hub
+    ports:
+      - "5900"
+    environment:
+      HUB_PORT_4444_TCP_ADDR: hub
+      HUB_PORT_4444_TCP_PORT: 4444

@@ -1,0 +1,32 @@
+consul:
+  image: qnib/consul
+  environment:
+  - DC_NAME=dc1
+  ports:
+   - "8500:8500"
+  dns: 127.0.0.1
+  hostname: consul
+
+postgres:
+  image: qnib/postgres
+  environment:
+  - DC_NAME=dc1
+  links:
+  - consul:consul
+  ports:
+   - "5432:5432"
+  dns: 127.0.0.1
+  hostname: postgres
+
+teampostgresql:
+  image: qnib/teampostgresql
+  #net: "container:dockerteampostgresql_postgres_1"
+  environment:
+  - DC_NAME=dc1
+  links:
+  - consul:consul
+  - postgres:postgres
+  ports:
+   - "8082:8082"
+  dns: 127.0.0.1
+  hostname: teampostgresql

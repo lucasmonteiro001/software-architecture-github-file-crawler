@@ -1,0 +1,24 @@
+version: '2'
+
+services:
+
+    app:
+        build: docker
+        volumes:
+            - './docker/000-default.conf:/etc/apache2/sites-available/000-default.conf'
+            - './docker/custom.ini:/usr/local/etc/php/conf.d/custom.ini'
+            - '.:/var/www'
+
+    db:
+        image: mysql:5.7
+        environment:
+            MYSQL_ROOT_PASSWORD: root
+            MYSQL_DATABASE: core
+            MYSQL_USER: core
+            MYSQL_PASSWORD: core
+
+    cache:
+        image: redis:3.2
+
+    blackfire:
+        image: blackfire/blackfire

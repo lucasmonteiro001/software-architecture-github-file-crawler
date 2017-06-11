@@ -1,0 +1,33 @@
+assmat-web:
+    image: seblavenant/php-apache
+    ports:
+        - 80
+    dns: ${HOST_IP}
+    volumes:
+        - "${APPS_PATH}/assmat/:/var/www/"
+        - /var/www/html
+        - "${APPS_PATH}/assmat/app/.deploy/config/vhosts/application/:/etc/apache2/sites-enabled/"
+    environment:
+        - SERVICE_NAME=app-assmat-web
+        - USER_ID=${USER_ID}
+        - GROUP_ID=${GROUP_ID}
+
+assmat-database:
+    image: mysql
+    volumes:
+        - "${APPS_PATH}/assmat/var/data/mysql/:/var/lib/mysql/"
+    environment:
+        - MYSQL_DATABASE=<%db.name%>
+        - MYSQL_ROOT_PASSWORD=<%db.password%>
+        - MYSQL_USER=<%db.user%>
+        - MYSQL_PASSWORD=<%db.password%>
+        - SERVICE_NAME=srv-assmat-database
+
+assmat-phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    dns: ${HOST_IP}
+    ports :
+        - 80
+    environment:
+        - PMA_HOST=srv-assmat-database.service.consul
+        - SERVICE_NAME=app-assmat-phpmyadmin

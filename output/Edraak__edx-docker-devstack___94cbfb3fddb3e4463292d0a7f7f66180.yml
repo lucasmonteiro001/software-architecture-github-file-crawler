@@ -1,0 +1,102 @@
+mysql:
+  container_name: edx_mysql
+  image: mysql:5.5
+  environment:
+    MYSQL_ROOT_PASSWORD: "password"
+  volumes_from:
+    - "data:rw"
+
+
+memcached:
+  container_name: edx_memcached
+  image: memcached:1.4
+
+
+mongo:
+  container_name: edx_mongo
+  image: mongo:2.4
+  volumes_from:
+    - "data:rw"
+
+
+lms:
+  container_name: edx_lms
+  image: edraak/edx/edxapp:jan-6th-2016
+  # build: build/edxapp
+  working_dir: /edx/app/edxapp/edx-platform
+  environment:
+    EDXAPP_TEST_MONGO_HOST: "mongo"
+  expose:
+    - "8000"
+  # command: paver lms --settings=devstack
+  command: python manage.py lms runserver 0.0.0.0:8000 --settings=devstack
+
+  volumes_from:
+    - "syslog:rw"
+
+  volumes:
+    - "../edx-platform:/edx/app/edxapp/edx-platform-devcode"
+    - "../envs-edx:/edx/app/edxapp/devenvs"
+
+    - "/edx/app/edxapp/staticfiles"
+    - "/edx/app/edxapp/log"
+    - "/edx/var/edxapp/data"
+    - "/edx/app/edxapp/uploads"
+    - "/tmp/edx-s3/grades"
+    - "/dev/log:/dev/log"
+
+  links:
+   - mysql
+   - mongo
+   - memcached
+
+
+studio:
+  container_name: edx_studio
+  image: edraak/edx/edxapp:jan-6th-2016
+  working_dir: /edx/app/edxapp/edx-platform
+  environment:
+    EDXAPP_TEST_MONGO_HOST: "mongo"
+  expose:
+    - "8001"
+  # command: paver studio --settings=devstack
+  command: python manage.py cms runserver 0.0.0.0:8001 --settings=devstack
+
+  volumes_from:
+    - "lms:rw"
+
+  links:
+   - mysql
+   - mongo
+   - memcached
+
+
+data:
+  container_name: edx_data
+  image: busybox
+  volumes:
+    # MySQL
+    - /var/lib/mysql
+    - /tmp/cache
+
+    # MongoDB
+    - /data/db
+
+
+nginx:
+  container_name: edx_nginx
+  image: edraak/edx/nginx:jan-6th-2016
+  ports:
+    - "80:80"
+  links:
+    - lms
+    - studio
+
+
+# Provide a syslog just to make the devstack running!
+syslog:
+  container_name: edx_syslog
+  image: edraak/edx/syslog:jan-6th-2016
+  volumes:
+    - "/dev/"
+    - "/var/log"

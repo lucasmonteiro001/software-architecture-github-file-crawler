@@ -1,0 +1,85 @@
+version: '2'
+
+networks:
+  prometheus-net:
+    driver: bridge
+  back-tier:
+    driver: bridge
+
+services:
+  prometheus:
+    mem_limit: 2g
+    memswap_limit: 4g
+    image: prom/prometheus
+    #container_name: prometheus
+    volumes:
+      - ./prometheus/:/etc/prometheus/
+      - /var/prometheus/:/prometheus
+    command:
+      - '-config.file=/etc/prometheus/prometheus.yml'
+      - '-storage.local.path=/prometheus'
+      - '-alertmanager.url=http://<your-alertmanager-host>:<your-port>'
+    ports:
+      - 12000:9090
+    links:
+      - cadvisor:cadvisor
+      - alertmanager:alertmanager
+    depends_on:
+      - cadvisor
+    networks:
+      - prometheus-net
+  
+  node-exporter:
+    mem_limit: 2g
+    memswap_limit: 4g
+    image: prom/node-exporter
+    expose:
+      - 9100
+    ports: 
+      - 12002:9100
+    networks:
+      - prometheus-net
+
+  alertmanager:
+    mem_limit: 2g
+    memswap_limit: 4g
+    image: prom/alertmanager
+    ports:
+      - 12004:9093
+    volumes: 
+      - ./alertmanager/:/etc/alertmanager/
+    networks:
+      - prometheus-net
+    command:
+      - '-config.file=/etc/alertmanager/config.yml'
+      - '-storage.path=/alertmanager'
+      
+  cadvisor:
+    mem_limit: 2g
+    memswap_limit: 4g
+    image: google/cadvisor
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    ports:
+      - 12001:8080
+    networks:
+      - prometheus
+  
+  grafana:
+    mem_limit: 2g
+    memswap_limit: 4g
+    image: grafana/grafana
+    depends_on:
+      - prometheus
+    ports:
+      - 12003:3000
+    volumes:
+      - /var/grafana:/var/lib/grafana
+    env_file:
+      - config.monitoring
+    networks:
+      - prometheus-net
+      - front-tier

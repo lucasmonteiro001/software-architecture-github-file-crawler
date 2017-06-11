@@ -1,0 +1,50 @@
+#
+# dockerfile-compose.yml
+#
+# Copyright (c) 2015-2017 Junpei Kawamoto
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+mongo:
+  image: mongo
+  volumes:
+    - /var/mongo:/data/db
+
+node-red:
+  image: jkawamoto/psi-node-red
+  volumes:
+    - /var/node-red:/root/.node-red
+  links:
+    - mongo
+  environment:
+    HOSTNAME: integrator
+
+ambassadors:
+  image: jkawamoto/ambassadors
+  command: server
+  volumes:
+    - /var/compose/authorized_keys:/data/authorized_keys
+  ports:
+    - "8022:22"
+  links:
+    - node-red
+
+nginx:
+  image: nginx
+  ports:
+    - "80:80"
+  links:
+    - node-red
+  volumes:
+    - /var/nginx/sites-enabled/:/etc/nginx/conf.d/:ro
+    - /var/nginx/.htpasswd:/etc/nginx/.htpasswd:ro

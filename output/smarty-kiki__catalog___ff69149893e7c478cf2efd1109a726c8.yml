@@ -1,0 +1,23 @@
+version: '2'
+services:
+  gitlab-server:
+    image: gitlab/gitlab-ce:latest
+    hostname: git.smarty.so
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        external_url 'http://git.smarty.so'
+    volumes_from:
+    - gitlab-data
+    labels:
+      io.rancher.sidekicks: gitlab-data
+  gitlab-data:
+    image: gitlab/gitlab-ce:latest
+    hostname: gitdata
+    entrypoint:
+    - /bin/true
+    volumes:
+    - /etc/gitlab
+    - /var/log/gitlab
+    - /var/opt/gitlab
+    labels:
+      io.rancher.container.start_once: 'true'

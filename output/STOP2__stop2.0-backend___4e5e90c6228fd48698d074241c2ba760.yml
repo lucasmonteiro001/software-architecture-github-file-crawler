@@ -1,0 +1,26 @@
+version: '2'
+services:
+  web:
+    build: .
+    environment:
+      - DBHOST=postgres
+      - DBNAME=stop
+      - DBUSER=stop
+      - DBPASS=stop
+      - DB=stop
+    ports:
+      - "5000:5000"
+    links:
+      - postgres
+      - mock
+  postgres:
+    build:
+      context: .
+      dockerfile: DB-Dockerfile
+    ports:
+      - "9999:5432"
+  mock:
+    build:
+      context: mock-hsl-api/
+    ports:
+      - "11111:11111"

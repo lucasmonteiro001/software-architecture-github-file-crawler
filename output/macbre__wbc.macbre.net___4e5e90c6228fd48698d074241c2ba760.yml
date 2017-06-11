@@ -1,0 +1,49 @@
+version: '2'
+services:
+  sphinx:
+    build:
+      context: sphinx
+    command: "searchd --nodetach --config /opt/sphinx.conf"
+    ports:
+    - "127.0.0.1:36307:36307" # bind to local interface only!
+    volumes:
+    - ./sphinx/data:/opt/sphinx/index
+    mem_limit: 180m
+    logging:
+      driver: syslog
+      options:
+        tag: wbc-sphinx
+    hostname: sphinx-docker
+  # Flask app
+  app:
+    build:
+      context: app
+    command: "gunicorn wbc:app -b 0.0.0.0:8080 --access-logfile -"
+    volumes:
+    - ./app/sitemap:/opt/app/wbc/sitemap
+    environment:
+      GIT_HASH: "${GIT_HASH}"
+    links:
+    - sphinx
+    logging:
+      driver: syslog
+      options:
+        tag: wbc-app
+    hostname: "app-docker-${HOST}"
+  # nginx proxy
+  nginx:
+    build:
+      context: nginx
+    command: "nginx -g 'daemon off;'"
+    volumes:
+      - ./nginx/cache:/var/nginx/cache
+    ports:
+    - "80:80"
+    - "443:443"
+    links:
+    - app
+    logging:
+      driver: syslog
+      options:
+        tag: wbc-nginx
+    hostname: "nginx-docker-${HOST}"

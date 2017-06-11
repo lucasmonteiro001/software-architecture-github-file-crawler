@@ -1,0 +1,98 @@
+# sudo dlite install --share /Volumes/projects
+# dlite stop && sudo dlite install -v 2.3.0 --share=/Volumes/projects && dlite start
+# dlite update -v 2.3.0
+# sudo dlite daemon
+# ssh root@local.docker : dhyve
+#~/.dlite/config.json
+#
+# Some cleanup tips: http://jimhoskins.com/2013/07/27/remove-untagged-docker-images.html
+#
+
+#
+# http://zaiste.net/2014/09/removing_docker_containers/
+# http://blog.yohanliyanage.com/2015/05/docker-clean-up-after-yourself/
+#
+# Remove exited containes
+# docker rm -v $(docker ps -a -q -f status=exited)
+#
+# Remove dangling/untagged containers
+# docker images -q --filter dangling=true | xargs docker rmi
+#
+# http://lukeswart.net/2016/03/lets-deploy-part-1/
+#
+# cat /var/db/dhcpd_leases
+#
+version: '2'
+services:
+
+  web:
+    build: ./mothership
+    #image: mothership/docker_magento:latest
+    environment:
+      #XDEBUG_CONFIG: "idekey=PHPSTORM remote_host=172.16.79.4 remote_log=/var/log/xdebug_remote.log"
+      XDEBUG_CONFIG: "idekey=PHPSTORM remote_host=10.200.10.1 remote_log=/var/log/xdebug_remote.log"
+      PROMPT_COMMAND: "history -a"
+
+    volumes:
+      - ${PROJECT_VOlUME}/htdocs:/var/www/share/dev/htdocs
+      - ${PROJECT_VOlUME}/apache2/${PROJECT_NAME}.conf:/etc/apache2/sites-enabled/${PROJECT_NAME}.conf
+
+      # add bash history so that it wont get deleted
+      - ${PROJECT_VOlUME}/home/.bash_history:/root/.bash_history
+
+      # scripts for syncing the remote database
+      - ${PROJECT_VOlUME}/bin/syncdb.sh:/usr/local/bin/syncdb.sh
+
+      # Overwrite the php configuration
+      - ./php/conf.d/xdebug-apache.ini:/etc/php/7.0/apache2/conf.d/20-xdebug.ini
+    ports:
+      - "80:80"
+      - "443:443"
+      - "2222:22"
+      - "1080:1080"
+    restart: always
+    networks:
+      - mothership
+
+  maria_db:
+    image: paintedfox/mariadb
+    environment:
+      USER: super
+      PASS: super123
+    volumes:
+      - ${PROJECT_VOlUME}/db:/data
+    ports:
+      - ${DOCKER_IP}:3306:3306
+    networks:
+      mothership: { aliases: [ "link_mariadb" ] }
+# ssh-keygen -R -> fixes host keys
+# SET HOME DIRECTORY for ROOT USER!
+# docker run -d -p 9200:9200 -p 9300:9300 -v /home/docker/elasticsearch/data:/usr/share/elasticsearch/data -v /home/docker/elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml elasticsearch:2.1 /usr/share/elasticsearch/bin/elasticsearch -Des.insecure.allow.root=true
+
+  elasticsearch:
+    image: elasticsearch:2.3.3
+    environment:
+      USER: super
+      PASS: super123
+    volumes:
+      - ${PROJECT_VOlUME}/elasticsearch/data:/usr/share/elasticsearch/data
+      - ${PROJECT_VOlUME}/elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+    ports:
+      - ${DOCKER_IP}:9200:9200
+      - ${DOCKER_IP}:9300:9300
+    command: /usr/share/elasticsearch/bin/elasticsearch -Des.insecure.allow.root=true
+    networks:
+      mothership: { aliases: [ "link_elastic" ] }
+
+  # Kibana 5 requires elasticsearch 2.2
+  kibana:
+    image: kibana:4.5.1
+    networks:
+      - mothership
+    ports:
+      - ${DOCKER_IP}:5601:5601
+
+
+networks:
+  mothership:
+    driver: bridge

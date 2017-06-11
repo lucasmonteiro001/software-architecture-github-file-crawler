@@ -1,0 +1,12 @@
+version: '2'
+services:
+  mongodb:
+    image: mongo:3.4.1
+  password-manager:
+    image: enikolas/password-manager
+    ports:
+      - "0.0.0.0:6968:6968"
+    depends_on:
+      - mongodb
+    links:
+      - mongodb

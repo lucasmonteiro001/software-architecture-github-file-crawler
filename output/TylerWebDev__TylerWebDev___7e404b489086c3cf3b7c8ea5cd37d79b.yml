@@ -1,0 +1,43 @@
+version: '2'
+services:
+  web:
+    image: nginx
+    ports:
+      - "8080:80"
+    volumes:
+      - ./:/var/www/html
+      - ./../nginx/certs:/etc/nginx/certs
+      - ./../nginx/conf.d:/etc/nginx/conf.d
+    links:
+      - tylerwebdev
+
+  queue:
+    image: loganhenson/tylerwebdev_queue
+    links:
+      - redis:redis
+      - database:database
+    depends_on:
+      - database
+    volumes:
+      - ./:/var/www/html
+
+  tylerwebdev:
+    image: loganhenson/tylerwebdev_php
+    links:
+      - redis:redis
+      - database:database
+    depends_on:
+      - database
+    volumes:
+      - ./:/var/www/html
+
+  redis:
+    image: redis
+
+  database:
+    image: mariadb
+    ports:
+      - "3300:3306"
+    environment:
+      - "MYSQL_DATABASE=tylerwebdev"
+      - "MYSQL_ROOT_PASSWORD=password"

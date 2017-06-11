@@ -1,0 +1,20 @@
+hugo:
+  image: scoot21613/dclead:latest
+  volumes:
+    - ./src/:/src
+    - ./output/:/output
+  environment:
+    - HUGO_REFRESH_TIME=-1
+    - HUGO_THEME=hugo-elate-theme
+    - HUGO_BASEURL=dclead.org
+
+web:
+  image: jojomi/nginx-static
+  volumes:
+    - ./output:/var/www
+  environment:
+    - VIRTUAL_HOST=dclead.org
+  ports:
+    - 80:80
+  restart: always
+

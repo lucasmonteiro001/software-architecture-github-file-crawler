@@ -1,0 +1,21 @@
+version: "2"
+services:
+  web:
+    build: .
+    volumes:
+      - ~/myData/webData:/usr/src/webData
+    ports:
+      - "80:8080"
+    links:
+      - mongo
+  mongo:
+    image: mongo
+    ports:
+      - "27017:27017"
+    volumes_from:
+      - mongodata
+  mongodata:
+    image: ubuntu
+    volumes: 
+      - ~/myData/db:/data/db
+    command: echo "data container for mongodb"

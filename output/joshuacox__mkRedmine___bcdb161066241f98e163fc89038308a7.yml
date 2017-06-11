@@ -1,0 +1,25 @@
+version: '2'
+
+services:
+
+  redmine:
+    image: redmine:3.3.3-passenger
+    ports:
+      - 10080:3000
+    env_file:
+     -  ./redmine.env
+    depends_on:
+      - db
+    restart: always
+    volumes:
+    - /srv/docker/redmine/redmine:/usr/src/redmine/files
+    - /srv/docker/redmine/redmineplugins:/usr/src/redmine/plugins
+    - ./configuration.yml:/usr/src/redmine/config/configuration.yml
+
+  db:
+    image: mysql:5.5
+    env_file:
+    -  ./db.env
+    restart: always
+    volumes:
+    - /srv/docker/redmine/mysql:/var/lib/mysql

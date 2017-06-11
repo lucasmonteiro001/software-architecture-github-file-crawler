@@ -1,0 +1,44 @@
+version: "2"
+services: 
+  mongo:
+    image: "mongo:3"
+    mem_limit: 2g
+    memswap_limit: 4g
+    volumes:
+     - /var/graylog/data/mongo:/data/db
+  elasticsearch:
+    image: "elasticsearch:2"
+    mem_limit: 2g
+    memswap_limit: 4g
+    command: "elasticsearch -Des.cluster.name='graylog'"
+    volumes:
+     - /var/graylog/data/elasticsearch:/usr/share/elasticsearch/data
+  graylog:
+    image: graylog2/server
+    mem_limit: 2g
+    memswap_limit: 4g
+    volumes:
+     - /var/graylog/data/journal:/usr/share/graylog/data/journal
+     - ./graylog/config:/usr/share/graylog/data/config
+     - ./graylog/plugin:/usr/share/graylog/data/plugins
+     - /var/graylog/contentpacks:/usr/share/graylog/data/contentpacks
+    environment:
+      GRAYLOG_PASSWORD_SECRET: somepasswordpepper
+      GRAYLOG_ROOT_PASSWORD_SHA2: 8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918
+      GRAYLOG_REST_TRANSPORT_URI: http://<your-host>:<your-port>
+    links:
+     - mongo:mongo
+     - elasticsearch:elasticsearch
+    ports:
+     - "11005:9000"
+     - "12900:12900"
+     - "12201/udp:12201/udp"
+     - "1514/udp:1514/udp"
+  kibana:
+    image: "kibana:4"
+    mem_limit: 2g
+    memswap_limit: 4g
+    links:
+     - elasticsearch:elasticsearch
+    ports:
+      - "11007:5601"

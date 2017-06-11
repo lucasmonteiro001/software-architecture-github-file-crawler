@@ -1,0 +1,34 @@
+db:
+  image: tutum/mysql:5.6
+  container_name: db
+  # entrypoint: /usr/bin/mysql_install_db
+  environment:
+    MYSQL_PASS: "something"
+    # MYSQL_USER: "root"
+    # STARTUP_SQL: "/tmp/db/startup.sql"
+  volumes:
+    - /home/m/devel/sammox/etherpad/mysql/:/var/lib/mysql/
+  expose:
+    - "3306"
+
+etherpad:
+  image: tvelocity/etherpad-lite
+  container_name: etherpad
+  environment:
+    ETHERPAD_TITLE: "DCRL Etherpad"
+    ETHERPAD_DB_PASSWORD: "something"
+    ETHERPAD_DB_USER: "admin"
+    ETHERPAD_ADMIN_PASSWORD: "something"
+  links:
+    - db:mysql
+    
+nginx:
+    build: nginx
+    container_name: nginx
+    entrypoint: /usr/local/bin/supervisord
+    ports:
+      - "80:80"
+      - "443:443"
+    links:
+      - etherpad
+    dns: ["127.0.0.1"]

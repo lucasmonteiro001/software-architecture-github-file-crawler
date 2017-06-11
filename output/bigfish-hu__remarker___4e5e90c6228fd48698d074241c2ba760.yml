@@ -1,0 +1,24 @@
+version: "2"
+services:
+  # Web node
+  web:
+    build: ./Docker/web/
+    hostname: remarker
+    domainname: localhost
+    volumes:
+      - ./:/var/www/remarker
+    ports:
+      - 8080:80
+    links:
+      - db
+
+  # Database
+  db:
+    image: mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=remarker
+    ports:
+      - 3306:3306
+    volumes:
+      - ./Docker/mysql/data:/var/lib/mysql

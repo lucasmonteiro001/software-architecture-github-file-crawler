@@ -1,0 +1,19 @@
+server:
+  build: .
+  command: server -automigrate=true
+  links:
+    - postgres:postgres
+  ports:
+    - "8080:8080"
+  volumes:
+    - ~/.dockercfg:/root/.dockercfg
+    - "/var/run/docker.sock:/var/run/docker.sock"
+  env_file: .env
+  user: root
+  environment:
+    EMPIRE_DATABASE_URL: postgres://postgres:postgres@postgres/postgres?sslmode=disable
+    DOCKER_HOST: unix:///var/run/docker.sock
+postgres:
+  image: postgres
+  ports:
+    - "5432:5432"

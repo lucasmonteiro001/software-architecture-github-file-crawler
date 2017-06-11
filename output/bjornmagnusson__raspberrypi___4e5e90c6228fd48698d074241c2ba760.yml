@@ -1,0 +1,13 @@
+version: '3'
+services:
+  api:
+    image: bjornmagnusson/pi-led
+    build:
+      context: .
+    command: -demo=false -api=true -num=0
+    ports:
+      - "8080:8080"
+    deploy:
+      placement:
+        constraints:
+          - node.hostname == pi1

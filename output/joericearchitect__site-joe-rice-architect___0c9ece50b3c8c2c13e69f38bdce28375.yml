@@ -1,0 +1,27 @@
+version: '2'
+services:
+  wordpress:
+    image: visiblevc/wordpress:latest
+    container_name: jarch-blog-wordpress-dev-ui
+    links:
+      - db
+    ports:
+      - 8180:80
+      - 443:443
+    volumes:
+      - ./data:/data
+    environment:
+      DB_NAME: wordpress
+      DB_PASS: root
+
+  db:
+    image: mysql:5.7 # or mariadb:10
+    container_name: jarch-blog-wordpress-dev-mysql
+    ports:
+      - 3306:3306
+    volumes:
+      - data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+volumes:
+  data: {}

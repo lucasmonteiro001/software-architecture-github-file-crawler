@@ -1,0 +1,27 @@
+version: '2'
+
+services:
+    osm:
+        build: .
+        # image: floweb/osm-mirror
+        container_name: osm
+        volumes:
+            - ./data:/import
+            - ./styles:/etc/mapnik-osm-data/makina
+            - ./renderd.conf:/etc/renderd.conf
+            - ./preview:/var/www/
+            - /etc/localtime:/etc/localtime:ro
+        ports:
+            - 8888:80
+
+    osm-db:
+        image: mdillon/postgis:9.6
+        container_name: osm-db
+        volumes:
+          - ./osm-db/postgresql:/var/lib/postgresql/data
+          - /etc/localtime:/etc/localtime:ro
+        ports:
+          - 5432:5432
+        environment:
+          - POSTGRES_USER=osm
+          - POSTGRES_PASSWORD=osm

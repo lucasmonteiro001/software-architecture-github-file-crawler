@@ -1,0 +1,89 @@
+version: "2"
+networks:
+  default:
+    external:
+      name: science
+services:
+  redis:
+    image: redis:3.2.6-alpine
+    hostname: redis
+    domainname: docker.redis
+    restart: always
+    volumes:
+      - /tmp/redis:/data
+    ports:
+      - "6379:6379"
+  postgres:
+    image: postgres:9.6.2-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=sentry
+      - POSTGRES_DBPASS=sentry
+    volumes:
+      - /tmp/postgres:/var/lib/postgresql/data:rw
+  sentry:
+    image: sentry:8.13.0
+    hostname: sentry
+    domainname: docker.sentry
+    restart: always
+    environment:
+      - SENTRY_SECRET_KEY=CeHxdeI8NoEVsxcjXhcKXeq04xK4BV6FXcdK
+      - SENTRY_POSTGRES_HOST=postgres
+      - SENTRY_DB_USER=postgres
+      - SENTRY_DB_PASSWORD=postgres
+      - SENTRY_REDIS_HOST=redis
+    depends_on:
+      - redis
+      - postgres
+    ports:
+      - "9000:9000"
+  sentry_celery_beat:
+    image: sentry:8.13.0
+    depends_on:
+      - redis
+      - postgres
+    environment:
+      - SENTRY_SECRET_KEY=CeHxdeI8NoEVsxcjXhcKXeq04xK4BV6FXcdK
+      - SENTRY_POSTGRES_HOST=postgres
+      - SENTRY_DB_USER=postgres
+      - SENTRY_DB_PASSWORD=postgres
+      - SENTRY_REDIS_HOST=redis
+    command: sentry run cron
+  sentry_celery_worker:
+    image: sentry:8.13.0
+    depends_on:
+      - redis
+      - postgres
+    environment:
+      - SENTRY_SECRET_KEY=CeHxdeI8NoEVsxcjXhcKXeq04xK4BV6FXcdK
+      - SENTRY_POSTGRES_HOST=postgres
+      - SENTRY_DB_USER=postgres
+      - SENTRY_DB_PASSWORD=postgres
+      - SENTRY_REDIS_HOST=redis
+    command: sentry run worker
+  api:
+    hostname: api
+    domainname: docker.api
+    image: quay.io/faruken/science:latest
+    restart: always
+    volumes:
+      - .:/src/
+    environment:
+      - APP_ENV=docker
+    depends_on:
+      - redis
+    ports:
+      - "5000:5000"
+  nginx:
+    image: nginx:1.11.10-alpine
+    hostname: nginx
+    domainname: docker.nginx
+    volumes:
+      - ./www:/usr/share/nginx/html:ro
+      - ./conf/nginx.conf:/etc/nginx/nginx.conf:ro
+      - /tmp/nginx:/tmp/:rw
+    restart: always
+    ports:
+      - "8000:80"

@@ -1,0 +1,18 @@
+version: "2"
+
+services:
+  postgres:
+    image: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: development
+      POSTGRES_USER: django
+  django:
+    build: .
+    links:
+      - postgres
+    volumes:
+      - ./gallery_api:/srv/gallery
+    ports:
+      - "8000:8000"

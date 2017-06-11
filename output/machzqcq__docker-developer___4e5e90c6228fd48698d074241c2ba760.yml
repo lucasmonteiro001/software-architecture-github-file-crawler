@@ -1,0 +1,58 @@
+version: "2"
+
+services:
+  nginx:
+    build: ./load_balancer
+    links:
+        - node1:node1
+        - node2:node2
+        - node3:node3
+    depends_on:
+        - node1
+        - node2
+        - node3
+    ports:
+        - "80:80"
+    networks:
+        - front-tier
+  node1:
+    build: ./web_app
+    ports:
+        - "3000"
+    depends_on:
+        - db
+    networks:
+        - front-tier
+        - back-tier
+  node2:
+    build: ./web_app
+    ports:
+        - "3000"
+    depends_on:
+        - db
+    networks:
+        - front-tier
+        - back-tier
+  node3:
+    build: ./web_app
+    ports:
+        - "3000"
+    depends_on:
+        - db
+    networks:
+        - front-tier
+        - back-tier
+  db:
+    image: postgres:9.4
+    volumes:
+        - db-data:/var/lib/postgresql/data
+    ports:
+        - "5432:5432"
+    networks:
+        - back-tier
+volumes:
+    db-data:
+networks:
+    front-tier:
+    back-tier: 
+

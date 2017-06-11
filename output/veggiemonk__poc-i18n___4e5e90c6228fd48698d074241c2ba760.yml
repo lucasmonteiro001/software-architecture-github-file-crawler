@@ -1,0 +1,9 @@
+app:
+  image: node:0.12.7
+  volumes:
+    - .:/code
+    - /var/log/app/poc-i18n:/var/log/app/poc-i18n
+  working_dir: /code
+  command: npm start
+  environment:
+    - PORT=80

@@ -1,0 +1,26 @@
+web:
+  image: pdxjohnny/numapp
+  command: /app/run http
+  ports:
+    - "12345:8080"
+  volumes:
+    - ./static:/app/static
+  links:
+    - user
+    - db
+user:
+  image: pdxjohnny/numapp
+  command: /app/run user
+  ports:
+    - "32345"
+  links:
+    - db
+db:
+  image: pdxjohnny/numapp
+  command: /app/run db
+  expose:
+    - "42345"
+  links:
+    - mongo
+mongo:
+  image: mongo

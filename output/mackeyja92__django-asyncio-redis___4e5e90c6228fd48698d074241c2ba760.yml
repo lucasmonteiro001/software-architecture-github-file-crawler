@@ -1,0 +1,11 @@
+version: '2'
+services:
+  test:
+    build: .
+    environment:
+      - REDIS_LOCATION=redis://redis:6379
+    depends_on:
+      - redis
+    command: bash /app/tests/run_tests.sh
+  redis:
+    image: redis

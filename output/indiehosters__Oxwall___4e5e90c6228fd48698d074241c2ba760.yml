@@ -1,0 +1,23 @@
+db:
+  image: mysql:5.6
+  volumes:
+    - ./mysql/runtime:/var/lib/mysql
+  env_file:
+    - ./.env
+web:
+  image: indiehosters/oxwall
+  links:
+    - db
+  volumes:
+    - ./data:/var/www/html
+  env_file:
+    - ./.env
+cron:
+  image: indiehosters/oxwall 
+  command: cron -f
+  volumes:
+    - ./crontab:/etc/cron.d/oxwall
+  volumes_from:
+    - web
+  links:
+    - db

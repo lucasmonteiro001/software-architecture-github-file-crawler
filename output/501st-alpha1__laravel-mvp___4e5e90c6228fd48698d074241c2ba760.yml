@@ -1,0 +1,26 @@
+version: '2'
+
+services:
+  web:
+    build: .
+    image: laravelmvp
+    ports:
+      - "8080:80"
+    expose:
+      - "80"
+    links:
+      - db
+    volumes:
+      - ./:/var/www
+
+  db:
+    image: mysql:5.6
+    ports:
+      - "3306:3306"
+    expose:
+      - "3306"
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: 1
+      MYSQL_DATABASE: mvp
+      MYSQL_USER: web
+      MYSQL_PASSWORD: web

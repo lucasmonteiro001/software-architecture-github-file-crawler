@@ -1,0 +1,7 @@
+php:
+  build: docker/php-dev
+  container_name: version-matrix-php
+  ports:
+    - 8000:8000
+  volumes:
+      - .:/app

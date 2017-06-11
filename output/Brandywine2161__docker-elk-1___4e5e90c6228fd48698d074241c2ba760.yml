@@ -1,0 +1,41 @@
+elasticsearch:
+  image: "elasticsearch:latest"
+  ports:
+    - "9200:9200"
+  volumes_from:
+    - data
+  # volumes:
+  #   - "$PWD/es_data:/usr/share/elasticsearch/data"
+  #   - "$PWD/config:/usr/share/elasticsearch/config"
+  restart: always
+
+# logstash:
+#   image: "logstash:latest"
+#   ports:
+#     - "5000:5000"
+#   volumes:
+#     - "$PWD:/config-dir"
+#   command: logstash -f /config-dir/logstash.conf
+
+kibana:
+  image: "kibana:latest"
+  ports:
+    - "80:5601"
+  links:
+    - "elasticsearch:elasticsearch"
+  restart: always
+
+# nginx:
+#   image: "nginx:latest"
+#   ports:
+#     - "80:80"
+#   volumes:
+#     - "$PWD/conf/kibana.conf:/etc/nginx/nginx.conf:ro"
+#   links:
+#     - kibana:kibana
+#   restart: always
+
+data:
+  image: "busybox"
+  volumes:
+    - "/usr/share/elasticsearch/data"

@@ -1,0 +1,26 @@
+app:
+  build: ./
+  links:
+    - db
+    - celerybroker
+    - smtp
+  volumes:
+    - .:/opt/cabot
+  env_file: ./conf/development.env.example
+  ports:
+    - "5000:5000"
+
+db:
+  image: postgres
+  volumes:
+    - /var/lib/postgresql
+  environment:
+    POSTGRES_USER: docker
+    POSTGRES_PASSWORD: docker
+
+celerybroker:
+  image: redis
+
+smtp:
+  image: tianon/exim4
+

@@ -1,0 +1,14 @@
+alpine-jupyter:
+  #build: .
+  image: "alpine-jupyter:latest"
+  ports:
+    - "8888:8888"
+  container_name: alpine-jupyter
+  tty: true
+  stdin_open: true
+  environment:
+    ENV: PROD
+  volumes:
+    - ~/notebook:/jupyter/notebook
+    - ./conf:/jupyter/conf
+

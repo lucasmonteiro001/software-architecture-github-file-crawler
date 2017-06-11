@@ -1,0 +1,36 @@
+version: "2"
+services:
+  tethys-backend:
+    container_name: tethys-backend
+    hostname: tethys-backend
+    image: bnjm/tethys:tethys-backend-0.1-SNAPSHOT
+    restart: always
+    ports:
+      - 8000:8000
+
+  tethys-ui-angular2:
+    container_name: tethys-ui-angular2
+    hostname: tethys-ui-angular2
+    image: bnjm/tethys:tethys-ui-angular2-0.1-SNAPSHOT
+    restart: always
+    links:
+      - tethys-backend
+    ports:
+      - 8001:8001
+
+  tethys-ui-react:
+    container_name: tethys-ui-react
+    hostname: tethys-ui-react
+    image: bnjm/tethys:tethys-ui-react-0.1-SNAPSHOT
+    restart: always
+    links:
+      - tethys-backend
+    ports:
+      - 8002:8002
+
+  mongo:
+    image: mongo
+    ports:
+      - 27017:27017
+    links:
+      - tethys-backend

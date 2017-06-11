@@ -1,0 +1,17 @@
+base:
+  image: cmbf/base-service:latest
+  environment:
+    - NODE_ENV=production
+  links:
+    - redis
+    - mongodb
+redis:
+  image: redis:latest
+  ports:
+    - "6379:6379"
+mongodb:
+  image: tutum/mongodb:latest
+  environment:
+    AUTH: no
+  ports:
+    - "27017:27017"

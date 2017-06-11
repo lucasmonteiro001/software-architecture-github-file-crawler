@@ -1,0 +1,13 @@
+version: '2'
+services:
+  base:
+    build: .
+    volumes:
+      - "./depends:/home/app/depends"
+      - "./provides:/home/app/provides"
+    ports:
+      - "8080:8080"
+      - "5858:5858"
+    environment:
+      - DEBUG=provides:express
+    command: gulp

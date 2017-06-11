@@ -1,0 +1,75 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (c) 2015 Guillaume Pellerin <guillaume.pellerin@ircam.fr>
+
+# Manifeste is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+
+# Manifeste is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with Manifeste.  If not, see <http://www.gnu.org/licenses/>.
+
+# Authors:
+# Guillaume Pellerin <guillaume.pellerin@ircam.fr>
+
+var:
+  image: debian:jessie
+  volumes:
+    - ./var/media:/srv/media
+    - ./var/backup:/srv/backup
+    - ./var/static:/srv/static
+    - ./var/log/uwsgi:/var/log/uwsgi
+    - ./var/log/nginx:/var/log/nginx
+    - ./var/log/app:/var/log/app
+    - ./bin:/srv/bin
+    - ./doc:/srv/doc
+    - /srv/bower
+  command: "true"
+
+db:
+  image: postgres:9.5
+  volumes_from:
+    - var
+  volumes:
+    - ./var/lib/postgresql/data:/var/lib/postgresql/data
+  environment:
+    - POSTGRES_PASSWORD=noodFof2Kna
+
+app:
+  build: .
+  command: /bin/bash bin/app.sh
+  volumes:
+    - ./app:/srv/app
+    - ./gulpfile.js:/srv/gulpfile.js
+    - ./bower.json:/srv/bower.json
+    - ./.bowerrc:/srv/.bowerrc
+    - ./lib/mezzanine-agenda:/srv/lib/mezzanine-agenda
+    # - ./lib/grappelli-safe:/srv/lib/grappelli-safe
+    - ./lib/mezzanine/:/srv/lib/mezzanine
+    # - ./lib/cartridge/:/srv/lib/cartridge
+  volumes_from:
+    - var
+  expose:
+    - "8000"
+  links:
+    - db
+  environment:
+   - DEBUG=False
+
+nginx:
+  image: nginx
+  ports:
+    - "8022:80"
+  volumes:
+    - ./etc/nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf
+    - ./etc/nginx/htpasswd:/etc/nginx/htpasswd
+  volumes_from:
+    - var
+  links:
+    - app

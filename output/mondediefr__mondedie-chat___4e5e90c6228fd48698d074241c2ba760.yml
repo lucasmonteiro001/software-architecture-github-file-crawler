@@ -1,0 +1,31 @@
+chat:
+  image: mondedie/mondedie-chat
+  container_name: chat
+  links:
+    - redis:redis
+  environment:
+    - ENV=production
+    - FLARUM_API_ENDPOINT=http://your-domain.tld/api/
+    - COOKIES_SECRET=PLEASE_REPLACE_BY_RANDOM_VALUE
+    - SESSION_SECRET=PLEASE_REPLACE_BY_RANDOM_VALUE
+    - REDIS_URL=redis://redis:6379
+    - PIWIK_ID=1
+    - PIWIK_URL=https://piwik.domain.tld
+
+redis:
+  image: redis:3.2-alpine
+  container_name: redis
+  command: redis-server --appendonly yes
+  volumes:
+    - /mnt/docker/redis/db/:/data
+
+nginx:
+  image: boring-nginx
+  container_name: nginx
+  links:
+    - chat:chat
+  ports:
+    - "80:8000"
+  volumes:
+    - /mnt/docker/nginx/sites-enabled:/sites-enabled
+    - /mnt/docker/nginx/log:/var/log/nginx

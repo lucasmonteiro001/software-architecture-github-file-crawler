@@ -1,0 +1,14 @@
+alfresco:
+  environment:
+    CIFS_ENABLED: 'false'
+    FTP_ENABLED: 'false'
+  image: webcenter/rancher-alfresco:5.2-201612GA
+  links:
+  - postgres:db
+postgres:
+  environment:
+    PGDATA: /var/lib/postgresql/data/pgdata
+    POSTGRES_DB: alfresco
+    POSTGRES_PASSWORD: 70Q83feNcsfG
+    POSTGRES_USER: alfresco
+  image: postgres:9.4

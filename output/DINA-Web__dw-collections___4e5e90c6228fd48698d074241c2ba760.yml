@@ -1,0 +1,65 @@
+fs:
+  image: tianon/true
+  volumes:
+    - ./mysql-datadir:/var/lib/mysql
+    - ./mysql-shr:/shr
+    - ./mysql-autoload:/docker-entrypoint-initdb.d:ro
+
+fs-api:
+  image: tianon/true
+  volumes:
+    - ./nginx-conf:/etc/nginx/conf.d
+    - ./nginx-certs:/etc/nginx/ssl
+    - ./nginx-logs:/etc/nginx/logs
+
+db:
+  image: mysql
+  environment:
+    - TZ=Europe/Stockholm
+    - MYSQL_ROOT_PASSWORD=password12
+    - MYSQL_DATABASE=keycloak
+    - MYSQL_USER=keycloak
+    - MYSQL_PASSWORD=keycloak
+  volumes_from:
+    - fs
+
+sso:
+  image: dina/keycloak
+  environment:
+    - TZ=Europe/Stockholm
+    - MYSQL_DATABASE=keycloak
+    - MYSQL_USERNAME=keycloak
+    - MYSQL_PASSWORD=keycloak
+    - VIRTUAL_HOST=beta-sso.dina-web.net
+    - VIRTUAL_PORT=8080
+  links:
+    - db:mysql  
+  volumes_from:
+    - fs
+
+as:
+  image: dina/collections-api:v0.2.25
+  environment:
+    - TZ=Europe/Stockholm  
+  ports:
+    - "9990:9990"
+  links:
+    - sso
+    - db:dina-mysql
+
+ws-api:
+  image: nginx
+  environment:
+    - VIRTUAL_HOST=beta-api.dina-web.net
+  links:
+    - as
+    - solr  
+  volumes_from:
+    - fs-api
+
+solr:
+  image: dina/collections-solr
+  links:
+    - db:mysql
+  ports:
+    - "8983:8983"

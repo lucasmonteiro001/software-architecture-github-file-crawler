@@ -1,0 +1,16 @@
+version: '2'
+
+services:
+  elasticsearch:
+    image: elasticsearch:5.1
+
+  kibana:
+    image: kibana:5.1
+    volumes:
+      - ./kibana/config/:/etc/kibana/
+    depends_on:
+      - elasticsearch
+
+# $ docker network list
+# $ docker network inspect openevents_default
+# $ xdg-open xdg-open http://$KIBANA_IP:5601

@@ -1,0 +1,17 @@
+forward2backend:
+  build: backend
+  external_links:
+  - webapp_identity:identity
+  - backend_gatekeeper_1:backend
+service:
+  build: service
+  links:
+   - forward2backend:backend
+  expose:
+   - 80
+gatekeeper:
+  build: gatekeeper
+  links:
+  - service:service
+  ports:
+   - "8080:80"

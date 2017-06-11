@@ -1,0 +1,15 @@
+app:
+  build: .
+  links:
+    - libro-server
+  ports:
+    - 5000:5000
+  volumes:
+    - .:/usr/src/app
+  environment:
+    - SERVER_URL=http://server-libro:13322
+
+libro-server:
+  image: till/libro-server
+  ports:
+    - 13322:13322

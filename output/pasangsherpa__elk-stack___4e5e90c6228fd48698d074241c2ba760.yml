@@ -1,0 +1,25 @@
+elasticsearch:
+  image: elasticsearch
+  volumes:
+    - config/elasticsearch:/usr/share/elasticsearch/config
+  ports:
+    - "9200:9200"
+    - "9300:9300"
+logstash:
+  image: pasangsherpa/logstash
+  command: -f /usr/share/logstash/config/logstash.conf
+  volumes:
+    - config/logstash/conf:/usr/share/logstash/config
+    - config/logstash/tls:/etc/pki/tls
+  ports:
+    - "5000:5000"
+  links:
+    - elasticsearch
+kibana:
+  image: pasangsherpa/kibana
+  volumes:
+    - config/kibana:/opt/kibana/config
+  ports:
+    - "5601:5601"
+  links:
+    - elasticsearch

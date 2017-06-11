@@ -1,0 +1,29 @@
+version: "2"
+
+# This compose file is for production, overrides if for development.
+# To run only this, without override issue:
+# docker-compose -f docker-compose.yml up
+
+services:
+  prezi-frontend:
+    image: frncmx/prezi-frontend
+    container_name: prezi-frontend
+    environment:
+      PREZI_BACKEND_HOST: prezi-backend
+      PREZI_BACKEND_PORT: 5000
+      PREZI_FRONTEND_PORT: 8080
+    ports:
+      - "80:8080"
+  prezi-backend:
+    image: frncmx/prezi-backend
+    container_name: prezi-backend
+    environment:
+      # TODO: The DB should be on a volume, not just copied into the image.
+      PREZI_DB_PATH: /db
+      PREZI_BACKEND_PORT: 5000
+    volumes:
+      - prezi-db:/db
+
+volumes:
+  prezi-db:
+    external: true

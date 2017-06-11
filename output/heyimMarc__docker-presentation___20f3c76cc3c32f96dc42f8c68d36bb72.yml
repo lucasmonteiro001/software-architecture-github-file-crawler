@@ -1,0 +1,23 @@
+version: '2'
+services:
+  web:
+    build: .
+    ports:
+      - 8000
+    networks:
+      - front-tier
+
+  lb:
+    image: dockercloud/haproxy
+    ports:
+      - 80:80
+    links:
+      - web
+    networks:
+      - front-tier
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+networks:
+  front-tier:
+    driver: bridge

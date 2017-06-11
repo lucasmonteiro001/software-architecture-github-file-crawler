@@ -1,0 +1,18 @@
+version: '2'
+services:
+  mysql:
+    build: ./mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: pass
+    volumes:
+      - ./mysql/db:/var/lib/mysql
+  plane-service:
+    build: ./plane-service
+    ports:
+      - '80:80'
+    volumes:
+      - ./plane-service:/var/www/html
+    depends_on:
+      - mysql
+volumes:
+  db:

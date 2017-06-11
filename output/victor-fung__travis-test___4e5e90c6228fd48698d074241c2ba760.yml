@@ -1,0 +1,19 @@
+tc_d8_web:
+    image: touchcast/docker-nginx-php7
+    mem_limit: 300m
+    ports:
+        - "80:80"
+    volumes:
+        - ./:/var/www/html
+    links:
+     - tc_d8_db:tc_d8_db_container
+tc_d8_db:
+    image: mysql
+    mem_limit: 300m
+    ports:
+        - "3306"
+    environment:
+        MYSQL_ROOT_PASSWORD: password
+        MYSQL_USER: user
+        MYSQL_PASSWORD: password
+        MYSQL_DATABASE: project_db

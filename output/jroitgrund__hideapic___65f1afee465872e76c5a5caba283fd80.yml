@@ -1,0 +1,16 @@
+version: "2"
+services:
+  hideapic:
+    build: .
+    ports:
+     - 8080
+     - 8081
+    depends_on:
+     - redis
+  redis:
+    image: "redis:alpine"
+  selenium:
+    ports:
+      - 4444
+      - 5900
+    image: selenium/standalone-chrome-debug

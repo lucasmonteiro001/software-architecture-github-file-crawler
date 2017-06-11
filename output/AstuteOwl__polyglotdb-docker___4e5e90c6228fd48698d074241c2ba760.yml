@@ -1,0 +1,12 @@
+api:
+    image: astuteowl/api-server-node
+    ports:
+        - "5000:5000"
+    links:
+        - redis
+        - couchdb
+    command: python Server.py
+redis:
+    image: redis
+couchdb:
+    image: klaemo/couchdb 

@@ -1,0 +1,6 @@
+graphgist:
+    image: qnib/graphgist
+    volumes:
+    - ./:/opt/graphgist/gists/
+    ports:
+    - 8000:80

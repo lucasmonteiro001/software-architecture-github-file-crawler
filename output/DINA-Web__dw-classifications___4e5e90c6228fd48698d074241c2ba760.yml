@@ -1,0 +1,36 @@
+fs:
+  image: tianon/true
+  volumes:
+    - ./plutof-data:/tmp
+
+db:
+  image: postgres:9.4.5
+  environment:
+    - POSTGRES_PASSWORD=password12
+    - POSTGRES_USER=postgres
+  ports:
+   - "5432:5432"
+  volumes:
+    - ./pg-init:/docker-entrypoint-initdb.d
+
+es:
+  image: elasticsearch:latest
+  command: elasticsearch -Des.network.bind_host=0.0.0.0 -Des.node.name="haystack_taxonomy"
+  ports:
+    - "9200:9200"
+    - "9300:9300"
+  volumes:
+    - ./es-data:/usr/share/elasticsearch/data:rw
+
+web:
+  build: .
+  ports:
+    - "7000:7000"
+  links:
+    - db:db
+    - es:es
+
+cli:
+  build: cli
+  volumes_from:
+    - fs

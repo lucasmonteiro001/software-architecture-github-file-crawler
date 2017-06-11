@@ -1,0 +1,27 @@
+version: '2'
+services:
+    httpd:
+        image: "okieoth/d_apache2.4:0.2"
+        volumes:
+            - "./httpd/conf:/opt/extra-conf-enabled"
+            - "./httpd/sites-conf:/opt/extra-sites-enabled"
+            - "./httpd/data:/opt/extra-data"
+        links:
+            - npm:npm
+        depends_on:
+            - npm
+        ports:
+                - "8080:80"
+        networks:
+            - r_07_sieben
+    npm:
+        image: "okieoth/d_npm:0.1"
+        volumes:
+            - "../client:/opt/myproject"
+        networks:
+            - r_07_sieben
+        expose:
+            - "8080"
+networks:
+    r_07_sieben:
+

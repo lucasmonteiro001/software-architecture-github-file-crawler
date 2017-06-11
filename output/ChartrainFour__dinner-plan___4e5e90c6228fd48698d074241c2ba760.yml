@@ -1,0 +1,11 @@
+web:
+  build: .
+  command: npm run start
+  ports:
+    - "8080:8080"
+  volumes:
+    - ./.eslintrc:/var/www/.eslintrc
+    - ./webpack.config.js:/var/www/webpack.config.js
+    - ./src:/var/www/src
+    - ./package.json:/var/www/package.json
+    - ./yarn.lock:/var/www/yarn.lock

@@ -1,0 +1,34 @@
+discovery:
+  image: ldauvergne/discovery-microservice
+  ports:
+   - "8761:8761"
+edge:
+  image: ldauvergne/edge-microservice
+  ports:
+   - "8765:8765"
+  links:
+   - discovery
+helloworld:
+  image: ldauvergne/helloworld-microservice
+  ports:
+   - "8080:8080"
+  links:
+   - discovery
+currencyconverter:
+  image: ldauvergne/currencyconverter-microservice
+  ports:
+   - "8081:8081"
+  links:
+   - discovery
+transactionservice:
+  image: ldauvergne/transactionservice-microservice
+  ports:
+   - "8083:8083"
+  links:
+   - discovery
+urlmapper:
+  image: ldauvergne/urlmapper-microservice
+  ports:
+   - "8082:8082"
+  links:
+   - discovery

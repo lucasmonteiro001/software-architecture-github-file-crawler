@@ -1,0 +1,11 @@
+gateaway:
+  image: docker-kevoree-gateway
+  links:
+    - mongo
+  ports:
+    - "8888"
+  environment:
+    DATABASE: "default"
+
+mongo:
+  image: mongo

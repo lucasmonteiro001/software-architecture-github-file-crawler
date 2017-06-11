@@ -1,0 +1,47 @@
+version: '2'
+
+services:
+  mongo:
+    image: luisgepeto/mongo
+    networks:      
+      - mongo
+      - api    
+    container_name: mongo
+    env_file: 
+      - ./env/mongo.${APP_ENV}.env
+    
+  mongo-seed:
+    image: luisgepeto/mongo-seed      
+    depends_on:
+      - mongo    
+    networks:
+      - mongo
+    container_name: mongo-seed
+    env_file: 
+      - ./env/mongo.${APP_ENV}.env
+
+  api:
+    image: luisgepeto/api
+    networks:
+      - mongo
+      - api    
+    container_name: api.${APP_ENV}
+    env_file: 
+      - ./env/api.${APP_ENV}.env
+  
+  web:
+    build:
+      context: ./DockerWeb      
+    networks:
+      - api      
+    ports:
+      - "80:5000"
+    container_name: web
+    env_file: 
+      - ./env/web.${APP_ENV}.env
+
+networks:  
+  mongo:
+    driver: bridge
+  api:
+    driver: bridge

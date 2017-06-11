@@ -1,0 +1,24 @@
+registry:
+  image: manuelleduc/kevoree-registry-replica
+  ports:
+    - "10042:8080"
+  environment:
+    CURL_REGISTRY: "false"
+editor:
+  image: manuelleduc/kevoree-docker-editor
+  ports:
+    - "10043:9090"
+  environment:
+    KEVOREE_REGISTRY_URL: http://127.0.0.1:10042/
+runjs:
+  image: manuelleduc/kevoree-docker-browser-runtime
+  ports:
+    - "10044:80"
+mqtt:
+  image: ansi/mosquitto
+  ports:
+    - "10044:1883"
+  volumes:
+    - "./srv/mqtt/config:/mqtt/config:ro"
+    - "./srv/mqtt/log:/mqtt/log"
+    - "./srv/mqtt/data/:/mqtt/data/"

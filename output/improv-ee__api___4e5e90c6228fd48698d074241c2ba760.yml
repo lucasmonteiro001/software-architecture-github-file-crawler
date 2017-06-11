@@ -1,0 +1,39 @@
+# Secrets are included for local development only!
+
+version: "2"
+
+networks:
+  improv:
+    driver: bridge
+
+services:
+  api:
+    image: improvjaa/improv-api
+    build: .
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./build/dev.crt:/etc/apache2/certs/api.improv.ee.crt:ro
+      - ./build/dev.key:/etc/apache2/certs/api.improv.ee.key:ro
+    environment:
+      APP_ENV: local
+      APP_DEBUG: 'true'
+      APP_KEY: fFWDcIvk8XC1vEzCaq370uSDNROEJJxu
+      DB_PASSWORD: '8J9023@pqK7h5QM1'
+      JWT_SECRET: E8qRSdjW8y5XwvnIbGh6u11QjQk6vfu7
+
+    networks:
+      - improv
+
+  db:
+    image: mariadb
+    environment:
+      MYSQL_ROOT_PASSWORD: 'B8m90Co7*y907!9l'
+      MYSQL_PASSWORD: '8J9023@pqK7h5QM1'
+      MYSQL_USER: improv
+      MYSQL_DATABASE: improv
+    ports:
+      - 3306:3306
+    networks:
+      - improv

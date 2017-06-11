@@ -1,0 +1,39 @@
+db:
+  image: postgres
+  ports:
+    - "5432:5432"
+  links:
+    - consul
+moviedb:
+  build: ./movie-db-service/
+  ports:
+    - "9000"
+  links:
+    - consul
+    - db
+
+consul:
+  #command: agent -server -bootstrap -ui -ui-dir /ui
+  command: agent -server -ui -client 0.0.0.0 -bootstrap -advertise 127.0.0.1
+  image: consul
+  ports:
+    - "8300:8300"
+    - "8400:8400"
+    - "8500:8500"
+    - "8600:53/udp"
+registrator:
+  command: -internal consul://consul:8500
+  image: gliderlabs/registrator:latest
+  hostname: host
+  links:
+    - consul
+  volumes:
+    - "/var/run/docker.sock:/tmp/docker.sock"
+
+prometheus:
+  build: ./prometheus/
+  ports:
+    - "9090:9090"
+  links:
+    - consul
+    - moviedb

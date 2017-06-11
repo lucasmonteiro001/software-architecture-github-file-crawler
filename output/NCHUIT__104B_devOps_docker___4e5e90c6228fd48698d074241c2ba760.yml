@@ -1,0 +1,12 @@
+version: '2'
+services:
+  build: &slideshow
+    build: slides_builder
+    volumes:
+     - .:/workspace
+    entrypoint: ["slideshow", "b", "-t", "pastpress"]
+  new:
+    <<: *slideshow
+    entrypoint: []
+    command: ["slideshow", "n" ,"-t", "pastpress"]
+

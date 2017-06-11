@@ -1,0 +1,19 @@
+version: '2'
+
+services:
+
+  admin:
+    build:
+      context: .
+      dockerfile: ./.docker/admin.development.dockerfile
+    command: npm start
+    container_name: admin-start
+    image: admin
+    networks:
+      - dev-network
+    ports:
+      - '5555:5555'
+
+networks:
+  dev-network:
+    driver: bridge

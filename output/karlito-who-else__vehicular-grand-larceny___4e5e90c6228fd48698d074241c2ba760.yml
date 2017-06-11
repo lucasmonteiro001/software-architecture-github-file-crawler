@@ -1,0 +1,21 @@
+bower:
+  build: ./docker/bower
+composer:
+  image: composer/composer
+db:
+  image: mariadb
+  environment:
+    MYSQL_ROOT_PASSWORD: vehicular-grand-larceny-123
+gulp:
+  build: ./docker/gulp
+wordpress:
+  image: wordpress:latest
+  ports:
+    - "80:80"
+  links:
+    - db:mysql
+    - composer
+    - bower
+    - gulp
+  volumes:
+    - ./www:/var/www/html

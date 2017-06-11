@@ -1,0 +1,13 @@
+engine:
+    container_name: engine.dev.ammit
+    build: ./docker/engine/
+    volumes:
+        - ".:/var/www:rw"
+    working_dir: "/var/www"
+
+composer:
+    container_name: composer.dev.ammit
+    image: composer/composer:latest
+    volumes:
+        - ".:/var/www:rw"
+    working_dir: "/var/www"

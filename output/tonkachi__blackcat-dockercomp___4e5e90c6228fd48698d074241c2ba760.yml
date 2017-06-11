@@ -1,0 +1,28 @@
+datastore:
+  image: busybox
+  command: /bin/sh
+  volumes:
+    - /apps/web
+    - /apps/db
+
+rails:
+  image: tonkachi/blackcat-docker:latest
+  ports:
+    - "3030:3030"
+  volumes_from:
+    - datastore
+
+web:
+  image: nginx:1.9
+  volumes:
+    - nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    - nginx/.htpasswd:/etc/nginx/.htpasswd:ro
+    - nginx/file-store.key:/etc/nginx/file-store.key:ro
+    - nginx/file-store.crt:/etc/nginx/file-store.crt:ro
+  volumes_from:
+    - datastore
+  links:
+    - rails
+  ports:
+    - '80:80'
+    - '443:443'

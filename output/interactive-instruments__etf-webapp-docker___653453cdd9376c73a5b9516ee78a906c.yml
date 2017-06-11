@@ -1,0 +1,32 @@
+# Use nginx as HTTP proxy
+etfproxy:
+ image: nginx
+ restart: unless-stopped
+ volumes:
+  - ./nginx.conf:/etc/nginx/nginx.conf:ro
+  - ./htpasswd.txt:/etc/nginx/.htpasswd:ro
+ ports:
+  - "80:80"
+ links:
+  - etfwebapp
+
+# ETF validator
+etfwebapp:
+ image: iide/etf-webapp
+ restart: unless-stopped
+ # environment:
+  # - ETF_TESTPROJECTS_ZIP=https://github.com/.../master.zip
+  # - PROJECT_DIRECTORY_NAME=custom-ets
+ volumes:
+  - /etf/config:/etf/config
+  - /etf/testdata:/etf/testdata
+  - /etf/http_uploads:/etf/http_uploads
+  - /etf/projects:/etf/projects
+  - /etf/bak:/etf/bak
+  - /etf/logs:/etf/logs
+  - /etf/ds/obj:/etf/ds/obj
+  - /etf/ds/attachments:/etf/ds/attachments
+  # Optional mountpoint for indexed data
+  # - /etf/ds/db/data:/etf/ds/db/data
+  # Optional mountpoint for the test drivers
+  # - /etf/projects:/ets/projects

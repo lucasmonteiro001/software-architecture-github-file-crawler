@@ -1,0 +1,13 @@
+data:
+  image: postgres
+  volumes:
+    - /var/log/postgresql
+    - /var/lib/postgresql
+  command: true
+
+db:
+  image: postgres
+  volumes_from:
+    - data
+  environment:
+    - POSTGRES_PASSWORD=docker

@@ -1,0 +1,73 @@
+amocmaster:
+  build: containers/amoc_master
+  hostname: amocmaster
+  mem_limit: 200m
+  cpuset: 1
+  tty: true
+  volumes:
+    - scenarios/:/root/amoc/scenarios
+  links:
+#    - slave2
+#    - slave1
+#    - mim2
+    - mim1
+    - graphite
+
+mim1:
+  build: containers/mongooseim-docker
+  hostname: mim1
+  tty: true
+  cpuset: 0
+  mem_limit: 350m
+  links:
+    - graphite
+
+#mim2:
+#  build: containers/mongooseim-docker
+#  hostname: mim2
+#  tty: true
+#  cpuset: 0
+#  mem_limit: 350m
+#  environment:
+#    - CLUSTER_WITH=mim1
+#  links:
+#    - graphite
+#    - mim1
+#
+#
+#slave1:
+#  build: containers/amoc_slave
+#  hostname: slave1
+#  cpuset: 1
+#  links:
+#    - slave2
+#    - mim1
+#    - mim2
+
+#slave2:
+#  build: containers/amoc_slave
+#  cpuset: 1
+#  hostname: slave2
+#  links:
+#    - mim1
+#    - mim2
+
+graphite:
+  cpuset: 1
+  volumes:
+    - containers/graphite/storage-schemas.conf:/opt/graphite/conf/storage-schemas.conf
+    - containers/graphite/graphite.conf:/etc/nginx/sites-available/graphite.conf
+  ports:
+    - "8080:80"
+    - "2003:2003"
+  image: sitespeedio/graphite
+
+grafana:
+  cpuset: 1
+  ports:
+    - "8081:3000"
+  links:
+    - graphite
+  image: grafana/grafana
+
+

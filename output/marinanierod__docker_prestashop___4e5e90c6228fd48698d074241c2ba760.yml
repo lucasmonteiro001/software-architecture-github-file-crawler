@@ -1,0 +1,80 @@
+version: "3"
+
+services:
+    haproxy-http:
+        build: alcocer/haproxy-http
+        networks:
+            hlc:
+                ipv4_address: 172.16.0.10
+        ports:
+            - "80:80"
+    haproxy-php:
+        build: alcocer/haproxy-php
+        networks:
+            hlc:
+                ipv4_address: 172.16.0.11
+    haproxy-mem:
+        build: alcocer/haproxy-mem
+        networks:
+            hlc:
+                ipv4_address: 172.16.0.12
+    web1:
+        build: david/apache
+        networks:
+            hlc:
+                ipv4_address: 172.16.1.20
+        volumes:
+            - data-volume:/srv/www
+    web2:
+        build: david/apache
+        networks:
+            hlc:
+                ipv4_address: 172.16.1.21
+        volumes:
+            - data-volume:/srv/www
+    php1:
+        build: valencia/php1
+        networks:
+            hlc:
+                ipv4_address: 172.16.2.10
+        volumes:
+            - data-volume:/srv/www
+    php2:
+        build: valencia/php2
+        networks:
+            hlc:
+                ipv4_address: 172.16.2.11
+        volumes:
+            - data-volume:/srv/www
+    memcached1:
+        build: Alvaro/memcached
+        networks:
+            hlc:
+                ipv4_address: 172.16.3.10
+    memcached2:
+        build: Alvaro/memcached
+        networks:
+            hlc:
+                ipv4_address: 172.16.3.11
+    mysql:
+        build: marina/mysql
+        networks:
+            hlc:
+                ipv4_address: 172.16.4.10
+    ftpd:
+        build: antoniogomez/proftpd
+        networks:
+            hlc:
+                ipv4_address: 172.16.5.10
+        ports:
+            - "21:21"
+        volumes:
+            - data-volume:/srv/www
+networks:
+    hlc:
+        driver: bridge
+        ipam:
+            config:
+            - subnet: 172.16.0.0/16
+volumes:
+    data-volume:

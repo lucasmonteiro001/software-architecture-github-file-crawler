@@ -1,0 +1,99 @@
+version: '2'
+services:
+    php5apache:
+        build: php5apache
+        image: maxlab/php5apache
+        restart: always        
+        volumes:
+            - ./php5apache/conf:/etc/apache2
+            - ./php5apache/php/php.ini:/usr/local/etc/php/conf.d/my.ini
+        env_file: ./conf/dev.env
+        volumes_from:
+            - php7
+        depends_on:
+            - db
+            - redis
+            - mailcatcher
+        links:
+            - php7:fpm7
+            - mailcatcher
+        ports:
+            - 81:80
+            - 444:443
+    web:
+        build: nginx
+        image: maxlab/nginx
+        restart: always
+        env_file: ./conf/dev.env
+        depends_on:
+            - php7
+            - db
+            - pgsql
+            - redis
+            - mailcatcher
+        volumes:
+            - ./nginx/nginx:/etc/nginx
+            - ./nginx/nginx/sites-available/vhost/symfony.env.tpl:/tmp/nginx/symfony.env.tpl
+        volumes_from:
+            - php7
+        links:
+            - php7:fpm7
+            - mailcatcher
+        ports:
+            - 80:80
+            - 443:433
+        command: /bin/bash -c "envsubst '$$SYMFONY_ENV' < /tmp/nginx/symfony.env.tpl > /etc/nginx/sites-available/vhost/symfony && nginx"
+    db:
+        image: mysql:5.7
+        env_file: ./conf/dev.env
+        ports:
+            - 3307:3306
+        volumes:
+            - ./mysql/conf:/etc/mysql/conf.d
+            - ./mysql/mysql:/var/lib/mysql
+        restart: always
+    pgsql:
+        image: postgres:9.6
+        env_file: ./conf/dev.env
+        ports:
+            - 5433:5432
+        volumes:
+            - ./pgsql:/var/lib/postgresql
+        restart: always
+    redis:
+        image: redis:3.0
+        restart: always
+        ports:
+            - 6379:6379
+    mailcatcher:
+        image: schickling/mailcatcher
+        restart: always
+    php7:
+        build: php7xdebug
+        image: maxlab/php7xdebug
+        env_file: ./conf/dev.env        
+        restart: always
+        volumes:
+            - ./workspace:/data
+            - ${HOME}/.ssh/id_rsa:/data/.ssh/id_rsa:ro
+        links:
+            - pgsql
+            - db
+            - mailcatcher
+            - redis
+            - elasticsearch
+    php7console:
+        build: php7
+        container_name: php7console 
+        image: maxlab/php7console
+        env_file: ./conf/dev.env
+        restart: always        
+        volumes_from:
+            - php7 
+        tty: true
+    elasticsearch:
+        image: elasticsearch:5
+        volumes:
+            - ./elasticsearch:/usr/share/elasticsearch/data
+        ports:
+            - "9200:9200"

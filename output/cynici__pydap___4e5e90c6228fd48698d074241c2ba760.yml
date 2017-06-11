@@ -1,0 +1,21 @@
+pydap:
+  # Use either image: ... or build: ...
+  # Use auto-built image from Docker hub 
+  image: cheewai/pydap
+  # Build image locally from Dockerfile 
+  #build: .
+
+  ports:
+   - "10080:10080"
+
+  volumes:
+   # Mount data directory
+   - ../data:/var/www/pydap/server/data
+   #- ./server.ini:/var/www/pydap/server/server.ini
+   # Mount CMD script
+   - ./init.sh:/init.sh:ro
+
+  environment:
+   # uWSGI+Pydap runs with this uid inside the container
+   # Set this to the same uid of user running docker commands
+   - UID=1000

@@ -1,0 +1,14 @@
+mongo:
+  image: mongo
+  ports:
+   - "27017:27017"
+application:
+  build: .
+  command:
+    npm start
+  ports:
+   - "49160:8000"
+  volumes:
+   - ./:/usr/src/app
+  links:
+   - mongo

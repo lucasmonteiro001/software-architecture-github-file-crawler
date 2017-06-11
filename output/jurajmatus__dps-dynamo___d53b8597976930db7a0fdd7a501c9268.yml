@@ -1,0 +1,7 @@
+version: "2.0"
+services: 
+  key-value-store:
+    build: .
+    network_mode: "weave"
+    restart: always
+

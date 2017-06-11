@@ -1,0 +1,7 @@
+version: '2'
+services:
+  flask-app-00:
+    build: .
+    container_name: flask-app-00
+    ports:
+    - "8888:5000"

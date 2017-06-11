@@ -1,0 +1,34 @@
+front:
+    build: images/nginx
+    ports:
+        - "38000:80"
+        - "9000:9000"
+    links:
+        - mysql:mysql
+        - redis:redis
+        - elasticsearch:elasticsearch
+    volumes:
+        - .:/var/www/gitboard
+        - ./images/nginx/sites:/etc/nginx/sites-enabled
+
+mysql:
+    image: tutum/mysql
+    ports:
+        - "33066:3306"
+    environment:
+        MYSQL_PASS: root
+
+redis:
+    image: tutum/redis
+    ports:
+        - "6379:6379"
+    environment:
+        REDIS_PASS: password
+
+elasticsearch:
+    image: tutum/elasticsearch
+    ports:
+        - "9200:9200"
+    environment:
+        ELASTICSEARCH_USER: admin
+        ELASTICSEARCH_PASS: password

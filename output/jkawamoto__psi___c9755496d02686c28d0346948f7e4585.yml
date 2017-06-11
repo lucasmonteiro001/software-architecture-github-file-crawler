@@ -1,0 +1,54 @@
+#
+# dockerfile-compose.yml
+#
+# Copyright (c) 2015 Junpei Kawamoto
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ambassadors_client:
+  image: jkawamoto/rpi-ambassadors
+  command: client
+  links:
+    - ambassadors_tunnel:tunnel
+  expose:
+    - "1880"
+  environment:
+    PORT: "1880"
+
+ambassadors_tunnel:
+  image: jkawamoto/rpi-ambassadors
+  command: tunnel
+  volumes:
+    - /var/ambassadors/id_rsa:/root/.ssh/id_rsa
+  env_file: ambassadors.env
+
+node-red:
+  image: jkawamoto/rpi-node-red2
+  volumes:
+    - /var/node-red:/root/.node-red
+  links:
+    - ambassadors_client:upstream
+  ports:
+    - "127.0.0.1:1880:1880"
+  environment:
+    HOSTNAME: raspberry
+
+nginx:
+  image: lalyos/rpi-nginx
+  volumes:
+    - /var/nginx/sites-enabled/:/etc/nginx/sites-enabled/:ro
+    - /var/nginx/.htpasswd:/etc/nginx/.htpasswd:ro
+  ports:
+    - "80:80"
+  links:
+    - node-red

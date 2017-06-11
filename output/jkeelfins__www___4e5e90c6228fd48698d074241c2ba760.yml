@@ -1,0 +1,7 @@
+web:
+  build: .
+  ports:
+    - "80:80"
+  volumes:
+    - .:/home/user/src
+  command: "serve --watch -H 0.0.0.0"

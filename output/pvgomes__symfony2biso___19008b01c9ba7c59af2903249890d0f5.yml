@@ -1,0 +1,55 @@
+php:
+  build: ./docker/php
+  links:
+    - mariadb:mariadb
+    - redis:redis
+    - rabbit:rabbit
+  volumes:
+    - .:/var/www/symfony2biso
+nginx:
+  build: ./docker/nginx
+  ports:
+    - 8080:80
+  links:
+    - php:php
+  volumes_from:
+    - php
+mariadb:
+  image: mariadb
+  ports:
+    - 3366:3306
+  environment:
+    MYSQL_ROOT_PASSWORD: root
+    TERM: linux
+  volumes:
+    - ./docker/volumes/mariadb:/var/lib/mysql
+redis:
+  image: redis:latest
+  volumes:
+    - ./docker/volumes/redis:/data
+rabbit:
+  image: rabbitmq:3-management
+  ports:
+    - 5672:5672
+    - 15672:15672
+  environment:
+    TERM: linux
+    RABBITMQ_NODENAME: externalshop
+elk:
+  image: sebp/elk
+  ports:
+    - 5601:5601
+  links:
+    - redis:redis
+  environment:
+    TERM: linux
+  volumes:
+    - ./docker/volumes/elk/logstash:/etc/logstash/conf.d
+mockServer:
+  image: php:5.6-cli
+  ports:
+    - 9090:80
+  working_dir: /var/www/symfony2biso
+  volumes_from:
+    - php
+  command: php -S 0.0.0.0:80 src/AppBundle/Tests/MockServer/router.php

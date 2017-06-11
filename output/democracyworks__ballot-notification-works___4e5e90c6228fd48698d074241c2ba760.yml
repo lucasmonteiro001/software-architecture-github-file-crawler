@@ -1,0 +1,27 @@
+app:
+  build: .
+  links:
+    - rabbitmq
+    - wildfly
+  environment:
+    BNW_DATOMIC_URI: "datomic:dev://datomic:4334/ballot-notification-works"
+    INITIALIZE_DATOMIC: "true"
+wildfly:
+  image: quay.io/democracyworks/wildfly:8.2.0.Final
+  links:
+    - rabbitmq
+    - datomic
+  ports:
+    - 9990
+    - 8080
+  environment:
+    ADMIN_USERNAME: admin
+    ADMIN_PASSWORD: admin
+datomic:
+  image: quay.io/democracyworks/datomic-tx:0.9.5153
+rabbitmq:
+  image: rabbitmq:3.5.0-management
+  ports:
+    - "5672"
+    - "15672"
+  hostname: rabbitmq

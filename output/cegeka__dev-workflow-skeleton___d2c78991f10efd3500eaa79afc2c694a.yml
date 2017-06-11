@@ -1,0 +1,22 @@
+db:
+    build: db/clean/
+    ports: 
+        - "5432:5432"
+
+back-end:
+    build: back-end/
+    environment:
+        - db.host=dws_db_1:5432
+    ports:
+        - "8080:8080"
+    links:
+        - db
+        
+front-end:
+    build: front-end/
+    environment:
+        - dws_api_proxy=dws_back-end_1:8080
+    ports:
+        - "80:80"
+    links:
+        - back-end

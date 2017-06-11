@@ -1,0 +1,37 @@
+version: '2'
+services:
+  elasticsearch:
+    image: ermaker/elasticsearch
+    command: sh -c 'echo "$$elasticsearch_yml" > config/elasticsearch.yml ; ulimit -l unlimited ; exec gosu elasticsearch elasticsearch'
+    hostname: es.d.ermaker.tk
+    privileged: true
+    mem_limit: 890m
+    memswap_limit: 890m
+    ports:
+      - 9200
+    environment:
+      elasticsearch_yml: |
+        network.host: 0.0.0.0
+        bootstrap.mlockall: true
+        indices.fielddata.cache.size: 20%
+        index.number_of_shards: 1
+        index.number_of_replicas: 0
+        network.publish_host: es.d.ermaker.tk
+      ES_HEAP_SIZE: 250m
+      constraint:stage: =stable
+    volumes:
+      - es:/usr/share/elasticsearch/data
+    restart: always
+  kibana:
+    image: kibana
+    hostname: kibana.d.ermaker.tk
+    mem_limit: 120m
+    memswap_limit: 120m
+    ports:
+      - 5601
+    environment:
+      - NODE_OPTIONS=--max-old-space-size=50
+      - constraint:stage==stable
+    restart: always
+volumes:
+  es: {}

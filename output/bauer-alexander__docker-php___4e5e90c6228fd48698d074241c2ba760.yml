@@ -1,0 +1,36 @@
+version: '2'
+
+services:
+    db:
+        build: mariadb
+        container_name: db
+        volumes:
+            - "./.data/db:/var/lib/mysql"
+        environment:
+            MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+            MYSQL_USER: ${MYSQL_USER}
+            MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+        ports:
+            - 3306:3306
+    php-apache:
+        build: php7-apache
+        container_name: php7
+        ports:
+            - 80:80
+        volumes:
+            - ${APPS_PATH}:/var/www/apps
+            - ./logs/php-apache/:/var/log/apache2
+        depends_on:
+            - db
+        links:
+            - db
+    elk:
+        image: willdurand/elk
+        container_name: elk
+        ports:
+            - 81:80
+        volumes:
+            - ./elk/logstash:/etc/logstash
+            - ./elk/logstash/patterns:/opt/logstash/patterns
+        volumes_from:
+            - php-apache

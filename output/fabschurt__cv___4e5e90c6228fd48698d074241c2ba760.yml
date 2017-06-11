@@ -1,0 +1,38 @@
+version: '2'
+
+services:
+  app:
+    build:
+      context: .
+      args:
+        ENVIRONMENT: dev
+    image: website_app
+    env_file: .env
+    volumes:
+      - /opt/codebase/web
+      - ./app/jekyll:/opt/codebase/app/jekyll
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile-frontend
+    image: website_frontend
+    ports:
+      - '80:80'
+    depends_on:
+      - app
+
+  builder:
+    image: website_app
+    environment:
+      ENVIRONMENT: dev
+    command: npm run gulp
+    volumes_from:
+      - app
+    volumes:
+      - ./app/assets:/opt/codebase/app/assets
+      - ./gulpfile.js:/opt/codebase/gulpfile.js
+    ports:
+      - '35729:35729'
+    depends_on:
+      - app

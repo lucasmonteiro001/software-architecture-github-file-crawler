@@ -1,0 +1,15 @@
+version: '2'
+services:
+    httpd:
+        image: "okieoth/d_apache2.4:0.2"
+        volumes:
+            - "./httpd/conf:/opt/extra-conf-enabled"
+            - "./httpd/sites-conf:/opt/extra-sites-enabled"
+            - "./httpd/data:/opt/extra-data"
+        ports:
+                - "8080:80"
+        networks:
+            - r_07_sieben
+networks:
+    r_07_sieben:
+

@@ -1,0 +1,29 @@
+postgres:
+  image: postgres:9.5
+  volumes:
+    - ./data/postgres:/var/lib/postgresql/data
+  environment:
+    - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    - POSTGRES_USER=${POSTGRES_USER}
+uwsgi:
+  build: .
+  links:
+    - postgres
+    - smtp
+  command: ./uwsgi.sh
+  volumes:
+    - ./code/project:/project
+    - /static
+    - ./data/media:/media
+  ports:
+    - "8001:8000"
+nginx:
+  build: ./nginx
+  links:
+    - uwsgi
+  volumes_from:
+    - uwsgi
+  ports:
+    - "80:80"
+smtp:
+  image: namshi/smtp

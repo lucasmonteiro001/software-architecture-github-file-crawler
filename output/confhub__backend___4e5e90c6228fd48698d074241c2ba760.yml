@@ -1,0 +1,9 @@
+api:
+  image: confhub/backend
+  links:
+    - database:database
+database:
+  image: mariadb:10
+  environment:
+    MYSQL_ROOT_PASSWORD: password
+    MYSQL_DATABASE: default

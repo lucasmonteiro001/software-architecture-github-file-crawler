@@ -1,0 +1,11 @@
+# DESCRIPTION: nodejs for development
+node:
+  image: 'dekka/node:latest'
+  environment:
+    DEKKA_APP_NAME: express
+    DEKKA_FORCE: ${DEKKA_FORCE}
+  volumes:
+    - ${DEKKA_VOLUME_NAME}:/opt/dekka/node/app
+  ports:
+    - ${DEKKA_APP_PORT}:3000/tcp
+    - ${DEKKA_DEBUG_PORT}:5858/tcp

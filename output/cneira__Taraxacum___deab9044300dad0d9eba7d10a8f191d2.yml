@@ -1,0 +1,44 @@
+consul:
+  image: autopilotpattern/consul:0.7r0.7
+  restart: always
+  dns:
+    - 127.0.0.1
+  labels:
+    - triton.cns.services=consul
+  ports:
+    - "8500:8500"
+  command: >
+    /usr/local/bin/containerpilot
+    /bin/consul agent -server
+      -config-dir=/etc/consul
+      -log-level=err
+      -bootstrap-expect 1
+      -ui-dir /ui
+prometheus:
+    image: autopilotpattern/prometheus:1.3.0r1.0
+    mem_limit: 128m
+    restart: always
+    ports:
+      - "9090:9090"
+    env_file:
+      - _env
+app1:
+  build: ./app1
+  links:
+    - consul:consul
+  environment:
+    - PORT=9032
+    - CONSUL_HOST=consul
+  expose:
+    - "9032"
+  restart: always
+app2:
+  build: ./app2
+  links:
+    - consul:consul
+  environment:
+    - PORT=8040
+    - CONSUL_HOST=consul
+  expose:
+    - "8040"
+  restart: always

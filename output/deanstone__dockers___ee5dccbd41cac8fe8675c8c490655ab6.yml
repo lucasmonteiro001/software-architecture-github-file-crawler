@@ -1,0 +1,42 @@
+version: '2'
+services:
+  zoo-node1:
+    hostname: zoo-node1
+    image: zookeeper_3.4.6
+    volumes:
+      - ./zoo.cfg:/usr/local/zookeeper/conf/zoo.cfg
+      - ./zoo-node1:/tmp/zookeeper
+    environment:
+      - tz=Asia/Hong_Kong
+    networks:
+      - back-zoo
+
+  zoo-node2:
+    hostname: zoo-node2
+    image: zookeeper_3.4.6
+    volumes:
+      - ./zoo.cfg:/usr/local/zookeeper/conf/zoo.cfg
+      - ./zoo-node2:/tmp/zookeeper
+    environment:
+      - tz=Asia/Hong_Kong
+    networks:
+      - back-zoo
+
+  zoo-node3:
+    hostname: zoo-node3
+    image: zookeeper_3.4.6
+    volumes:
+      - ./zoo.cfg:/usr/local/zookeeper/conf/zoo.cfg
+      - ./zoo-node3:/tmp/zookeeper
+    environment:
+      - tz=Asia/Hong_Kong
+    networks:
+      - back-zoo
+
+networks:
+  back-zoo:
+    external:
+      name: back-zoo
+  back-kafka:
+    external:
+      name: back-kafka

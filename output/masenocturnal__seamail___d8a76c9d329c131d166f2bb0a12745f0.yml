@@ -1,0 +1,46 @@
+version: '2'
+services:
+  postfix:
+    build:
+      context: .
+      dockerfile: ./Dockerfile.postfix
+    image: nocturnal/postfix:latest    
+    ports:
+      - 25
+      - 465
+      - 587
+    volumes:
+      - "../postfix:/etc/postfix"
+      - "../dovecot:/etc/dovecot"
+    depends_on:
+      - dovecot
+      - rspamd
+    links:
+      - dovecot
+      - rspamd
+  rspamd:
+    build:
+      dockerfile: ./Dockerfile.rspamd
+      context: .
+    image: nocturnal/rspamd:latest
+    ports: 
+     - 8080
+     - 80
+     - 9900 
+    volumes: 
+      - "../rspamd:/tmp"
+  dovecot:
+    build:
+      dockerfile: ./Dockerfile.dovecot
+      context: .
+    image: nocturnal/dovecot:latest
+    ports: 
+     - 225
+     - 993
+     - 143
+     - 2525
+     - 9000
+    volumes: 
+      - "../dovecot:/etc/dovecot"
+
+      

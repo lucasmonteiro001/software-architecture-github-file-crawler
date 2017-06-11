@@ -1,0 +1,21 @@
+web:
+  build: .
+  ports:
+    - 8080:8080
+redis:
+  image: redis
+  ports:
+    - 6379:6379
+phantomjs:
+  ports:
+    - 8910:8910
+  image: wernight/phantomjs
+  command: "/usr/local/bin/phantomjs --webdriver=8910"
+boxel:
+  image: boxel
+  command: "boxel -W 50 -C palettes/5bit.yml video -R docker -U ws://<<IP>>:8080/ws"
+  links:
+    - redis
+    - phantomjs
+    - web
+

@@ -1,0 +1,6 @@
+www:
+  image: jwilder/nginx-proxy
+  ports:
+  - 80:80
+  environment:
+  - DEFAULT_HOST=sbrk.org

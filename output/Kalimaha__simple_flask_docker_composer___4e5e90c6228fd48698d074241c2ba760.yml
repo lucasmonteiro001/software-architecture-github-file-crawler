@@ -1,0 +1,12 @@
+server:
+  build: ./server
+  ports:
+    - "5000:5000"
+  command: "/deployment/env/bin/python /deployment/start.py"
+  links:
+    - client
+client:
+  build: ./client
+  ports:
+      - "9999:80"
+  command: "/usr/sbin/apache2ctl -D FOREGROUND"

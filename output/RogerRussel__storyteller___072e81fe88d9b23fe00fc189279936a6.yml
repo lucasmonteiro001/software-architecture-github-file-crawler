@@ -1,0 +1,28 @@
+version: '2'
+
+services:
+  storyteller-dev:
+    container_name: storyteller-dev
+    build: ./images/dev
+    network_mode: host    
+    volumes:
+      - ../:/var/www
+
+  storyteller-nginx:
+    container_name: storyteller-nginx
+    build: ./images/nginx
+    network_mode: host    
+    volumes:
+      - ../:/var/www
+
+  heisenberg-percona:
+    container_name: storyteller-percona
+    build: ./images/percona
+    network_mode: host
+    volumes:
+      - ../:/var/www
+      - mysql-data:/var/lib/mysql
+ 
+volumes:
+  mysql-data:
+    driver: local

@@ -1,0 +1,53 @@
+#redis:
+#    extends:
+#        file: docker-compose-common.yml
+#        service: commonredis
+#    ports:
+#        - "127.0.0.1:6379:6379"
+
+logstash:
+    extends:
+        file: docker-compose-common.yml
+        service: commonlogstash
+    volumes:
+        - .:/config-dir
+    links: 
+        - elasticsearch
+#        - nginx
+#    volumes_from:
+#        - nginxlog
+
+elasticsearch:
+    extends:
+        file: docker-compose-common.yml
+        service: commonelasticsearch
+    ports:
+        - "9200:9200"
+        - "9300:9300"
+
+kibana:
+    extends:
+        file: docker-compose-common.yml
+        service: commonkibana
+    ports:
+        - "5601:5601"
+    links:
+        - elasticsearch
+
+#nginx:
+#    extends:
+#        file: docker-compose-common.yml
+#        service: commonnginx
+#    ports:
+#        - "8080:80"
+#    volumes_from:
+#        - nginxlog
+#
+#
+#nginxlog:
+#    extends:
+#        file: docker-compose-common.yml
+#        service: commonnginx
+#    volumes:
+#        - /var/log/nginx
+#    command: bash

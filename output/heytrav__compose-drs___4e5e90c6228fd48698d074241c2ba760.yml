@@ -1,0 +1,240 @@
+version: "3.1"
+services:
+
+  rabbitmq:
+    image: quay.io/heytrav/rabbitmq:latest
+    ports:
+      - 15672:15672
+    env_file: .env
+
+  domaindb:
+    image: mariadb:10.1.21
+    env_file: .env
+    secrets:
+      - mysql_password
+      - mysql_root_password
+      - mysql_database
+      - mysql_user
+    ports:
+      - 3306:3306
+    volumes:
+      - ../database/mysql:/var/lib/mysql
+
+  celery:
+    image: quay.io/heytrav/domain-api:0.1.18
+    volumes:
+      - ../drs-project:/usr/local/domain-api
+    command: ["celery", "-A", "application", "worker", "-l", "info"]
+    depends_on:
+      - rabbitmq
+    env_file: .env
+    environment:
+      SENTRY_DSN_FILE: /run/secrets/celery_sentry_dsn
+    secrets:
+      - mysql_database
+      - mysql_user
+      - mysql_password
+      - celery_sentry_dsn
+      - django_secret_key
+      - jwt_secret_key
+      - logzio_token
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+
+  centralnic:
+    image: quay.io/heytrav/nodepp:1.1.5
+    command: ["node", "./lib/rabbit-epp.js", "-j", "-f", "/run/secrets/centralnic_test_config", "-r", "centralnic-test", "--loglevel", "debug"]
+    healthcheck: 
+      test: ["CMD", "node", "./lib/healthcheck.js", "-j", "-f", "/run/secrets/centralnic_test_config", "-r", "centralnic-test", "--loglevel", "debug"]
+      interval: 1m
+      timeout: 20s
+      retries: 3
+    volumes:
+      - ../nodepp:/opt/project/node-epp
+    depends_on:
+      - rabbitmq
+    env_file: .env
+    environment:
+      EPP_LOGIN_FILE: /run/secrets/centralnic_test_login
+      EPP_PASSWORD_FILE: /run/secrets/centralnic_test_password
+    secrets:
+      - centralnic_test_login
+      - centralnic_test_password
+      - centralnic_test_config
+      - nodepp_sentry_dsn
+      - logzio_token
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+
+
+  #nzrs:
+    #image: quay.io/heytrav/nodepp:1.1.1
+    #command: ["node", "./lib/rabbit-epp.js", "-j", "-f", "/run/secrets/nzrs_test_config", "-r", "nzrs-test", "--loglevel", "debug"]
+    #volumes:
+      #- ../nodepp:/opt/project/node-epp
+    #depends_on:
+      #- rabbitmq
+    #env_file: .env
+    #environment:
+      #EPP_LOGIN_FILE: /run/secrets/nzrs_test_login
+      #EPP_PASSWORD_FILE: /run/secrets/nzrs_test_password
+    #secrets:
+      #- nzrs_test_login
+      #- nzrs_test_password
+      #- nzrs_test_config
+      #- nodepp_sentry_dsn
+      #- nzrs-epp-test.pem
+      #- nzrs-epp-test.key
+    #deploy:
+      #restart_policy:
+        #condition: on-failure
+        #delay: 10s
+
+  cocca:
+    image: quay.io/heytrav/nodepp:1.1.5
+    command: ["node", "./lib/rabbit-epp.js", "-j", "-f", "/run/secrets/cocca_test_config", "-r", "cocca-test", "--loglevel", "debug"]
+    healthcheck: 
+      test: ["CMD", "node", "./lib/healthcheck.js", "-j", "-f", "/run/secrets/cocca_test_config", "-r", "cocca-test", "--loglevel", "debug"]
+      interval: 1m
+      timeout: 20s
+      retries: 3
+    volumes:
+      - ../nodepp:/opt/project/node-epp
+    depends_on:
+      - rabbitmq
+    env_file: .env
+    environment:
+      EPP_LOGIN_FILE: /run/secrets/cocca_test_login
+      EPP_PASSWORD_FILE: /run/secrets/cocca_test_password
+    secrets:
+      - cocca_test_login
+      - cocca_test_password
+      - cocca_test_config
+      - nodepp_sentry_dsn
+      - logzio_token
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+
+  migrate:
+    image: quay.io/heytrav/domain-api:0.1.18
+    command: ["python3", "manage.py", "migrate"]
+    depends_on:
+      - domaindb
+    env_file: .env
+    environment:
+      SENTRY_DSN_FILE: /run/secrets/domain_api_sentry_dsn
+    secrets:
+      - mysql_database
+      - mysql_user
+      - mysql_password
+      - django_secret_key
+      - domain_api_sentry_dsn
+      - jwt_secret_key
+      - logzio_token
+    deploy:
+      restart_policy:
+        condition: on-failure
+        max_attempts: 1
+
+  api:
+    image: quay.io/heytrav/domain-api:0.1.18
+    volumes:
+      - ../drs-project:/usr/local/domain-api
+    command: ["python3", "manage.py", "runserver", "0.0.0.0:8000"]
+    depends_on:
+      - rabbitmq
+      - domaindb
+    env_file: .env
+    environment:
+      SENTRY_DSN_FILE: /run/secrets/domain_api_sentry_dsn
+    secrets:
+      - mysql_database
+      - mysql_user
+      - mysql_password
+      - domain_api_sentry_dsn
+      - django_secret_key
+      - jwt_secret_key
+      - logzio_token
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+
+  memcached:
+    image: memcached:latest
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+      resources:
+        limits:
+          memory: 64M
+        reservations:
+          memory: 64M
+
+  nginx:
+    image: quay.io/heytrav/drs-nginx:0.1.0
+    ports:
+      - "443:443"
+    secrets:
+      - site.key
+      - site.crt
+    command: ["nginx"]
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+
+secrets:
+  cocca_test_login:
+    external: true
+  cocca_test_password:
+    external: true
+  centralnic_test_login:
+    external: true
+  centralnic_test_password:
+    external: true
+  mysql_root_password:
+    external: true
+  mysql_password:
+    external: true
+  mysql_database:
+    external: true
+  mysql_user:
+    external: true
+  centralnic_test_config:
+    external: true
+  cocca_test_config:
+    external: true
+  celery_sentry_dsn:
+    external: true
+  domain_api_sentry_dsn:
+    external: true
+  nodepp_sentry_dsn:
+    external: true
+  site.key:
+    external: true
+  site.crt:
+    external: true
+  django_secret_key:
+    external: true
+  jwt_secret_key:
+    external: true
+  nzrs_test_login:
+    external: true
+  nzrs_test_password:
+    external: true
+  nzrs_test_config:
+    external: true
+  nzrs-epp-test.pem:
+    external: true
+  nzrs-epp-test.key:
+    external: true
+  logzio_token:
+    external: true

@@ -1,0 +1,19 @@
+rethinkdb:
+  image: rethinkdb
+  ports:
+    - "8080:8080"
+web:
+  build: .
+  working_dir: /src
+  volumes:
+    - ./:/src
+  ports:
+    - "3000:3000"
+  links:
+    - rethinkdb
+  environment:
+    VIRTUAL_HOST: mynodeapp.docker
+    DB_HOST: rethinkdb
+    DB_PORT: 28015
+    DB_NAME: new
+  command: npm run start

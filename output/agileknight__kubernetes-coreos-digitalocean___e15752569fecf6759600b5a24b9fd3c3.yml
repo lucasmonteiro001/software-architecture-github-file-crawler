@@ -1,0 +1,7 @@
+gen-certs:
+  build: .
+  environment:
+    MASTER_HOST: 46.101.187.209
+  volumes:
+    - ./certs:/opt/gen-certs/certs
+

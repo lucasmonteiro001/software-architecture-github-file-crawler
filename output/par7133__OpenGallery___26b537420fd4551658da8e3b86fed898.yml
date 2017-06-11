@@ -1,0 +1,154 @@
+version: '2'
+services:
+  phpfpm:
+       container_name: phpfpm
+       build: 
+          context:    ./phpfpm
+          dockerfile: Dockerfile
+       image: phpfpm-alpine:1.0
+       ports:
+            - "8100:9000"
+       volumes:
+ #           - ./html:/usr/share/nginx/html2:z
+            - ./OpenGallery/Public/php.ini:/usr/local/etc/php/php.ini:z  
+            - ./phpfpm/opengallery.conf:/usr/local/etc/php-fpm.d/opengallery.conf:Z  
+            - ./OpenGallery:/var/www/OpenGallery:z
+            - ./cgi:/var/www/OpenGallery/Public/cgi:z
+            - ./html:/var/www/html:z
+            - ./MVC-skeleton:/var/www/MVC-skeleton:z
+       networks:
+          opengallery:
+             ipv4_address: 172.20.0.2      
+  apache:
+       container_name: apache
+       image: httpd:2.4.23-alpine
+       ports:
+            - "8086:8086"
+            - "8087:8087"
+            - "8088:8088"
+       links: 
+            - phpfpm
+       depends_on:
+            - phpfpm
+       volumes:
+            - ./apache/httpd.conf:/usr/local/apache2/conf/httpd.conf:Z
+            - ./OpenGallery/Public/php.ini:/usr/local/etc/php/php.ini:z
+            - ./html:/var/www/html:z
+            - ./MVC-skeleton:/var/www/MVC-skeleton:z
+            - ./OpenGallery:/var/www/OpenGallery:z
+            - ./apache/access_log:/usr/local/apache2/logs/access_log:Z
+            - ./apache/error_log:/usr/local/apache2/logs/error_log:Z
+       networks:
+          opengallery:
+             ipv4_address: 172.20.0.6       
+  nginx:
+       container_name: nginx
+       image: nginx:1.10.2-alpine
+       ports:
+            - "81:80"
+            - "8085:8085"
+            - "443:443"
+       links: 
+            - apache
+       depends_on:
+            - apache     
+       volumes:
+            - ./OpenGallery-static:/var/www/OpenGallery-static:z 
+            - /home/hzombiez/Work/OpenGallery-SSL:/etc/ssl:Z
+            - ./nginx/nginx.conf:/etc/nginx/nginx.conf:Z
+            - ./nginx/localhost8085.conf:/etc/nginx/conf.d/localhost8085.conf:Z
+            - ./nginx/access.log:/var/log/nginx/access.log:Z
+            - ./nginx/error.log:/var/log/nginx/error.log:Z
+       networks:
+          opengallery:
+             ipv4_address: 172.20.0.5       
+#  mariadb:
+#       container_name: mariadb
+#       build: 
+#          context:    ./mariadb
+#          dockerfile: Dockerfile
+#       image: mysql-alpine:1.0
+#       ports:
+#            - "3306:3306"
+#       environment: 
+#          MYSQL_ROOT_PASSWORD: mysql>01X
+#          MYSQL_DATABASE: OpenGallery
+#          MYSQL_USER: zombiez
+#          MYSQL_PASSWORD: zombiez>01X
+#       volumes:
+#            - ./OpenGallery/Private/data:/data:Z   
+#       networks:
+#          opengallery:
+#             ipv4_address: 172.20.0.4      
+  mysql:
+       container_name: mysql
+       image: mysql:5.6.34
+       ports:
+            - "3306:3306"
+       environment: 
+          MYSQL_ROOT_PASSWORD: mysql>01X
+          MYSQL_DATABASE: OpenGallery
+          MYSQL_USER: zombiez
+          MYSQL_PASSWORD: zombiez>01X
+       volumes:
+            - ./OpenGallery/Private/data:/var/lib/mysql:Z   
+       networks:
+          opengallery:
+             ipv4_address: 172.20.0.4
+  memcached:
+       container_name: memcached
+       image: memcached:1.4.33-alpine
+       ports:
+            - "11211:11211"
+       command: memcached -m 64
+       networks:
+          opengallery:
+             ipv4_address: 172.20.0.3                      
+  phpmyadmin:
+       container_name: phpmyadmin
+       image: phpmyadmin/phpmyadmin
+       links: 
+            - mysql
+       depends_on:
+            - mysql     
+       ports: 
+            - "8183:80"
+       environment: 
+            PMA_ARBITRARY: 1
+       volumes:
+            - ./phpmyadmin/sessions:/sessions:z
+       networks:
+          opengallery:
+             ipv4_address: 172.20.0.7
+  mail:
+       container_name: mail
+       hostname: opengallery.media
+       #domainname: opengallery.media
+       build: 
+         context:    ./mail
+         dockerfile: Dockerfile
+       image: citadel-debian:1.0
+       volumes:
+           - /home/hzombiez/Work/Mail:/var/lib/citadel:Z
+           #- ./mail-data:/var/lib/citadel:Z
+       ports:
+           - "82:80"
+           - "25:25" 
+           - "587:587" 
+           - "143:143"
+           - "993:993"
+           - "995:995"  
+           - "504:504"
+       networks:
+         opengallery:
+           ipv4_address: 172.20.0.8
+networks:
+  opengallery:
+       driver: bridge
+       ipam:
+            driver: default
+            config:
+              - subnet: 172.20.0.0/16
+                gateway: 172.20.0.1 
+            
+       

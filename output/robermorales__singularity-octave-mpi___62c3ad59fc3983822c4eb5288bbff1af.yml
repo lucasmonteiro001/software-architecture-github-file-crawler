@@ -1,0 +1,5 @@
+singularity:
+    build: .
+    volumes:
+        - .:/host
+    command: /host/run.sh

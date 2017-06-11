@@ -1,0 +1,22 @@
+webapi:
+    image: gvit004/what2eat
+    ports:
+     - "3000"
+    links: 
+     - mongodbwhat2eat
+    environment: 
+     - build=mongodb
+     - dbalias=mongodbwhat2eat
+     - appname=what2eat
+
+#apitest:
+#    build: .
+#    ports:
+#     - "3000"
+#    links:
+#     - mongodb
+#    volume_from: api
+#    volumes: src/test:/src/test
+
+mongodbwhat2eat:
+    image: mongo:3.0.2

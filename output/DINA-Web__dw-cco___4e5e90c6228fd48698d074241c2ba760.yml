@@ -1,0 +1,32 @@
+version: '2'
+
+services:
+
+  fs:
+    image: tianon/true
+    volumes:
+      - ./mysql-datadir:/var/lib/mysql
+      - ./backups:/backups
+
+  db:
+    image: mariadb:10.1.14
+#    image: mysql:5.7
+    env_file: .env
+    volumes_from:
+      - fs
+
+  cco:
+    build: ./cco-tools
+    volumes:
+      - ./cco-tools:/usr/src/myapp
+      - ./repository:/root/.m2/repository
+    depends_on:
+      - db
+
+  backup:
+    image: alpine
+    command: sh -c "tar cvfz /tmp/db-backup.tgz /var/lib/mysql"
+    volumes_from:
+      - db
+
+

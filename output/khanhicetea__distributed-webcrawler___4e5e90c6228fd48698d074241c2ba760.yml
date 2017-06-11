@@ -1,0 +1,46 @@
+worker1:
+    build: .
+
+    links:
+        - redis1
+        - bloom1
+        - rethink1
+        - gearman1
+
+    volumes:
+        - .:/code
+
+    stdin_open: true
+
+    tty: true
+
+    environment:
+        NUM_WORKERS: ${CRAWLER_NUM_WORKERS}
+
+redis1:
+    image: redis
+    expose:
+        - 6379
+
+bloom1:
+    image: saidimu/bloomd:v0.7.4
+    expose:
+        - 8673
+    volumes:
+        - bloomd_config:/etc/bloomd
+
+rethink1:
+    image: rethinkdb
+    expose:
+        - 28015
+        - 29015
+    ports:
+        - "8080:8080"
+    volumes:
+        - rethinkdb_data:/data
+
+gearman1:
+    image: khanhicetea/gearmand_server:latest
+    ports:
+        - "4730:4730"
+        - "4731:4731"
