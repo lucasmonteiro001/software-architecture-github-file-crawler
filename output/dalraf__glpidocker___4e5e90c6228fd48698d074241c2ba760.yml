@@ -1,0 +1,60 @@
+version: '2'
+services:
+    glpi:
+      build: ./php
+      ports:
+        - "80:80"
+      links:
+        - mysql:db
+      volumes:
+        - ./glpi:/var/www/html/glpi
+      restart: unless-stopped
+      environment:       
+        - VIRTUAL_HOST=${KEY_NAME}
+        - LETSENCRYPT_HOST=${KEY_NAME}
+        - LETSENCRYPT_EMAIL=${EMAIL}
+    mysql:
+      image: mariadb
+      environment:
+        - MYSQL_ROOT_PASSWORD=${MYSQLPASSWORD}
+        - MYSQL_DATABASE=${MYSQLDATABASE}
+      volumes:
+        - mysqldata:/var/lib/mysql
+        - ./database:/docker-entrypoint-initdb.d
+      restart: unless-stopped
+    logrotate:
+      build: ./logrotate
+      volumes:
+        - ./glpi/files/_log:/logs
+      restart: unless-stopped
+    nginx-certs:
+      image: alpine
+      volumes:
+        - certificados:${CERTDIR}
+        - /etc/nginx/vhost.d
+      command: /bin/sh -c 'echo -e "server_tokens off;\nclient_max_body_size 100m;" > /etc/nginx/vhost.d/${KEY_NAME} && apk update && apk add openssl && ! [ -f ${CERTDIR}/${KEY_NAME}.key ] && /usr/bin/openssl genrsa -out ${CERTDIR}/${KEY_NAME}.key 1024 && /usr/bin/openssl req  -new -newkey rsa:4096 -days 365 -nodes -subj "/C=/ST=/L=/O=/CN=${COMMON_NAME}" -keyout ${CERTDIR}/${KEY_NAME}.key -out ${CERTDIR}/${KEY_NAME}.csr  && /usr/bin/openssl x509 -req -days 365 -in ${CERTDIR}/${KEY_NAME}.csr -signkey ${CERTDIR}/${KEY_NAME}.key -out ${CERTDIR}/${KEY_NAME}.crt'
+    nginx-proxy:
+      image: jwilder/nginx-proxy
+      ports:
+        - "8080:80"
+        - "443:443"
+      volumes:
+        - /var/run/docker.sock:/tmp/docker.sock:ro
+        - /usr/share/nginx/html
+      volumes_from:
+        - nginx-certs
+      restart: always
+      depends_on: 
+        - nginx-certs
+    nginx-letsencript:
+      image: jrcs/letsencrypt-nginx-proxy-companion
+      volumes:
+        - /var/run/docker.sock:/var/run/docker.sock:ro
+      volumes_from:
+        - nginx-proxy
+        - nginx-certs
+volumes:
+  mysqldata:
+    driver: local
+  certificados:
+    driver: local

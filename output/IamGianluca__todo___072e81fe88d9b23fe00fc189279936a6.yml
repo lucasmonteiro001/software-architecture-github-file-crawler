@@ -1,0 +1,57 @@
+version: "3"
+
+services:
+
+  app:
+    build:
+      context: ../
+      dockerfile: docker/app.Dockerfile
+    environment:
+      DB_NAME: ${PSQL_DATABASE}
+      DB_USER: ${PSQL_USER}
+      DB_PASSWORD: ${PSQL_PASSWORD}
+      DB_PORT: ${PSQL_PORT}
+      API_HOST: ${API_HOST}
+      API_PORT: ${API_PORT}
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+    networks:
+      - todo_backend
+
+  tests:
+    build:
+      context: ../
+      dockerfile: docker/tests.Dockerfile
+    environment:
+      DB_NAME: ${PSQL_DATABASE}
+      DB_USER: ${PSQL_USER}
+      DB_PASSWORD: ${PSQL_PASSWORD}
+      DB_PORT: ${PSQL_PORT}
+      API_HOST: ${API_HOST}
+      API_PORT: ${API_PORT}
+    ports:
+      - "80:8000"
+    depends_on:
+      - db
+      - app
+    networks:
+      - todo_backend
+
+  db:
+    image: postgres:9.5
+    restart: on-failure
+    environment:
+      POSTGRES_PASSWORD: changeme
+      POSTGRES_USER: docker
+      POSTGRES_DB: db
+    ports:
+      - "5432"
+    networks:
+      - todo_backend
+
+
+networks:
+  todo_backend:
+    driver: bridge

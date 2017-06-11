@@ -1,0 +1,18 @@
+version: '2'
+services:
+  db:
+    restart: always
+    image: mariadb
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: inventory
+
+  web:
+    build: .
+    command: python src/InventoryManagement/manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db

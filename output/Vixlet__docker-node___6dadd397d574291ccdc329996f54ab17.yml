@@ -1,0 +1,4 @@
+test:
+  image: vixlet/node:${IMAGE_NODE_VERSION}
+  volumes:
+   - '.:/var/app'

@@ -1,0 +1,32 @@
+icecast:
+  container_name: icecast
+  hostname: icecast
+  build: icecast/.
+  ports:
+   - 8000:8000
+  volumes:
+   - ../../conf/icecast2:/etc/icecast2
+   - ../../logs:/var/log
+liquidsoap:
+  container_name: liquidsoap
+  hostname: liquidsoap
+  build: liquidsoap/.
+  volumes:
+   - ../../conf/liquidsoap:/etc/liquidsoap
+   - ../../logs:/var/log
+  links:
+   - icecast
+web:
+  container_name: web
+  #hostname: web
+  build: web/.
+  net: "host"
+  privileged: true
+  ports:
+   - "8008:80"
+  volumes:
+   - ../../conf/nginx/sites-enabled:/etc/nginx/sites-enabled
+   - ../../logs:/var/log
+   - ../../www/docroot:/var/www/html
+   - ../../private-files:/var/www/_private
+   - /tmp:/tmp

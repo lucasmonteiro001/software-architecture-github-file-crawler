@@ -1,0 +1,20 @@
+#
+# export ADVERTISED_HOST=`docker-machine ip default`
+# docker-compose up
+#
+
+relay:
+  image: sczizzo/theon
+  ports:
+  - "3000:3000"
+  links:
+  - broker
+
+broker:
+  image: spotify/kafka
+  environment:
+    ADVERTISED_HOST: $ADVERTISED_HOST
+    ADVERTISED_PORT: 9092
+  ports:
+  - "9092:9092"
+  - "2181:2181"

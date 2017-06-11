@@ -1,0 +1,28 @@
+---
+authstore:
+  build: .
+  links:
+  - mongo
+  environment:
+    AUTH_LOGLEVEL: debug
+    AUTH_LOGCOLORS: "true"
+  expose:
+  - "9001"
+  ports:
+  - "9000:9000"
+  volumes:
+  - "certificates:/certificates"
+cloudpipe:
+  image: cloudpipe/cloudpipe
+  links:
+  - mongo
+  - authstore
+  environment:
+    PIPE_LOGLEVEL: debug
+    PIPE_LOGCOLORS: "true"
+    PIPE_CACERT: /certificates/ca.pem
+    PIPE_CERT: /certificates/cloudpipe-cert.pem
+    PIPE_KEY: /certificates/cloudpipe-key.pem
+    PIPE_AUTHSERVICE: https://authstore:9001/v1
+mongo:
+  image: mongo:2.8

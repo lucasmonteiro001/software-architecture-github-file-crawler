@@ -1,0 +1,22 @@
+version: '2'
+services:
+  api:
+    build: ./
+    ports:
+      - 5000:5000
+    volumes:
+      - ./:/go/src/github.com/ml-tv/tv-api
+    depends_on:
+      - database
+    env_file:
+      - ./config/api.env
+    container_name: tv_api
+    entrypoint: /go/src/github.com/ml-tv/tv-api/wait-for-database.sh
+
+  database:
+    image: postgres:9.6
+    ports:
+      - "5432"
+    env_file:
+      - ./config/database.env
+    container_name: tv_api_postgres

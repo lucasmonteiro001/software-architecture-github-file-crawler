@@ -1,0 +1,31 @@
+#
+# docker-compose for sonarqube-base-win
+#
+sonarqube-base-win:
+  image: frozenbytes/sonarqube-base-win:0.0.2-alpha 
+  container_name: sonarqube-base-win-razor
+  environment:
+     - VIRTUAL_HOST=sonar.itascahub.com
+     - VIRTUAL_PORT=8000
+     - SONARQUBE_JDBC_URL=jdbc:mssqlserver://sonarqube_db_1:5432/sonar
+  ports:
+    - 9000
+  volumes:
+    - /data/sonarqube-base-win/:/path
+    - /data/sonarqube-base-win/conf:/opt/sonarqube/conf
+    - /data/sonarqube-base-win/data:/opt/sonarqube/data
+    - /data/sonarqube-base-win/extensions:/opt/sonarqube/extensions
+    - /data/sonarqube-base-win/bundled-plugins:/opt/sonarqube/lib/bundled-plugins
+  links:
+    - sonarqube_db_1
+
+sonarqube_db_1:
+  image: mssqlserver
+  container_name: sonarqube_db_1
+  environment:
+    - USER=sonar
+    - PASSWORD=sonar
+  volumes:
+    - /data/sonarqube-base-win/mssqlserver/data:/path
+
+

@@ -1,0 +1,5 @@
+app:
+  build: .
+  command: bin/start
+  volumes:
+    - .:/app

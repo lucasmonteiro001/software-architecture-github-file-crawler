@@ -1,0 +1,43 @@
+version: '2'
+services:
+  nginx:
+    build: ./nginx
+    links:
+      - php
+    volumes_from:
+      - project
+
+  php:
+    build: ./php
+    expose:
+      - 9000
+    links:
+      - mysql
+    volumes_from:
+      - project
+
+  project:
+    image: debian:jessie
+    volumes:
+      - ./project/src:/var/www/html/project
+    command: "true"
+
+  mysql:
+    image: mysql:latest
+    volumes:
+      - /var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: project
+      MYSQL_USER: project
+      MYSQL_PASSWORD: project
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    links:
+      - mysql
+    environment:
+      PMA_HOST: mysql
+
+  solr:
+    build: ./solr

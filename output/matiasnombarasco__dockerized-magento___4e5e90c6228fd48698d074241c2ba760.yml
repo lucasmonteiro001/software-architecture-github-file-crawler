@@ -1,0 +1,69 @@
+installer:
+  build: docker-images/installer
+  environment:
+    DOMAIN: 127.0.0.1
+    MAGENTO_ROOT: /var/www/html/web
+    MYSQL_HOST: mysql
+    MYSQL_DATABASE: magento
+    MYSQL_USER: root
+    MYSQL_PASSWORD: pw
+    ADMIN_USERNAME: admin
+    ADMIN_FIRSTNAME: Admin
+    ADMIN_LASTNAME: Inistrator
+    ADMIN_PASSWORD: password123
+    ADMIN_FRONTNAME: admin
+    ADMIN_EMAIL: admin@example.com
+    ENCRYPTIONKEY: 731aea833710535779fe8c7c49bc6c4d
+  volumes_from:
+    - nginx
+  links:
+    - "cache:rediscache"
+    - "sessions:redissession"
+    - "fullpagecache:redisfullpagecache"
+    - "solr:solr"
+    - "mysql:mysql"
+nginx:
+  build: docker-images/nginx
+  ports:
+    - "80:80"
+    - "443:443"
+  links:
+    - "php"
+  domainname: 127.0.0.1
+  environment:
+    DOMAIN: 127.0.0.1
+    MAGENTO_ROOT: /var/www/html/web
+    MAGENTO_DEVELOPERMODE: 1
+    SSL_CERTIFICATE_PATH: /etc/ssl/certs/ssl-cert-snakeoil.pem
+    SSL_CERTIFICATE_KEY_PATH: /etc/ssl/private/ssl-cert-snakeoil.key
+  volumes:
+    - /etc/ssl/certs/ssl-cert-snakeoil.pem:/etc/ssl/certs/ssl-cert-snakeoil.pem
+    - /etc/ssl/private/ssl-cert-snakeoil.key:/etc/ssl/private/ssl-cert-snakeoil.key
+  volumes_from:
+    - php
+php:
+  build: docker-images/php/5.5-dev
+  links:
+    - "cache:rediscache"
+    - "sessions:redissession"
+    - "fullpagecache:redisfullpagecache"
+    - "solr:solr"
+    - "mysql:mysql"
+  volumes:
+    - .:/var/www/html
+mysql:
+  image: mysql
+  ports:
+    - "3306:3306"
+  environment:
+    MYSQL_ROOT_PASSWORD: pw
+  volumes:
+    - db:/var/lib/mysql
+solr:
+  build: docker-images/solr
+cache:
+  image: redis:latest
+fullpagecache:
+  image: redis:latest
+sessions:
+  image: redis:latest

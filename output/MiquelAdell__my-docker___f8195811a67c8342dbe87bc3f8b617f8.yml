@@ -1,0 +1,17 @@
+proxy:
+  restart: always
+  image: jwilder/nginx-proxy
+  volumes:
+    - /var/run/docker.sock:/tmp/docker.sock:ro
+  ports:
+    - 80:80
+  restart: always
+  
+dnsmasq:
+  image: andyshinn/dnsmasq
+  ports:
+    - "53:53"
+  cap_add:
+    - NET_ADMIN
+  command: --address=/dev/192.168.99.100
+  restart: always

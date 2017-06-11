@@ -1,0 +1,38 @@
+version: "2"
+services:
+  php-apache-dev:
+    build: ./apache/development
+    volumes:
+     - ./app:/app
+    ports:
+     - 80:8000
+  php-apache-prod:
+    build: ./apache/production
+    volumes:
+     - ./app:/app
+    ports:
+     - 80:8001
+  php-server-dev:
+    build: ./php-server/development
+    volumes:
+     - ./app:/app
+    ports:
+     - 80:8002
+  php-server-prod:
+    build: ./php-server/production
+    volumes:
+     - ./app:/app
+    ports:
+     - 80:8003
+  php-nginx-dev:
+    build: ./nginx/development
+    volumes:
+     - ./app:/app
+    ports:
+     - 80:8004
+  php-nginx-prod:
+    build: ./nginx/production
+    volumes:
+     - ./app:/app
+    ports:
+     - 80:8005

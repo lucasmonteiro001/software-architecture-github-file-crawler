@@ -1,0 +1,62 @@
+version: '2'
+services:
+  nginx:
+    build: docker-images/nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes_from:
+      - php-fpm
+    networks:
+      - front-tier
+
+  php-fpm:
+    build: docker-images/php-fpm
+    volumes:
+      - ./prestashop/:/html/
+    networks:
+      - front-tier
+      - back-tier
+
+  mysql:
+    build: docker-images/mysql
+    hostname: db-server
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - back-tier
+    env_file: .env
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+
+  phpadmin:
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - "9010:80"
+    networks:
+      - back-tier
+    environment:
+      PMA_HOST: "mysql"
+      PMA_PORT: "3306"
+
+  # For debugging purposes only
+  # portainer:
+  #   image: portainer/portainer:latest
+  #   privileged: true
+  #   ports:
+  #     - "9000:9000"
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock
+
+volumes:
+  mysql-data:
+    driver: local
+
+networks:
+  front-tier:
+    driver: bridge
+  back-tier:
+    driver: bridge

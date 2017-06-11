@@ -1,0 +1,56 @@
+version: '2'
+
+services:
+
+  # backend application
+  backend:
+    image: timetrack/backend:latest
+    ports:
+      - 8080:8080
+    links:
+      - mongo
+      - elasticsearch
+    volumes:
+      - ./backend/target/log:/var/log
+  mongo:
+    image: timetrack/mongo:latest
+    ports:
+      - 27017:27017
+    volumes:
+      - timetrack-mongo-data:/data/db
+  redis:
+    image: timetrack/redis:latest
+    ports:
+      - 6379:6379
+    volumes:
+      - timetrack-redis-data:/var/lib/redis
+
+  # frontend
+  frontend:
+    image: timetrack/frontend:latest
+    ports:
+      - 80:80
+    volumes:
+      - ./frontend:/usr/local/apache2/htdocs/
+
+  # infra
+  elasticsearch:
+    image: timetrack/elasticsearch:latest
+    ports:
+      - 9200:9200
+      - 9300:9300
+    environment:
+      ES_JAVA_OPTS: "-Xms1g -Xmx1g"
+    volumes:
+      - timetrack-elastic-data:/usr/share/elasticsearch/data
+  kibana:
+    image: timetrack/kibana:latest
+    volumes:
+     - ./docker/containers/kibana/config/:/opt/kibana/config/
+    ports:
+     - 5601:5601
+
+volumes:
+  timetrack-redis-data: {}
+  timetrack-mongo-data: {}
+  timetrack-elastic-data: {}

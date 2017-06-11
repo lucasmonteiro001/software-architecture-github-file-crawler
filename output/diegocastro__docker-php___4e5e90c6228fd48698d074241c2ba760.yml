@@ -1,0 +1,49 @@
+version: "2"
+services:
+    web:
+        build: ./php
+        ports:
+            - "80:80"
+            - "8000:8000"
+        volumes:
+            - "$PROJECTS/www:/var/www/localhost/htdocs"
+            - "$PROJECTS/www/logs/apache2:/var/log/apache2"
+        links:
+            - db
+        networks:
+            main:
+                ipv4_address: 172.21.0.3
+    db:
+        image: mysql:5.5
+        ports:
+            - "3306:3306"
+        environment:
+            MYSQL_ROOT_PASSWORD: root
+        networks:
+            main:
+                ipv4_address: 172.21.0.4
+    cli:
+        build: ./php-cli
+        volumes:
+            - "$PWD:/var/www/localhost/htdocs"
+        links:
+            - db
+        user: $USER
+        networks:
+            - main
+    mailhog:
+        build: ./mailhog
+        ports:
+            - "1025:1025"
+            - "8025:8025"
+        networks:
+            main:
+                ipv4_address: 172.21.0.5
+networks:
+    main:
+        driver: bridge
+        ipam:
+            driver: default
+            config:
+                - subnet: 172.21.0.0/24
+                  gateway: 172.21.0.1

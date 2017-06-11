@@ -1,0 +1,102 @@
+# vim: tabstop=2 shiftwidth=2 expandtab
+version: '2'
+
+# docker-compose file to launch jenkins_master/ELK stack/traefic instead of VM.
+services:
+  proxy:
+    image: traefik
+    command: --web --docker --docker.domain=${PROXY_DOMAIN} --docker.exposedbydefault=false --logLevel=${PROXY_LOG_LEVEL}
+    ports:
+      - "80:80"
+      - "8080:8080"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /dev/null:/traefik.toml
+
+  jenkins_master:
+    build:
+      context: ./dockerfiles
+      dockerfile: centos7_base
+    container_name: jenkins_master
+    entrypoint: /sbin/init
+    privileged: true
+    depends_on:
+      - proxy
+    security_opt:
+      - seccomp:unconfined
+    volumes:
+      - /run
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+      - ./:/opt/toad
+      - ./container_data/jenkins/data:/var/lib/jenkins/userContent
+      - ./container_data/jenkins/log:/var/log/jenkins
+      - ./container_data/jenkins/jobs:/etc/jenkins_jobs
+    labels:
+      - "traefik.enable=true"
+      - "traefik.backend=jenkins_master"
+      - "traefik.frontend.rule=Host:jenkins.${PROXY_DOMAIN}"
+      - "traefik.port=8080"
+    expose:
+      - "8080"
+
+  logstash:
+    build:
+      context: ./dockerfiles
+      dockerfile: centos7_base
+    container_name: logstash
+    entrypoint: /sbin/init
+    privileged: true
+    security_opt:
+      - seccomp:unconfined
+    volumes:
+      - /run
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+      - ./:/opt/toad
+      - ./container_data/logstash/config:/etc/logstash/conf.d
+      - ./container_data/logstash/log:/var/log/logstash/logstash.log
+    expose:
+      - "5044"
+
+  elasticsearch:
+    build:
+      context: ./dockerfiles
+      dockerfile: centos7_base
+    container_name: elasticsearch
+    entrypoint: /sbin/init
+    privileged: true
+    security_opt:
+      - seccomp:unconfined
+    volumes:
+      - /run
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+      - ./:/opt/toad
+      - ./container_data/elasticsearch/log:/var/log/elasticsearch
+      - ./container_data/elasticsearch/data:/var/lib/elasticsearch
+      - ./container_data/elasticsearch/config:/etc/elasticsearch
+    expose:
+      - "9200"
+
+  kibana:
+    build:
+      context: ./dockerfiles
+      dockerfile: centos7_base
+    container_name: kibana
+    entrypoint: /sbin/init
+    privileged: true
+    depends_on:
+      - proxy
+    security_opt:
+      - seccomp:unconfined
+    volumes:
+      - /run
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+      - ./:/opt/toad
+      - ./container_data/kibana/config:/opt/kibana/config
+    labels:
+      - "traefik.enable=true"
+      - "traefik.backend=kibana"
+      - "traefik.frontend.rule=Host:kibana.${PROXY_DOMAIN}"
+      - "traefik.port=5601"
+    expose:
+      - "5601"

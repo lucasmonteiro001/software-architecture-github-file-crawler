@@ -1,0 +1,23 @@
+jenkins-primary:
+  image: "jenkins:2.19.4"
+  ports:
+    - "${PORT}:8080"
+  labels:
+    io.rancher.scheduler.affinity:container_label_soft_ne: io.rancher.stack_service.name=$${stack_name}/$${service_name}
+    default_lb_sync: 'true'
+    io.rancher.container.pull_image: always
+    io.rancher.sidekicks: jenkins-plugins,jenkins-datavolume
+    io.rancher.container.hostname_override: container_name ${hostname}.wds.io
+  volumes_from:
+    - jenkins-plugins
+    - jenkins-datavolume
+  entrypoint: /usr/share/jenkins/rancher/jenkins.sh
+jenkins-plugins:
+  image: rancher/jenkins-plugins:v0.1.1
+jenkins-datavolume:
+  image: "busybox"
+  volumes:
+    - ${volume_work}:/var/jenkins_home
+  labels:
+    io.rancher.container.start_once: true
+  entrypoint: ["chown", "-R", "1000:1000", "/var/jenkins_home"]

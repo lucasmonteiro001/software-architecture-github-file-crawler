@@ -1,0 +1,17 @@
+version: '2'
+services:
+  connect:
+    build: ../docker/connect
+    ports:
+      - 4040:4040
+  operator:
+    image: kerio/operator:stable
+    ports:
+      - 4021:4021
+    volumes:
+      - ./var:/var
+  kerio-api:
+    build: ..
+    links:
+      - connect
+      - operator

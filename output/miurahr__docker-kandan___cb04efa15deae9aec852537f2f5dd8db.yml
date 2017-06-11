@@ -1,0 +1,20 @@
+kandan:
+  image: miurahr/kandan
+  environment:
+    - DB_USER=kandan
+    - DB_PASS=hogefuga
+    - DB_NAME=kandan_production
+  volumes:
+    - /var/log/kandan:/var/log/kandan
+  ports:
+    - 3000:3000
+hubot:
+  image: miurahr/hubot
+  environment:
+    - ADAPTER=kandan
+  links:
+      - kandan:kandan
+  volumes:
+    - /var/log/hubot:/var/log/hubot
+  ports:
+    - 80:8000

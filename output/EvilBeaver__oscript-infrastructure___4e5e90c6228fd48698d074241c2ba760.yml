@@ -1,0 +1,27 @@
+version: '3'
+services:
+  nginx:
+    build: web/nginx
+    image: nginx-simple
+    links:
+      - "monoserver"
+      - "jenkins"
+    ports:
+      - "80:80"
+    volumes:
+      - web_content:/var/www/
+  monoserver:
+    build: web/site
+    image: site_fcgi
+    ports:
+      - "9001:9001"
+    volumes:
+      - web_content:/var/www/
+  jenkins:
+    build: jenkins
+    image: osjenkins
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+volumes:
+  web_content:

@@ -1,0 +1,33 @@
+version: '2.2'
+services:
+  default:
+    build:
+      context: ./
+    command: bash
+    container_name: ubuntu-dev
+    dns:
+      - 8.8.8.8
+      - 9.9.9.9
+    environment:
+      DEBIAN_FRONTEND: noninteractive
+      HOME: /root
+      SHELL: bash
+      TERM: xterm-256color
+      USER: root
+      SSH_AUTH_SOCK: ${SSH_AUTH_SOCK}
+    image: docker.local/ubuntu-dev:latest
+    network_mode: host
+    privileged: true
+    ulimits:
+      nofile:
+        hard: 40000
+        soft: 20000
+      nproc: 65535
+    volumes:
+      - ${SSH_AUTH_SOCK}:${SSH_AUTH_SOCK}:ro
+      - ${DOTFILES_ROOT_PATH}:/root/dotfiles:ro
+      - ${DOTFILES_ROOT_PATH}/.git:/root/dotfiles/.git:rw
+      - /var/run/docker.sock:/var/run/docker.sock
+    working_dir: /root/dotfiles
+volumes: {}
+networks: {}

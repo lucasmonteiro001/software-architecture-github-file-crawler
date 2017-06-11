@@ -1,0 +1,12 @@
+version: '2'
+services:
+  db:
+    image: postgres
+    env_file: docker_env
+  bot:
+    build: .
+    depends_on:
+      - db
+    env_file: docker_env
+    environment:
+      TZ: "Asia/Singapore"

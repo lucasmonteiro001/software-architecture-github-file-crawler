@@ -1,0 +1,29 @@
+version: '2.2'
+services:
+  default:
+    build:
+      args:
+        dockerVersion: '17.03.1.ce-1.el7.centos'
+        composeVersion: '1.13.0'
+      context: ./
+    cap_add:
+      - SYS_ADMIN
+    container_name: centos-dind
+    entrypoint: /tini -- /usr/sbin/init
+    environment:
+      container: docker
+    extends:
+      file: ../centos-base/docker-compose.yml
+      service: default
+    image: docker.local/centos-dind:latest
+    security_opt:
+      - seccomp:unconfined
+    tmpfs:
+      - /run
+      - /run/lock
+      - /tmp
+    volumes:
+      - ./restart_docker.sh:/root/restart_docker.sh
+    working_dir: /root
+volumes: {}
+networks: {}

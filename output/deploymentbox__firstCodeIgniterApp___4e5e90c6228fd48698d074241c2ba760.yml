@@ -1,0 +1,38 @@
+application:
+  image: codeigniter/code
+  volumes:
+    - .:/var/www/codeigniter
+    - application/logs/codeigniter:/var/www/codeigniter/application/logs
+  tty: true
+
+db:
+  image: mysql
+  ports:
+    - 3306:3306
+  environment:
+    MYSQL_ROOT_PASSWORD: mysqlroot
+    MYSQL_DATABASE: codeigniter
+    MYSQL_USER: admin
+    MYSQL_PASSWORD: root
+  volumes:
+    - /home/mysql2:/var/lib/mysql
+
+php:
+  image: codeigniter/php-fpm
+  expose:
+    - 9000:9000
+  volumes_from:
+    - application
+  links:
+    - db
+  
+nginx:
+  image: codeigniter/nginx
+  ports:
+    - 80:80
+  links:
+    - php
+  volumes_from:
+    - application
+  volumes:
+    - logs/nginx/:/var/log/nginx

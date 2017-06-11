@@ -1,0 +1,14 @@
+db:
+  image: mysql
+  environment:
+    - MYSQL_USER=sisyphus
+    - MYSQL_PASSWORD=sisyphus
+    - MYSQL_DATABASE=sys_db
+    - MYSQL_ROOT_PASSWORD=root
+
+web:
+  image: localhost:5000/systodo:1.0
+  ports:
+    - "80:8080"
+  links:
+    - db:localhost

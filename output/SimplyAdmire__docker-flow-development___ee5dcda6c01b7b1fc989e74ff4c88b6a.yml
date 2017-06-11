@@ -1,0 +1,20 @@
+version: "2"
+
+services:
+  npm:
+    image: "simplyadmire/npm"
+    working_dir: "/app/"
+    entrypoint: "/root/run-npm.sh"
+    volumes:
+      - "./../Files/run-npm.sh:/root/run-npm.sh"
+      - "./../../app/:/app/"
+      - "~/.gitconfig:/root/.gitconfig"
+  composer:
+    image: "composer/composer:latest"
+    working_dir: "/app/"
+    volumes:
+      - "./../../app/:/app/"
+      - "~/.composer/auth.json:/composer/auth.json"
+    env_file:
+      - "./../.env"
+      - "./../../app/Build/Environment/.env"

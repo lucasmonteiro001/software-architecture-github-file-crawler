@@ -1,0 +1,38 @@
+version: '2'
+services:
+
+  devopsfolks-eureka-server-peer1:
+    image: devopsfolks/spring-eureka-server-microservice:latest
+    env_file: $HOME/.secure/docker/devopsfolks-eureka-server-peer1.env
+    ports:
+      - "8761:8761"
+    volumes:
+      - /tmp
+
+  devopsfolks-eureka-server-peer2:
+    image: devopsfolks/spring-eureka-server-microservice:latest
+    env_file: $HOME/.secure/docker/devopsfolks-eureka-server-peer2.env
+    ports:
+      - "8762:8762"
+    volumes:
+      - /tmp
+
+  devopsfolks-eureka-server-peer3:
+      image: devopsfolks/spring-eureka-server-microservice:latest
+      env_file: $HOME/.secure/docker/devopsfolks-eureka-server-peer3.env
+      ports:
+        - "8763:8763"
+      volumes:
+        - /tmp
+
+  config:
+    image: devopsfolks/spring-config-server-microservice
+    env_file: $HOME/.secure/docker/devopsfolks-config-server.env
+    ports:
+      - "8888:8888"
+    volumes:
+      - /tmp
+    depends_on:
+      - devopsfolks-eureka-server-peer1
+      - devopsfolks-eureka-server-peer2
+      - devopsfolks-eureka-server-peer3

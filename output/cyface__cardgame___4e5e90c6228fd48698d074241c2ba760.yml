@@ -1,0 +1,59 @@
+version: '2'
+services:
+  redis:
+    container_name: cardgame_redis
+    dns:
+      - 127.0.0.1
+    image: redis
+  db:
+    container_name: cardgame_db
+    dns:
+      - 127.0.0.1
+    image: postgres
+  uwsgi:
+    build: .
+    container_name: cardgame_uwsgi
+    depends_on:
+      - redis
+      - db
+    dns:
+      - 127.0.0.1
+      - 8.8.8.8
+    environment:
+      DJANGO_SETTINGS_MODULE: 'cardgame.settings_docker_compose'
+    command: uwsgi --yaml=devscripts/docker-compose/uwsgi-compose.yml
+    volumes:
+      - .:/code
+    ports:
+      - 7000
+  sd:
+    build: .
+    container_name: cardgame_sd
+    depends_on:
+      - redis
+      - db
+      - uwsgi
+    dns:
+      - 127.0.0.1
+      - 8.8.8.8
+    environment:
+      DJANGO_SETTINGS_MODULE: 'cardgame.settings_docker_compose'
+    command: python manage.py runsd
+    volumes:
+      - .:/code
+    ports:
+      - 9999
+  nginx:
+    container_name: cardgame_nginx
+    depends_on:
+      - uwsgi
+      - sd
+    dns:
+      - 127.0.0.1
+      - 8.8.8.8
+    image: nginx
+    volumes:
+      - .:/code
+      - ./devscripts/docker-compose/nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - 8000:80

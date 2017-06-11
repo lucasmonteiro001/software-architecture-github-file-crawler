@@ -1,0 +1,4 @@
+nginx:
+  image: epages/docs-nginx:master
+  ports:
+    - "8080:80"

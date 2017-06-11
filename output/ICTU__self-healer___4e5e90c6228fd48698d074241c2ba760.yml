@@ -1,0 +1,11 @@
+selfhealer:
+  build: .
+  environment:
+    - MONGO_URL=mongodb://mongo:27017/
+  ports:
+    - "8080:3000"
+  links:
+    - mongo
+
+mongo:
+  image: mongo:latest

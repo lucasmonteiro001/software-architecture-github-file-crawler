@@ -1,0 +1,10 @@
+clubmemberservice:
+  build: .
+  ports:
+   - "8080:8080"
+  volumes:
+   - ./target:/target
+mongo:
+  image: mongo
+  ports:
+  - "27017:27017"

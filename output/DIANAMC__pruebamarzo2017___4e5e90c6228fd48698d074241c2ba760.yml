@@ -1,0 +1,39 @@
+version: '2'
+services:
+  web:
+    image: pruebamarzo2017:17
+    shm_size: 128m
+    stdin_open: true
+    ports:
+      - "3000:3000"
+    env_file: .env
+    command: bundle exec rails s -p 3000 -b "0.0.0.0"
+    depends_on:
+      -mongo
+      -redis
+      -postgress
+      -elasticsearch
+    link:
+      -mongo:mongo
+      -redis:redis
+      -postgres:postgres
+      -elasticsearch:elasticsearch
+    mongo:
+      image: mongo
+      volumenes:
+        - ./.data/mongo:/data/db
+
+    redis:
+      image: redis
+      volumenes:
+        - ./.data/redis:/data
+
+    postgres:
+      image: postgres: 9.4
+      volumenes:
+        - ./.data/postgres:/data
+    elasticsearch:
+      image: elasticsearch:2.4
+      volumenes: 
+        - ./.data/elasticsearch:/data
+

@@ -1,0 +1,50 @@
+pgdata:
+  image: "tianon/true"
+  volumes:
+  - /var/lib/postgresql/data
+cache:
+  image: "tianon/true"
+  volumes:
+  - /data/cache
+postgres:
+  image: "lukasmartinelli/osm-noise-pollution:postgres"
+  mem_limit: 500000000
+  volumes_from:
+   - pgdata
+  ports:
+   - "5432"
+import-osm:
+  image: "lukasmartinelli/osm-noise-pollution:import-osm"
+  command: ./import-osm.sh
+  volumes:
+   - ./data:/data/import
+  volumes_from:
+   - cache
+  links:
+   - postgres:postgres
+mapbox-studio:
+  image: "lukasmartinelli/osm-noise-pollution:mapbox-studio"
+  mem_limit: 500000000
+  volumes:
+   - ./src/vector-datasource:/projects/vector-datasource.tm2source
+  links:
+   - postgres:postgres
+  ports:
+   - "3000:3000"
+export-vectortiles:
+  image: "lukasmartinelli/osm-noise-pollution:export-vectortiles"
+  volumes:
+   - ./data:/data/export
+   - ./src/vector-datasource:/data/tm2source
+  links:
+   - postgres:db
+  environment:
+    BBOX: "5.8559113 45.717995 10.5922941 47.9084648"
+    MIN_ZOOM: "10"
+    MAX_ZOOM: "10"
+serve-vectortiles:
+  image: "klokantech/tileserver-php"
+  volumes:
+   - ./data:/var/www
+  ports:
+   - "8080:80"

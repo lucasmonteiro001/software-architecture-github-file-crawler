@@ -1,0 +1,8 @@
+version: '2'
+services:
+  ss:
+    build: .
+    ports:
+      - "1984:1984"
+    command: -p 1984 -k 2ours2ours -m aes-256-cfb
+    restart: always

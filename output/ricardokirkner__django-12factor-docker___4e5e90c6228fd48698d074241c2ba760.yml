@@ -1,0 +1,155 @@
+consul:
+  image: progrium/consul
+  ports:
+    - "8300:8300"
+    - "8400:8400"
+    - "8500:8500"
+    - "8600:53/udp"
+  command: -server -bootstrap -advertise 172.17.0.1
+registrator:
+  image: gliderlabs/registrator
+  command: consul://consul:8500
+  hostname: registrator
+  volumes:
+    - "/var/run/docker.sock:/tmp/docker.sock"
+  links:
+    - consul
+web:
+  build: web
+  volumes:
+    - "./data/logs/nginx:/var/log/nginx"
+    - "./data/static:/usr/share/nginx/html:ro"
+  ports:
+    - "80:80"
+  links:
+    - consul
+    - app
+app:
+  build: app
+  volumes:
+    - "./app:/usr/src/app"
+    - "./data/logs/app:/usr/src/app/logs"
+    - "./data/static:/usr/src/app/static"
+  ports:
+    - "8000"
+  links:
+    - consul
+    - db
+    - amqp
+    - sentry
+    - graphite
+  environment:
+    BROKER_URL: amqp://guest:guest@amqp/
+    DATABASE_URL: postgres://postgres@db/postgres
+    DEBUG: True
+    STATSD_HOST: graphite
+    SERVICE_8000_NAME: "app"
+    SERVICE_8000_TAGS: "backend,app"
+  env_file:
+    - conf/app.env
+db:
+  image: postgres
+  volumes_from:
+    - dbdata
+  expose:
+    - "5432"
+dbdata:
+  image: postgres
+  volumes:
+    - "/var/lib/postgresql"
+  command: /bin/true
+amqp:
+  image: rabbitmq:management
+  volumes_from:
+    - amqpdata
+  expose:
+    - "5672"
+    - "15672"
+amqpdata:
+  image: rabbitmq
+  volumes:
+    - "/var/lib/rabbitmq"
+  command: /bin/true
+flower:
+  image: nicholsn/docker-flower
+  links:
+    - amqp:mq
+  ports:
+    - "5555:5555"
+sentrydb:
+  image: postgres
+  volumes_from:
+    - sentrydbdata
+  expose:
+    - "5432"
+sentrydbdata:
+  image: postgres
+  volumes:
+    - "/var/lib/postgresql"
+  command: /bin/true
+sentryredis:
+  image: redis
+  volumes_from:
+    - sentryredisdata
+  expose:
+    - "6379"
+sentryredisdata:
+  image: redis
+  volumes:
+    - "./data/sentryredis:/data"
+  command: /bin/true
+sentryworker:
+  image: slafs/sentry
+  volumes:
+    - "./data/sentry:/data"
+  links:
+    - sentrydb
+    - sentryredis:redis
+  environment:
+    CACHE_URL: hiredis://redis:6379/2/
+    DATABASE_URL: postgres://postgres@sentrydb/postgres
+    SENTRY_URL_PREFIX: http://localhost:9000
+  env_file:
+    - conf/sentry.env
+  command: celery worker -B
+sentry:
+  image: slafs/sentry
+  volumes:
+    - "./data/sentry:/data"
+  links:
+    - sentrydb
+    - sentryredis:redis
+  ports:
+    - "9000:9000"
+  environment:
+    CACHE_URL: hiredis://redis:6379/2/
+    DATABASE_URL: postgres://postgres@sentrydb/postgres
+    SENTRY_URL_PREFIX: http://localhost:9000
+  env_file:
+    - conf/sentry.env
+elk:
+  image: sebp/elk
+  volumes:
+    - "./conf/logstash-forwarder.crt:/etc/pki/tls/certs/logstash-forwarder.crt"
+    - "./conf/logstash-forwarder.key:/etc/pki/tls/private/logstash-forwarder.key"
+  ports:
+    - "5601:5601"
+    - "9200:9200"
+  expose:
+    - "5000"
+logstashforwarder:
+  image: million12/logstash-forwarder
+  volumes:
+    - "./conf/logstash-forwarder.conf:/etc/logstash/forwarder.conf"
+    - "./conf/logstash-forwarder.crt:/etc/logstash/ssl/logstash-forwarder.crt"
+    - "./data/logs:/data/logs"
+  links:
+    - elk
+graphite:
+  image: hopsoft/graphite-statsd
+  expose:
+    - "80"
+    - "2003"
+    - "8125"
+  ports:
+    - "8080:80"

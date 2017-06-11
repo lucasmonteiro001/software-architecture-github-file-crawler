@@ -1,0 +1,14 @@
+version: '2'
+
+services:
+  mongodb_hybrid_vertical_mongodb:
+    image: mongo
+    mem_limit: 2g
+    ports:
+     - "37017:27017"
+    volumes_from:
+     - base_data
+  mongodb_hybrid_vertical_mapbench-datadistributor:
+    build: ../base/mapbench-datadistributor
+    volumes_from:
+      - base_data

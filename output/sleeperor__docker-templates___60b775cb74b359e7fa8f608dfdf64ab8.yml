@@ -1,0 +1,29 @@
+db:
+  image: postgres:9
+  environment:
+    - POSTGRES_PASSWORD=camunda
+    - POSTGRES_USER=camunda
+
+wildfly:
+  image: camunda/camunda-bpm-platform:wildfly-7.3.0
+  environment:
+    - DB_DRIVER=postgresql
+    - DB_URL=jdbc:postgresql://db:5432/camunda
+    - DB_USERNAME=camunda
+    - DB_PASSWORD=camunda
+  links:
+    - db:db
+  ports:
+    - "8080:8080"
+
+tomcat:
+  image: camunda/camunda-bpm-platform:tomcat-7.3.0
+  environment:
+    - DB_DRIVER=org.postgresql.Driver
+    - DB_URL=jdbc:postgresql://db:5432/camunda
+    - DB_USERNAME=camunda
+    - DB_PASSWORD=camunda
+  links:
+    - db:db
+  ports:
+    - "8081:8080"

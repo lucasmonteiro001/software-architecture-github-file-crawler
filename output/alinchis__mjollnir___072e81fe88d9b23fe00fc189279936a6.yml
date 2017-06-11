@@ -1,0 +1,22 @@
+version: '2'
+
+services:
+
+  escher:
+    image: alinchis/mjollnir-escher
+    volumes:
+      - ~/Git/mjollnir:/root/Git/mjollnir
+      - ~/Git/Escher.jl/assets:/root/.julia/v0.4/Escher/assets
+      - ~/Git/Escher.jl/src/library:/root/.julia/v0.4/Escher/src/library
+    working_dir: /root/Git/mjollnir/code
+    command: escher --serve
+    ports:
+      - "5555:5555"
+
+  docker:
+    image: docker
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    expose:
+      - "4444"
+    command: nc -lvp 4444 -e docker

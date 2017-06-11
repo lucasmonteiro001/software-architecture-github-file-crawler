@@ -1,0 +1,4 @@
+swagger-editor:
+   image: 'swaggerapi/swagger-editor:latest'
+   ports:
+     - '8081:8080'

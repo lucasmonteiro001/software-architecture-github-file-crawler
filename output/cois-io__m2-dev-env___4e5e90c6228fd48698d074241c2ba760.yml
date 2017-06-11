@@ -1,0 +1,125 @@
+version: '2'
+
+services:
+
+  app-data:
+    #build: vendor/cois-io/m2d-nginx
+    image: coisio/m2d-nginx
+    volumes:
+      - .:/www
+    command: /bin/true
+
+  nginx:
+    #build: vendor/cois-io/m2d-nginx
+    image: coisio/m2d-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes_from:
+      - app-data
+    networks:
+      - backend
+    depends_on:
+      - php-fpm
+
+  php-fpm:
+    #build: vendor/cois-io/m2d-php-fpm
+    image: coisio/m2d-php-fpm
+    links:
+      - redis-cache:redis-cache
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes_from:
+      - app-data
+    networks:
+      - backend
+      - frontend
+    depends_on:
+      - redis-cache
+
+#  browser-sync:
+#    image: ustwo/browser-sync
+#    volumes_from:
+#      - app-data
+#    working_dir: /www
+#    command: start --config /www/vendor/cois-io/m2-dev-env/browser-sync.json
+#    ports:
+#      - "3000:3000"
+#      - "3001:3001"
+#    networks:
+#      - backend
+#    depends_on:
+#      - nginx
+
+#  ngrok-proxy:
+#    image: wernight/ngrok
+#    links:
+#      - nginx
+#    ports:
+#      - "4040:4040"
+#    networks:
+#      - backend
+#    command: /bin/ngrok http -host-header=magento.docker nginx:80
+
+  db-storage:
+    image: mysql
+    volumes:
+      - /var/lib/mysql
+    command: /bin/true
+
+  db:
+    image: mysql
+    ports:
+      - "3306:3306"
+    depends_on:
+      - db-storage
+      - php-fpm # force it to load last
+    volumes_from:
+      - db-storage
+    environment:
+      - MYSQL_ROOT_PASSWORD=dev
+      - MYSQL_DATABASE=magento
+      - MYSQL_USER=dev
+      - MYSQL_PASSWORD=dev
+    networks:
+      - backend
+      - frontend
+
+  elastic-data:
+    #build: vendor/cois-io/m2d-elasticsearch
+    image: coisio/m2d-elasticsearch
+    volumes:
+      - /usr/share/elasticsearch/data
+    command: /bin/true
+
+  elastic:
+    #build: vendor/cois-io/m2d-elasticsearch
+    image: coisio/m2d-elasticsearch
+    volumes_from:
+      - elastic-data
+    networks:
+      - backend
+
+# removed varnish for now, we do not need it
+#  varnish:
+    #build: vendor/cois-io/m2d-varnish
+#    image: coisio/m2d-varnish
+#    ports:
+#      - "80:80"
+#    networks:
+#      - backend
+#      - frontend
+#    depends_on:
+#      - nginx
+
+  redis-cache:
+    image: redis
+    ports: 
+      - "6379:6379"
+    networks:
+      - backend
+
+networks:
+  backend:
+  frontend:

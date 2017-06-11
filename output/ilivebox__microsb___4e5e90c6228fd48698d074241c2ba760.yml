@@ -1,0 +1,67 @@
+# ---------------------------------------------------------
+# web
+# ---------------------------------------------------------
+web:
+  container_name: microsb-server
+  build: node/
+  command: 'bash -c ''npm install; npm start;'''
+  working_dir: /app/user
+  environment:
+    PORT: 3000
+    REDIS_URL: 'redis://herokuRedis:6379'
+  ports:
+    - '3000:3000'
+  links:
+    - herokuRedis
+
+# ---------------------------------------------------------
+# web:dev
+# ---------------------------------------------------------
+shell:
+  container_name: microsb-shell
+  build: node/
+  command: bash
+  working_dir: /app/user
+  environment:
+    PORT: 3000
+    REDIS_URL: 'redis://herokuRedis:6379'
+    MYSQL_URL: 'mysql://herokuMySql:3306'
+    MONGO_URL: 'mongo://herokuMongo:27017'
+  ports:
+    - '3000:3000'
+  volumes:
+    - './node:/app/user'
+  links:
+    - herokuRedis
+    - herokuMongo
+    - herokuMySql
+
+# ---------------------------------------------------------
+# mobile
+# ---------------------------------------------------------
+mobile:
+  container_name: microsb-mobile
+  build: mobile/
+  command: bash
+  working_dir: /app/user
+  volumes:
+    - './mobile:/app/user'
+    - './node/client/assets:/app/user/app/assets'
+    - './node/client/javascripts:/app/user/app/javascripts'
+
+# ---------------------------------------------------------
+# datasource
+# ---------------------------------------------------------
+herokuRedis:
+  container_name: microsb-redis
+  image: redis
+
+herokuMongo:
+  container_name: microsb-mongo
+  image: mongo
+
+herokuMySql:
+  container_name: microsb-mysql
+  image: mysql
+  environment:
+    MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'

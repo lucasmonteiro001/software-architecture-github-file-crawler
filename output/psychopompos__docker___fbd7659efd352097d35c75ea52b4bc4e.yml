@@ -1,0 +1,11 @@
+jenkins:
+  image: psychopompos/jenkins  
+  volumes_from:
+    - localjenkinsdata
+  ports:
+    - 8080:8080
+
+localjenkinsdata:
+  image: psychopompos/jenkins_data
+  
+

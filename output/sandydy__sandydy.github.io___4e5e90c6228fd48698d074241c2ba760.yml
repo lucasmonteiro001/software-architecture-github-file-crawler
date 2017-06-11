@@ -1,0 +1,11 @@
+version: '2'
+services:
+  jekyll:
+    image: jekyll/jekyll:latest
+    ports: 
+      - "4000:4000"
+    volumes:
+      - "./:/srv/jekyll"
+    container_name: jekyll_dev
+    network_mode: "bridge"
+    command: bash -c "gem install jekyll-gist && gem install jekyll-paginate && /usr/local/bin/startup"

@@ -1,0 +1,22 @@
+rabbitmq:
+    image: rabbitmq:latest
+
+celeryworker:
+    build: django-server/
+    command: python manage.py celery worker
+    links:
+     - rabbitmq:broker
+    volumes:
+     - ../django:/root/contestsite
+    environment:
+     - C_FORCE_ROOT=true
+
+webserver:
+    build: django-server/
+    ports:
+     - "80:80"
+    links:
+     - celeryworker:worker
+     - rabbitmq:broker
+
+

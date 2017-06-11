@@ -1,0 +1,27 @@
+version: '2'
+
+services:
+  web:
+    build: .
+    ports:
+      - "11223:8080"
+    volumes:
+      - .:/code
+    depends_on:
+      - novalive_es
+  #    - novalive_db
+  #    - postgres
+  #    - rabbitmq
+  #    - bgt_licensing_server
+  novalive_es:
+    image: elasticsearch
+    ports:
+      - "19200:9200"
+  #novalive_db:
+  #  image: mongo
+  #postgres:
+  #  image: postgres
+  #rabbitmq:
+  #  image: rabbitmq
+  #bgt_licensing_server:
+  #  image: tomcat

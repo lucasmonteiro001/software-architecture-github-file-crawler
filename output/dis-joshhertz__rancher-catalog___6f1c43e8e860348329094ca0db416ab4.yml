@@ -1,0 +1,32 @@
+version: '2'
+services:
+  jenkins-primary:
+    image: "jenkins:${version}"
+    environment:
+      JAVA_OPTS: "-Djenkins.install.runSetupWizard=false"
+    labels:
+      io.rancher.scheduler.affinity:container_label_soft_ne: io.rancher.stack_service.name=$${stack_name}/$${service_name}
+      default_lb_sync: 'true'
+      io.rancher.container.pull_image: always
+      io.rancher.sidekicks: jenkins-plugins,jenkins-datavolume
+      io.rancher.container.hostname_override: container_name ${hostname}
+    volumes_from:
+      - jenkins-plugins
+      - jenkins-datavolume
+    entrypoint: /usr/share/jenkins/rancher/jenkins.sh
+  jenkins-plugins:
+    image: rancher/jenkins-plugins:v0.1.1
+  jenkins-datavolume:
+    image: "busybox"
+    volumes:
+      - jenkins_home_volume:/var/jenkins_home
+    labels:
+      io.rancher.container.start_once: true
+    entrypoint: ["chown", "-R", "1000:1000", "/var/jenkins_home"]
+volumes:
+  jenkins_home_volume:
+    driver: rancher-ebs
+    per_container: true
+    driver_opts:
+      size: ${volume_size}
+      volumeType: gp2

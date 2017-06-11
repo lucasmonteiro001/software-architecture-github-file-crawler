@@ -1,0 +1,20 @@
+version: '2'
+
+services:
+  nginx:
+    image: nginx:1.7.11
+    restart: unless-stopped
+    environment:
+      - VIRTUAL_HOST=apps.ll100.com
+      - LETSENCRYPT_HOST=apps.ll100.com
+      - LETSENCRYPT_EMAIL=admin@ll100.com
+      - HTTPS_METHOD=noredirect
+      - ROLE=nginx
+    volumes:
+      - ${LL100_SHARED_DATA_DIR}/apps/nginx/html:/usr/share/nginx/html
+    networks:
+      - nginx-proxy
+
+networks:
+  nginx-proxy:
+    external: true

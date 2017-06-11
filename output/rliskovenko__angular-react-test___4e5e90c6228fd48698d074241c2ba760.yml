@@ -1,0 +1,18 @@
+version: '2'
+services:
+  redis:
+    image: redis
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.app
+
+    mem_limit: 64M
+    memswap_limit: 64M
+
+    ports:
+      - 8000:8000
+    volumes:
+      - .:/app
+    depends_on:
+      - redis

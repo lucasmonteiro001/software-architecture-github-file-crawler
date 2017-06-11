@@ -1,0 +1,25 @@
+version: '2'
+services:
+  base_bsbm_generator:
+    build: bsbm_generator
+    volumes_from:
+      - base_data
+  base_mysql:
+    image: mysql:5.5
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: benchmark
+    volumes:
+      - ./mysql:/etc/mysql/conf.d
+    volumes_from:
+      - base_data
+  base_data:
+    image: java
+    volumes:
+      - ./scripts:/bsbm/scripts
+      - ./ontop-queries:/bsbm/ontop-queries
+      - /bsbm/data/benchmark/sql
+      - /bsbm/data/benchmark/ttl
+      - ./results:/bsbm/results

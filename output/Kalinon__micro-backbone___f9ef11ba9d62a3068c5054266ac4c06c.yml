@@ -1,0 +1,70 @@
+consul:
+  image: rancher/dns-service
+  links:
+    - consul-server:consul-server
+registrator:
+  labels:
+    io.rancher.scheduler.global: 'true'
+    io.rancher.container.pull_image: always
+    io.rancher.container.hostname_override: container_name
+  command:
+    - -resync
+    - '300'
+    - -ttl
+    - '300'
+    - -ttl-refresh
+    - '60'
+    - consul://consul-agent:8500
+  image: gliderlabs/registrator:v6
+  links:
+    - consul-agent:consul-agent
+  volumes:
+    - /var/run/docker.sock:/tmp/docker.sock
+  stdin_open: true
+  tty: true
+  privileged: true
+consul-vip:
+  ports:
+    - 8500:8500
+  tty: true
+  image: rancher/load-balancer-service
+  links:
+    - consul-server:consul-server
+  stdin_open: true
+consul-agent:
+  labels:
+    io.rancher.scheduler.global: 'true'
+    io.rancher.container.pull_image: always
+    io.rancher.container.hostname_override: container_name
+  command:
+    - agent
+  tty: true
+  image: kalinon/consul
+  links:
+    - consul:consul
+  stdin_open: true
+consul-server:
+  labels:
+    io.rancher.sidekicks: consul-data
+    io.rancher.container.hostname_override: container_name
+    io.rancher.scheduler.affinity:container_label_ne: io.rancher.stack_service.name=consul-server
+  command:
+    - server
+  image: kalinon/consul
+  volumes_from:
+    - consul-data
+  tty: true
+  stdin_open: true
+consul-data:
+  labels:
+    io.rancher.container.pull_image: always
+    io.rancher.container.start_once: 'true'
+    io.rancher.container.hostname_override: container_name
+    io.rancher.scheduler.affinity:container_label_ne: io.rancher.stack_service.name=consul-server
+  entrypoint:
+    - /bin/true
+  image: kalinon/consul
+  volumes:
+    - /data
+  tty: true
+  stdin_open: true

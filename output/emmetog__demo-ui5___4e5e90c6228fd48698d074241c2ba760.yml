@@ -1,0 +1,14 @@
+version: "2"
+
+services:
+  web:
+    build: ./web
+    volumes:
+      - "./web/www:/var/www/localhost/htdocs"
+    ports:
+      - "81:80"
+
+  proxy:
+    build: ./proxy
+    ports:
+      - "82:8080"

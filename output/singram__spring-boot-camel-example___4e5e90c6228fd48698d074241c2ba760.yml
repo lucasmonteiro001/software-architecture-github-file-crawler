@@ -1,0 +1,56 @@
+spring-boot-camel-example:
+  image: spring-boot-camel-example
+  environment:
+    GRAPHITE_HOSTNAME: "grafana"
+    REDIS_HOSTNAME: "redis"
+    REDIS_PORT: "6379"
+    METRICS_REPORTING_ENABLED: "true"
+  volumes:
+    - /etc/localtime:/etc/localtime:ro
+    - /etc/timezone:/etc/timezone:ro
+  links:
+    - redis
+    - grafana
+  ports:
+    - "8080:8080"
+    - "9292:9292"
+
+redis:
+  image: redis:3.2.0-alpine
+  ports:
+    - "6379:6379"
+
+hawtio:
+  build: ./
+  dockerfile: Dockerfile-hawtio
+  volumes:
+    - /etc/localtime:/etc/localtime:ro
+    - /etc/timezone:/etc/timezone:ro
+  links:
+    - spring-boot-camel-example
+  ports:
+    - "8090:8090"
+
+grafana:
+  image: kamon/grafana_graphite
+  ports:
+    - 80:80
+    - 81:81
+    - 8125:8125/udp
+    - 8126:8126
+    - 2003:2003
+
+probe:
+  image: weaveworks/scope:0.17.1
+  net: "host"
+  pid: "host"
+  privileged: true
+  environment:
+    CHECKPOINT_DISABLE: "true"
+  labels:
+    - "works.weave.role=system"
+  volumes:
+    - "/var/run/docker.sock:/var/run/docker.sock:rw"
+  command:
+    - "--probe.docker"
+    - "true"

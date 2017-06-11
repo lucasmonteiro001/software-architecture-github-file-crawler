@@ -1,0 +1,34 @@
+version: "2"
+
+services:
+  db:
+    image: mysql:5.6
+    ports:
+      - 3315:3306
+    volumes:
+     - ./library/containers/db:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: "root"
+
+  xmr:
+    image: xibosignage/xibo-xmr:latest
+    ports:
+     - "9505:9505"
+    environment:
+      XMR_DEBUG: "true"
+      IPV6RESPSUPPORT: "false"
+      IPV6PUBSUPPORT: "false"
+
+  web:
+    depends_on:
+      - db
+    image: xibosignage/xibo-cms-dev:latest
+    volumes:
+     - ./:/var/www/cms
+    ports:
+     - "80:80"
+    environment:
+      XIBO_DEV_MODE: "true"
+    links:
+      - db:mysql
+      - xmr:50001

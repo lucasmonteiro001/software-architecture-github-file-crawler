@@ -1,0 +1,13 @@
+app:
+   image: php
+   links:
+     - jenkins
+  volume:
+    - "./:/var/jenkins_home"
+
+jenkins:
+  image: jenkins:latest
+  port:
+    - "8080:8080"
+  volume:
+    - "./:/var/jenkins_home"

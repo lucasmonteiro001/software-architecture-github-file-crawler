@@ -1,0 +1,22 @@
+version: '2'
+services:
+  database:
+    image: mysql:latest
+    env_file: .env
+    environment:
+      MYSQL_DATABASE: proximo
+    ports:
+      - "3306:3306"
+
+  server:
+    build: .
+    volumes:
+      - ./server:/usr/src/app/server
+      - ./config:/usr/src/app/config
+      - ./migrations:/usr/src/app/migrations
+      - ./models:/usr/src/app/models
+    ports:
+      - 3000:3000
+    command: sh /usr/src/app/start.sh
+    links:
+      - database

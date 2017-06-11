@@ -1,0 +1,15 @@
+web:
+  build: .
+  ports:
+    - "3000:3000"
+  links:
+    - mongo
+    - elasticsearch
+  environment:
+    - NODE_ENV=test
+
+mongo:
+  image: mongo
+
+elasticsearch:
+  image: elasticsearch

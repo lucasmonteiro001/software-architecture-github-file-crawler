@@ -1,0 +1,51 @@
+version: "3"
+services:
+  mqtt:
+    networks:
+      - proxy
+      - default
+    deploy:
+      mode: global
+      labels:
+        - com.df.notify=true
+        - com.df.distribute=true
+        - com.df.serviceDomain=mqtt.p.cns.me
+        - com.df.port.1=8888
+        - com.df.servicePath.1=/
+        - com.df.reqPathSearch.1='/api/'
+        - com.df.reqPathReplace.1='/'
+        - com.df.port.2=8080
+        - com.df.servicePath.2=/
+        - com.df.redirectWhenHttpProto=true
+        - com.df.xForwardedProto=true
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 256M
+        reservations:
+          cpus: '0.10'
+          memory: 32M
+      restart_policy:
+        condition: any
+        delay: 5s
+      update_config:
+        parallelism: 1
+        delay: 10s
+        failure_action: pause
+        monitor: 60s
+        max_failure_ratio: 0.3
+    ports:
+      - 1883:1883 # MQTT
+#      - 8080:8080 # MQTT WebSockets
+#      - 8888:8888 # HTTP
+    image: pinked/docker-vernemq
+    environment:
+      - PEER_DISCOVERY_NAME=mqtt
+      - DOCKER_VERNEMQ_ALLOW_ANONYMOUS=on
+      - DOCKER_VERNEMQ_ALLOW_MULTIPLE_SESSIONS=on
+
+networks:
+  default:
+    external: false
+  proxy:
+    external: true

@@ -1,0 +1,21 @@
+crashplan-init:
+  labels:
+    io.rancher.container.start_once: 'true'
+  command:
+  - /bin/true
+  image: jrcs/crashplan
+  volumes:
+  - /opt/rancher
+  - /storage
+  - /var/crashplan
+  net: none
+crashplan:
+  ports:
+  - 4242:4242/tcp
+  - 4243:4243/tcp
+  labels:
+    io.rancher.sidekicks: crashplan-init
+  image: jrcs/crashplan
+  volumes_from:
+  - crashplan-init
+  net: host

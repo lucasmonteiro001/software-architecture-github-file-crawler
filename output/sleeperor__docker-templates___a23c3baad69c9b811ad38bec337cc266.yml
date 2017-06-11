@@ -1,0 +1,19 @@
+db:
+  image: mariadb:10.0
+  environment:
+    - MYSQL_ROOT_PASSWORD=camunda
+    - MYSQL_DATABASE=camunda
+    - MYSQL_USER=camunda
+    - MYSQL_PASSWORD=camunda
+
+bpm0:
+  image: camunda/camunda-bpm-platform:tomcat-7.3.0
+  environment:
+    - DB_DRIVER=com.mysql.jdbc.Driver
+    - DB_URL=jdbc:mysql://db:3306/camunda
+    - DB_USERNAME=camunda
+    - DB_PASSWORD=camunda
+  links:
+    - db:db
+  ports:
+    - "8080:8080"

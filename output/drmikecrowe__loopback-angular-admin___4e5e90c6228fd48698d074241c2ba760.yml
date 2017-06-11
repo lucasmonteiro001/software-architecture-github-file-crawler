@@ -1,0 +1,27 @@
+api:
+  image: strongloop/node
+  ports:
+    - "3000:3000"
+  links:
+    - mongodb
+  command: bash app-start-grunt.sh serve
+  volumes:
+    - .:/home/strongloop
+  environment:
+    - NODE_ENV=development
+    - DEBUG=boot*
+#    - DEBUG=strong-remoting:*
+    - PATH=/home/strongloop/node_modules/.bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+    - MONGODB_URL=mongodb://mongodb:27017/lbangadmin
+    - INITDB=1
+  restart: always
+
+mongodb:
+  image: mongo:3
+  ports:
+    - "27017:27017"
+  volumes:
+# Swap these two lines to have mongodb write to your /var/lib/mongodb (and comment out user: docker)
+#    - /var/lib/mongodb:/data
+     - .db:/data/db
+  restart: always

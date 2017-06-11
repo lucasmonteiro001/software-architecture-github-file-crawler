@@ -1,0 +1,26 @@
+# http://www.fig.sh/yml.html
+#
+# PHP versions
+# https://hub.docker.com/_/php/
+mysql:
+  image: mysql:5.6.23
+  environment:
+    MYSQL_ROOT_PASSWORD: DfhjY654e1!%
+    MYSQL_DATABASE: atagone
+    MYSQL_USER: atagone
+    MYSQL_PASSWORD: atagone
+  volumes:
+   - /opt/domotica/mysql:/var/lib/mysql
+  ports:
+   - "3306:3306"
+
+web:
+  image: atagone-php-app
+#  image: php:5.6-apache
+  ports:
+   - "0.0.0.0:80:80"
+  volumes:
+   - /root/AtagOneReporting/php:/var/www/html
+  links:
+   - mysql
+

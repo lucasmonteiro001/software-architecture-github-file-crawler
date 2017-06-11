@@ -1,0 +1,26 @@
+---
+version: '2'
+services:
+  voting-method-works:
+    build: .
+    environment:
+      RABBITMQ_PORT_5672_TCP_ADDR: rabbitmq
+      RABBITMQ_PORT_5672_TCP_PORT: 5672
+      DATOMIC_URI: datomic:dev://datomic:4334/voting-method-works
+      VOTING_METHOD_WORKS_VOTING_METHOD_SEARCH_THREADS: 2
+      VOTING_METHOD_WORKS_VOTING_METHOD_PREFERENCE_READ_THREADS: 2
+      VOTING_METHOD_WORKS_VOTING_METHOD_PREFERENCE_CREATE_THREADS: 2
+      VOTING_METHOD_WORKS_VOTING_METHOD_PREFERENCE_DELETE_THREADS: 2
+      VOTING_METHOD_WORKS_VOTING_METHOD_PREFERENCE_PAGE_THREADS: 2
+      NEW_RELIC_LICENSE_KEY: ''
+    depends_on:
+      - rabbitmq
+      - datomic
+  datomic:
+    image: quay.io/democracyworks/datomic-tx:0.9.5544
+  rabbitmq:
+    image: rabbitmq:3.6.5-management
+    ports:
+      - 45672:5672
+      - 55672:15672
+    hostname: rabbitmq

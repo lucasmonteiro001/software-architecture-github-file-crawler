@@ -1,0 +1,39 @@
+version: "2"
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+      args:
+        mix_env: dev
+    container_name: app_web
+    links:
+      - db
+    ports:
+      - "80:4000"
+    volumes:
+      - ./config:/app/config
+      - ./lib:/app/lib
+      - ./priv:/app/priv
+      - ./test:/app/test
+      - ./web:/app/web
+      - ./mix.exs:/app/mix.exs
+      - ./mix.lock:/app/mix.lock
+  db:
+    image: postgres
+    container_name: app_db
+    environment:
+      POSTGRES_PASSWORD: postgres
+    volumes_from:
+      - container:me_data
+  assets:
+    image: me_assets
+    volumes:
+      - ./web/static:/var/build/input
+      - ./priv/static:/var/build/output
+      - ./webpack.config.js:/var/build/webpack.config.js
+      - ./tsconfig.json:/var/build/tsconfig.json
+      - ./tslint.json:/var/build/tslint.json
+      - ./typings.json:/var/build/typings.json
+      - ./.eslintrc.js:/var/build/.eslintrc.js
+      - ./.stylelintrc:/var/build/.stylelintrc

@@ -1,0 +1,13 @@
+blackpuppyapimail:
+  image: blackpuppy-api-mail
+  ports:
+    - "8001:8001"
+  links:
+    - mailcatchertest:mailcatcher
+  environment:
+    CONSUL_SERVER: localhost
+mailcatchertest:
+  image: schickling/mailcatcher
+  ports:
+    - "1080:1080"
+    - "1025:1025"

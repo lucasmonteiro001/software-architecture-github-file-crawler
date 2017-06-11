@@ -1,0 +1,33 @@
+version: '2'
+services:
+    client-net:
+        build: web-client-core-asp.net
+        ports:
+        - "80:80"
+        image: "esaipnet/web-client-core-asp:1.0"
+    api-net:
+        build: api-core.net
+        ports:
+        - "81:80"
+        image: "esaipnet/api-core.net:1.0"
+    api-node:
+        build: api-node.js
+        ports:
+        - "82:80"
+        image: "esaipnet/api-node.js:1.0"
+    db-mongo:
+        image: "mongo:3.0.3"
+        ports:
+        - "27017:27017"
+haproxy:
+  image: haproxy:alpine
+  volumes:
+   - haproxy:/haproxy-override
+  links:
+   - api-net
+   - api-node
+  ports:
+   - "81:80"
+   - "82:80"
+  expose:
+   - "80"

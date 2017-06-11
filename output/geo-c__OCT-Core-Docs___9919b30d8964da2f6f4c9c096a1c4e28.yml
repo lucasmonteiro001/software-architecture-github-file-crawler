@@ -1,0 +1,11 @@
+postgis:
+  build: postgis/
+  ports: 
+    - "5433:5432"
+
+oct:
+  build: OCT-Core/
+  links: 
+    - postgis
+  ports: 
+    - "8080:8080"

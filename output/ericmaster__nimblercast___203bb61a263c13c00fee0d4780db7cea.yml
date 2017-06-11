@@ -1,0 +1,64 @@
+liquidsoap:
+  container_name: liquidsoap
+  hostname: liquidsoap
+  build: liquidsoap/.
+  volumes:
+   - ../../conf/liquidsoap:/etc/liquidsoap
+icecast:
+  container_name: icecast
+  hostname: icecast
+  build: icecast/.
+  ports:
+   - 8000:8000
+  volumes:
+   - ../../conf/icecast:/etc/icecast
+web:
+  container_name: web
+  hostname: web
+  build: web/.
+  ports:
+   - "8008:80"
+  volumes:
+   - ../../conf/nginx:/etc/nginx
+   - ../../logs:/var/log
+   - ../../www/docroot:/var/www/html
+   - ../../private-files:/var/www/_private
+   - /tmp:/tmp
+  links:
+   - solr
+   - memcache
+   - varnish
+varnish:
+  container_name: varnish
+  hostname: varnish
+  build: varnish/.
+  ports:
+   - "80:80"
+  expose:
+   - "6082"
+  volumes:
+   - ../../conf/varnish/etc:/etc/varnish
+   - ../../conf/varnish/lib:/var/lib/varnish
+solr:
+  container_name: solr
+  hostname: solr
+  build: solr/.
+  ports:
+   - "8983:8983"
+  volumes:
+   - ../../conf/solr:/opt/solr/server/solr/lib
+memcache:
+  container_name: memcache
+  hostname: memcache
+  build: memcache/.
+  ports:
+   - "11211:11211"
+ftp:
+  container_name: ftp
+  hostname: ftp
+  build: ftp/.
+  ports:
+   - "21:21"
+   - "30000-30009:30000-30009"
+  volumes:
+   - ../../www/docroot/sites/default/files/videos:/home/ftpusers/ci-videos

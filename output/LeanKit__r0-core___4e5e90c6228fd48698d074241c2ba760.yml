@@ -1,0 +1,8 @@
+version: '2'
+
+services:
+  r0-core.service:
+    image: r0-core.service
+    build:
+      context: ./r0-core.service
+      dockerfile: Dockerfile

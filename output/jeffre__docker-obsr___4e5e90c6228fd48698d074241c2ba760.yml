@@ -1,0 +1,20 @@
+version: '3'
+services:
+  obsr.example.com:
+    build: .
+    hostname: obsr.example.com
+    restart: on-failure
+    volumes:
+      - ./conf:/obsr/conf
+      - ./logs:/obsr/logs
+      - ./system:/obsr/system
+      - ./users:/obsr/users
+      - ./rps-system:/obsr/rps-system
+      - ./rcvshome:/obsr/rcvshome
+    entrypoint: /obsr/docker-entrypoint.sh
+    ports:
+     - "80:8080"
+     - "443:8443"
+     - "9444-9464:9444-9464"
+    environment:
+      - TZ=America/Phoenix

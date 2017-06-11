@@ -1,0 +1,3 @@
+service:
+  command: 'sh -c "DEBUG=* npm start"'
+  build: .

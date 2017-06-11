@@ -1,0 +1,31 @@
+version: '2'
+services:
+  web:
+    image: teanocrata/oscweb
+    volumes:
+      - ./secrets.ini:/home/node/OSCWeb/settings/secrets.ini
+    expose:
+        - "8000"
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://localhost:12201
+
+  elk:
+    image: sebp/elk
+    volumes:
+      - ./logstash/09-gelf-input.conf:/etc/logstash/conf.d/09-gelf-input.conf
+    ports:
+      - "5601:5601"
+      - "12201:12201/udp"
+
+  lb:
+    image: dockercloud/haproxy
+    ports:
+      - 80:80
+    links:
+      - web
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock 
+
+

@@ -1,0 +1,8 @@
+version: '2'
+
+services:
+  ruby:
+    image: ruby:latest
+    command: "/bin/sh -c \"while true; do ping 8.8.8.8; done\""
+    volumes:
+      - .:/app

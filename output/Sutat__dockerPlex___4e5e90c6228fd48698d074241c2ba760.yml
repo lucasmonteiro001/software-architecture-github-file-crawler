@@ -1,0 +1,35 @@
+nginx:
+  image: nginx
+  links:
+    - transmission
+    - plex
+    - sickbeard
+  ports:
+    - 8081:80
+
+plex:
+  image: timhaak/plex
+  volumes:
+    - /srv/docker/vids/plex/config:/config
+    - /srv/docker/vids/sickbeard/downloads:/data
+  ports:
+    - 32400
+
+sickbeard:
+  image: sutat/sickbeard
+  links:
+    - transmission
+  volumes:
+    - /srv/docker/vids/downloads:/var/lib/transmission-daemon/downloads
+    - /srv/docker/vids/sickbeard/downloads:/downloads
+    - /srv/docker/vids/sickbeard/config:/config
+  ports:
+    - 8081
+
+transmission:
+   image: sutat/transmission
+   volumes:
+    - /srv/docker/vids/downloads:/var/lib/transmission-daemon/downloads
+    - /srv/docker/vids/sickbeard/downloads:/downloads
+   ports:
+     - 9091

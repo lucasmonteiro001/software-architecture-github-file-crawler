@@ -1,0 +1,23 @@
+version: "2"
+
+services:
+  vote:
+    image: lachlanevenson/examplevotingapp_vote:latest
+    command: python app.py
+    ports:
+      - "5000:80"
+
+  redis:
+    image: redis:alpine
+
+  worker:
+    image: lachlanevenson/examplevotingapp_worker:latest
+
+  db:
+    image: postgres:9.4
+
+  result:
+    image: lachlanevenson/examplevotingapp_result:latest
+    command: nodemon --debug server.js
+    ports:
+      - "5001:80"

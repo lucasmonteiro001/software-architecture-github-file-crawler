@@ -1,0 +1,8 @@
+web:
+  build: .
+  ports:
+    - "3000:3000"
+  volumes:
+    - .:/wed
+  working_dir: /wed
+  command: gulp serve

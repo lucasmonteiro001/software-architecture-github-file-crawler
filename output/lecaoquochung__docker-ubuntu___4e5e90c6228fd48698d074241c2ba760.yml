@@ -1,0 +1,49 @@
+version: '3'
+
+services:
+  ubuntu:
+    build:
+      context: .
+      dockerfile: docker/ubuntu/Dockerfile
+    working_dir: /home/ubuntu/docker-ubuntu
+    volumes:
+      - ".:/home/ubuntu/docker-ubuntu"
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+      - "8082:8082"
+    links:
+      - mysql:mysql.local
+    environment:
+      ENV_SMTP_HOST: smtp.sendgrid.net
+      ENV_SMTP_PORT: 587
+      ENV_SMTP_USER: docker-ubuntu
+      ENV_SMTP_PASS: docker-ubuntu
+      LANG: ja_JP.UTF-8  
+  mysql:
+    build:
+      context: .
+      dockerfile: docker/mysql/Dockerfile
+    volumes:
+      - ".:/home/ubuntu/docker-ubuntu"
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      MYSQL_DATABASE: docker-ubuntu
+      MYSQL_USER: docker-ubuntu
+      MYSQL_PASSWORD: docker-ubuntu
+    expose:
+      - "3306"
+    ports:
+      - "3306:3306"
+  nginx:
+    build:
+      context: .
+      dockerfile: docker/nginx/Dockerfile
+    ports:
+      - "80:80"
+    links:
+      - ubuntu:ubuntu
+
+volumes:
+  mysql-data:
+    driver: local

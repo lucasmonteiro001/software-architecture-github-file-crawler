@@ -1,0 +1,17 @@
+rabbit3:
+  image: hibadkin/rabbitmq-cluster-docker
+  hostname: rabbit3
+  environment:
+   - CLUSTERED=true
+   - CLUSTER_WITH=rabbit1
+  ports:
+    - "4369:4369"
+    - "5672:5672"
+    - "15672:15672"
+    - "25672:25672"
+    - "9100"
+    - "9101"
+    - "9102"
+    - "9103"
+    - "9104"
+    - "9105"

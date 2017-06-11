@@ -1,0 +1,54 @@
+# Elastic Search server is used for storing all of GitHub webhook data for the
+# monitored repositories.
+elasticsearch:
+    image: elasticsearch:1.7.1
+    volumes:
+        - ./volumes/elasticsearch:/usr/share/elasticsearch/data/
+
+# Kibana dashboard provides the front-end to display data stored in the Elasic
+# Searh searver.
+kibana:
+    image: kibana:4.1.0
+    links:
+        - elasticsearch
+    ports:
+        - 5601:5601
+
+# Ghollector is the custom made tool listening on GitHub webhooks stream and
+# pushing data to Elastic Search.
+ghollector:
+    build: ./collector
+    links:
+        - elasticsearch
+        - lookupd
+        - nsqd
+    volumes:
+        - ./volumes/collector/:/config/
+    command: --config /config/config.toml --debug
+
+lookupd:
+    image: nsqio/nsq
+    ports:
+        - 4160-4161
+    command: /nsqlookupd
+
+nsqd:
+    image: nsqio/nsq
+    links:
+        - lookupd
+    ports:
+        - 4150-4151
+    volumes:
+        - ./volumes/nsqd/:/data/
+    command: /nsqd --data-path=/data --lookupd-tcp-address=lookupd:4160
+
+logstash:
+    image: logstash
+    links:
+        - elasticsearch
+    ports:
+        - 5000:5000
+    volumes:
+        - ./volumes/logstash/:/etc/logstash/conf.d
+    command: logstash -f /etc/logstash/conf.d/logstash.conf
+

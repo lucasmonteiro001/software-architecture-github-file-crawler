@@ -1,0 +1,36 @@
+nginx:
+    ports:
+        - "80:80"
+    links:
+        - fpm
+    build: docker/nginx
+fpm:
+    ports:
+        - "9000:9000"
+    links:
+        - redis
+        - rabbitmq
+    build: docker/php-fpm
+    # seems like fpm receive the full path from nginx
+    # and try to find the files in this dock, so it must
+    # be the same as nginx.root
+    volumes:
+       - ./:/var/www/html
+redis:
+    restart: always
+    ports:
+        - "6379:6379"
+    image: redis
+rabbitmq:
+  image: "rabbitmq:3-management"
+  hostname: "rabbitmq"
+  environment:
+    RABBITMQ_ERLANG_COOKIE: "SWQOKODSQALRPCLNMEQG"
+    RABBITMQ_DEFAULT_USER: "rabbitmq"
+    RABBITMQ_DEFAULT_PASS: "rabbitmq"
+    RABBITMQ_DEFAULT_VHOST: "/"
+  ports:
+    - "15672:15672"
+    - "5672:5672"
+  labels:
+    NAME: "rabbitmq1"

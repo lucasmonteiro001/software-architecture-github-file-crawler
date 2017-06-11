@@ -1,0 +1,37 @@
+web:
+    container_name: web
+    build: .
+    ports:
+        - "80:80"
+    links:
+        - db
+    volumes:
+        - ./vhost:/etc/nginx/sites-available/default
+        - ./vhost:/etc/nginx/sites-enabled/default
+        - ./site:/var/www/web
+        - ./logs/nginx-error.log:/var/log/nginx/error.log
+        - ./logs/nginx-access.log:/var/log/nginx/access.log
+        - ./php.ini:/etc/php/7.0/fpm/php.ini
+    tty: true
+
+db:
+    container_name: db
+    image: mariadb
+    volumes:
+        - ./db:/var/lib/mysql
+    environment:
+        MYSQL_ROOT_PASSWORD: root
+        MYSQL_DB: cpa-iesi
+
+phpmyadmin:
+    container_name: phpmyadmin
+    image: phpmyadmin/phpmyadmin
+    restart: always
+    links:
+      - db
+    ports:
+      - 8183:80
+    environment:
+      MYSQL_USERNAME: root
+      MYSQL_ROOT_PASSWORD: root
+      PMA_ARBITRARY: 1

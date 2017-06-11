@@ -1,0 +1,21 @@
+version: '2'
+services:
+  web:
+    image: koolkode/nginx
+    build: ./image/koolkode/nginx
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - './conf/fcgi.conf:/etc/nginx/fcgi.conf'
+      - './conf/test.k1.cert:/etc/nginx/test.k1.cert'
+      - './conf/test.k1.key:/etc/nginx/test.k1.key'
+      - './conf/vhost.conf:/etc/nginx/sites-enabled/vhost.conf'
+      - './k1:/var/k1'
+    links:
+      - k1
+  k1:
+    image: koolkode/k1-fcgi
+    build: ./image/koolkode/k1-fcgi
+    volumes:
+      - './k1:/var/k1'

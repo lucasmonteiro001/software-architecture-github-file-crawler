@@ -1,0 +1,11 @@
+api:
+  build: .
+  links:
+    - mongodb
+  ports:    
+    - "5000:5000"
+mongodb:
+  image: mongo:3.1
+  ports:
+    - "27017:27017"
+    - "28017:28017"

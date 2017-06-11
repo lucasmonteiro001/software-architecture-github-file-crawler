@@ -1,0 +1,5 @@
+ocd:
+  container_name: ocd
+  image: robbani/ocd:0.0.1
+  env_file:
+    - common.env

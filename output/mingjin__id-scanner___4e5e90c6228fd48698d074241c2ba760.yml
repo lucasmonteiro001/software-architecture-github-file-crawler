@@ -1,0 +1,41 @@
+version: '3.1'
+
+services:
+
+  mongo:
+    image: mongo
+    volumes:
+      - /data/id-scanner/mongo/db:/data/db
+    command: mongod --smallfiles --oplogSize 128
+
+  scanner1:
+    image: id-scanner:latest
+    links:
+      - mongo:mongo
+    volumes:
+      - /data/id-scanner/uploads:/var/app_home/uploads
+      # - ./node_modules:/var/app_home/node_modules
+      # - ./bower_components:/var/app_home/bower_components
+    expose:
+      - "3000"
+
+  scanner2:
+    image: id-scanner:latest
+    links:
+      - mongo:mongo
+    volumes:
+      - /data/id-scanner/uploads:/var/app_home/uploads
+      # - ./node_modules:/var/app_home/node_modules
+      # - ./bower_components:/var/app_home/bower_components
+    expose:
+      - "3000"
+
+  nginx:
+    image: nginx
+    volumes:
+      - ./scanner.conf:/etc/nginx/conf.d/default.conf
+    links:
+      - scanner1
+      - scanner2
+    ports:
+      - "10080:80"

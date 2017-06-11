@@ -1,0 +1,36 @@
+version: '2'
+services:
+  web:
+    image: comicrelief/php7-web:latest
+    ports:
+      - 8080:80
+      - 8081:443
+    links:
+      - mysql
+      - redis
+    volumes:
+      - .:/var/www/html
+    environment:
+      DEBUG: 'true'
+      DB_HOST:  mysql
+      DB_PORT:  3306
+      DB_NAME:  symfony
+      DB_USER:  root
+      DB_PASSWORD:  root
+      CACHE_URL:  'redis://redis'
+
+  mysql:
+    image: mysql:5
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: symfony
+    ports:
+      - 3307:3306
+
+  redis:
+    image: redis:latest
+
+  selenium:
+    image: selenium/standalone-firefox:2.53.1-beryllium
+    ports:
+      - 4445:4444

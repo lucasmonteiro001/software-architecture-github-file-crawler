@@ -1,0 +1,562 @@
+version: '2.1'
+services:
+
+  nginx:
+    container_name: nginx
+    image: nginx:1.11-alpine
+    restart: always
+    ports:
+      - "80:80"
+      - "443-446:443-446"
+      - "8081:8081"
+      - "8888:8888"
+      - "9000:9000"
+    command: /bin/sh -c "nginx -g 'daemon off;'"
+    env_file:
+      - ${STCS_CONFIG_FOLDER-./../config}/global.env
+      - ${STCS_CONFIG_FOLDER-./../config}/nginx/config.env
+    environment:
+      USER_NAME: nginx
+    volumes:
+      # nginx config files
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/http.conf:/etc/nginx/http.conf
+      - ${STCS_CONFIG_FOLDER-./../config}/nginx/conf.d:/etc/nginx/conf.d
+      # password files
+      - ${STCS_CONFIG_FOLDER-./../config}/nginx/htpasswd:/etc/nginx/htpasswd
+      # certificates
+      - ${STCS_CONFIG_FOLDER-./../config}/nginx/certs/server.crt:/etc/nginx/certs/server.crt
+      - ${STCS_CONFIG_FOLDER-./../config}/nginx/certs/server.key:/etc/nginx/certs/server.key
+      # static_html
+      - ./static_html:/var/www
+      - ${STCS_CONFIG_FOLDER-./../config}/static_html/config/config.js:/var/www/config/config.js
+    networks:
+      default:
+      jupyter-notebook:
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "1"
+
+  portainer:
+    container_name: portainer
+    image: portainer/portainer
+    restart: always
+    privileged: true
+    env_file:
+      - ${STCS_CONFIG_FOLDER-./../config}/global.env
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer-data:/data
+    networks:
+      default:
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "1"
+
+  zookeeper:
+    container_name: zookeeper
+    image: biggis/zookeeper:3.4.6
+    restart: always
+    hostname: zookeeper
+    ports:
+      - "2181:2181"
+    env_file:
+      - ${STCS_CONFIG_FOLDER-./../config}/global.env
+    environment:
+      USER_NAME: zookeeper
+    volumes:
+      - zookeeper-data:/tmp/zookeeper/data
+    networks:
+      default:
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "1"
+
+  kafka:
+    container_name: kafka
+    image: biggis/kafka:0.10.1.1
+    restart: always
+    hostname: kafka
+    ports:
+      - "9092:9092"
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+    env_file:
+      - ${STCS_CONFIG_FOLDER-./../config}/global.env
+      - ${STCS_CONFIG_FOLDER-./../config}/kafka/config.env
+    environment:
+      USER_NAME: kafka
+    volumes:
+      - kafka-data:/tmp/kafka/data
+    networks:
+      default:
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "1"
+
+  kafka-manager:
+    container_name: kafka-manager
+    image: sheepkiller/kafka-manager
+    hostname: kafka-manager
+    depends_on:
+      kafka:
+        condition: service_healthy
+    environment:
+      APPLICATION_SECRET: letmein
+      ZK_HOSTS: "zookeeper:2181"
+      KM_VERSION: 1.3.3.6
+    env_file:
+      - ${STCS_CONFIG_FOLDER-./../config}/global.env
+    networks:
+      default:
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "1"
+
+  schema-registry:
+    container_name: schema-registry
+    image: confluentinc/cp-schema-registry:latest
+    hostname: schema-registry
+    ports:
+      - "8082:8082"
+    environment:
+      USER_NAME: schema-registry
+      SCHEMA_REGISTRY_LISTENERS: "http://0.0.0.0:8082"
+      SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: "zookeeper:2181"
+      SCHEMA_REGISTRY_HOST_NAME: "0.0.0.0"
+    # todo ADD HEALTHCHECK
+    depends_on:
+      kafka:
+        condition: service_healthy
+    env_file:
+      - ${STCS_CONFIG_FOLDER-./../config}/global.env
+    networks:
+      default:
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "1"
+
+  postgres:
+    container_name: postgres
+    image: biggis/postgres:9.6
+    restart: always
+    hostname: postgres
+    ports:
+      - "5432:5432"
+    env_file:
+      - ${STCS_CONFIG_FOLDER-./../config}/global.env
+      - ${STCS_CONFIG_FOLDER-./../config}/postgres/config.env
+    environment:
+      USER_NAME: postgres
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres-data:/var/lib/postgresql/data/pgdata
+      - ${STCS_CONFIG_FOLDER-./../config}/postgres/postgresql.conf:/var/lib/postgresql/data/pgdata/postgresql.conf
+    networks:
+      default:
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "1"
+
+  pgadmin:
+    container_name: pgadmin
+    image: fenglc/pgadmin4:1.4
+    restart: always
+    hostname: pgadmin4
+    env_file:
+      - ${STCS_CONFIG_FOLDER-./../config}/global.env
+    environment:
+      USER_NAME: pgadmin
+      PORT: 5050
+    volumes:
+      - pgadmin-data:/root/.pgadmin
+    networks:
+      default:
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "1"
+
+  jupyter-notebook:
+    container_name: jupyter-notebook
+    image: smueller18/stcs:anaconda3
+    restart: always
+    hostname: jupyter-notebook
+    env_file:
+      - ${STCS_CONFIG_FOLDER-./../config}/global.env
+    volumes:
+      - jupyter-notebook-data:/opt/notebooks
+    networks:
+      jupyter-notebook:
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "1"
+
+  consumer-postgres:
+    container_name: consumer-postgres
+    image: smueller18/stcs:python3
+    restart: always
+    hostname: consumer-postgres
+    depends_on:
+      kafka:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+#      schema-registry:
+#        condition: service_healthy
+    env_file:
+      - ${STCS_CONFIG_FOLDER-./../config}/global.env
+      - ${STCS_CONFIG_FOLDER-./../config}/consumer/postgres/config.env
+    environment:
+      USER_NAME: consumer-postgres
+    command: ["python", "/opt/consumer.py"]
+    volumes:
+      - ./consumer/postgres:/opt
+    networks:
+      default:
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "1"
+
+  consumer-rest-api:
+    container_name: consumer-rest-api
+    image: smueller18/stcs:python3
+    restart: always
+    hostname: consumer-rest-api
+    depends_on:
+      kafka:
+        condition: service_healthy
+#      schema-registry:
+#        condition: service_healthy
+    env_file:
+      - ${STCS_CONFIG_FOLDER-./../config}/global.env
+      - ${STCS_CONFIG_FOLDER-./../config}/consumer/rest-api/config.env
+    environment:
+      USER_NAME: consumer-rest-api
+    command: ["python", "/opt/consumer.py"]
+    volumes:
+      - ./static_html/css:/opt/static/css
+      - ./static_html/img:/opt/static/img
+      - ./static_html/js:/opt/static/js
+      - ./consumer/rest-api:/opt
+    networks:
+      default:
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "1"
+
+  consumer-socketio:
+    container_name: consumer-socketio
+    build: ./consumer/socketio
+    image: smueller18/stcs:python3
+    restart: always
+    hostname: consumer-socketio
+    depends_on:
+      kafka:
+        condition: service_healthy
+#      schema-registry:
+#        condition: service_healthy
+    env_file:
+      - ${STCS_CONFIG_FOLDER-./../config}/global.env
+      - ${STCS_CONFIG_FOLDER-./../config}/consumer/socketio/config.env
+    environment:
+      USER_NAME: consumer-socktio
+    command: ["python", "/opt/consumer.py"]
+    volumes:
+      - ./static_html/css:/opt/static/css
+      - ./static_html/img:/opt/static/img
+      - ./static_html/js:/opt/static/js
+      - ./consumer/socketio:/opt
+    networks:
+      default:
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "1"
+
+#  producer-rolling-median:
+#    container_name: producer-rolling-median
+#    build: ./producer/rolling-median
+#    image: smueller18/producer:rolling-median
+#    restart: always
+#    hostname: producer-rolling-median
+#    env_file:
+#      - ${STCS_CONFIG_FOLDER-./../config}/global.env
+#      - ${STCS_CONFIG_FOLDER-./../config}/producer/rolling-median/config.env
+#    environment:
+#      USER_NAME: producer-rolling-median
+#    volumes:
+#      - ./avro/schema/kafka.timestamp-data.avsc:/avro/schema/kafka.timestamp-data.avsc
+#    networks:
+#      - default
+#    logging:
+#      driver: "json-file"
+#      options:
+#        max-size: "1m"
+#        max-file: "1"
+
+  producer-solar-radiation:
+    container_name: producer-solar-radiation
+    image: smueller18/stcs:python3
+    restart: always
+    hostname: producer-solar-radiation
+    depends_on:
+      kafka:
+        condition: service_healthy
+#      schema-registry:
+#        condition: service_healthy
+    env_file:
+     - ${STCS_CONFIG_FOLDER-./../config}/global.env
+    environment:
+     USER_NAME: producer-solar-radiation
+    command: ["python", "/opt/producer.py"]
+    volumes:
+      - ./producer/solar-radiation:/opt
+    networks:
+      default:
+    logging:
+     driver: "json-file"
+     options:
+       max-size: "1m"
+       max-file: "1"
+
+#  producer-mqtt-kafka-bridge:
+#    container_name: producer-mqtt-kafka-bridge
+#    image: smueller18/stcs:python3
+#    restart: always
+#    hostname: producer-mqtt-kafka-bridge
+#    depends_on:
+#      kafka:
+#        condition: service_healthy
+#      schema-registry:
+#        condition: service_healthy
+#    env_file:
+#     - ${STCS_CONFIG_FOLDER-./../config}/global.env
+#    environment:
+#     USER_NAME: producer-mqtt-kafka-bridge
+#    command: ["python", "/opt/producer.py"]
+#    volumes:
+#      - ./producer/mqtt-kafka-bridge:/opt
+#    networks:
+#      default:
+#    logging:
+#     driver: "json-file"
+#     options:
+#       max-size: "1m"
+#       max-file: "1"
+
+  producer-weather-forecast-web:
+    container_name: producer-weather-forecast-web
+    image: smueller18/stcs:python3
+    restart: always
+    hostname: producer-weather-forecast-web
+    depends_on:
+      kafka:
+        condition: service_healthy
+#      schema-registry:
+#        condition: service_healthy
+    env_file:
+      - ${STCS_CONFIG_FOLDER-./../config}/global.env
+      - ${STCS_CONFIG_FOLDER-./../config}/producer/weather-forecast-web/config.env
+    environment:
+      USER_NAME: producer-weather-forecast-web
+    command: ["python", "/opt/producer.py"]
+    volumes:
+      - ${STCS_CONFIG_FOLDER-./../config}/producer/weather-forecast-web:/opt
+    networks:
+      default:
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "1"
+
+  producer-pyranometer-huebsch-schule:
+    container_name: producer-pyranometer-huebsch-schule
+    image: smueller18/stcs:python3
+    restart: always
+    hostname: producer-pyranometer-huebsch-schule
+    depends_on:
+      kafka:
+        condition: service_healthy
+#      schema-registry:
+#        condition: service_healthy
+    env_file:
+      - ${STCS_CONFIG_FOLDER-./../config}/global.env
+      - ${STCS_CONFIG_FOLDER-./../config}/producer/pyranometer-huebsch-schule/config.env
+    environment:
+      USER_NAME: producer-pyranometer-huebsch-schule
+    command: ["python", "/opt/producer.py"]
+    volumes:
+      - ${STCS_CONFIG_FOLDER-./../config}/producer/pyranometer-huebsch-schule:/opt
+    networks:
+      default:
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "1"
+
+  producer-thermometer-huebsch-schule:
+    container_name: producer-thermometer-huebsch-schule
+    image: smueller18/stcs:python3
+    restart: always
+    hostname: producer-thermometer-huebsch-schule
+    depends_on:
+      kafka:
+        condition: service_healthy
+#      schema-registry:
+#        condition: service_healthy
+    env_file:
+      - ${STCS_CONFIG_FOLDER-./../config}/global.env
+      - ${STCS_CONFIG_FOLDER-./../config}/producer/thermometer-huebsch-schule/config.env
+    environment:
+      USER_NAME: producer-thermometer-huebsch-schule
+    command: ["python", "/opt/producer.py"]
+    volumes:
+      - ${STCS_CONFIG_FOLDER-./../config}/producer/thermometer-huebsch-schule:/opt
+    networks:
+      default:
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "1"
+
+  producer-adsorption-cooling-machine:
+    container_name: producer-adsorption-cooling-machine
+    image: smueller18/stcs:python2
+    restart: always
+    hostname: producer-adsorption-cooling-machine
+    depends_on:
+      kafka:
+        condition: service_healthy
+#      schema-registry:
+#        condition: service_healthy
+    env_file:
+      - ${STCS_CONFIG_FOLDER-./../config}/global.env
+#      - ${STCS_CONFIG_FOLDER-./../config}/producer/adsorption-cooling-machine/config.env
+    environment:
+      USER_NAME: producer-adsorption-cooling-machine
+    command: ["python", "/opt/producer.py"]
+    volumes:
+      - ${STCS_CONFIG_FOLDER-./../config}/producer/adsorption-cooling-machine:/opt
+    networks:
+      default:
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "1"
+
+  flink-jobmanager:
+    container_name: flink-jobmanager
+    image: biggis/flink:1.3.0
+    restart: always
+    hostname: flink-jobmanager
+    depends_on:
+      kafka:
+        condition: service_healthy
+    ports:
+      - "6123:6123"
+    command: docker-entrypoint.sh jobmanager
+    env_file:
+      - ${STCS_CONFIG_FOLDER-./../config}/global.env
+    environment:
+      JOB_MANAGER_RPC_ADDRESS: flink-jobmanager
+      USER_NAME: flink
+    networks:
+      default:
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "1"
+
+  flink-taskmanager:
+    container_name: flink-taskmanager
+    image: biggis/flink:1.3.0
+    restart: always
+    hostname: flink-taskmanager
+    depends_on:
+      - flink-jobmanager
+    command: docker-entrypoint.sh taskmanager
+    env_file:
+      - ${STCS_CONFIG_FOLDER-./../config}/global.env
+    environment:
+      JOB_MANAGER_RPC_ADDRESS: flink-jobmanager
+      USER_NAME: flink
+    networks:
+      default:
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "1"
+
+  mosquitto:
+    container_name: mosquitto
+    image: eclipse-mosquitto:1.4.10
+    restart: always
+    hostname: mosquitto
+    ports:
+      - "1883:1883"
+    env_file:
+      - ${STCS_CONFIG_FOLDER-./../config}/global.env
+    volumes:
+      - mosquitto-data:/mosquitto/data
+      - ${STCS_CONFIG_FOLDER-./../config}/mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
+    networks:
+      default:
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "1"
+
+
+networks:
+  default:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.20.0.0/24
+  jupyter-notebook:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.20.1.0/24
+
+volumes:
+  zookeeper-data:
+  kafka-data:
+  postgres-data:
+  pgadmin-data:
+  jupyter-notebook-data:
+  portainer-data:
+  mosquitto-data:

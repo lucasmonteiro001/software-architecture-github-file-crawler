@@ -1,0 +1,27 @@
+version: '2'
+
+services:
+  web:
+    build: .
+    links:
+      - postgres
+    ports:
+      - "3000:3000"
+      - "35729:35729" # For Gulp-LiveReload
+    env_file:
+      - ./.env
+    volumes:
+      - .:/opt/app
+      # - /opt/app/node_modules
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:9.6
+    expose:
+      - "5432"
+    volumes:
+      - postgresdata:/var/lib/postgresql/data
+
+volumes:
+  postgresdata:

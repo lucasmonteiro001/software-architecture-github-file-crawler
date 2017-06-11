@@ -1,0 +1,89 @@
+version: '2'
+
+services:
+  memcached:
+    image: memcached:1.4.34
+    restart: unless-stopped
+    command: -m 2048
+
+  deploy:
+    extends:
+      file: leaf.yml
+      service: latest
+    restart: unless-stopped
+    environment:
+      - ROLE=deploy
+    ports:
+      - "4022:22"
+    links:
+      - memcached:memcached
+
+  f_sidekiq:
+    extends:
+      file: leaf.yml
+      service: latest
+    restart: unless-stopped
+    environment:
+      - ROLE=sidekiq
+      - APP_CURRENT_PATH=/home/app/www/frontend/current
+    links:
+      - memcached:memcached
+
+  b_sidekiq:
+    extends:
+      file: leaf.yml
+      service: latest
+    restart: unless-stopped
+    environment:
+      - ROLE=sidekiq
+      - APP_CURRENT_PATH=/home/app/www/backend/current
+    links:
+      - memcached:memcached
+
+  f_passenger:
+    extends:
+      file: leaf.yml
+      service: latest
+    restart: unless-stopped
+    env_file: ./frontend-host.env
+    environment:
+      - APP_CURRENT_PATH=/home/app/www/frontend/current
+      - HTTPS_METHOD=noredirect
+      - ROLE=passenger
+    volumes:
+      - ${LL100_LOCAL_DATA_DIR}/leaf/log/nginx:/var/log/nginx
+    links:
+      - memcached:memcached
+    networks:
+      - default
+      - nginx-proxy
+
+  b_passenger:
+    extends:
+      file: leaf.yml
+      service: latest
+    restart: unless-stopped
+    env_file: ./backend-host.env
+    environment:
+      - APP_CURRENT_PATH=/home/app/www/backend/current
+      - HTTPS_METHOD=noredirect
+      - ROLE=passenger
+    volumes:
+      - ${LL100_LOCAL_DATA_DIR}/leaf/log/nginx:/var/log/nginx
+    links:
+      - memcached:memcached
+    networks:
+      - default
+      - nginx-proxy
+
+  # letsencrypt-cdn:
+  #   image: busybox
+  #   restart: unless-stopped
+  #   environment:
+  #     - LETSENCRYPT_HOST=statics.ll100cdn.com
+  #     - LETSENCRYPT_EMAIL=admin@ll100.com
+  #   command: sh -c "while [ true ]; do sleep 10; done"
+
+networks:
+  nginx-proxy:
+    external: true

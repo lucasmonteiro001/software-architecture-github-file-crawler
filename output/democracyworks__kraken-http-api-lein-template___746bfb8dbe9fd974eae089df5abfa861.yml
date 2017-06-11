@@ -1,0 +1,14 @@
+app:
+  build: .
+  links:
+    - rabbitmq
+  ports:
+    - "58080:8080"
+  environment:
+    ALLOWED_ORIGINS: '[".*"]'
+rabbitmq:
+  image: rabbitmq:3.6.9-management
+  ports:
+    - "45672:5672"
+    - "55672:15672"
+  hostname: rabbitmq

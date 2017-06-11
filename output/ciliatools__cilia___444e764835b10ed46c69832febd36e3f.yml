@@ -1,0 +1,35 @@
+version: '2'
+services:
+  proxy:
+    build: ../proxy
+    ports:
+      - "80:80"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    environment:
+      - "CILIA_WEB_USERNAME=${CILIA_WEB_USERNAME}"
+      - "CILIA_WEB_PASSWORD=${CILIA_WEB_PASSWORD}"
+    networks:
+      - cilia
+      - internal
+  api:
+    build: ../api
+    volumes:
+      - "${CILIA_ROOT}:/cilia"
+    networks:
+      - cilia
+    environment:
+      - "BROWSERSTACK_USER=${BROWSERSTACK_USER}"
+      - "BROWSERSTACK_KEY=${BROWSERSTACK_KEY}"
+  webpack:
+    build: .
+    volumes:
+      - "./src:/app/src:ro"
+    networks:
+      - internal
+
+networks:
+  cilia:
+    external: true
+  internal:
+    driver: bridge

@@ -1,0 +1,23 @@
+frontend:
+  build: ./frontend
+  ports:
+    - "80:80"
+  links:
+    - backend
+  volumes:
+    - ./frontend:/usr/src
+    - ./frontend/dist:/var/www/dist
+    - ./frontend/index.html:/var/www/index.html
+backend:
+  build: ./backend
+  ports:
+    - "8000:8000"
+  volumes:
+    - ./backend:/src
+  environment:
+    MONGO_HOST: mongo
+    MONGO_PORT: 27017
+  links:
+    - mongo
+mongo:
+  image: mongo

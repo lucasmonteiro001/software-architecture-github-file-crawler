@@ -1,0 +1,4 @@
+db:
+  image: rethinkdb:2.3
+  ports:
+    - 28015:28015

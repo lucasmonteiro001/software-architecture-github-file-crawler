@@ -1,0 +1,43 @@
+version: '3'
+
+services:
+  app:
+    image: $DTR_IPADDR/engineering/docker-node-app:latest
+    deploy:
+      replicas: 3
+      placement:
+        constraints:
+          - node.labels.type == app
+      labels:
+        com.docker.ucp.mesh.http: "external_route=http://nodeapp.local,internal_port=4000"
+    environment:
+      - "MONGODB_SERVICE_SERVICE_HOST=nodeapp_db"
+    ports:
+      - 4000
+    networks:
+      - ucp-hrm
+      - nodeapp-network
+
+  db:
+    image: clusterhq/mongodb
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.type == app
+    networks:
+      - nodeapp-network
+    ports:
+     - 27017:27017
+    volumes:
+     - db:/data/db
+
+volumes:
+  db:
+    driver: local
+
+networks:
+  nodeapp-network:
+    driver: overlay
+  ucp-hrm:
+    external: true

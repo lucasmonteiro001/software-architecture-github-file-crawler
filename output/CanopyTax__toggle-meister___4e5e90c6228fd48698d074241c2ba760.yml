@@ -1,0 +1,23 @@
+version: '2'
+services:
+  postgres:
+    image: canopytax/postgresdb
+    ports:
+      - 5432:5432
+  tmeister:
+    image: canopytax/toggle-meister
+    volumes:
+      - ./tmeister:/app/tmeister
+    environment:
+      DATABASE_URL: postgres
+      DATABASE_USERNAME: postgres
+      DATABASE_PASSWORD: password
+      DATABASE_DB_NAME: postgres
+      DEBUG: "true"
+      AIOHTTP_NOSENDFILE: "true"
+      IS_LOCAL: "true"
+      COOKIE_KEY: 02a6b302c4290605f439baba456f954d
+    links:
+      - postgres
+    ports:
+      - 8445:8445

@@ -1,0 +1,21 @@
+front:
+  restart: always
+  build: images/nginx
+  ports:
+    - "80:80"
+    - "9000:9000"
+  links:
+    - "gearman"
+  volumes:
+    - /var/www:/var/www
+  extra_hosts:
+    - "phpstack_mysql_1:192.168.0.164"
+
+gearman:
+  restart: always
+  build: images/gearman
+  ports:
+    - "4730:4730"
+  volumes:
+    - /var/www:/var/www
+

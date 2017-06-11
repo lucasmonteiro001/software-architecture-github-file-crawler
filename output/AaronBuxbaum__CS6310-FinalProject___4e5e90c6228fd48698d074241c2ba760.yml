@@ -1,0 +1,21 @@
+version: '2'
+services:
+  web:
+    build: .
+    ports:
+     - "80:5000"
+    environment:
+      DATABASE_URL: postgres://cs6310:cs6310@db:5432/cs6310
+    volumes:
+      - .:/usr/src/app
+    command: bash docker_start.sh
+    links:
+     - db
+
+  db:
+    image: postgres
+    ports:
+     - "55432:5432"
+    environment:
+      POSTGRES_USER: cs6310
+      POSTGRES_PASSWORD: cs6310

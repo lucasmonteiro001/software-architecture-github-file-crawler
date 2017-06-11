@@ -1,0 +1,25 @@
+postgres_db:
+    build: postgres
+    ports:
+        - 5433:5432
+    volumes:
+        - ./postgres:/opt/postgres/
+nginx:
+    build: nginx
+    volumes:
+        - ./public_html:/usr/share/nginx/html
+    links:
+        - golang:1234
+    ports:
+        - 9444:80
+
+golang:
+    build: golang
+    volumes:
+        - ./golang:/usr/src/myapp
+    working_dir: /usr/src/myapp
+    ports:
+        - 1234:1234
+    links:
+        - postgres_db:5433
+

@@ -1,0 +1,19 @@
+version: '2.1'
+services:
+  sahib:
+    image: hmtx/sahib:latest
+    command: bundle exec puma
+    volumes:
+      - ./plugins:/app/plugins
+      - ./config:/app/config
+    ports:
+      - "80:9393"
+    depends_on:
+      - pdf
+      - db
+    env_file:
+      - config/${DATENBANK:-beispiel}.env
+  pdf:
+    image: hmtx/electron_pdf:latest
+  db:
+    image: hmtx/mariadb:latest

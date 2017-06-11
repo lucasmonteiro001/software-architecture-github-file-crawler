@@ -1,0 +1,48 @@
+version: '2'
+volumes:
+  mongo-data:
+    external: false
+  redis-data:
+    external: false
+services:
+  redis:
+    image: redis:alpine
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+    networks:
+      - bootlegger-network
+  mongo:
+    image: mongo
+    volumes:
+      - mongo-data:/data/db
+    # ports:
+    #   - "27017:27017"
+    networks:
+      - bootlegger-network
+  beanstalk:
+    image: schickling/beanstalkd
+    networks:
+      - bootlegger-network
+  web:
+    build: .
+    command: node app.js #nodemon --debug=5858
+    ports:
+      - "1337:1337"
+      - "5858:5858"
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    links:
+      - redis
+      - mongo
+      - beanstalk
+    depends_on:
+      - redis
+      - mongo
+      - beanstalk
+    networks:
+      - bootlegger-network
+networks:
+  bootlegger-network:
+    driver: bridge

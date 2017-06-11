@@ -1,0 +1,21 @@
+version: "3"
+
+services:
+    jenkins:
+        image: jenkins:alpine
+        ports:
+            - "8080:8080"
+            - "50000:50000"
+        volumes:
+            - ./jenkins-folder:/var/jenkins_home
+    gitlab:
+        image: gitlab/gitlab-ce:latest
+        ports:
+            - "8443:8443"
+            - "8800:8800"
+        volumes:
+            - ./gitlab-folder/config:/etc/gitlab
+            - ./gitlab-folder/logs:/var/log/gitlab
+            - ./gitlab-folder/data:/var/opt/gitlab
+        env:
+

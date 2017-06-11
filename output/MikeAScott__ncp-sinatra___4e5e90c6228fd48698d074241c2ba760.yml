@@ -1,0 +1,23 @@
+proxy:
+  image: jwilder/nginx-proxy
+  ports:
+    - "80:80"
+  volumes:
+    - /var/run/docker.sock:/tmp/docker.sock:ro
+  links:
+    - app
+
+db:
+  image: mongo
+
+app:
+  build: ./app
+  expose:
+    - "8081"
+#  ports:
+#    - "8081:8081"
+  environment:
+    - MONGODB_URI=db
+    - VIRTUAL_HOST=192.168.99.100
+  links:
+    - db

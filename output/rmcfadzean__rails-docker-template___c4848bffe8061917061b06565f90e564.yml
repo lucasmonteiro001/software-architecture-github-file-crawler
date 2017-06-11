@@ -1,0 +1,28 @@
+version: '2.1'
+
+volumes:
+  # The postgres data volume. Optional. Allows you to rebuild/restore your DB even if you nuke all the containers.
+  postgres-data:
+    driver: local
+  # Saves our gems between containers.
+  gems:
+    driver: local
+
+services:
+  web:
+    build: .
+    command: rails s -b 0.0.0.0 # Rails 5.1 will introduce ENV['HOST']
+    volumes:
+      - .:/app # Docker env var $APP_HOME
+      - gems:/usr/local/bundle
+    ports:
+      - 3000:3000 # Env var $PORT
+    depends_on:
+      - postgres
+    environment:
+      PORT: 3000
+
+  postgres:
+    image: postgres:9.6
+    volumes:
+      - postgres-data:/var/lib/postgresql/data

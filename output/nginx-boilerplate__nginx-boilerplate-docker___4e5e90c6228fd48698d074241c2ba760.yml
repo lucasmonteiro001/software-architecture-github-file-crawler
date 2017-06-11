@@ -1,0 +1,21 @@
+version: '2'
+services:
+    nginx:
+        container_name: nginx.boilerplate
+        hostname: nginx.boilerplate
+        image: nginx #umkus/nginx-boilerplate
+        ports:
+            - 80:80
+            - 443:443
+        volumes:
+            - ./logs/:/var/log/nginx/
+            - ./nginx-boilerplate:/etc/nginx:ro
+        volumes_from:
+            - php
+        links:
+            - php
+    php:
+        container_name: php.nginx.boilerplate # Equals to the upstream name in nginx
+        image: php:fpm
+        volumes:
+            - ./www:/var/www/nginx.boilerplate

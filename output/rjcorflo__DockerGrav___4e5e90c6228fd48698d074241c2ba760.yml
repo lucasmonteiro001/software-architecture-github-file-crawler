@@ -1,0 +1,20 @@
+version: '2'
+services:
+    web:
+        build:
+            context: ./
+            dockerfile: server/server-nginx.docker
+        image: grav-web-nginx-1.10
+        volumes_from:
+            - app
+        ports:
+            - "8082:80"
+        links:
+            - app
+    app:
+        build:
+            context: ./
+            dockerfile: php/app-php-5.6.docker
+        image: grav-php-5.6
+        volumes:
+            - ./code:/var/www

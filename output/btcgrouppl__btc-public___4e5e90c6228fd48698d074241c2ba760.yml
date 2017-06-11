@@ -1,0 +1,16 @@
+btc:
+    build: ./
+    volumes:
+        - ./:/sources
+    links:
+        - mongo
+        - activemq
+mongo:
+    image: mongo:2.2
+    ports:
+        - "27017:27017"
+activemq:
+    image: webcenter/activemq:5.11.1
+    ports:
+        - "61616:61616"
+        - "8161:8161"

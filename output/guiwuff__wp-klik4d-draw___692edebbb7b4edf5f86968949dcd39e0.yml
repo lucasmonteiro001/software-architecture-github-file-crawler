@@ -1,0 +1,25 @@
+version: '2'
+services:
+    nginx:
+        image: nginx:latest
+        container_name: klik4d-web
+        restart: always
+        ports:
+            - "3300:80"
+        volumes:
+            - ./klik4d-web:/www-data
+            - ./nginx-default.conf:/etc/nginx/conf.d/default.conf
+
+        networks:
+            - klik4d-net
+    php:
+        image: php:7-fpm
+        container_name: klik4d-fpm
+        restart: always
+        volumes:
+            - ./klik4d-web:/www-data
+        networks:
+            - klik4d-net
+networks:
+    klik4d-net:
+        driver: bridge

@@ -1,0 +1,12 @@
+version: '2.1'
+services:
+  default_mysql:
+    container_name: MySQL-Default
+    image: mysql:5.6.35
+    ports:
+      - "32773:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=dev
+    volumes:
+      - ./data:/var/lib/mysql

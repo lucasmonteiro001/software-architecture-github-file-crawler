@@ -1,0 +1,60 @@
+version: '2'
+services:
+  nginx:
+    build: ./nginx
+    ports:
+     - "8080:80"
+    volumes:
+     - ~/PhpstormProjects:/usr/share/nginx/html
+    links:
+     - node6
+     - php56
+     - php70
+
+  node6:
+    build: ./node6
+    ports:
+    - "9006:8888"
+    volumes:
+    - ~/PhpstormProjects:/var/www/html
+    links:
+    - mysql56
+    - mysql57
+
+  php56:
+    build: ./php56
+    ports:
+     - "9056:9000"
+    volumes:
+     - ~/PhpstormProjects:/var/www/html
+    links:
+     - mysql56
+     - mysql57
+
+  php70:
+    build: ./php70
+    ports:
+     - "9070:9000"
+    volumes:
+     - ~/PhpstormProjects:/var/www/html
+    links:
+     - mysql56
+     - mysql57
+
+  mysql56:
+    build: ./mysql56
+    environment:
+     - MYSQL_ROOT_PASSWORD=mysql56secret
+    ports:
+     - "9016:3306"
+    volumes:
+     - ~/PhpstormProjects/.docker/data/mysql56:/var/lib/mysql
+
+  mysql57:
+    build: ./mysql57
+    environment:
+     - MYSQL_ROOT_PASSWORD=mysql57secret
+    ports:
+     - "9017:3306"
+    volumes:
+     - ~/PhpstormProjects/.docker/data/mysql57:/var/lib/mysql

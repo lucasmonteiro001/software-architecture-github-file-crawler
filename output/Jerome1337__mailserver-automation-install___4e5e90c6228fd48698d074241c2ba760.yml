@@ -1,0 +1,122 @@
+version: '2'
+
+services:
+  # Rethink DB
+  rethink:
+    build: docker/rethinkdb
+    container_name: rethink
+    ports:
+      - 58080:8080
+      - 58015:28015
+      - 59015:29015
+
+  # NodeJS
+  nodejs:
+    build: docker/nodejs
+    container_name: nodejs
+    ports:
+      - 53000:3000
+      - 55000:5000
+    depends_on:
+      - rethink
+
+  mailserver:
+    image: hardware/mailserver
+    container_name: mailserver
+    domainname: domain.tld
+    hostname: mail
+    ports:
+      - 25:25     # SMTP                - Required
+      - 143:143   # IMAP       STARTTLS - Optional - For webmails/desktop clients
+      - 587:587   # Submission STARTTLS - Optional - For webmails/desktop clients
+      - 993:993   # IMAPS      SSL/TLS  - Optional - For webmails/desktop clients
+      - 4190:4190 # SIEVE      STARTTLS - Optional - Recommended for mail filtering
+    environment:
+      - DBPASS=postfix
+    volumes:
+      - /mnt/docker/mail:/var/mail
+      - /mnt/docker/mail/opendkim:/etc/opendkim/keys
+    depends_on:
+      - mariadb
+
+  # Administration interface
+  # Configuration : https://github.com/hardware/mailserver/wiki/Postfixadmin-initial-configuration
+  postfixadmin:
+    image: hardware/postfixadmin
+    container_name: postfixadmin
+    domainname: domain.tld
+    hostname: mail
+    environment:
+      - DBPASS=postfix
+    depends_on:
+      - mailserver
+      - mariadb
+
+  # Webmail
+  # Configuration : https://github.com/hardware/mailserver/wiki/Rainloop-initial-configuration
+  rainloop:
+    image: hardware/rainloop
+    container_name: rainloop
+    volumes:
+      - /mnt/docker/rainloop:/rainloop/data
+    depends_on:
+      - mailserver
+      - mariadb
+
+  # Authoritative DNS server
+  # Configuration : https://github.com/hardware/mailserver/wiki/NSD-initial-configuration
+  nsd:
+    image: hardware/nsd-dnssec
+    container_name: nsd
+    ports:
+      - 553:53
+      - 553:53/udp
+    volumes:
+      - ./mnt/docker/nsd/conf:/etc/nsd
+      - ./mnt/docker/nsd/zones:/zones
+      - ./mnt/docker/nsd/db:/var/db/nsd
+
+  # Web server
+  # Configuration : https://github.com/hardware/mailserver/wiki/Reverse-proxy-configuration
+  nginx:
+    image: wonderfall/boring-nginx
+    container_name: nginx
+    ports:
+      - 80:8000
+      - 443:4430
+    volumes:
+      - /mnt/docker/nginx/sites-enabled:/sites-enabled
+      - /mnt/docker/nginx/conf:/conf.d
+      - /mnt/docker/nginx/log:/var/log/nginx
+      - /mnt/docker/nginx/certs:/certs
+    depends_on:
+      - postfixadmin
+      - rainloop
+
+  # MariaDB
+  mariadb:
+    image: mariadb:10.1
+    container_name: mariadb
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=postfix
+      - MYSQL_USER=postfix
+      - MYSQL_PASSWORD=postfix
+    volumes:
+      - /mnt/docker/mysql/db:/var/lib/mysql
+
+  # PhpMyAdmin
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    links:
+      - mariadb:db
+    ports:
+      - 8100:80
+    environment:
+      - PMA_USER=root
+      - PMA_PASSWORD=root
+
+volumes:
+  maildata:
+    driver: local

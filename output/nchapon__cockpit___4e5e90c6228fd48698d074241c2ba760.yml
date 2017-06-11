@@ -1,0 +1,42 @@
+version: '2'
+
+services:
+
+    cockpit_nginx:
+        build: nginx
+        ports:
+          - "80:80"
+        networks:
+          - gateway
+
+    cockpit_mongo:
+        image: mongo:latest
+        command: ["mongod", "--smallfiles"]
+        hostname: mongo
+        ports:
+            - "27017"
+        volumes:
+          - mongodata:/data/db
+        networks:
+            gateway:
+                aliases:
+                    - mongo
+
+    cockpit_webapp:
+        build: .
+        volumes:
+            - download:/app/download
+        networks:
+            gateway:
+                aliases:
+                    - cockpit
+
+
+networks:
+  gateway:
+
+volumes:
+  mongodata:
+    driver: local
+  download:
+    driver: local

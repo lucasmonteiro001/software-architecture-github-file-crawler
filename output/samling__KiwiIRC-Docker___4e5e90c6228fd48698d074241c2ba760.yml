@@ -1,0 +1,6 @@
+kiwiirc:
+    build: .
+    ports:
+        - "80:80"
+#    volumes:
+#        - keys/:/etc/kiwiirc

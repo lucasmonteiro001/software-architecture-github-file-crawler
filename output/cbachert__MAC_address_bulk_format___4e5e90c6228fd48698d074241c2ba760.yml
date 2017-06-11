@@ -1,0 +1,19 @@
+version: "3"
+services:
+  web:
+    environment:
+    - IMPRESSUM_NAME=${IMPRESSUM_NAME}
+    - IMPRESSUM_ADDRESS=${IMPRESSUM_ADDRESS}
+    - IMPRESSUM_PHONE=${IMPRESSUM_PHONE}
+    - IMPRESSUM_FAX=${IMPRESSUM_FAX}
+    - IMPRESSUM_EMAIL=${IMPRESSUM_EMAIL}
+    - SECRET_KEY_BASE=${SECRET_KEY_BASE}
+    - RAILS_SERVE_STATIC_FILES=true  # serve static files in production environment for standalone use
+    build: .
+    command: bin/init
+    volumes:
+      - .:/myapp
+    ports:
+      - "80:80"
+    restart: unless-stopped
+

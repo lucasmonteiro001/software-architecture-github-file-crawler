@@ -1,0 +1,15 @@
+#the freeipa container
+gitolite:
+    hostname: gitolite.example.test
+    build: .
+    ports:
+        - "8080:8080"
+    volumes:
+        - /tmp/var/lib/git:/var/lib/git:rw
+    user: '100002000:0'
+    environment:
+        - http_proxy=${http_proxy}
+        - https_proxy=${https_proxy}
+        - ftp_proxy=${ftp_proxy}
+        - no_proxy
+        - DEBUG=1

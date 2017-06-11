@@ -1,0 +1,29 @@
+version: '3'
+services:
+  web:
+    image: electrified/notes:latest
+    ports:
+     - "3000:3000"
+    volumes:
+     - assets:/assets
+    depends_on:
+     - database
+    environment:
+      NODE_ENV: production
+      DB_USER: notes
+      DB_PASSWORD: password
+      DB_DATABASE: notes
+      DB_HOST: database
+      ASSETS_DIR: /assets
+  database:
+    image: "postgres:9.6-alpine"
+    volumes:
+     - database_data:/var/lib/postgres
+    environment:
+       POSTGRES_PASSWORD: password
+       POSTGRES_USER: notes
+       POSTGRES_INITDB_ARGS: "--locale en_GB.UTF-8"
+       POSTGRES_DB: notes
+volumes:
+    database_data:
+    assets:

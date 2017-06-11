@@ -1,0 +1,14 @@
+web:
+  image: owncloud:8.1
+  environment:
+    - VIRTUAL_HOST=owncloud.dev
+  volumes:
+    - /projects/owncloud/:/usr/src/owncloud/
+  command: sh -c '
+    if [ ! -f /usr/src/owncloud/index.php ]; then
+      curl -fsSL "https://download.owncloud.org/community/owncloud-8.1.2.tar.bz2" -o owncloud.tar.bz2;
+      tar -xjf owncloud.tar.bz2 -C /usr/src/;
+      rm owncloud.tar.bz2;
+    fi;
+    apache2-foreground;
+    '

@@ -1,0 +1,12 @@
+redis:
+    build: ./redis
+    ports:
+      - "6378:6379"
+    restart: always
+filebeat:
+    build: ./filebeat
+    volumes:
+        - ~/sincedb/sincedb_kds_shipper_f1:/opt/sincedb
+        - ~/opt-kds-shipper/htdocs/Dockerfiles/log:/home/ftp/logs
+        - ~/opt-kds-shipper/htdocs/Dockerfiles/filebeat/kds/filebeat.yml:/filebeat.yml
+    restart: always

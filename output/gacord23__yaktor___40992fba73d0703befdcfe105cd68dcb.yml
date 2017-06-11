@@ -1,0 +1,49 @@
+version: '2'
+networks:
+  default:
+    driver: bridge
+services:
+  vpn:
+    privileged: true
+    ports:
+      - 4444
+    image: bobrik/socat
+    command: -d TCP-LISTEN:4444,fork TUN
+  app:
+    build:
+      context: ./docker
+    image: ${APP_NAME}:${APP_TAG}
+    environment:
+      MONGO_HOST: mongo
+      SERVERS_DEFAULT_HOST_HOSTNAME: www.${APP_NAME}.yaktor
+      SERVERS_DEFAULT_HOST_PORT: 80
+#      CASSANDRA_ENABLE: 1
+#      CASSANDRA_HOSTS: cassandra
+    depends_on:
+      - mongo
+    volumes:
+      - ./:/app
+      - ~/.npmrc:/home/docker/.npmrc
+      - ~/.npm:/home/docker/.npm
+    networks:
+      default:
+        aliases:
+          - www.${APP_NAME}.yaktor
+    working_dir: /app
+  mongo:
+    image: mongo:3.0.4
+    networks:
+      default:
+        aliases:
+          - mongo.${APP_NAME}.yaktor
+  dns:
+    image: andyshinn/dnsmasq
+    cap_add:
+      - NET_ADMIN
+    command: --max-cache-ttl=30 --max-ttl=30
+#  cassandra:
+#    image: cassandra:2.1
+#    networks:
+#      default:
+#        aliases:
+#          - cassandra.${APP_NAME}.yaktor

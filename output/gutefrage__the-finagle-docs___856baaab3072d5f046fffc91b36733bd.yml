@@ -1,0 +1,22 @@
+---
+zookeeper:
+  image: jplock/zookeeper
+  ports:
+    - "2181:2181"
+    - "2888:2888"
+    - "3888:3888"
+
+mysql:
+  image: mysql:5.6.24
+  ports:
+    - "3306:3306"
+  environment:
+    - MYSQL_ROOT_PASSWORD=root
+    - MYSQL_DATABASE=weather
+    - MYSQL_USER=weather
+    - MYSQL_PASSWORD=weather
+
+redis:
+  image: redis
+  ports:
+      - "6379:6379"

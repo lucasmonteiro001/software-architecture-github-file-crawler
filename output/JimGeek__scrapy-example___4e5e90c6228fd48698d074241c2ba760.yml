@@ -1,0 +1,5 @@
+# Port accesible from outside is 6900 instead of 6800 since scrapyd might already be running on your machine
+web:
+  build: .
+  ports:
+    - "6900:6800"

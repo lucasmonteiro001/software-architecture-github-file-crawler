@@ -1,0 +1,35 @@
+qvs:
+    container_name: qvs
+    image: learninglayers/mobsos-qvs:0.0.1
+    env_file:
+        - common.env
+        - qvs.env
+        - qvs2.env
+    volumes_from:
+        - qvsdata
+    volumes:
+        - /dev/urandom:/dev/random
+    links:
+        - mysql
+
+qvsdata:
+    container_name: qvsdata
+    image: learninglayers/mobsos-qvs-data:0.0.1
+    env_file:
+        - common.env
+        - qvs.env
+        - qvs2.env
+    actions:
+        - create_databases:
+            - qvs.env
+            - qvs2.env
+        - create_oidcclients:
+            - qvs.env
+
+qvsfrontend:
+    container_name: qvsfrontend
+    image: learninglayers/mobsos-qvs-frontend:0.0.1
+    env_file:
+        - common.env
+        - qvs.env
+        - qvs2.env

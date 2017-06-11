@@ -1,0 +1,48 @@
+db:
+  build: ./docker/postgres
+  hostname: db
+  domainname: localdomain
+  volumes:
+    - /srv/docker/ckan/db:/var/lib/postgresql/data
+  env_file: db.environment
+  restart: always
+
+geoserver:
+  extends:
+    file: docker/geoserver/docker-compose.yml
+    service: geoserver
+  restart: always
+
+solr:
+  build: ./docker/solr
+  hostname: solr
+  domainname: localdomain
+  volumes:
+   - /srv/docker/ckan/solr:/opt/solr/example/solr/ckan
+  restart: always
+
+datapusher:
+  build: ./docker/datapusher
+  hostname: datapusher
+  domainname: localdomain
+  restart: always
+
+ckan:
+  build: .
+  hostname: ckan
+  domainname: localdomain
+  links:
+    - db:db
+    - solr:solr
+    - datapusher:datapusher
+    - geoserver:geoserver
+  ports:
+    - 80:80
+  volumes:
+    - /srv/docker/ckan/filestore:/srv/app/store
+    - /srv/docker/ckan/conf:/srv/app/conf
+    - /srv/docker/ckan/httpd:/var/log/httpd
+  env_file:
+    - db.environment
+    - ckan.environment
+  restart: always

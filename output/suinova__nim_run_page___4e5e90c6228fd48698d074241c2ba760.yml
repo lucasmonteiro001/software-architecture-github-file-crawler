@@ -1,0 +1,8 @@
+web:
+  build: .
+  command: nim c -r server.nim
+  ports:
+    - "8080:8080"
+  volumes:
+    - .:/src
+

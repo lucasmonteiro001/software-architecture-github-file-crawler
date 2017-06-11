@@ -1,0 +1,20 @@
+dvhr:
+  image: dwoll/dvhr
+  net: "host"
+  ports:
+   - "8787:8787"
+dvhweb:
+  image: dwoll/dvhweb
+#  volumes:
+#   - data:/srv/shiny-server/DVHdata
+  net: "host"
+  ports:
+   - "3838:3838"
+dvhnotebook:
+  image: dwoll/dvhnotebook
+#  volumes:
+#   - data:/home/jovyan/DVHdata
+  net: "host"
+  ports:
+   - "8888:8888"
+

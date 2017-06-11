@@ -1,0 +1,37 @@
+# Docker Compose project for development
+
+version: "2"
+services:
+  owncloud:
+    build: "."
+    links:
+      - "db"
+    environment:
+      DEBUG: "1"
+      OWNCLOUD_DB_TYPE: "mysql"
+      OWNCLOUD_DB_HOST: "db"
+      OWNCLOUD_DB_USER: "root"
+      OWNCLOUD_DB_PASSWORD: "pass"
+      OWNCLOUD_DB_NAME: "owncloud"
+      OWNCLOUD_PASSWORD_SALT: "salty"
+      OWNCLOUD_ADMIN_USER: "admin"
+      OWNCLOUD_ADMIN_PASS: "pass"
+      OWNCLOUD_SMTP_HOST: "smtp.gmail.com"
+      OWNCLOUD_SMTP_PORT: "587"
+      OWNCLOUD_SMTP_ENCRYPTION: "tls"
+      OWNCLOUD_SMTP_AUTHN_TYPE: "LOGIN"
+      OWNCLOUD_SMTP_AUTHN_USER: "USER@gmail.com"
+      OWNCLOUD_SMTP_AUTHN_PASSWORD: "PASS"
+  app-server:
+    build: "."
+    command: "nginx-wrapper"
+    links:
+      - "owncloud:php-fpm"
+    ports:
+      - "127.0.0.1:8080:80"
+  db:
+    image: "mysql"
+    environment:
+      MYSQL_DATABASE: "owncloud"
+      MYSQL_ROOT_PASSWORD: "pass"
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"

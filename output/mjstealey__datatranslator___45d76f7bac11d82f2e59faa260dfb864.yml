@@ -1,0 +1,5 @@
+swagger-editor:
+  image: swaggerapi/swagger-editor
+  container_name: swagger-editor
+  ports:
+  - "8080:8080"

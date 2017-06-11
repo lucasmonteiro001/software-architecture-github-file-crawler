@@ -1,0 +1,36 @@
+web:
+  build: ./docker/web/server/
+  container_name: web
+  volumes:
+  - .:/var/www/html
+  links:
+  - db:mysql
+  ports:
+  - 80:80
+  - 443:443
+db:
+  image: mysql:5.6
+  container_name: mysql
+  environment:
+     - MYSQL_ROOT_PASSWORD=root
+  ports:
+  - 3306:3306
+  volumes:
+  - ./data/mysql:/var/lib/mysql
+
+
+phpmyadmin:
+  image: corbinu/docker-phpmyadmin
+  container_name: phpmyadmin
+  links:
+    - db:mysql
+  ports:
+    - 8181:80
+  environment:
+    MYSQL_USERNAME: root
+    MYSQL_ROOT_PASSWORD: root
+
+
+#queue:
+#  image: beanstalkd
+#  container_name: queue

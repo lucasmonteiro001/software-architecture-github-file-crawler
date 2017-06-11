@@ -1,0 +1,20 @@
+version: '2'
+services:
+  db:
+    restart: on-failure:10
+    image: postgres:9.4
+    volumes:
+      - "db-volume:/var/lib/postgresql/data"
+
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:7575
+    volumes:
+      - .:/code
+    ports:
+      - "7575:7575"
+    links:
+      - db
+
+volumes:
+  db-volume:

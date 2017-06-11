@@ -1,0 +1,82 @@
+version: '2'
+
+services:
+  nginx:
+       image: nginx:latest
+       container_name: nginx
+       ports:
+          - "80:80"
+          - "443:443"
+       volumes:
+          - ${PWD}/nginx/conf.d:/etc/nginx/conf.d
+       restart: always
+       logging:
+        driver: json-file
+        options:
+          max-size: "100m"
+          max-file: "3"
+          labels: "elasticsearch"
+
+  es-kopf:
+       image: lmenezes/elasticsearch-kopf:latest
+       container_name: es-kopf
+       environment:
+         - KOPF_ES_SERVERS=elasticsearch:9200
+         - KOPF_SERVER_NAME=es-kopf
+       restart: always
+       logging:
+        driver: json-file
+        options:
+          max-size: "100m"
+          max-file: "3"
+          labels: "elasticsearch"
+
+  elasticsearch:
+       image: elasticsearch:2
+       container_name: elasticsearch
+       volumes:
+          #- ${PWD}/elasticsearch/data:/usr/share/elasticsearch/data
+          - ${PWD}/elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+       environment:
+          - ES_CLUSTERNAME='some-cluster'
+       command: elasticsearch
+       ports:
+          - "9200:9200"
+          - "9300:9300"
+       restart: always
+       logging:
+         driver: json-file
+         options:
+           max-size: "100m"
+           max-file: "3"
+           labels: "elasticsearch"
+
+  kibana:
+       image: kibana:latest
+       container_name: kibana
+       restart: always
+       environment:
+          - ELASTICSEARCH_URL=http://elasticsearch:9200
+       logging:
+         driver: json-file
+         options:
+           max-size: "50m"
+           max-file: "3"
+           labels: "kibana"
+
+  logstash:
+       build: docker-images/logstash
+       container_name: logstash
+       ports:
+          - "5504:5504"
+          - "5504:5504/udp"
+       volumes:
+          - ${PWD}/logstash/demo-logstash.conf:/opt/logstash/conf.d
+       command: logstash -f /opt/logstash/conf.d
+       restart: always
+       logging:
+         driver: json-file
+         options:
+           max-size: "50m"
+           max-file: "3"
+           labels: "logstash"

@@ -1,0 +1,23 @@
+# Usage: Follow the steps in the README file in the directory containing this file
+
+dev:
+    extends:
+        file: common.yml
+        service: workspace
+    volumes:
+        - $ATOMSPACE_SOURCE_DIR:/atomspace
+        - $COGUTILS_SOURCE_DIR:/cogutils
+        - $MOSES_SOURCE_DIR:/moses
+    working_dir: /opencog # This is the same as the volume mount point below
+    links:
+        - postgres:db
+        - relex:relex
+
+postgres:
+    image: opencog/postgres
+
+relex:
+    extends:
+        file: relex.yml
+        service: relex
+    command: /bin/sh -c "ant clean && ant  && ./opencog-server.sh"

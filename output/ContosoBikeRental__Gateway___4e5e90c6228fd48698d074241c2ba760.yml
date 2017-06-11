@@ -1,0 +1,17 @@
+version: '2'
+
+services:
+    apigateway:
+        build: .
+        ports:
+            - "5000:5000"
+        environment:
+            - AZURE_SERVICE_BUS_CONNECTIONSTRING=amqp://admin:admin@servicebus
+            - AZURE_SERVICE_BUS_QUEUE=testqueue
+            - NOTIFICATION_AMQP_CONNECTIONSTRING=amqp://rabbit
+            - NOTIFICATION_OUT_EXCHANGE_NAME=out
+            - USERS_SERVICE=users
+            - BIKES_SERVICE=bikes
+            - RESERVATIONS_SERVICE=reservations
+            - BILLING_SERVICE=billing
+            - APPLICATION_INSIGHTS_KEY=dummykey

@@ -1,0 +1,36 @@
+mysql:
+  image: mariadb
+  volumes:
+    - .mysql:/var/lib/mysql
+  environment:
+    MYSQL_ROOT_PASSWORD: ScoreServerRootPassword
+
+http:
+  build: .
+  links:
+    - mysql:mysql
+  ports:
+    - "8080:8080"
+  volumes:
+    - ./config/:/app/config/
+    - ./tmp/:/app/tmp/
+  environment:
+    RAILS_ENV: production
+    DB_HOST: mysql
+    VIRTUAL_HOST: score.gold.ssig
+    VIRTUAL_PORT: 8080
+  command: bash -l -c "rm -f /app/tmp/pids/server.pid && command rails server -p 8080"
+
+engine:
+  build: .
+  links:
+    - mysql:mysql
+  volumes:
+    - ./config/:/app/config/
+    - ./tmp/:/app/tmp/
+    #- ./lib/:/app/lib/
+  environment:
+    RAILS_ENV: production
+    DB_HOST: mysql
+  command: bash -l -c "rm -f /app/tmp/pids/ScoreEngine_Daemon.pid && command rake engine:start"
+

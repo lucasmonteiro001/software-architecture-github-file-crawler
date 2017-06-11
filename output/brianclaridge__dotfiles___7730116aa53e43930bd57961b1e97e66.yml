@@ -1,0 +1,33 @@
+version: '2.2'
+services:
+  default:
+    build:
+      args:
+        tiniVersion: 'v0.14.0'
+      context: ./
+    container_name: centos-base
+    dns:
+      - 8.8.8.8
+      - 9.9.9.9
+    command: bash
+    environment:
+      DEBIAN_FRONTEND: noninteractive
+      HOME: /root
+      SHELL: bash
+      TERM: xterm-256color
+      USER: root
+      SSH_AUTH_SOCK: ${SSH_AUTH_SOCK}
+    image: docker.local/centos-base:latest
+    network_mode: host
+    privileged: true
+    ulimits:
+      nofile:
+        hard: 40000
+        soft: 20000
+      nproc: 65535
+    volumes:
+      - ${SSH_AUTH_SOCK}:${SSH_AUTH_SOCK}:ro
+      - ./journald.conf:/etc/systemd/journald.conf
+    working_dir: /root
+volumes: {}
+networks: {}

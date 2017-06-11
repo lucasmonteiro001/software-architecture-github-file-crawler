@@ -1,0 +1,53 @@
+application:
+    image: endroid/docker-application
+    volumes:
+        - .:/var/www/html
+    tty: true
+php:
+    build: docker/php/
+    volumes:
+        - ~/.ssh:/var/www/.ssh
+    volumes_from:
+        - application
+    links:
+        - elasticsearch
+        - mongodb
+        - mysql
+        - redis
+    expose:
+        - 9000:9000
+mysql:
+    image: mysql
+    environment:
+        MYSQL_ROOT_PASSWORD: root
+        MYSQL_DATABASE: symfony_application
+        MYSQL_USER: root
+        MYSQL_PASSWORD: root
+    ports:
+        - 3306:3306
+nginx:
+    build: docker/nginx/
+    volumes_from:
+        - application
+    links:
+        - php
+    ports:
+        - 80:80
+node:
+    image: endroid/docker-node
+    volumes_from:
+        - application
+    tty: true
+    ports:
+        - 8080:8080 # webpack-dev-server
+        - 8090:8090 # socket.io
+redis:
+    image: redis
+    ports:
+        - 6379:6379
+elasticsearch:
+    image: elasticsearch
+mongodb:
+    image: mongo
+    ports:
+        - 27017:27017

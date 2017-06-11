@@ -1,0 +1,6 @@
+#
+# docker-compose for sonarqube-win
+#
+sonarqube-win:
+  image: frozenbytes/sonarqube-win:0.0.2-alpha 
+  container_name: sonarqube-win-razor

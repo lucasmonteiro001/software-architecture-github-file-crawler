@@ -1,0 +1,38 @@
+#
+# docker-compose for aspnet-sample
+#
+version: '3'
+services:
+  aspnet-sample:
+    image: frozenbytes/aspnet-sample:0.0.1-alpha 
+    container_name: aspnet-sample-web
+    environment:
+       - VIRTUAL_PORT=80
+    ports:
+      - "8000:8000"
+    env_file:
+        - connection-strings.env
+        - secrets.env
+    #volumes:
+    #  - C:/data/docker/aspnet-sample/data/:C:/data/
+    #  - C:/data/docker/aspnet-sample/data/websites/dockersample/:C:/data/websites/dockersample/
+    depends_on:
+      - aspnet-sample-db
+
+  aspnet-sample-db:
+    image: microsoft/mssql-server-windows:windowsservercore-10.0.14393.693
+    container_name: aspnet-sample-db
+    environment:
+      - ACCEPT_EULA=Y
+      # User is always sa; no need to set
+      # USER=sa
+      - sa_password=!2017AdWorks!
+      - attach_dbs="[{'dbName':'AdventureWorks2012','dbFiles':['C:\\data\\mssql-server-data\\AdventureWorks2012_Data.mdf','C:\\data\\mssql-server-data\\AdventureWorks2012_Data.mdf']}]"     
+    ports:
+      - "1433:1433"
+    volumes:
+      - C:/data/docker/aspnet-sample/mssql-server/data/:C:/data/mssql-server-data/ 
+networks:
+ default:
+  external:
+   name: "nat"    

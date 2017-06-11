@@ -1,0 +1,14 @@
+version: '2'
+services:
+  toga:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    ports:
+      - 8080:8080
+    volumes:
+      - ./app:/service/toga/app
+      - ./components:/service/toga/components
+      - ./script:/service/toga/script
+    environment:
+      - NODE_ENV=production

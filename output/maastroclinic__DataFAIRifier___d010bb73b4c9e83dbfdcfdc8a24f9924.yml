@@ -1,0 +1,32 @@
+version: "2"
+services:
+  slapd:
+    image: dcm4che/slapd-dcm4chee:2.4.40-8.1
+    env_file: docker-compose.env
+  postgres:
+    image: dcm4che/postgres-dcm4chee:9.6-8
+    env_file: docker-compose.env
+  dcm4chee-arc:
+    image: dcm4che/dcm4chee-arc-psql:5.8.1
+    ports:
+      - "8080:8080"
+      # - "9990:9990"
+      # - "11112:11112"
+      # - "2575:2575"
+    env_file: docker-compose.env
+    environment:
+      WILDFLY_CHOWN: /opt/wildfly/standalone /storage
+      JAVA_OPTS: "-Xms64m -Xmx512m -XX:MetaspaceSize=96M -XX:MaxMetaspaceSize=256m -Djava.net.preferIPv4Stack=true -Djboss.modules.system.pkgs=org.jboss.byteman -Djava.awt.headless=true"
+    links:
+      - slapd:ldap
+      - postgres:db
+    volumes:
+      - ./storage:/storage
+      - ./wildfly:/opt/wildfly/standalone
+  ctp:
+    image: datafairifier/dcd
+    ports:
+        - "9090:8080"
+        - "104:104"
+    links:
+        - dcm4chee-arc:pacs

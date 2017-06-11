@@ -1,0 +1,4 @@
+camunda-showcase:
+  image: 'swcurran/c3i-camunda-showcase:latest'
+  ports:
+    - '8085:8080'

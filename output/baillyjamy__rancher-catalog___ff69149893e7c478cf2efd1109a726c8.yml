@@ -1,0 +1,43 @@
+gitlab-server:
+  image: gitlab/gitlab-ce:8.9.0-ce.0
+  hostname: ${DOMAIN}
+  labels:
+    io.rancher.sidekicks: gitlab-data
+  environment:
+    GITLAB_ROOT_PASSWORD: '${GITLAB_ROOT_PASSWORD}'
+    GITLAB_OMNIBUS_CONFIG: |
+      external_url 'http://${DOMAIN}:${GITLAB_HTTP_PORT}'
+      gitlab_rails['time_zone'] = 'Europe/Paris'
+      gitlab_rails['gitlab_email_from'] = 'git@${DOMAIN}'
+      gitlab_rails['gitlab_email_display_name'] = 'GitLab on ${DOMAIN}'
+      gitlab_rails['gitlab_email_reply_to'] = 'noreply@${DOMAIN}'
+      gitlab_rails['gitlab_ssh_host'] = '${DOMAIN}'
+      gitlab_rails['gitlab_shell_ssh_port'] = ${GITLAB_SSH_PORT}
+      gitlab_shell['log_level'] = 'WARN'
+      nginx['list_port'] = ${GITLAB_HTTP_PORT}
+  volumes_from:
+  - gitlab-data
+  log_opt:
+    max-size: '50m'
+
+gitlab-data:
+  image: gitlab/gitlab-ce:latest
+  hostname: gitdata
+  labels:
+    io.rancher.container.start_once: 'true'
+  entrypoint:
+  - /bin/true
+  volumes:
+  - /etc/gitlab
+  - /var/log/gitlab
+  - /var/opt/gitlab
+
+gitlab-load-balancer:
+  ports:
+  - ${GITLAB_HTTP_PORT}:${GITLAB_HTTP_PORT}/tcp
+  - ${GITLAB_SSH_PORT}:22/tcp
+  tty: true
+  image: rancher/load-balancer-service
+  links:
+  - gitlab-server:gitlab-server
+  stdin_open: true

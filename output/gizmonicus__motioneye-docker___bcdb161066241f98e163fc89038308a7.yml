@@ -1,0 +1,16 @@
+motioneye:
+  restart: always
+  image: gizmonicus/motioneye-docker
+  hostname: motioneye.gizmonic.us
+  dns:
+    - 192.168.11.1
+  ports:
+    - 8765:8765
+  volumes:
+    - /srv/array/local/docker/volumes/motioneye/conf:/etc/motioneye
+    - /srv/array/local/docker/volumes/motioneye/media:/var/lib/motioneye
+    - /etc/localtime:/etc/localtime
+  environment:
+    GCLOUD_SVC_ACCOUNT: ""
+    GCLOUD_SVC_KEY: ""
+    GCLOUD_BUCKET: ""

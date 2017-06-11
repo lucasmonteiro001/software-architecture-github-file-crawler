@@ -1,0 +1,49 @@
+version: '2'
+
+services:
+  nipap-psql:
+    image: coxley/nipap-psql
+    environment:
+      POSTGRES_PASSWORD: nipap
+      POSTGRES_USER: nipap
+    volumes:
+      - "nipap-psql:/var/lib/postgresql"
+
+  nipapd:
+    image: coxley/nipapd
+    environment:
+      NIPAP_USER: nipap
+      NIPAP_PASS: nipap
+    links:
+      - nipap-psql:postgres
+    ports:
+      - "1337:1337"
+    volumes:
+      - nipap-config:/etc/nipap
+    depends_on:
+      - nipap-psql
+    command: |
+      /bin/bash -c '
+        while true; do
+          pg_isready -h postgres -U postgres -t 30 && break
+          sleep 1
+        done
+
+        python2 /scripts/nipap-init.py
+        nipapd
+      '
+
+  nipap-www:
+    image: coxley/nipap-www
+    environment:
+      NIPAPD_USER: nipap
+      NIPAPD_PASS: nipap
+      DEBUG: "false"
+    ports:
+      - "5000:5000"
+    volumes_from:
+      - nipapd
+
+volumes:
+  nipap-psql: {}
+  nipap-config: {}

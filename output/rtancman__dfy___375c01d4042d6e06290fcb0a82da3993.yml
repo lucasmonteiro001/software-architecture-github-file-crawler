@@ -1,0 +1,35 @@
+meunginx:
+  image: nginx
+  links:
+    - meuphp6fpm
+    - meumysql
+  ports:
+    - "80:80"
+  extra_hosts:
+    - "dev.blogmaneiro.com.br:127.0.0.1"
+  volumes:
+    - ./app/wordpress:/var/www/html/wordpress
+    - ./nginx/app.conf:/etc/nginx/conf.d/default.conf
+    - ./nginx/logs:/var/log/nginx
+    - ./nginx/ssl:/etc/nginx/ssl    
+meumysql:
+  image: mysql
+  environment:
+    - MYSQL_ROOT_PASSWORD=1234
+    - MYSQL_DATABASE=wordpress
+    - MYSQL_USER=wordpress
+    - MYSQL_PASSWORD=q1w2e3r4
+meuphp6fpm:
+  image: php56-wordpress
+  links:
+    - meumysql
+  ports:
+    - "9000:9000"
+  environment:
+    - MYSQL_DATABASE_WP=wordpress
+  volumes:
+    - ./app/wordpress:/var/www/html/wordpress
+    - ./app/wp-config.php:/var/www/html/wordpress/wp-config.php
+    - ./app/log:/var/log
+    - ./entrypoint:/usr/local/bin/entrypoint
+  entrypoint: /usr/local/bin/entrypoint

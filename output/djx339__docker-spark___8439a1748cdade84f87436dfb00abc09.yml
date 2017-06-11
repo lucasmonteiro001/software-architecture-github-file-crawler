@@ -1,0 +1,36 @@
+version: '2'
+
+services:
+  master:
+    image: djx339/apache-hadoop-hdfs:2.7.3
+    command: namenode
+    environment:
+      - ETCD_HOST=confserver
+      - ETCD_PORT=2379
+    depends_on:
+      - confserver
+    links:
+      - confserver:confserver
+    hostname: master
+    stdin_open: true
+    tty: true
+    restart: always
+    ports:
+      - 50070
+  worker:
+    image: djx339/apache-hadoop-hdfs:2.7.3
+    command: datanode
+    environment:
+      - ETCD_HOST=confserver
+      - ETCD_PORT=2379
+    depends_on:
+      - confserver
+      - master
+    links:
+      - confserver:confserver
+    stdin_open: true
+    tty: true
+    restart: always
+  confserver:
+    image: djx339/etcd:v3.0.7
+    command: etcd --advertise-client-urls http://0.0.0.0:2379  --listen-client-urls http://0.0.0.0:2379

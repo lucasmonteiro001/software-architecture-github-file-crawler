@@ -1,0 +1,71 @@
+proxy2:
+# image: nginx:latest
+  build: .
+  dockerfile: proxy/Dockerfile
+  container_name: proxy2
+  volumes:
+    - ./proxy/certs:/etc/nginx/certs:ro
+    - ./proxy/nginx.conf:/etc/nginx/conf.d/default.conf
+    - /etc/letsencrypt:/etc/letsencrypt
+  ports:
+    - "80:80"
+    - "443:443"
+  links:
+    - nginx2
+    - nginx2nc
+
+postgres2:
+  image: postgres:9.5
+  container_name: postgres2
+  volumes:
+    - ./postgres/data:/var/lib/postgresql/data
+  environment:
+    - POSTGRES_USER=klingaman
+    - POSTGRES_PASSWORD=pinatubo
+    - POSTGRES_DB=sumatra
+
+nginx2:
+    image: nginx:latest
+    container_name: nginx2
+    volumes:
+        - ./site1:/code
+#        - ./nginx2/site.conf:/etc/nginx/conf.d/site.conf
+        - ./nginx2/nginx.conf:/etc/nginx/conf.d/default.conf
+    links:
+        - php2
+
+php2:
+  build: .
+  dockerfile: php/Dockerfile
+  container_name: php2
+  volumes:
+    - ./site1:/code
+    - ./php/php-ini-overrides.ini:/etc/php/7.0/fpm/conf.d/99-overrides.ini
+#  links:
+#    - memcached2
+#    - postgres2
+#    - elasticsearch2
+
+
+nginx2nc:
+    image: nginx:latest
+    container_name: nginx2nc
+    volumes:
+         - ./nextcloud/nginx/default.conf:/etc/nginx/conf.d/default.conf 
+    links:
+        - nextcloud2
+    volumes_from:
+        - nextcloud2
+
+nextcloud2:
+    image: indiehosters/nextcloud
+    container_name: nextcloud2
+    links:
+        - postgres2
+    volumes:
+        - ./nextcloud/apps:/var/www/html/apps
+        - ./nextcloud/config:/var/www/html/config
+        - ./nextcloud/data:/var/www/html/data
+
+
+

@@ -1,0 +1,74 @@
+# Copyright 2016 Cisco Systems, Inc.
+# 
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+# 
+# http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+## data container to hold build artifacts and prevent I/O thrashing if running on mac
+emberdata:
+  build: ./dev-env
+  volumes:
+   - /opt/project/bower_components
+   - /opt/project/dist
+   - /opt/project/node_modules
+   - /opt/project/vendor
+   - /opt/project/tmp
+  labels:
+    com.lancope.docker-gc.keep: "True"
+  entrypoint: "/bin/true"
+ember: &ember
+  build: ./dev-env
+  volumes_from:
+   - emberdata
+  volumes:
+   - .:/opt/project
+  working_dir: /opt/project
+  entrypoint: ["/usr/local/bin/ember"]
+npm:
+  <<: *ember
+  entrypoint: ["/usr/local/bin/npm"]
+bower:
+  <<: *ember
+  entrypoint: ["/usr/local/bin/bower", "--allow-root"]
+
+
+# enables 'lc server start'
+devserver:
+  <<: *ember
+  command: server
+  ports:
+   - "4200"
+# enables 'lc server start -prod'
+prodserver:
+  image: emberjs-ui
+  ports:
+    - "80"
+
+## lc lifecycle
+installdependencies:
+  <<: *ember
+  entrypoint: ["./dev-env/install-dependencies.sh"]
+test:
+  <<: *ember
+  command: ["test"]
+## run custom package service before lc builds docker image
+package:
+  <<: *ember
+  entrypoint: ["./dev-env/package.sh"]
+blackbox-test:
+  image: joeygibson/elsy-bbtest
+  volumes:
+    - .:/opt/project/
+  links:
+    - prodserver
+  working_dir: /opt/project
+  entrypoint: ["rspec", "--require", "./blackbox-test/spec_helper.rb", "--format", "documentation"]
+  command: ["--pattern", "blackbox-test/**/*.feature"]

@@ -1,0 +1,18 @@
+version: '2'
+
+services:
+  menuan-api:
+    image: menuan/menuan:api-${VERSION}
+    container_name: menuan-api
+    environment:
+      - VIRTUAL_HOST=api.menuan.se
+
+
+  postgres:
+    image: postgres:alpine
+    container_name: postgres
+    volumes:
+      - pgvolume:/var/lib/postgresql/data:rw
+
+volumes:
+  pgvolume:

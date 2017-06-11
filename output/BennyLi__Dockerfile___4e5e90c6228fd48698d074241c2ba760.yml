@@ -1,0 +1,20 @@
+nodejs:
+  build: ./RaspberryPi/base-nodejs/
+
+nginx-conf:
+  build: ./DataContainer/nginx-conf/
+
+nginx:
+  build: ./RaspberryPi/nginx/
+  ports:
+    - "80:80"
+    - "443:443"
+  volumes_from:
+    - nginx-conf
+  links:
+    - ghost
+
+ghost:
+  build: ./RaspberryPi/Ghost/
+  links:
+    - nodejs

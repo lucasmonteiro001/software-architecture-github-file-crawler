@@ -1,0 +1,20 @@
+version: '2'
+services:
+
+  local_webserver: 
+    build: ..
+    entrypoint: ./bin/webserver_with_carbon
+    ports:
+      - "3000:3000"
+    expose:
+      - "9090"
+    links:
+      - carbon_graphite
+
+  carbon_graphite:
+    image: nickstenning/graphite
+    ports:
+       - "8080:80"
+    expose:
+       - "2003"
+       - "2004"

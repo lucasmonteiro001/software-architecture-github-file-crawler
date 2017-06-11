@@ -1,0 +1,17 @@
+web:
+    build: .
+    command: python api.py
+    volumes:
+        - ./code
+    ports:
+        - "80:5000"
+    links:
+        - db
+    environment:
+        DATABASE_URL: "postgres://postgres@db:5432/postgres"
+db:
+    image: postgres
+    ports:
+        - "5432:5432"
+    environment:
+        POSTGRESQL_DB: test_db

@@ -1,0 +1,4 @@
+cache:
+  build: .
+  ports:
+   - '3142'

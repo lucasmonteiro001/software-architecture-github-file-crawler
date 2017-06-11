@@ -1,0 +1,11 @@
+connector:
+  restart: always
+  build: .
+  ports:
+    - "5000:80"
+  entrypoint:
+    - python
+    - app.py
+  volumes:
+    - ./connector:/connector
+    - ./config.yml:/connector/config.yml

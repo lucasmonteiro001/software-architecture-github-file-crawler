@@ -1,0 +1,48 @@
+version: '2'
+services:
+    movie-info:
+        image: movie-info
+        container_name: "movie-info"
+        depends_on:
+            - sakila
+        networks:
+            javaee7:
+        ports: 
+            - "4848:4848"
+            - "8080:8080"
+            - "8009:8009"
+    
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin
+        container_name: "phpmyadmin"
+        depends_on:
+            - sakila
+        environment: 
+            - "PMA_HOST=sakila"
+            - "MYSQL_ROOT_PASSWORD=xxxxxxxxx"
+            - "MYSQL_USER=xxxxxx"
+            - "MYSQL_PASSWORD=xxxxxxxxxx"
+        networks:
+            javaee7:
+        ports:
+            - "80:80"
+
+    sakila:
+        image: mysql
+        container_name: sakila
+        ports:
+            - "3306:3306"
+        networks: 
+            javaee7:
+        environment: 
+            - "MYSQL_ROOT_PASSWORD=xxxxxxxxxx"
+            - "MYSQL_DATABASE=sakila"
+            - "MYSQL_USER=xxxxxx"
+            - "MYSQL_PASSWORD=xxxxxxxxx"
+        volumes: 
+            - "/c/Users/guru.a.kulkarni/comdotlinux/TasteOfJavaEE7/sakila/mysql-sakila.sql:/docker-entrypoint-initdb.d/mysql-sakila.sql:ro"
+            - "/c/Users/guru.a.kulkarni/comdotlinux/sakila-mysql-db:/var/lib/mysql"
+networks: 
+    javaee7:
+        driver: bridge
+

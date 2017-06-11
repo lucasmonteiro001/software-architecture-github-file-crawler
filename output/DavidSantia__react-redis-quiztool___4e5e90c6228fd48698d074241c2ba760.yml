@@ -1,0 +1,20 @@
+version: '2'
+services:
+  load:
+    image: react-redis-quiztool/load
+    container_name: rrq-load
+    build: ./load
+    environment:
+      REDIS_HOST: redis-ws
+    volumes:
+      - ./data:/data
+    depends_on:
+      - redis-ws
+
+  redis-ws:
+    image: react-redis-quiztool/redis-ws
+    container_name: redis-ws
+    build: ./redis-ws
+    ports:
+     - "4000:4000"
+     - "6379:6379"

@@ -1,0 +1,41 @@
+version: '2'
+services:
+  dnsmasq:
+    container_name: dnsmasq
+    image: andyshinn/dnsmasq:latest
+    ports:
+      - "8053:53/tcp"
+      - "8053:53/udp"
+    cap_add:
+      - NET_ADMIN
+    environment:
+      SERVICE_NAME: dnsmasq
+    command: "--address=/.${DOCKER_DNS_DOMAIN}/${DOCKER_MACHINE_IP}"
+
+  nginx-proxy:
+    container_name: nginx-proxy
+    image: jwilder/nginx-proxy:latest
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - default
+      - public
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - ./docker/nginx-proxy/conf/proxy.conf:/etc/nginx/proxy.conf:ro
+    environment:
+        SERVICE_NAME: nginx-proxy
+
+  mailhog:
+      container_name: mailhog
+      image: mailhog/mailhog:latest
+      ports:
+        - "1025:1025"
+      environment:
+          SERVICE_NAME: mailhog
+          VIRTUAL_HOST: "mailhog.${DOCKER_DNS_DOMAIN}"
+          VIRTUAL_PORT: "8025"
+
+networks:
+  public:

@@ -1,0 +1,33 @@
+amcatworker:
+  image: amcat/amcat-docker
+  links:
+    - postgres:postgres
+    - redis:redis
+    - rabbit:rabbit
+    - elastic:elastic
+  volumes_from:
+    - amcat
+  command: python3 -m amcat.manage celery worker -Q amcat -l INFO
+amcat:
+  image: amcat/amcat-docker
+  expose:
+    - "8000"
+  links:
+    - postgres:postgres
+    - redis:redis
+    - rabbit:rabbit
+    - elastic:elastic
+  volumes:
+    - ./amcat-etc:/etc/amcat
+    - /tmp
+  ports:
+    - "8000:8000"
+postgres:
+  image: postgres:9.5
+redis:
+  image: redis
+rabbit:
+  image: rabbitmq:3-management
+  hostname: amcatrabbit
+elastic:
+  image: amcat/amcat-elastic-docker

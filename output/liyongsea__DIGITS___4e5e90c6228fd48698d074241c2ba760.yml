@@ -1,0 +1,10 @@
+notebook:
+  build: .
+  command: ipython notebook --ip="0.0.0.0" --no-browser
+  volumes:
+    - .:/digits
+  ports:
+    - "5000:5000"
+    - "8888:8888"
+  privileged: true
+  stdin_open: true

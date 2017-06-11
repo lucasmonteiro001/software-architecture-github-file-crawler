@@ -1,0 +1,19 @@
+version: '2'
+services:
+  frontend:
+    build: ./services/frontend
+    ports:
+      - "8000:80"
+    volumes:
+      - ./services/frontend/www:/usr/share/nginx/html
+    depends_on:
+      - web
+  web:
+    build: ./services/web
+    ports:
+      - "7500:7500"
+    volumes:
+      - ./services/web:/srv
+      - ./services/frontend/www:/srv/www
+    command: ["gunicorn", "-w", "4", "-b", "0.0.0.0:7500", "freq_demo.wsgi"]
+    stop_signal: SIGINT

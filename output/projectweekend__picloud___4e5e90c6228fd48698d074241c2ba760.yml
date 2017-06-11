@@ -1,0 +1,10 @@
+app:
+    build: .
+    command: go run main.go
+    volumes:
+        - .:/go/src/github.com/exitcodezero/picloud
+    ports:
+        - "9000:9000"
+    environment:
+        - API_KEY=secretapikey
+        - ENABLE_INFO_SOCKET=True

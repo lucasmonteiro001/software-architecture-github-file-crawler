@@ -1,0 +1,36 @@
+consul:
+  build: consul
+  command: "-advertise=127.0.0.1 -bootstrap"
+  hostname: consul
+  ports:
+    - "8500:8500"
+    - "8600:8600"
+  external_links:
+    - dukecon-latest:dukecon-latest
+consul-alerts:
+  build: consul-alerts
+  ports:
+    - "9000:9000"
+  links:
+    - consul:consul
+    - influxdb:influxdb
+influxdb:
+  # https://github.com/tutumcloud/influxdb
+  # consul-alerts currently requires influxdb 0.8
+  image: tutum/influxdb:0.8.8
+  environment:
+    ADMIN_USER: root
+    INFLUXDB_INIT_PWD: root
+    PRE_CREATE_DB: db1
+  ports:
+    - "8083:8083"
+    - "8086:8086"
+grafana:
+  # https://github.com/grafana/grafana-docker
+  image: grafana/grafana
+  ports:
+    - "3000:3000"
+  links:
+    - influxdb:influxdb
+  environment:
+    GF_SERVER_ROOT_URL: http://localhost:3000

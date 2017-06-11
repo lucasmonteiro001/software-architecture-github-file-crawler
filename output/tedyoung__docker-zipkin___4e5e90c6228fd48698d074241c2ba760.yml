@@ -1,0 +1,35 @@
+cassandra:
+  image: openzipkin/zipkin-cassandra:1.12
+  ports:
+    - 9042:9042
+collector:
+  image: openzipkin/zipkin-collector:1.12
+  environment:
+    - BLOCK_ON_CASSANDRA=true
+  expose:
+    - 9410
+  ports:
+    - 9410:9410
+    - 9900:9900
+  links:
+    - cassandra:db
+query:
+  image: openzipkin/zipkin-query:1.12
+  environment:
+    - BLOCK_ON_CASSANDRA=true
+  expose:
+    - 9411
+  ports:
+    - 9411:9411
+    - 9901:9901
+  links:
+    - cassandra:db
+    - collector
+web:
+  image: openzipkin/zipkin-web:1.12
+  ports:
+    - 8080:8080
+    - 9990:9990
+  links:
+    - collector
+    - query

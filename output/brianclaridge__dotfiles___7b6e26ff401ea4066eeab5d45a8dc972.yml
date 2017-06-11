@@ -1,0 +1,12 @@
+version: '2.2'
+services:
+  default:
+    build:
+      context: ./
+    container_name: magento
+    extends:
+      file: ../centos-base/docker-compose.yml
+      service: default
+    image: docker.local/magento:latest
+volumes: {}
+networks: {}

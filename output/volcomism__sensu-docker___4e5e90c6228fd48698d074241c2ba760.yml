@@ -1,0 +1,36 @@
+api:
+  image: volcomism/sensu
+  command: api
+  links:
+    - rabbitmq
+    - redis
+
+server:
+  image: volcomism/sensu
+  command: server
+  links:
+    - rabbitmq
+    - redis
+    - api
+
+client:
+  image: volcomism/sensu
+  command: client
+  environment:
+    CLIENT_NAME: volcomism
+    RUNTIME_INSTALL: aws consul
+  links:
+    - rabbitmq
+
+uchiwa:
+  build: uchiwa
+  links:
+    - api:sensu
+  ports:
+    - '80:3000'
+
+rabbitmq:
+  image: rabbitmq:3.5-management
+
+redis:
+  image: redis

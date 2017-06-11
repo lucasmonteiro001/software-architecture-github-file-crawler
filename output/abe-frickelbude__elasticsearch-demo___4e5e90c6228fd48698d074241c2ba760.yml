@@ -1,0 +1,42 @@
+version: '2'
+services:
+
+  es-master-node:
+    image: es-demo
+    
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    
+    environment:
+      - ES_JAVA_OPTS = "-Xms128m -Xmx256m"
+    
+    command: "elasticsearch -Enode.master=true"
+
+  es-node-2:
+    image: es-demo
+    
+    ports:
+      - "9200"
+      - "9300"
+    
+    environment:
+      - ES_JAVA_OPTS = "-Xms128m -Xmx256m"
+    
+    command: "elasticsearch -Ediscovery.zen.ping.unicast.hosts=es-master-node"    
+    depends_on:
+      - es-master-node
+
+  es-node-3:
+    image: es-demo
+    
+    ports:
+      - "9200"
+      - "9300"
+    
+    environment:
+      - ES_JAVA_OPTS = "-Xms128m -Xmx256m"
+      
+    command: "elasticsearch -Ediscovery.zen.ping.unicast.hosts=es-master-node"
+    depends_on:
+      - es-master-node  

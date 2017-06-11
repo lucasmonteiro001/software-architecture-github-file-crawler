@@ -1,0 +1,33 @@
+
+version: '2'
+services:
+  db:
+    build: Server
+    volumes:
+      - ./Server/data/:/var/lib/postgresql/data
+    ports:
+      - "5432:5432" #Database port, cannot be commented
+    environment:
+      - POSTGRES_USER="geoloc"
+      - POSTGRES_PASSWORD="geoloc"
+      - PGDATA="/var/lib/postgresql/data"
+      - POSTGRES_INITDB_ARGS="--data-checksums"
+
+  #Web Page
+  nodejs:
+    build: WebApp
+    volumes:
+      - ./WebApp/geoloc-app/:/home/geoloc/geoloc-app #Mount the project so that node can exec it
+    ports:
+      - "8080:3000" #Dev config, should change in prod
+
+  #Later we should use this as front server
+  #nginx:
+    #build: nginx
+    #volumes: Need some configuration here
+    #ports:
+      #- "8080:80"
+      #- "4443:443"
+    #depends_on:
+      # -db
+      # -nodejs

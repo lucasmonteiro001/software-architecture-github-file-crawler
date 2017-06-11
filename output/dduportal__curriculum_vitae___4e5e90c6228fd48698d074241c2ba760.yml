@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  gulp-server:
+    image: dduportal/md2cv:latest
+    build: ./
+    volumes:
+      - ./src:/app/src
+    ports:
+      - "4000:4000"   # Webserver port
+      - "35729:35729" # Livereload port

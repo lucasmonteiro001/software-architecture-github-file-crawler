@@ -1,0 +1,8 @@
+app:
+  image: dockeroh/app
+web:
+  image: dockeroh/web
+  links:
+    - app
+  ports:
+    - "80:80"

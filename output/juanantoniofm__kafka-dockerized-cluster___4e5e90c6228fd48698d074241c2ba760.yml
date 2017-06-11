@@ -1,0 +1,29 @@
+zookeeper:
+  image: wurstmeister/zookeeper
+  ports:
+    - "2181:2181"
+kafka:
+  image: wurstmeister/kafka:0.8.2.0
+  ports:
+    - "9092:9092"
+  links:
+    - zookeeper:zk
+  environment:
+    CONSUMER_FETCH_MESSAGE_MAX_BYTES: "300000000"
+    KAFKA_ADVERTISED_HOST_NAME: "127.0.0.1"
+    KAFKA_CREATE_TOPICS: "pictures:1:1,comppictures:1:1,sales:1:1,heartbeat:1:1"
+    KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+    KAFKA_MESSAGE_MAX_BYTES: "300000000"
+    KAFKA_REPLICA_FETCH_MAX_BYTES: "300000000"
+  volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
+ui:
+  image: hwestphal/kafka-web-console
+  ports:
+    - "9000:9000"
+  links:
+    - zookeeper:zk
+    - kafka:kf
+  volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
+    - /opt/kafka/kafka-ui/data:/data

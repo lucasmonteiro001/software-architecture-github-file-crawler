@@ -1,0 +1,44 @@
+web:
+  build: .
+  command: bundle exec rake run
+  ports:
+    - '3000:3000'
+  links:
+    - 'redis'
+  volumes:
+    - '.:/grounds'
+  environment:
+    - RAILS_ENV
+    - TEST_OPTS
+    - DOCKER_URL
+    - REDIS_URL
+    - REDIS_PASSWORD
+    - RUNNER_URL
+    - SECRET_KEY_BASE
+    - NEWRELIC_LICENSE_KEY
+    - NEWRELIC_APP_NAME
+    - PIWIK_URL
+    - CODECLIMATE_REPO_TOKEN
+
+redis:
+  image: redis:2.8.9
+  expose:
+    - '6379'
+  volumes:
+    - '/redis:/data'
+
+runner:
+  image: grounds/grounds-exec:1.1.0
+  command: scripts/server.sh
+  ports:
+    - '8080:8080'
+  volumes:
+    - '$DOCKER_CERT_PATH:/home/.docker'
+    - '/var/run/docker.sock:/var/run/docker.sock'
+  environment:
+    - DOCKER_CERT_PATH=/home/.docker
+    - DOCKER_HOST
+    - DOCKER_TLS_VERIFY
+    - REPOSITORY
+    - TAG
+  user: root

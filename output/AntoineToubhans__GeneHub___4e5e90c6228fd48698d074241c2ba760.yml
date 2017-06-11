@@ -1,0 +1,9 @@
+server:
+  image: toubi/ocsigen
+  working_dir: /mnt/src
+  hostname: genehub
+  ports:
+    - '8080:8080'
+  volumes:
+    - .:/mnt
+  command: make test.opt

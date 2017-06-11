@@ -1,0 +1,47 @@
+version: '2'
+
+networks:
+  default:
+  # User-defined Docker network for all Bridg 2.0 services participating in
+  # the API Gateway.
+  bridg2_kong:
+    external: true
+
+services:
+
+  # API's persistent back-end store
+  postgresd:
+    image: postgres:9.6
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - postgresd:/data
+    ports:
+      - 5432
+
+  # HTTP API providing OAuth2/IODC security services.
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile-http
+    depends_on:
+      - postgresd
+    networks:
+      default:
+      bridg2_kong:
+        aliases:
+          - hydra
+    env_file: .env
+    expose:
+      - 4444
+    ports:
+      - 4444:4444
+    restart: unless-stopped
+    volumes:
+      - ./data/seeds/cli-example:/go/src/github.com/ory-am/hydra/data
+      - ./data/config:/root
+
+volumes:
+  postgresd:
+    driver: local

@@ -1,0 +1,29 @@
+version: '2'
+
+services:
+  postgres:
+    image: postgres:9.5
+    environment:
+      - POSTGRES_PASSWORD=mysecretpassword
+      - POSTGRES_USER=dungeon
+    volumes:
+      - sql-data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:latest
+
+  web1:
+    build: .
+    image: 'danelbert/dungeon'
+    ports:
+      - "3000:3000"
+    environment:
+      - RAILS_ENV=docker
+    links:
+      - redis
+      - postgres
+
+volumes:
+  sql-data:
+    driver: local
+

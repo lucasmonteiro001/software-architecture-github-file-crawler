@@ -1,0 +1,14 @@
+---
+version: '2.0'
+services: 
+  ubuntu1404:
+    build: ubuntu-14.04
+    command: ansible-playbook /tmp/test.yml
+  ubuntu1604:
+    build: ubuntu-16.04
+    command: ansible-playbook /tmp/test.yml
+  ubuntu1704:
+    build: ubuntu-17.04
+    command: ansible-playbook /tmp/test.yml
+...
+# vim: ft=ansible:

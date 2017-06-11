@@ -1,0 +1,100 @@
+version: '2'
+
+services:
+
+    node:
+        build:
+            context: ./node
+            args:
+                - NODE_VERSION=latest
+                - PROJECT_PATH=/opt/app/
+                - NODE_ENV=production
+                - YARN=false
+        volumes:
+            - ../:/opt/app
+        entrypoint: run-nodock "node index.js"
+        tty: true
+
+    mysql:
+        build:
+            context: ./mysql
+            args:
+                - MYSQL_DATABASE=default_database
+                - MYSQL_USER=default_user
+                - MYSQL_PASSWORD=secret
+                - MYSQL_ROOT_PASSWORD=root
+        volumes_from:
+            - volumes
+        expose:
+            - "3306"
+
+    mongo:
+        build: ./mongo
+        expose:
+            - "27017"
+        volumes_from:
+            - volumes
+
+    nginx:
+        build:
+            context: ./nginx
+            args:
+                - WEB_REVERSE_PROXY_PORT=8000
+                - WEB_SSL=false
+                - SELF_SIGNED=false
+                - NO_DEFAULT=false
+        volumes_from:
+            - volumes
+        ports:
+            - "80:80"
+            - "443:443"
+        tty: true
+
+    certbot:
+        build:
+            context: ./certbot
+        links:
+            - nginx
+        volumes_from:
+            - volumes
+
+    rabbitmq:
+        build:
+            context: ./rabbitmq
+            args:
+                - MANAGEMENT=false
+                - FEDERATION=false
+                - RABBITMQ_DEFAULT_USER=guest
+                - RABBITMQ_DEFAULT_PASS=guest
+        expose:
+            - "5672"
+
+    workspace:
+        build:
+            context: ./workspace
+            args:
+                - NODE_VERSION=latest
+                - TZ=UTC
+        links:
+            - nginx
+        volumes:
+            - ../:/opt/app
+        volumes_from:
+            - volumes
+
+    memcached:
+        build:
+            context: ./memcached
+        volumes_from:
+            - volumes
+        expose:
+            - "11211"
+
+    volumes:
+        image: tianon/true
+        volumes:
+            - ./certbot/letsencrypt/:/var/www/letsencrypt
+            - ./certbot/certs/:/var/certs
+            - ./data/mysql:/var/lib/mysql
+            - ./data/mongo:/var/lib/mongodb
+            - ./data/logs/nginx/:/var/log/nginx

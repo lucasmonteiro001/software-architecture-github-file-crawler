@@ -1,0 +1,27 @@
+nodechan:
+  build: .
+  volumes:
+    - ./src:/usr/src/myapp
+    - ./cache:/cache
+  links:
+    - mongo:mongo
+  ports:
+    # - "5858:5858"
+    - "80:80"
+  working_dir: /usr/src/myapp
+  environment:
+    PORT: 80
+    DEBUG: nodechan:*
+  command: npm start
+
+mongo:
+    image: mongo:3.2
+    volumes:
+        - ./db:/data/db
+
+mongo-express:
+    image: mongo-express
+    links:
+        - mongo:mongo
+    ports:
+        - "8081:8081"

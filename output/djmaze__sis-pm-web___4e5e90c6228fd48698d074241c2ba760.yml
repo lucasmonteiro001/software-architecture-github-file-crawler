@@ -1,0 +1,9 @@
+app:
+  build: .
+  devices:
+    - "/dev/bus/usb/${SISPM_BUS_AND_DEVICE}"
+  ports:
+    - "2638:2638"
+  volumes:
+    - .:/usr/src/app
+

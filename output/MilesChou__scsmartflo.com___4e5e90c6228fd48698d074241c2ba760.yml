@@ -1,0 +1,22 @@
+web:
+  image: scsmartflo
+  ports:
+    - 80:80
+  links:
+    - db
+  volumes:
+    - /etc/localtime:/etc/localtime:ro
+
+phpmyadmin:
+  image: phpmyadmin
+  ports:
+    - 8080:80
+  links:
+    - db:mysql
+
+db:
+  image: mariadb:10
+  volumes:
+    - /etc/localtime:/etc/localtime:ro
+  environment:
+    MYSQL_ROOT_PASSWORD: password

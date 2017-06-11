@@ -1,0 +1,17 @@
+version: '2'
+
+services:
+    scratchpad:
+        image: kiliant/scratchpad:latest
+        container_name: scratchpad
+        security_opt:
+            - seccomp:unconfined
+        hostname: scratchpad
+        restart: always
+        ports:
+        - "22:22"
+        stdin_open: true
+        volumes:
+        - $HOME/.ssh:/root/.ssh:ro
+        - $HOME/.ssh:/home/me/.ssh:ro
+        - $HOME/scratchpad:/home/me/host

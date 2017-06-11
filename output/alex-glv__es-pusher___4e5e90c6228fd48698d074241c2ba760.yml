@@ -1,0 +1,32 @@
+kiries:
+  build: .
+  ports:
+    - "7254:7254"
+    - "9090:9090"
+    - "5555:5555"
+    - "5557:5557"
+  volumes:
+    - .:/app
+    - ~/.m2:/root/.m2   
+  dns:
+    - 8.8.8.8
+    - 9.9.9.9
+  links:
+    - es
+  environment:
+    - "ELASTICSEARCH_URL=http://elasticsearch:9200"
+es:
+  hostname: elasticsearch
+  image: elasticsearch
+  ports:
+    - "9200:9200"
+
+kibana:
+  image: kibana
+  hostname: kibana
+  ports:
+    - "5601:5601"
+  links:
+    - es
+  environment:
+    - "ELASTICSEARCH_URL=http://elasticsearch:9200"

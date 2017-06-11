@@ -1,0 +1,12 @@
+redis:
+  image: redis
+  container_name: redis-test
+  ports:
+    - localhost:6379:6379
+  restart: unless-stopped
+mongo:
+  image: mongo
+  container_name: mongo-test
+  ports:
+    - localhost:27017:27017
+  restart: unless-stopped

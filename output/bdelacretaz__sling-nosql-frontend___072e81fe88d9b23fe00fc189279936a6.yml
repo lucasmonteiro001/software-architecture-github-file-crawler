@@ -1,0 +1,58 @@
+# Dockerfile for the Sling NoSQL frontend demo
+# Meant to be run with --x-networking
+sling:
+    # This image must be built first, from the
+    # "slingbuild" folder 
+    image: sling-nosql-demo:latest
+    container_name: sling
+    ports:
+        - "8080:8080"
+        - "30303:30303"
+# Volumes could be used to make Sling state persistent
+#    volumes:
+#        - src/main/resources:/srv/images
+#        - docker/sling:/opt/sling/sling
+
+dbwatcher:
+    build: dbwatcher
+    volumes:
+        - $DOCKER_CERT_PATH:/certs
+    environment:
+        DOCKER_HOST: "$DOCKER_HOST"
+        DOCKER_CERT_PATH: "/certs"
+        DOCKER_TLS_VERIFY: "1"
+
+mongo:
+    image: mongo:3.0
+    container_name: mongo
+    ports: 
+        - "27017:27017"
+
+redis:
+    image: redis:3.0.6
+    container_name: redis
+    ports:
+        - "6379:6379"
+
+# This is meant to be started with docker -it
+# to use the content creation scripts interactively
+uniclient:
+    build: uniclient
+
+mongo2:
+    image: mongo:3.0
+    container_name : mongo_deux
+    ports:
+        - "27017"
+    labels:
+        ch.x42.slingdb.type : "mongo"
+        ch.x42.slingdb.port: "27017"
+
+mongo3:
+    image: mongo:3.0
+    container_name : mongo_trois
+    ports:
+        - "27017"
+    labels:
+        ch.x42.slingdb.type : "mongo"
+        ch.x42.slingdb.port: "27017"

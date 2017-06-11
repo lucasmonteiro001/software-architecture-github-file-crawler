@@ -1,0 +1,12 @@
+dashboard:
+  build: dashboard
+  ports:
+    - "8001:8001"
+
+mongo:  
+  build: mongo
+  volumes:
+    - /data/db
+  ports:
+    - "27017:27017"
+    - "28017:28017"

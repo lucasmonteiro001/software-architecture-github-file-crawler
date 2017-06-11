@@ -1,0 +1,42 @@
+version: '2'
+services:
+  nginx-proxy:
+    image: kalinon/nginx:dev
+    stdin_open: true
+    external_links:
+    - es/elasticsearch-clients:elasticsearch
+    tty: true
+    volumes_from:
+    - nginx-proxy-conf
+    labels:
+      io.rancher.sidekicks: nginx-proxy-conf,kibana4
+      io.rancher.container.hostname_override: container_name
+  kibana-vip:
+    image: rancher/lb-service-haproxy:v0.6.4
+    stdin_open: true
+    tty: true
+    ports:
+    - 3001:3001/tcp
+    labels:
+      io.rancher.container.agent.role: environmentAdmin
+      io.rancher.container.create_agent: 'true'
+  nginx-proxy-conf:
+    image: kalinon/nginx-conf:dev
+    external_links:
+    - es/elasticsearch-clients:elasticsearch
+    command:
+    - -backend=rancher
+    - --prefix=/2015-07-25
+    labels:
+      io.rancher.container.hostname_override: container_name
+  kibana4:
+    image: kibana:4.6.0
+    environment:
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+    stdin_open: true
+    external_links:
+    - es/elasticsearch-clients:elasticsearch
+    network_mode: container:nginx-proxy
+    tty: true
+    labels:
+      io.rancher.container.hostname_override: container_name

@@ -1,0 +1,18 @@
+redis:
+  image: redis:latest
+
+worker:
+  image: iojs:slim
+  links:
+    - redis
+  working_dir: /usr/src/app
+  volumes:
+    - ".:/usr/src/app"
+  env_file: .env
+  environment:
+    - LIBRATO_PREFIX=bifrost.test
+    - NODE_ENV=development
+    - NTB_API_URL=http://dev.nasjonalturbase.no/
+    - SH2_API_URL=http://sherpa2.turistforeningen.no/
+    - UPDATE_INTERVAL=10
+    - WORKERS=2

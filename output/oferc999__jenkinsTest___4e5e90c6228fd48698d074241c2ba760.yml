@@ -1,0 +1,53 @@
+version: '2'
+services:
+  db:
+    build:
+      context:  pod-db
+    hostname: "pod-db.${CONTAINER_RAND_HOSTNAME}.docker"
+    domainname: "docker"
+    # We added .docker to hostname because the latest version of docker/compuse domainname not applied
+    ports:
+      - "40001:22"
+      - "5432:5432"
+    extra_hosts:
+      - "puppet:172.0.0.198"
+    networks:
+      lan:
+        ipv4_address: 10.1.0.20
+    volumes:
+      - "/sys/fs/cgroup:/sys/fs/cgroup:ro"
+    cap_add:
+      - SYS_ADMIN
+  app:
+    build:
+      context: pod-app
+    hostname: "pod-app.${CONTAINER_RAND_HOSTNAME}.docker"
+    domainname: "docker"
+    # We added .docker to hostname because the latest version of docker/compuse domainname not applied
+    ports:
+      - "40004:22"
+      - "443:443"
+      - "80:80"
+    extra_hosts:
+      - "puppet:172.0.0.198"
+    networks:
+      lan:
+        ipv4_address: 10.0.0.10
+    volumes:
+      - "/sys/fs/cgroup:/sys/fs/cgroup:ro"
+    cap_add:
+      - SYS_ADMIN
+    depends_on:
+      - db
+networks:
+  lan:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+      - subnet: 10.0.0.0/8
+        gateway: 10.0.0.1
+
+#
+# export CONTAINER_RAND_HOSTNAME=`openssl rand -hex 6`
+#

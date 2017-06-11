@@ -1,0 +1,19 @@
+version: '2'
+
+services:
+    tor:
+        build: rotating-proxy-torbridges
+        ports:
+            - 5566:5566
+            - 1936:1936
+        environment:
+            tors: 100
+    pyenv:
+        build: ubuntu
+        volumes:
+           - ./code:/code
+        tty: true
+        links:
+            - tor
+#       expose:
+#            - ""

@@ -1,0 +1,7 @@
+version: '2'
+services:
+  event:
+    build: .
+    image: "event"
+    ports:
+      - "9797:9797"

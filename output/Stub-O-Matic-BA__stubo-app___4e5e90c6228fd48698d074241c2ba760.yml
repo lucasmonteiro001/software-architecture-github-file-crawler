@@ -1,0 +1,20 @@
+app:
+  build: .
+  volumes:
+  - .:/app:rw
+  links:
+  - redis:redis
+  - mongo:mongo
+  ports:
+   - "8001:8001"
+  environment:
+    REDIS_ADDRESS: redis
+    REDIS_PORT: 6379
+    MONGO_URI: mongodb://mongo:27017/stubodb
+    MONGO_DB: stubodb
+
+redis:
+  image: redis
+
+mongo:
+  image: mongo

@@ -1,0 +1,13 @@
+mongoserver:
+  image: mongo:3.4.1
+
+portalen_web:
+  image: telemark/portalen-web
+  container_name: portalen_web
+  env_file: portalen.env
+  restart: always
+  links:
+    - mongoserver
+  ports:
+    - 8080:8080
+    - 3030:3030

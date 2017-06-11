@@ -1,0 +1,45 @@
+minecraft-server:
+  image: itzg/minecraft-server:latest
+  hostname: ${DOMAIN}
+  tty: true
+  labels:
+    io.rancher.sidekicks: minecraft-data
+  volumes_from:
+  - minecraft-data
+  environment:
+    EULA: ${EULA}
+    VERSION: ${VERSION}
+    DIFFICULTY: ${DIFFICULTY}
+    MODE: ${MODE}
+    PVP: ${PVP}
+    ONLINE_MODE: ${ONLINE}
+    WHITELIST: ${WHITELIST}
+    OPS: ${OPS}
+    MOTD: ${MOTD}
+    ICON: ${ICON}
+    SEED: ${SEED}
+    MAX_PLAYERS : ${MAX_PLAYERS}
+    ALLOW_NETHER : ${ALLOW_NETHER}
+    WORLD: ${WORLD}
+  stdin_open: true
+  log_opt:
+      max-size: '50m'
+
+minecraft-data:
+  image: itzg/minecraft-server:latest
+  hostname: minecraftdata
+  labels:
+    io.rancher.container.start_once: 'true'
+  volumes:
+    - /data
+    - /data/mods
+    - /data/backups
+
+minecraft-load-balancer:
+  ports:
+  - ${MINECRAFT_PORT}:25565/tcp
+  tty: true
+  image: rancher/load-balancer-service
+  links:
+  - minecraft-server:minecraft-server
+  stdin_open: true

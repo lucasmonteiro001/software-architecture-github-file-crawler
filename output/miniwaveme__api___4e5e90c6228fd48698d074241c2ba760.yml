@@ -1,0 +1,56 @@
+api:
+  image: miniwaveme/golang
+  working_dir: /go/src/github.com/miniwaveme/api
+  volumes:
+    - ./src:/go/src/github.com/miniwaveme/api/src
+    - ./bin:/go/src/github.com/miniwaveme/api/bin
+    - ./log:/go/src/github.com/miniwaveme/api/log
+    - ./cache:/go/src/github.com/miniwaveme/api/cache
+    - ./config:/go/src/github.com/miniwaveme/api/config
+    - ./upload:/go/src/github.com/miniwaveme/api/upload
+  links:
+    - database
+    - redis
+    - elasticsearch
+  environment:
+    - MINIWAVEME_DB_NAME=miniwaveme_api
+    - MINIWAVEME_API_PORT=7512
+    - MINIWAVEME_API_CONFIG_PATH=/go/src/github.com/miniwaveme/api/config/api
+    - MINIWAVEME_API_LOG_PATH=/go/src/github.com/miniwaveme/api/log/api
+  ports:
+    - "7512:7512"
+
+database:
+  image: mongo:3.0
+  command: mongod --smallfiles --quiet --logpath=/dev/null
+  volumes:
+    - ./data/db:/data/db
+
+redis:
+  image: redis:3.0
+  command: redis-server --appendonly yes
+  volumes:
+    - ./data/redis:/data
+
+elasticsearch:
+  image: tutum/elasticsearch
+  ports:
+    - "9200:9200"
+  environment:
+    ELASTICSEARCH_USER: admin
+    ELASTICSEARCH_PASS: password
+
+#elk:
+#  image: willdurand/elk
+#  ports:
+#    - "7050:80"
+#  volumes:
+#    - ./config/logstash:/etc/logstash
+#  volumes_from:
+#    - dataelk
+#
+#dataelk:
+#  image: busybox
+#  volumes:
+#    - /data
+#    - ./data/elk:/data/elk/data

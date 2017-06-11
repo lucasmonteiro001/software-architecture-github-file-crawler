@@ -1,0 +1,40 @@
+bitcoind:
+  build: ./docker-builds/bitcoind 
+  ports:
+    - "18332:18332"
+
+geth:
+  build: ./docker-builds/geth 
+  ports:
+    - "30303:30303"
+    - "8101:8101"
+
+cosigner:
+  build: ./
+  hostname: cosigner
+  ports:
+    - "8443:8443"
+    - "8445:8445"
+    - "5555:5555"
+    - "5555:5555/udp"
+    - "5556:5556"
+    - "5556:5556/udp"
+  links:
+    - bitcoind
+    - geth
+  environment:
+    BITCOIND_MSIG_ACCOUNTS: 
+    GETH_CONTRACT_ACCOUNT: 
+    GETH_MSIG_ACCOUNTS: 
+
+cosigner2:
+  build: ./
+  hostname: cosigner2
+  links:
+    - bitcoind
+    - geth
+    - cosigner
+  environment:
+    BITCOIND_MSIG_ACCOUNTS: 
+    GETH_CONTRACT_ACCOUNT:
+    GETH_MSIG_ACCOUNTS:

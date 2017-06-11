@@ -1,0 +1,8 @@
+version: '2'
+services:
+    lighttpd:
+        image: installwebserver
+        build:
+            context: .
+            dockerfile: Dockerfile
+

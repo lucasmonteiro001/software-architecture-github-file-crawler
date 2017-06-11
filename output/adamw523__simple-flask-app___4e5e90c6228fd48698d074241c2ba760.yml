@@ -1,0 +1,53 @@
+version: "2"
+services:
+  web:
+    build: docker-images/web/
+    ports:
+      - 5000:5000
+    volumes:
+      - .:/data/app
+    links:
+      - 'db'
+    environment:
+      FLASK_APP: app.py
+      FLASK_DEBUG: 1
+
+  db:
+    build: docker-images/db/
+    environment:
+      POSTGRES_PASSWORD: password
+    ports:
+      - 5432:5432
+    volumes:
+      - .:/data/app
+
+  redis:
+    build: docker-images/redis/
+    volumes:
+      - .:/data/app
+
+  celery:
+    build: docker-images/celery/
+    environment:
+      CELERY_BROKER_URL: redis://redis
+    volumes:
+      - .:/data/app
+    links:
+      - 'redis'
+
+  jupyter:
+    build: docker-images/jupyter/
+    ports:
+      - 5588:8888
+    volumes:
+      - .:/data/app
+      - ./notebooks:/home/jovyan/work
+    environment:
+      GRANT_SUDO: 'yes'
+      FLASK_APP: app.py
+
+#  node:
+#    build: docker-images/node/
+#    volumes:
+#      - .:/data/app
+

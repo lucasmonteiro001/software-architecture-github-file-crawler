@@ -1,0 +1,48 @@
+version: '2'
+
+services:
+
+    apps:
+        image: tianon/true
+        volumes:
+            - ../:/var/www:rw
+
+    nginx:
+        build:
+            context: ./nginx
+            args:
+                - PHP_UPSTREAM=php-fpm
+        volumes_from:
+            - apps
+        volumes:
+            - ./nginx/sites/:/etc/nginx/sites-available
+            - ./logs/nginx/:/var/log/nginx
+        ports:
+            - "80:80"
+            - "443:443"
+        links:
+            - php-fpm
+
+    php-fpm:
+        build:
+            context: ./php-fpm
+        volumes_from:
+            - apps
+        expose:
+            - "9000"
+        links:
+            - mysql
+
+    mysql:
+        build:
+            context: ./mysql
+        mem_limit: 256M
+        volumes:
+            - ./db/:/db
+        ports:
+            - "3306:3306"
+        environment:
+            MYSQL_DATABASE: wirodb
+            MYSQL_USER: wiro
+            MYSQL_PASSWORD: toolsblog212!
+            MYSQL_ROOT_PASSWORD: BAKAore212!

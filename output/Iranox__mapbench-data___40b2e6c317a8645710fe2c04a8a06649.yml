@@ -1,0 +1,53 @@
+version: '2'
+services:
+ mongodb_hybrid_mysql2:
+   image: mysql:5.5
+   ports:
+    - "7306:3306"
+   volumes:
+    - ./mysql:/etc/mysql/conf.d
+   environment:
+     MYSQL_ROOT_PASSWORD: password
+     MYSQL_DATABASE: benchmark
+   volumes_from:
+     - base_data
+ mongo-rs1-hybrid:
+  image: mongo:3.0.6
+  command: mongod --noprealloc --smallfiles --replSet mongors1 --dbpath /data/db --nojournal --oplogSize 16 --noauth
+  volumes:
+   - /data/db
+  mem_limit: 500m
+  volumes_from:
+   - base_data
+ mongo-rs2-hybrid:
+  image: mongo:3.0.6
+  command: mongod --noprealloc --smallfiles --replSet mongors2 --dbpath /data/db --nojournal --oplogSize 16 --noauth
+  volumes:
+   - /data/db
+  mem_limit: 500m
+  volumes_from:
+   - base_data
+ mongo-rs3-hybrid:
+  image: mongo:3.0.6
+  volumes_from:
+    - base_data
+  mem_limit: 500m
+  command: mongod --noprealloc --smallfiles --replSet mongors3 --dbpath /data/db --nojournal --oplogSize 16 --noauth
+  volumes:
+   - /data/db
+ mongo-cnf-hybrid:
+  image: mongo:3.0.6
+  command: mongod --noprealloc --smallfiles --dbpath /data/db --configsvr --noauth --port 27017
+  volumes:
+    - /data/db
+ mongo-master-hybrid:
+  image: mongo:3.0.6
+  ports:
+    - "47017:27017"
+  command: bash -c "sleep 30 && mongos --configdb mongo-cnf-hybrid:27017 --port 27017"
+  volumes_from:
+   - base_data
+ mongodb_hybrid_mapbench-datadistributor:
+   build: ../base/mapbench-datadistributor
+   volumes_from:
+     - base_data

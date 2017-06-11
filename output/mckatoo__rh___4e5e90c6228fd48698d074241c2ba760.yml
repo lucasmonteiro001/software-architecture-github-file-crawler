@@ -1,0 +1,37 @@
+rh:
+    container_name: rh
+    image: mckatoo/nginx-php:0.2
+    ports:
+        - "800:80"
+    links:
+        - db
+    volumes:
+        - ./vhost:/etc/nginx/sites-available/default
+        - ./vhost:/etc/nginx/sites-enabled/default
+        - ./site/laravel:/var/www/html/
+        - ./logs/nginx-error.log:/var/log/nginx/error.log
+        - ./logs/nginx-access.log:/var/log/nginx/access.log
+        - ./php.ini:/etc/php/7.0/fpm/php.ini
+    tty: true
+
+db:
+    container_name: db
+    image: mariadb
+    ports:
+        - "3316:3306"
+    environment:
+        MYSQL_ROOT_PASSWORD: root
+        MYSQL_DB: iesi
+
+phpmyadmin:
+    container_name: phpmyadmin
+    image: phpmyadmin/phpmyadmin
+    restart: always
+    links:
+      - db
+    ports:
+      - 8183:80
+    environment:
+      MYSQL_USERNAME: root
+      MYSQL_ROOT_PASSWORD: root
+      PMA_ARBITRARY: 1

@@ -1,0 +1,28 @@
+version: '2'
+services:
+  pyutil:
+     build:
+       context: .
+       dockerfile: Dockerfile
+     volumes:
+        - ./examples:/pyutil/examples
+        - ./results:/pyutil/results
+        - ./pyutil:/pyutil/pyutil
+
+  # used to create test resources
+  testdata:
+     build:
+       context: .
+       dockerfile: Dockerfile-Test
+
+     volumes:
+       - ./pyutil:/pyutil/pyutil
+       - ./test:/pyutil/test
+     #command: python /pyutil/config.py
+
+     links:
+       - testmongo
+
+  testmongo:
+     image: mongo
+

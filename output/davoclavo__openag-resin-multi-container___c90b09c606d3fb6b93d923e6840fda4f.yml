@@ -1,0 +1,44 @@
+version: '2'
+
+services:
+    brain:
+        image: openag/rpi_brain
+        container_name: brain
+        expose:
+            - 5000
+        devices:
+            - "/dev/ttyACM0:/dev/ttyACM0"
+        command: ~/catkin_ws/devel/env.sh rosrun openag_brain main -D http://db:5984 -A http://brain:5000  --screen -f default -F /home/pi/config/custom_fixture.json
+        volumes:
+          - /apps/config/:/home/pi/config/
+        depends_on:
+            - db
+        restart: unless-stopped
+        logging:
+            driver: "json-file"
+            options:
+                max-size: "50m"
+                max-file: "5"
+    db:
+        image: dogi/rpi-couchdb
+        container_name: db
+        expose:
+            - 5984
+        ports:
+            - 5984:5984
+            - 80:5984
+        restart: unless-stopped
+        logging:
+            driver: "json-file"
+            options:
+                max-size: "50m"
+                max-file: "5"
+    docker-ui:
+        image: portainer/portainer:arm
+        expose:
+            - 9000
+        ports:
+            - 9000:9000
+        volumes:
+            - '/var/run/docker.sock:/var/run/docker.sock'
+        restart: unless-stopped

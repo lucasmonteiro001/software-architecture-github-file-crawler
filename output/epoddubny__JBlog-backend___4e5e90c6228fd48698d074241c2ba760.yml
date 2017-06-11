@@ -1,0 +1,40 @@
+version: '2'
+services:
+  jblog-frontend:
+    image: hobb1t/jblog-frontend
+    restart: always
+    ports:
+      - 80:80
+
+  jblog-backend:
+    image: hobb1t/jblog-backend
+    environment:
+      POSTGRES_USER: $POSTGRES_USER
+      POSTGRES_PASSWORD: $POSTGRES_PASSWORD
+      MAIL_LOGIN: $MAIL_LOGIN
+      MAIL_PASSWORD: $MAIL_PASSWORD
+    restart: always
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "10"
+    depends_on:
+      - postgres_db
+      - redis_db
+
+  postgres_db:
+    image: postgres
+    environment:
+      POSTGRES_USER: $POSTGRES_USER
+      POSTGRES_PASSWORD: $POSTGRES_PASSWORD
+      POSTGRES_DB: $POSTGRES_DB
+    restart: always
+    volumes:
+      - /data/postgres:/var/lib/postgresql/data
+
+  redis_db:
+    image: redis
+    restart: always
+    command: redis-server --appendonly yes
+    volumes:
+      - /data/redis:/data

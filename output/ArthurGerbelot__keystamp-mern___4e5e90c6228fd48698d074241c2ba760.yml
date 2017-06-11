@@ -1,0 +1,16 @@
+web:
+  build: .
+  links:
+   - db
+  ports:
+   - "80:8000"
+  volumes:
+   - .:/usr/src/app/
+  environment:
+   NODE_ENV: production
+   MONGO_URL: mongodb://heroku_1h1v2hfz:evr0jvr0r27hjnppi0rk4hci98@ds119748.mlab.com:19748/heroku_1h1v2hfz
+db:
+  image: mongo:latest
+  ports:
+   - "27017:27017"
+

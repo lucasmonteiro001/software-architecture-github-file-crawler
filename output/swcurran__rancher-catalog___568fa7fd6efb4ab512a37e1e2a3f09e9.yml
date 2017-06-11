@@ -1,0 +1,16 @@
+nginxrp-init:
+  labels:
+    io.rancher.container.start_once: 'true'
+  command:
+  - /bin/true
+  image: nginx
+  volumes:
+  - /etc/nginx
+nginxrp:
+  ports:
+  - 8989:80
+  labels:
+    io.rancher.sidekicks: nginxrp-init
+  image: nginx
+  volumes_from:
+  - nginxrp-init

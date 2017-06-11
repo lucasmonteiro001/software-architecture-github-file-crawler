@@ -1,0 +1,124 @@
+version: '2'
+services:
+  nginx:
+    image: mobilizingcs/nginx
+    depends_on:
+      - ohmage
+      - ocpu
+      #- wiki
+      - rstudio
+      - pw
+    volumes_from:
+      - navbar
+      - admin
+      - author
+      - campaigns
+      - classes
+      - dashboard
+      - documents
+      - monitor
+      - ohmagex
+      - responses
+      - neo-admin
+      #- demo
+    ports:
+      - "80:80"
+    environment:
+      - NEOADMIN_URL_REWRITE=${NEOADMIN_URL_REWRITE}
+  
+  ohmage:
+    image: ohmage/server
+    depends_on:
+      - db
+    volumes:
+      - ohmage-data:/var/lib/ohmage
+    environment:
+      - DB_HOST=db
+      - MYSQL_DATABASE=ohmage
+      - MYSQL_USER=ohmage
+      - MYSQL_PASSWORD=ohmage
+
+  db:
+    image: mysql:5.6
+    volumes:
+      - ohmage-db:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=setmebetter
+      - MYSQL_DATABASE=ohmage
+      - MYSQL_USER=ohmage
+      - MYSQL_PASSWORD=ohmage
+
+  ocpu:
+    depends_on:
+      - ohmage
+    image: mobilizingcs/ocpu
+  
+  #wiki:
+  #  restart: unless-stopped
+  #  image: mobilizingcs/wiki
+  
+  rstudio:
+    image: mobilizingcs/rstudio
+    tty: true
+    volumes:
+      - rstudio-home:/home
+    environment:
+      - SYNC=1
+      - DB_HOST=db
+      - MYSQL_DATABASE=ohmage
+      - MYSQL_USER=ohmage
+      - MYSQL_PASSWORD=ohmage
+  
+  pw:
+    image: stevenolen/pw
+  
+  # ohmage frontend volume-only containers.
+  navbar:
+    image: mobilizingcs/navbar
+
+  ohmagex:
+    image: mobilizingcs/ohmagex
+    entrypoint: /bin/true
+  
+  dashboard:
+    image: mobilizingcs/dashboard
+    entrypoint: /bin/true
+  
+  admin:
+    image: mobilizingcs/admin
+  
+  author:
+    image: mobilizingcs/author
+  
+  campaigns:
+    image: mobilizingcs/campaigns
+  
+  classes:
+    image: mobilizingcs/classes
+  
+  documents:
+    image: mobilizingcs/documents
+  
+  monitor:
+    image: mobilizingcs/monitor
+  
+  responses:
+    image: mobilizingcs/responses
+
+  neo-admin:
+    image: mobilizingcs/neo-admin
+
+  #demo:
+  #  image: mobilizingcs/demo
+
+volumes:
+  ohmage-data:
+    external:
+      name: ohmage-data
+  ohmage-db:
+    external:
+      name: ohmage-db
+  rstudio-home:
+    external:
+      name: rstudio-home
+  

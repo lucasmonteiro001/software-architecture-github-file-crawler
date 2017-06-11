@@ -1,0 +1,28 @@
+version: '2'
+services:
+  mysql_horizontal_mysql2:
+    image: mysql:5.5
+    ports:
+      - "5306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: benchmark
+    volumes:
+       - ./mysql:/etc/mysql/conf.d
+    volumes_from:
+      - base_data
+  mysql_horizontal_mysql3:
+    image: mysql:5.5
+    ports:
+      - "5307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: benchmark
+    volumes:
+      - ./mysql:/etc/mysql/conf.d
+    volumes_from:
+      - base_data
+  mysql_horizontal_mapbench-datadistributor:
+    build: ../base/mapbench-datadistributor
+    volumes_from:
+      - base_data

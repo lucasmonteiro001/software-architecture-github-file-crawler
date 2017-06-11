@@ -1,0 +1,13 @@
+version: "2"
+
+services:
+  advent:
+    build: .
+    image: camphor/advent
+    expose:
+      - 8000
+    ports:
+      - 8000:8000
+    volumes:
+      - .:/app
+    command: bash -c 'python run.py --debug && cd output/ && python -m http.server'

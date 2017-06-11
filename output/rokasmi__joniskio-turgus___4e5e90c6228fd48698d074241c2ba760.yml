@@ -1,0 +1,72 @@
+version: '2'
+
+services:
+
+### Workspace Utilities Container ###########################
+
+    workspace:
+        build:
+            context: ./docker/workspace
+            args:
+                - PUID=1000
+                - PGID=1000
+        container_name: "workspace"
+        volumes:
+            - ./:/var/www/turgus
+        tty: true
+
+### PHP-FPM Container #######################################
+
+    php-fpm:
+        build:
+            context: ./docker/php-fpm
+            args:
+                - INSTALL_XDEBUG=true
+        container_name: "php-fpm"
+        volumes_from:
+            - workspace
+        expose:
+            - "9000"
+        links:
+            - workspace
+
+### Apache Server Container ##################################
+
+    apache2:
+        build:
+            context: ./docker/apache2
+            args:
+                - PHP_SOCKET="php-fpm:9000"
+        container_name: "apache2"
+        volumes_from:
+            - workspace
+        volumes:
+            - ./docker/logs/apache2:/var/log/apache2
+        ports:
+            - "80:80"
+            - "443:443"
+        links:
+            - php-fpm
+
+### MySQL Container #########################################
+
+    mysql:
+        build: ./docker/mysql
+        container_name: "mysql"
+        volumes:
+            - ./docker/data/mysql:/var/lib/mysql
+        ports:
+            - "3306:3306"
+        environment:
+            MYSQL_DATABASE: symfony
+            MYSQL_USER: dbuser
+            MYSQL_PASSWORD: 123
+            MYSQL_ROOT_PASSWORD: 123
+
+### Selenium environment Container ############################
+
+    phantomjs:
+        build: ./docker/phantomjs
+        container_name: "phantomjs"
+        ports:
+            - 4444:4444

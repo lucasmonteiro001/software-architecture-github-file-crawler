@@ -1,0 +1,8 @@
+version: '2'
+services:
+  fedora-24:
+    image: michalr/rpm-build:fedora-24
+    build:
+      context: .
+      dockerfile: Dockerfile-f24
+

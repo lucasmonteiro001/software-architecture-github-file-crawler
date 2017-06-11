@@ -1,0 +1,36 @@
+###############################################################################
+#                          Generated on phpdocker.io                          #
+###############################################################################
+
+edge-redis:
+  image: phpdockerio/redis:latest
+  hostname: edge-redis
+  container_name: edge-redis
+
+edge-webserver:
+  image: phpdockerio/nginx:latest
+  container_name: edge-webserver
+  volumes:
+      - ..:/var/www/edge
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+  ports:
+   - "80:80"
+  links:
+   - edge-php-fpm
+
+edge-php-fpm:
+  build: .
+  dockerfile: php-fpm/Dockerfile
+  container_name: edge-php-fpm
+  volumes:
+    - ..:/var/www/edge
+    - ./php-fpm/php-ini-overrides.ini:/etc/php/7.0/fpm/conf.d/99-overrides.ini
+  links:
+    - edge-redis
+
+edge-mongo:
+  image: mongo
+  hostname: edge-mongodb
+  container_name: edge-mongodb
+  ports:
+    - "27017:27017"
