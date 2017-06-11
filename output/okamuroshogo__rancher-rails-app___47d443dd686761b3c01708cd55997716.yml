@@ -1,0 +1,33 @@
+version: '2'
+services:
+  mysql:
+    image: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+  redis:
+    image: redis:3.0.5
+  rails:
+    image: okamuroshogo/rails-mysql-base
+    environment:
+      MYSQL_USER: ${mysql_user}
+      MYSQL_DB: ${mysql_db}
+      MYSQL_HOST: mysql
+      MYSQL_PASS: ${mysql_pass}
+      SECRET_KEY_BASE: 577923ac0fabb6b56f1371f6e26eb041fa134f6912763cbab2e9f46ebfcbb891cc428aa0d044bb8f69636e000bec9dfe0fc2a774586ec418e77785a281aa6c9a
+      RAILS_REPO_URL: https://${repo_user}:${repo_pass}@github.com/${repo_name}.git
+      REPO_BRANCH: ${repo_branch}
+      RAILS_ENV: ${repo_env}
+    command:
+      - bash
+      - -c
+      - /app.sh
+    ports:
+      - "3000:3000"
+    links:
+      - mysql
+      - redis
+      - nginx
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"

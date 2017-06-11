@@ -1,0 +1,15 @@
+version: "2"
+
+services:
+  mrkunkel-resume:
+    container_name: mrkunkel-resume
+    image: mrkunkel/nginx_resume:latest
+    restart: always
+    expose:
+      - "80"
+    networks:
+      - external_network
+
+networks:
+  external_network:
+    external: True

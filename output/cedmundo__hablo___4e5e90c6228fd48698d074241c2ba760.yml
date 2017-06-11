@@ -1,0 +1,21 @@
+version: '2'
+services:
+   redis:
+      image: redis:3.0
+      ports:
+         - "6379:6379"
+
+   postgres:
+      build: database
+      volumes_from:
+         - data
+      ports:
+         - "5432:5432"
+      expose:
+         - 5432
+
+   data:
+      image: "cogniteev/echo"
+      command: echo 'Data container for PostgreSQL'
+      volumes:
+         - /var/lib/postgresql/data

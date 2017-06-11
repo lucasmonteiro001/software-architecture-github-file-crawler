@@ -1,0 +1,21 @@
+version: '2'
+services:
+
+    hellowork-bot:
+        image: italolelis/hellowork:worker
+        environment: 
+            LOG_LEVEL: "debug"
+            SLACK_TOKEN: "Your slack token"
+
+    hellowork-api:
+        image: italolelis/hellowork:web
+        environment:
+            PORT: "8080"
+            LOG_LEVEL: "debug"
+            DATABASE_WRITE_DSN: "mongodb://mongodb/hellowork_work?sslmode=disable"
+            DATABASE_READ_DSN: "mongodb://mongodb/hellowork_read?sslmode=disable"
+
+    mongodb:
+         image: mongo
+         ports:
+             - "27017:27017"

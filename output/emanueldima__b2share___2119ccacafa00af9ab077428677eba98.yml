@@ -1,0 +1,27 @@
+# mysql:
+#     image: mysql
+#     ports:
+#         - "3306:3306"
+#     environment:
+#         - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+#         - MYSQL_USER=b2share_evo
+#         - MYSQL_DATABASE=b2share_evo
+
+elasticsearch:
+    build: ../dockerize/elasticsearch
+    ports:
+        - "9200:9200"
+        - "9300:9300"
+
+redis:
+    image: redis
+    ports:
+        - "6379:6379"
+
+mq:
+    image: rabbitmq:3-management
+    restart: "always"
+    ports:
+        - "15672:15672"
+        - "5672:5672"
+    read_only: true

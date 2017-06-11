@@ -1,0 +1,9 @@
+ixgbevf:
+  build: .
+  #image: ubuntu:14.04
+  environment:
+    - "DEBIAN_FRONTEND=noninteractive"
+  volumes:
+    - ./modules:/modules
+    - ./build.sh:/build.sh
+  command: bash /build.sh

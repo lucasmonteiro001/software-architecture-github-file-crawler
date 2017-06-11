@@ -1,0 +1,18 @@
+version: '2'
+services:
+  app:
+    build: ./laravel
+    image: her8m/laravel
+    container_name: app
+    volumes:
+      - ./laravel/www:/var/www/html
+    links:
+      - db:db
+    ports:
+      - "30580:80"
+    depends_on:
+      - db
+  db:
+    build: ./mysql
+    image: her8m/mysql
+    container_name: db

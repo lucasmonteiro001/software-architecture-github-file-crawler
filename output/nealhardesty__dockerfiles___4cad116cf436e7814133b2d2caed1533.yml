@@ -1,0 +1,29 @@
+version: '2'
+
+services:
+  esclient00:
+    build: client
+    ports:
+      - "9200:9200"
+  esclient01:
+    build: client
+  esmaster00:
+    build: master
+  esmaster01:
+    build: master
+  esmaster02:
+    build: master
+  esmaster03:
+    build: master
+  esmaster04:
+    build: master
+  esdata00:
+    build: data
+  esdata01:
+    build: data
+  esdata02:
+    build: data
+  esdata03:
+    build: data
+  esdata04:
+    build: data

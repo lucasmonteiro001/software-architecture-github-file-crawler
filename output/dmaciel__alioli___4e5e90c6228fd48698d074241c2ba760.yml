@@ -1,0 +1,20 @@
+version: '3'
+
+services:
+    web:
+        image: nginx:latest
+        container_name: alioli_web
+        build: ./config/docker/nginx/
+        ports:
+            - "8080:80"
+        volumes:
+            - ./:/var/www/alioli
+            - ./config/nginx/docker.nginx.config:/etc/nginx/conf.d/site.conf
+    php:
+        image: php:7-fpm
+        container_name: alioli_phpfpm
+        build: ./config/docker/php-fpm/
+        volumes:
+            - ./:/var/www/alioli
+            - ./config/docker/php-fpm/log.conf:/usr/local/etc/php-fpm.d/zz-log.conf
+        build: ./config/docker/php-fpm/

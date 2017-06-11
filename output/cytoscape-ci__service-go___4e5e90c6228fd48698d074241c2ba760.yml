@@ -1,0 +1,13 @@
+mappings:
+  build: ./data
+  volumes:
+    - /go/src/github.com/cytoscape-ci/service-idmapping/data
+
+idmapper:
+  build: .
+  volumes_from:
+   - mappings
+  ports:
+    - "3000:3000"
+  expose:
+    - 3000

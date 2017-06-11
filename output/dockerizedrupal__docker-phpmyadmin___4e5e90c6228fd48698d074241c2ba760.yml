@@ -1,0 +1,26 @@
+phpmyadmin:
+  image: dockerizedrupal/phpmyadmin:2.0.0
+  hostname: phpmyadmin
+  ports:
+    - "80:80"
+    - "443:443"
+  volumes_from:
+    - phpmyadmin-data
+  environment:
+    - SERVER_NAME=localhost
+    - TIMEZONE=Etc/UTC
+    - PROTOCOLS=https,http
+    - MYSQL_HOST=
+    - MYSQL_PORT=3306
+    - MYSQL_USERNAME=container
+    - MYSQL_PASSWORD=container
+    - PHP_INI_MAX_EXECUTION_TIME=900
+    - HTTP_BASIC_AUTH=Off
+    - HTTP_BASIC_AUTH_USERNAME=container
+    - HTTP_BASIC_AUTH_PASSWORD=
+phpmyadmin-data:
+  image: dockerizedrupal/phpmyadmin:2.0.0
+  hostname: phpmyadmin-data
+  entrypoint: ["/bin/echo", "Data-only container for PhpMyAdmin."]
+  volumes:
+    - /phpmyadmin

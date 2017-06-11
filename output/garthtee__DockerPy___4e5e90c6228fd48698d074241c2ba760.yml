@@ -1,0 +1,7 @@
+dockerpy: # Image name
+  build: . # Build directory
+  ports:
+   - "5000:5000" # Port to use
+  volumes:
+   - .:/code
+  restart: always # start on system boot

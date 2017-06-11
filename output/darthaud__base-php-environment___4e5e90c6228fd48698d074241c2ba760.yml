@@ -1,0 +1,41 @@
+version: '2'
+services:
+  db:
+    image: mysql:5.7.16
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: usr_myapplication
+      MYSQL_PASSWORD: pwd_myapplication
+    networks:
+      - my-network
+    volumes:
+      - "./.data/db:/var/lib/mysql"
+  web:
+    image: nginx:1.10.1-alpine
+    environment:
+      VIRTUAL_HOST: web.myapplication.dev
+    links:
+      - php
+    networks:
+      - my-network
+    volumes:
+      - "./app:/app"
+      - "./docker/nginx/my-application.conf:/etc/nginx/conf.d/my-application.conf"
+  php:
+    build: docker
+    networks:
+      - my-network
+    volumes:
+      - "./app:/app"
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    links: 
+      - db
+    environment:
+      VIRTUAL_HOST: phpmyadmin.myapplication.dev
+    networks:
+      - my-network
+networks:
+  my-network:
+    external:
+      name: my-network

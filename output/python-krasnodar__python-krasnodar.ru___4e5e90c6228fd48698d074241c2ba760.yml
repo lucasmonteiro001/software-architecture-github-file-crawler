@@ -1,0 +1,33 @@
+version: '2'
+services:
+
+  db:
+    build: ./docker/db
+    volumes:
+      - "./docker/db/data:/var/lib/postgresql/data"
+    environment:
+      POSTGRES_DB: pykrd
+      POSTGRES_USER: pykrd
+      POSTGRES_PASSWORD: pykrd
+    restart: always
+
+  django:
+    build: .
+    depends_on:
+      - db
+    volumes:
+      - "./static:/app/static"
+      - "./media:/app/media"
+      - "./src:/app/src"
+    restart: always
+
+  nginx:
+    build: ./docker/nginx
+    depends_on:
+      - django
+    ports:
+      - "${NGINX_PORT}:80"
+    volumes:
+      - "./static:/var/www/static"
+      - "./media:/var/www/media"
+    restart: always

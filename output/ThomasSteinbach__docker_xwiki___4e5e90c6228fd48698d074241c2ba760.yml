@@ -1,0 +1,13 @@
+database:
+  image: mysql
+  environment:
+    MYSQL_ROOT_PASSWORD: xwiki
+    MYSQL_USER: xwiki
+    MYSQL_PASSWORD: xwiki
+    MYSQL_DATABASE: xwiki
+xwiki:
+  build: .
+  links:
+    - database:mysql
+  ports:
+    - "8082:8080"

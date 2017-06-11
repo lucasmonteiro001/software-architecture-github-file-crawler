@@ -1,0 +1,27 @@
+version: "2"
+services:
+  jenkins:
+    container_name: jenkins
+    privileged: true
+    build:
+      context: .
+      dockerfile: Dockerfiles/DockerfileJenkins
+    volumes:
+      - ./jenkins/data:/var/jenkins_home
+    ports:
+      - 8080:8080
+  registry:
+    container_name: registry
+    image: registry:2
+    ports:
+      - 5000:5000
+    environment:
+      REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY: /var/lib/registry
+      REGISTRY_HTTP_TLS_CERTIFICATE: /certs/domain.crt
+      REGISTRY_HTTP_TLS_KEY: /certs/domain.key
+    volumes:
+      - ./conf:/etc/docker/registry
+      - ./registry/data:/var/lib/registry
+      - ./auth:/auth:ro
+      - ./certs:/certs:ro
+     

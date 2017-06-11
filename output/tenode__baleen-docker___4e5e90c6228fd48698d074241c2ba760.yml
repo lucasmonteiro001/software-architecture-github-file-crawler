@@ -1,0 +1,56 @@
+version: '2'
+
+services:
+  # Baleen
+  baleen:
+    # Swap between image and build depending if you already have built baleen.
+    image: tenode/baleen
+    # build: baleen-docker
+    # Use baleen.yml as the  config
+    # (so that should exist in the ./baleen subdir)
+    command: baleen.yml
+    ports:
+     - "6413:6413"
+    volumes:
+     - ./baleen:/baleen
+    links:
+     - mongo
+     - elasticsearch
+    networks:
+      - baleennet
+
+  # ElasticSearch
+  # Version 2.4
+  # Note the API is exposed to the host, but this is only
+  # required to access the output of Baleen and not for
+  # Baleen's operation.
+  elasticsearch:
+    image: elasticsearch:2.4
+    ports:
+    - "9200:9200"
+    - "9300:9300"
+    volumes:
+    # If you have a very specific configuration
+    # ./config/elasticsearch:/usr/share/elasticsearch/config
+    - ./data/elasticsearch:/usr/share/elasticsearch/data
+    command: "-Des.http.cors.enabled=true"
+    networks:
+      - baleennet
+
+  # MongoDb
+  # Version 3.2 (Baleen supports 2.x onwards)
+  # Note the database is optionally exposed to the host
+  # but this is not required for Baleen operations
+  # only to access the output of pipelines
+  mongo:
+    image: mongo:3.2
+    ports:
+    - "27017:27017"
+    volumes:
+    - ./data/mongo:/data/db
+    networks:
+      - baleennet
+
+networks:
+  baleennet:
+    driver: bridge

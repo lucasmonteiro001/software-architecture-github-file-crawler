@@ -1,0 +1,18 @@
+version: '2'
+
+services:
+  mongo:
+    image: phgache/mymongo:latest
+    volumes:
+      - "/var/data"
+    restart: always
+  multichanneltodo.core.api:
+    image: phgache/multichanneltodo.core.api${TAG}
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "80"
+    environment:
+      - NetCore_MongoConnection=${NETCORE_MONGOCONNECTION}
+      - NetCore_Database=${NETCORE_DATABASE}

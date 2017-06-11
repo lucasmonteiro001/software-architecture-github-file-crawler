@@ -1,0 +1,150 @@
+version: '2'
+services:
+  db:
+    image: mongo:3.2
+    volumes:
+      - ../mongo-data/:/data/db
+    links:
+      - syslog
+    logging:
+      driver: syslog
+      options:
+        syslog-address: "udp://127.0.0.1:5514"
+        tag: "db"
+
+  httpd:
+    image: httpd:2.4
+    volumes:
+      - ../codex-frontend/:/usr/local/apache2/htdocs/
+    ports:
+      - "6100:80"
+    links:
+      - syslog
+    logging:
+      driver: syslog
+      options:
+        syslog-address: "udp://127.0.0.1:5514"
+        tag: "httpd"
+
+  api:
+    #image: codexgigassys/codex-backend:latest
+    build: .
+    command: bash -c "echo updating pip packages && pip install -r /myapp/src/pip_requirements.txt && pip install -r /myapp/src/pip_vt_api_requirements.txt && echo checking indexes && python -u /myapp/src/Scripts/create_indexes.py && echo starting api...Check 127.0.0.1:8080 && python -u /myapp/src/api2.py -H $$HOSTNAME"
+    volumes:
+      - ./src/config/:/myapp/src/config/
+      - ./files_to_load/:/myapp/files_to_load/
+    ports:
+      - "4501:8080"
+    links:
+      - db
+      - httpd
+      - syslog
+    logging:
+      driver: syslog
+      options:
+        syslog-address: "udp://127.0.0.1:5514"
+        tag: "api"
+
+  redis:
+    image: redis:latest
+    links:
+      - api
+      - syslog
+    logging:
+      driver: syslog
+      options:
+        syslog-address: "udp://127.0.0.1:5514"
+        tag: "redis"
+
+  worker:
+    #image: codexgigassys/codex-backend:worker
+    build:
+      context: ./src
+      dockerfile: workerDockerfile
+    command: bash -c "rq worker --path /myapp/ --url redis://codexbackend_redis_1:6379/0 task_private_vt task_public_vt task_no_vt process checkup"
+    volumes:
+      - ./src/config/:/myapp/config/
+    links:
+      - db
+      - redis
+      - syslog
+    logging:
+      driver: syslog
+      options:
+        syslog-address: "udp://127.0.0.1:5514"
+        tag: "worker"
+
+  worker_private_vt:
+    #image: codexgigassys/codex-backend:worker
+    build:
+      context: ./src
+      dockerfile: workerDockerfile
+    command: bash -c "rq worker --path /myapp/ --url redis://codexbackend_redis_1:6379/0 task_private_vt"
+    volumes:
+      - ./src/config/:/myapp/config/
+    links:
+      - db
+      - redis
+      - syslog
+    logging:
+      driver: syslog
+      options:
+        syslog-address: "udp://127.0.0.1:5514"
+        tag: "worker_private_vt"
+
+  worker_public_vt:
+    #image: codexgigassys/codex-backend:worker
+    build:
+      context: ./src
+      dockerfile: workerDockerfile
+    command: bash -c "rq worker --path /myapp/ --url redis://codexbackend_redis_1:6379/0 task_public_vt"
+    volumes:
+      - ./src/config/:/myapp/config/
+    links:
+      - db
+      - redis
+      - syslog
+    logging:
+      driver: syslog
+      options:
+        syslog-address: "udp://127.0.0.1:5514"
+        tag: "worker_public_vt"
+
+  worker_no_vt:
+    #image: codexgigassys/codex-backend:worker
+    build:
+      context: ./src
+      dockerfile: workerDockerfile
+    command: bash -c "rq worker --path /myapp/ --url redis://codexbackend_redis_1:6379/0 task_no_vt process checkup"
+    volumes:
+      - ./src/config/:/myapp/config/
+    links:
+      - db
+      - redis
+      - syslog
+    logging:
+      driver: syslog
+      options:
+        syslog-address: "udp://127.0.0.1:5514"
+        tag: "worker_no_vt"
+
+  cron:
+    #image: codexgigassys/codex-backend:cron
+    build:
+      context: ./src/cron
+      dockerfile: cronDockerfile
+    environment:
+      - CRON_ENTRY=5 0 * * * wget -O - http://codexbackend_api_1:8080/api/v1/cron
+    links:
+      - api
+      - syslog
+    logging:
+      driver: syslog
+      options:
+        syslog-address: "udp://127.0.0.1:5514"
+        tag: "cron"
+
+  syslog:
+    image: voxxit/rsyslog
+    ports:
+        - "5514:514/udp"

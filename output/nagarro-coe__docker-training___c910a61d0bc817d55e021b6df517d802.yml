@@ -1,0 +1,8 @@
+my-mind-control1:
+  build: .
+  ports:
+   - "8888:80"
+my-mind-control2:
+  image: amitkumar02/mind-control
+  ports:
+   - "9090:80"

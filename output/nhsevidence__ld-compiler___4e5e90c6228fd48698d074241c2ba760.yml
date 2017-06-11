@@ -1,0 +1,16 @@
+compiler:
+  image: "${IMAGE_NAME}:${IMAGE_VERSION}"
+  volumes_from:
+    - stardog
+  ports:
+    - "8081:8081"
+  labels:
+    io.rancher.sidekicks: stardog
+  environment:
+    - LOGGING_ENVIRONMENT
+stardog:
+  image: nice/ld-docker-stardog
+  ports:
+    - "5820:5820"
+  volumes:
+    - /dev/urandom:/dev/random

@@ -1,0 +1,54 @@
+version: '2'
+
+services:
+  app:
+    build: .
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - public:/app/public
+      - /var/run/postgresql/:/var/run/postgresql/
+      - sockets:/app/tmp/sockets/
+    depends_on:
+      - neo4j
+      - sidekiq
+      - redis
+    links:
+      - neo4j
+      - sidekiq
+      - redis
+    env_file:
+      - headbanger.env
+    restart: always
+  neo4j:
+    image: neo4j:3.0
+    ports:
+      - "7474"
+    volumes:
+      - neo4j:/var/lib/neo4j/data
+    env_file:
+      - neo4j.env
+    restart: always
+  sidekiq:
+    build: .
+    volumes:
+      - /var/run/postgresql/:/var/run/postgresql/
+    depends_on:
+      - redis
+    links:
+      - redis
+    env_file:
+      - headbanger.env
+    restart: always
+    command: bundle exec sidekiq
+  redis:
+    image: redis
+    volumes:
+      - redis:/data
+    restart: always
+
+volumes:
+  public: {}
+  sockets: {}
+  redis: {}
+  neo4j: {}

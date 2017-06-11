@@ -1,0 +1,24 @@
+sf2_app:
+    build: app
+    # image: ilubenets/sf2_app
+    volumes:
+        - /home/il/docker/nginx_php_symfony/sf2_data:/data
+    tty: true
+
+sf2_php5_fpm:
+    build: php5-fpm
+    # image: ilubenets/sf2_php5_fpm
+    expose:
+        - 9000:9000
+    volumes_from:
+        - sf2_app
+
+sf2_nginx:
+    build: nginx
+    # image: ilubenets/sf2_nginx
+    ports:
+        - 8080:80
+    links:
+        - sf2_php5_fpm:php
+    volumes_from:
+        - sf2_app

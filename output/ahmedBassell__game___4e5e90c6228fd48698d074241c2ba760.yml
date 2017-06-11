@@ -1,0 +1,14 @@
+game:
+  build: .
+  dockerfile: Dockerfile.dev
+  ports:
+    - "9000:3000"
+  links:
+    - mongo
+
+mongo:
+  image: mongo
+  volumes:
+    - ./dev-data:/data/db
+  ports:
+    - "27012:27017"

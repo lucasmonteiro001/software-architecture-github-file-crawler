@@ -1,0 +1,37 @@
+version: '2'
+services:
+    symfony:
+        image: "j0hn/polytech-cinema-server"
+        container_name: cinema_symfony
+        ports:
+        - "80:80"
+        links:
+        - db:mysql
+        environment:
+            WWW_INDEX: app_dev.php
+    db:
+        image: "mysql"
+        container_name: cinema_mysql
+        environment:
+            MYSQL_ROOT_PASSWORD: root
+            MYSQL_DATABASE: symfony
+            MYSQL_USER: symfony
+            MYSQL_PASSWORD: symfony
+        volumes:
+        - db_data:/var/lib/mysql
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin
+        container_name: cinema_phpmyadmin
+        environment:
+            PMA_HOST: mysql
+            PMA_USER: symfony
+            PMA_PASSWORD: symfony
+        restart: always
+        ports:
+        - 8080:80
+        links:
+        - db:mysql
+        volumes:
+        - /sessions
+volumes:
+    db_data:

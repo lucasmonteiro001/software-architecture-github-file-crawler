@@ -1,0 +1,46 @@
+version: "2"
+
+services:
+    data:
+        image: dylanlindgren/docker-laravel-data
+        volumes:
+            - ./:/data:rw
+        privileged: true
+    
+    bower:
+        image: dylanlindgren/docker-laravel-bower
+        volumes_from:
+            - data
+    
+    composer:
+        build: ./docker-laravel-composer
+        volumes_from:
+            - data
+    
+    artisan:
+        image: dylanlindgren/docker-laravel-artisan
+        volumes_from:
+            - data
+        external_links:
+            - yg-main-mysql:db
+    
+    php-fpm:
+        build: ./docker-laravel-phpfpm
+        volumes_from:
+            - data
+        privileged: true
+    
+    nginx:
+        build: ./docker-laravel-nginx
+        volumes_from:
+            - data
+        links:
+            - php-fpm:fpm
+        environment:
+            - VIRTUAL_HOST=${VIRTUAL_HOST_DOMAIN}
+        privileged: true
+        
+networks:
+  default:
+    external:
+      name: ${NGINX_PROXY_NETWROK}

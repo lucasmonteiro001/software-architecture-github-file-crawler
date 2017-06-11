@@ -1,0 +1,37 @@
+
+store:
+    image: aksw/dld-store-virtuoso7
+    environment:
+        PWDDBA: "password"
+    volumes:
+        - /tmp/volumes/virt/:/var/lib/virtuoso/db/
+
+presentation:
+    image: aksw/dld-present-ontowiki
+    links:
+        - store
+    ports:
+        - "8080:80"
+
+load:
+    image: aksw/dld-load-virtuoso
+    links:
+        - store
+    volumes_from:
+        - store
+    volumes:
+        - /tmp/import:/import
+#        
+# backup:
+#     image: aksw/dld-backup-virtuoso
+#     environment:
+#         GIT_REPO: "https://github.com/GeorgesAlkhouri/backup-repository.git"
+#         GIT_EMAIL: "cron-backup@htwk-leipzig.de"
+#         GIT_NAME: "Cron Backup"
+#         CRONTAB: "0 0 * * *"
+#     links:
+#         - store
+#     volumes_from:
+#         - store
+#     volumes:
+#         - /tmp/.ssh/:/root/.ssh

@@ -1,0 +1,91 @@
+rethinkdb:
+  image: rethinkdb:latest
+  ports:
+    - "8080:8080"
+redis:
+  image: redis:latest
+  ports:
+    - "6379:6379"
+web:
+  build: src/web/
+  volumes:
+    - ./src/web:/code:ro
+    - ./src/web/instance:/config:ro
+  ports:
+    - "80:8000"
+  links:
+    - rethinkdb
+    - bridge
+bridge:
+  build: src/bridge/
+  volumes:
+    - ./src/bridge:/code:ro
+  links:
+    - redis
+    - rethinkdb
+    - actionbroker
+actionbroker:
+  build: src/actions/
+  command: python -B /code/broker.py /config/actionBroker.yml
+  volumes:
+    - ./src/actions:/code:ro
+  ports:
+    - 6000
+    - 6001
+actioner:
+  build: src/actions/
+  command: python -B /code/actioner.py /config/config.yml
+  volumes:
+    - ./src/actions:/code:ro
+  links:
+    - redis
+    - rethinkdb
+    - actionbroker
+    - bridge
+monitorbroker:
+  build: src/monitors/
+  command: python -B /code/broker.py /config/broker.yml
+  volumes:
+    - ./src/monitors:/code:ro
+  ports:
+    - 5879
+    - 5878
+control30:
+  build: src/monitors/
+  command: python -B /code/control.py /config/control-30sec.yml
+  volumes:
+    - ./src/monitors:/code:ro
+  links:
+    - redis
+    - monitorbroker
+control1:
+  build: src/monitors/
+  command: python -B /code/control.py /config/control-1min.yml
+  volumes:
+    - ./src/monitors:/code:ro
+  links:
+    - redis
+    - monitorbroker
+control5:
+  build: src/monitors/
+  command: python -B /code/control.py /config/control-5min.yml
+  volumes:
+    - ./src/monitors:/code:ro
+  links:
+    - redis
+    - monitorbroker
+monitorworker:
+  build: src/monitors/
+  command: bash -c "while [ 1 -eq 1 ]; do python -B /code/worker.py /config/worker.yml; done"
+  volumes:
+    - ./src/monitors:/code:ro
+  links:
+    - monitorbroker
+    - actionbroker
+rediscommander:
+  build: devhelper/inspect/redis/
+  command: redis-commander --redis-host redis --redis-port 6379 --redis-db 0
+  links:
+   - redis
+  ports:
+    - "8081:8081"

@@ -1,0 +1,19 @@
+cass:
+  build: cassandra
+  volumes:
+    - ./tmp/var/lib/cassandra/:/var/lib/cassandra/
+  ports:
+    - 9042
+    - 9160
+
+usergrid:
+  image: usergrid
+  ports:
+    - 8080:80
+  links:
+    - cass:cass
+
+test:
+  build: test
+  links:
+    - usergrid

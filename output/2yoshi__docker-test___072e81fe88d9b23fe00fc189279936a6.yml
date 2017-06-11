@@ -1,0 +1,25 @@
+mysql:
+  image: mysql:5.6.23
+  environment:
+    MYSQL_ROOT_PASSWORD: 'root'
+  ports:
+    - '3306:3306'
+  volumes_from:
+    - datastore
+
+
+datastore:
+  build: containers/datastore
+
+rails:
+  build: containers/ruby
+  ports:
+    - '3000:3000'
+  environment:
+    RAILS_ENV: preview
+    MYSQL_ROOT_PASSWORD: 'root'
+    DATABASE_URL: mysql2://root:root@mysql:3306
+  volumes_from:
+    - datastore
+  links:
+    - mysql

@@ -1,0 +1,11 @@
+nodered:
+ image: marcelmaatkamp/nodered-amqp
+ restart: always
+ hostname: nodered
+ ports:
+  - 1880:1880
+ volumes:
+  - /etc/localtime:/etc/localtime
+  - ./volumes/nodered/data:/data:rw
+ external_links:
+ - rabbitmq

@@ -1,0 +1,23 @@
+mongodb:
+  image: mongo
+  ports:
+    - "27017:27017"
+read:
+  build: vxms-read
+  hostname: read
+  links:
+  - mongodb:mongodb
+write:
+  build: vxms-write
+  hostname: write
+  links:
+  - mongodb:mongodb
+frontend-verticle:
+  build: vxms-frontend
+  hostname: frontend-verticle
+  links:
+  - mongodb:mongodb
+  - read:read
+  - write:write
+  ports:
+   - "8181:8181"

@@ -1,0 +1,51 @@
+proxy:
+  image: jwilder/nginx-proxy:latest
+  ports:
+    - "80:80"
+  volumes:
+    - "/var/run/docker.sock:/tmp/docker.sock"
+db:
+  image: postgres
+  ports:
+    - "5432:5432"
+redis:
+  image: redis
+  ports:
+    - "6379"
+web:
+  build: .
+  command: passenger start --port 80
+  environment:
+    - DB_USERNAME=postgres
+    - DB_PASSWORD=postgres
+    - PASSENGER_APP_ENV=development
+    - RAILS_ENV=development
+    - REDIS_HOST=docker
+    - VIRTUAL_HOST=larica.docker.dev
+  links:
+    - db
+    - redis
+cron:
+  build: .
+  command: whenever
+  environment:
+    - DB_USERNAME=postgres
+    - DB_PASSWORD=postgres
+    - PASSENGER_APP_ENV=development
+    - RAILS_ENV=development
+    - REDIS_HOST=docker
+  links:
+    - db
+    - redis
+worker:
+  build: .
+  command: bundle exec sidekiq -e development -c 25
+  environment:
+    - DB_USERNAME=postgres
+    - DB_PASSWORD=postgres
+    - PASSENGER_APP_ENV=development
+    - RAILS_ENV=development
+    - REDIS_HOST=docker
+  links:
+    - db
+    - redis

@@ -1,0 +1,24 @@
+chat:
+  build: ../src/
+  #command: npm install
+  ports:
+    - "3000:3000"
+  volumes:
+    - ../src:/home/node-chat
+chattest:
+  build: ../src/
+  command: gulp test
+  volumes:
+    - ../src:/home/node-chat:ro
+chatclienttest:
+  build: ../src/karma/
+#  command: npm install
+  command: karma start chat/public/karma.conf.js
+  volumes:
+     - ../src:/home/karma
+nginx:
+  image: nginx:latest
+  ports:
+    - "80:80"
+  volumes:
+    - ../src/chat/public:/usr/share/nginx/html:ro

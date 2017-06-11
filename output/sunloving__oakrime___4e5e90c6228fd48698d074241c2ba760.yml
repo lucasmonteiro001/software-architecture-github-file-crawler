@@ -1,0 +1,16 @@
+version: '2'
+services:
+  frontend:
+    build: src/Oakrime.Frontend
+    image: ilfirin/oakrime-frontend
+    ports:
+      - "80:3000"
+    container_name: oakrime-frontend
+    links:
+      - backend
+  backend:
+    build: src/Oakrime.Server
+    image: ilfirin/oakrime-backend
+    ports:
+      - "5000:5000"
+    container_name: oakrime-backend

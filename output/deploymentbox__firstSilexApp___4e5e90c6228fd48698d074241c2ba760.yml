@@ -1,0 +1,38 @@
+application:
+  image: silex/code
+  volumes:
+    - .:/var/www/silex
+    - app/logs/silex:/var/www/silex/app/logs
+  tty: true
+
+db:
+  image: mysql
+  ports:
+    - 3306:3306
+  environment:
+    MYSQL_ROOT_PASSWORD: mysqlroot
+    MYSQL_DATABASE: silex
+    MYSQL_USER: admin
+    MYSQL_PASSWORD: root
+  volumes:
+    - /home/mysql2:/var/lib/mysql
+
+php:
+  image: silex/php-fpm
+  expose:
+    - 9000:9000
+  volumes_from:
+    - application
+  links:
+    - db
+  
+nginx:
+  image: silex/nginx
+  ports:
+    - 80:80
+  links:
+    - php
+  volumes_from:
+    - application
+  volumes:
+    - logs/nginx/:/var/log/nginx

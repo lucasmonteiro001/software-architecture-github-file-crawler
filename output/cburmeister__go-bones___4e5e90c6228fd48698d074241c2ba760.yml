@@ -1,0 +1,8 @@
+app:
+    build: .
+    command: go run main.go
+    volumes:
+        - .:/go/src/github.com/cburmeister/go-bones
+    working_dir: /go/src/github.com/cburmeister/go-bones
+    ports:
+        - "8000:8000"

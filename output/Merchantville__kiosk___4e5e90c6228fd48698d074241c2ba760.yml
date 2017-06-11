@@ -1,0 +1,13 @@
+version: '2'
+services:
+  kiosk: 
+    image: "merchantville/kiosk"
+    container_name: kiosk
+    build: .
+    network_mode: "host"
+    privileged: true
+    mem_limit: "1g"
+    environment:
+      - "DISPLAY=$DISPLAY"
+    volumes:
+      - "/tmp/.X11-unix:/tmp/.X11-unix"

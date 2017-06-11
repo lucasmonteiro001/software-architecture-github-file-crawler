@@ -1,0 +1,19 @@
+version: '2'
+services:
+  nginx:
+    container_name: nginx-react
+    image: nginx:1.10.3-alpine
+    volumes:
+      - 'nginx-volume:/var/log/nginx'
+      - '../../dist:/usr/share/nginx/html:ro'
+      - './default.conf:/etc/nginx/conf.d/default.conf:ro'
+    ports:
+      - '80:80'
+    networks:
+      - external-network
+volumes:
+  nginx-volume:
+    driver: local
+networks:
+  external-network:
+    driver: bridge

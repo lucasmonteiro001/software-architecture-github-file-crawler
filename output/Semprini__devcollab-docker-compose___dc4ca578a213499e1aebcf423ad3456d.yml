@@ -1,0 +1,175 @@
+version: '2'
+services:
+  bamboo:
+    image: cptactionhank/atlassian-bamboo
+    hostname: bamboo
+    environment:
+      X_PATH: bamboo
+      X_PROXY_NAME: ''
+      X_PROXY_PORT: '443'
+      X_PROXY_SCHEME: https
+    volumes:
+    - bamboodata:/var/atlassian/bamboo
+    ports:
+    - 55915:8085/tcp
+    - 63565:54663/tcp
+    depends_on:
+      - "postgresql"
+    labels:
+      io.rancher.scheduler.affinity:host_label_soft: collab=true
+      io.rancher.scheduler.affinity:container_label_soft_ne: io.rancher.stack_service.name=$${stack_name}/$${service_name}
+      com.blacklabelops.description: Atlassian Bamboo
+      com.blacklabelops.service: bamboo
+  nexus:
+    image: clearent/nexus
+    stdin_open: true
+    volumes:
+    - nexusdata:/nexus-data
+    tty: true
+    ports:
+    - 62897:8081/tcp
+    labels:
+      io.rancher.scheduler.affinity:host_label_soft: collab=true
+      io.rancher.scheduler.affinity:container_label_soft_ne: io.rancher.stack_service.name=$${stack_name}/$${service_name}
+  confluence:
+    image: blacklabelops/confluence
+    hostname: confluence
+    environment:
+      CATALINA_OPTS: -Xms256m -Xmx1g
+      CONFLUENCE_DELAYED_START: '10'
+      CONFLUENCE_PROXY_NAME: ''
+      CONFLUENCE_PROXY_PORT: '443'
+      CONFLUENCE_PROXY_SCHEME: https
+    volumes:
+    - confluencedata:/var/atlassian/confluence
+    ports:
+    - 63220:8090/tcp
+    - 57316:8091/tcp
+    depends_on:
+      - "postgresql"
+    labels:
+      io.rancher.scheduler.affinity:host_label_soft: collab=true
+      io.rancher.scheduler.affinity:container_label_soft_ne: io.rancher.stack_service.name=$${stack_name}/$${service_name}
+      com.blacklabelops.description: Atlassian Confluence
+      com.blacklabelops.service: confluence
+  postgresql:
+    image: blacklabelops/postgres
+    hostname: postgresql
+    environment:
+      POSTGRES_COLLATE: C
+      POSTGRES_COLLATE_TYPE: C
+      POSTGRES_DB_CREATE: |-
+        CREATE DATABASE "jira" WITH ENCODING UNICODE LC_COLLATE C LC_CTYPE C TEMPLATE template0 ;
+        CREATE DATABASE "bitbucket" WITH ENCODING UNICODE LC_COLLATE C LC_CTYPE C TEMPLATE template0 ;
+        CREATE DATABASE "bamboo" WITH ENCODING UNICODE LC_COLLATE C LC_CTYPE C TEMPLATE template0 ;
+        CREATE DATABASE "confluence" WITH ENCODING UNICODE LC_COLLATE C LC_CTYPE C TEMPLATE template0 ;
+        CREATE DATABASE "crowd" WITH ENCODING UNICODE LC_COLLATE C LC_CTYPE C TEMPLATE template0 ;
+        CREATE DATABASE "sonar" WITH ENCODING UNICODE LC_COLLATE C LC_CTYPE C TEMPLATE template0 ;
+      POSTGRES_ENCODING: UNICODE
+      POSTGRES_PASSWORD: collab
+      POSTGRES_USER: collab
+    volumes:
+    - postgresqldata:/var/lib/postgresql/data
+    labels:
+      io.rancher.scheduler.affinity:host_label_soft: collab=true
+      io.rancher.scheduler.affinity:container_label_soft_ne: io.rancher.stack_service.name=$${stack_name}/$${service_name}
+      com.blacklabelops.description: PostgreSQL Database Server
+      com.blacklabelops.service: postgresql
+  crowd:
+    image: blacklabelops/crowd
+    environment:
+      CROWDID_CONTEXT: openidserver
+      CROWD_CONTEXT: crowd
+      CROWD_PROXY_NAME: ''
+      CROWD_PROXY_PORT: '443'
+      CROWD_PROXY_SCHEME: https
+      CROWD_URL: https://crowd.rancher.sphinx.co.nz/crowd
+      DEMO_CONTEXT: demo
+      LOGIN_BASE_URL: https://crowd.rancher.sphinx.co.nz
+      OPENID_CLIENT_CONTEXT: openidclient
+      SPLASH_CONTEXT: ROOT
+    volumes:
+    - crowddata:/var/atlassian/crowd
+    ports:
+    - 58495:8095/tcp
+    depends_on:
+      - "postgresql"
+    labels:
+      io.rancher.scheduler.affinity:host_label_soft: collab=true
+      io.rancher.scheduler.affinity:container_label_soft_ne: io.rancher.stack_service.name=$${stack_name}/$${service_name}
+      com.blacklabelops.description: Atlassian Crowd
+      com.blacklabelops.service: crowd
+  sonar:
+    image: sonarqube
+    environment:
+      SONARQUBE_JDBC_PASSWORD: collab
+      SONARQUBE_JDBC_URL: jdbc:postgresql://postgresql/sonar
+      SONARQUBE_JDBC_USERNAME: collab
+      http_proxy: ''
+      https_proxy: ''
+    stdin_open: true
+    volumes_from:
+    - sonarqube-data
+    ports:
+    - 51748:9000/tcp
+    depends_on:
+      - "postgresql"
+    labels:
+      io.rancher.scheduler.affinity:host_label_soft: collab=true
+      io.rancher.scheduler.affinity:container_label_soft_ne: io.rancher.stack_service.name=$${stack_name}/$${service_name}
+      io.rancher.container.pull_image: always
+      io.rancher.sidekicks: sonarqube-data
+  sonarqube-data:
+    image: busybox
+    stdin_open: true
+    labels:
+      io.rancher.container.start_once: 'true'
+  bitbucket:
+    image: blacklabelops/bitbucket
+    hostname: bitbucket
+    environment:
+      BITBUCKET_DELAYED_START: '10'
+      BITBUCKET_PROXY_NAME: ''
+      BITBUCKET_PROXY_PORT: '443'
+      BITBUCKET_PROXY_SCHEME: https
+    volumes:
+    - bitbucketdata:/var/atlassian/bitbucket
+    ports:
+    - 53780:7990/tcp
+    labels:
+      io.rancher.scheduler.affinity:host_label_soft: collab=true
+      io.rancher.scheduler.affinity:container_label_soft_ne: io.rancher.stack_service.name=$${stack_name}/$${service_name}
+      com.blacklabelops.description: Atlassian Bitbucket
+      com.blacklabelops.service: bitbucket
+  CollabLB:
+    image: rancher/lb-service-haproxy:v0.5.9
+    ports:
+    - 8088:8088/tcp
+    labels:
+      io.rancher.scheduler.affinity:host_label_soft: collab=true
+      io.rancher.scheduler.affinity:container_label_soft_ne: io.rancher.stack_service.name=$${stack_name}/$${service_name}
+      io.rancher.container.agent.role: environmentAdmin
+      io.rancher.container.create_agent: 'true'
+  jira:
+    image: blacklabelops/jira
+    environment:
+      CATALINA_OPTS: -Xms256m -Xmx1g
+      JIRA_DATABASE_URL: postgresql://collab@postgresql/jira
+      JIRA_DB_PASSWORD: collab
+      JIRA_DELAYED_START: '10'
+      JIRA_PROXY_NAME: ''
+      JIRA_PROXY_PORT: '443'
+      JIRA_PROXY_SCHEME: https
+    volumes:
+    - jiradata:/var/atlassian/jira
+    links:
+    - postgresql:postgresql
+    ports:
+    - 65446:8080/tcp
+    depends_on:
+      - "postgresql"
+    labels:
+      io.rancher.scheduler.affinity:host_label_soft: collab=true
+      io.rancher.scheduler.affinity:container_label_soft_ne: io.rancher.stack_service.name=$${stack_name}/$${service_name}
+      com.blacklabelops.description: Atlassian Jira
+      com.blacklabelops.service: jira

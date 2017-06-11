@@ -1,0 +1,186 @@
+version: '2'
+
+services:
+  portal:
+    env_file:
+      - configure.env
+    image: theultimate/portal
+    networks:
+      download:
+        aliases:
+           - portal
+    ports:
+      - "80:80"
+    links:
+      - sabnzbd
+      - rtorrent
+      - sickrage
+      - couchpotato
+      - headphones
+      - lazylibrarian
+    restart: always
+
+  sabnzbd:
+    env_file:
+      - configure.env
+    image: theultimate/sabnzbd
+    networks:
+      download:
+        aliases:
+          - sabnzbd
+    ports:
+      - "9200:9200"
+      - "9201:9201"
+    volumes:
+      - multimediavar:/Multimedia
+      - downloadvar:/Download
+      - configsvar:/Config
+    restart: always
+
+  rtorrent:
+    env_file:
+      - configure.env
+    image: theultimate/rtorrent
+    networks:
+      download:
+        aliases:
+          - rtorrent
+    volumes:
+      - multimediavar:/Multimedia
+      - downloadvar:/Download
+      - configsvar:/Config
+    restart: always
+
+  sickrage:
+    env_file:
+      - configure.env
+    image: theultimate/sickrage
+    networks:
+      download:
+        aliases:
+          - sickrage
+    ports:
+      - "9400:9400"
+    volumes:
+      - multimediavar:/Multimedia
+      - downloadvar:/Download
+      - configsvar:/Config
+    links:
+      - sabnzbd
+      ##- rtorrent
+    restart: always
+
+  couchpotato:
+    env_file:
+      - configure.env
+    image: theultimate/couchpotato
+    networks:
+      download:
+        aliases:
+          - couchpotato
+    ports:
+      - "9500:9500"
+    volumes:
+      - multimediavar:/Multimedia
+      - downloadvar:/Download
+      - configsvar:/Config
+    links:
+      - sabnzbd
+      #- rtorrent
+    restart: always
+
+  headphones:
+    env_file:
+      - configure.env
+    image: theultimate/headphones
+    networks:
+      download:
+        aliases:
+          - headphones
+    ports:
+      - "9600:9600"
+    volumes:
+      - multimediavar:/Multimedia
+      - downloadvar:/Download
+      - configsvar:/Config
+    links:
+      - sabnzbd
+      #- rtorrent
+    restart: always
+
+  lazylibrarian:
+    env_file:
+      - configure.env
+    image: theultimate/lazylibrarian
+    networks:
+      download:
+        aliases:
+          - lazylibrarian
+    ports:
+      - "9700:9700"
+    volumes:
+      - multimediavar:/Multimedia
+      - downloadvar:/Download
+      - configsvar:/Config
+    links:
+      - sabnzbd
+      #- rtorrent
+    restart: always
+
+#  mylar:
+#    env_file:
+#      - configure.env
+#    image: theultimate/mylar
+#    networks:
+#      download:
+#        aliases:
+#          - mylar
+#    ports:
+#      - "8090:8090"
+#    volumes:
+#      - multimediavar:/Multimedia
+#      - downloadvar:/Download
+#      - configsvar:/Config
+#    links:
+#      - sabnzbd
+#      #- rtorrent
+#    restart: always
+
+  database:
+    env_file:
+      - configure.env
+    image: theultimate/database
+    networks:
+      download:
+        aliases:
+          - database
+    volumes:
+      - configsvar:/Config
+      - configsvar/spotweb:/var/lib/mysql
+    restart: always
+
+  spotweb:
+    env_file:
+      - configure.env
+    image: theultimate/spotweb
+    environment:
+      - TZ='Europe/Amsterdam'
+      - SPOTWEB_DB_TYPE=mysql
+      - SPOTWEB_DB_HOST=database
+      - SPOTWEB_DB_NAME=spotweb
+      - SPOTWEB_DB_USER=spotweb
+      - SPOTWEB_DB_PASS=bewtops
+    networks:
+      download:
+        aliases:
+          - spotweb
+    ports:
+      - "10000:10000"
+    volumes:
+      - configsvar:/Config
+    links:
+      - database
+    restart: always
+
+networks:
+  download:

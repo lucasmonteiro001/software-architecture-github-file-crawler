@@ -1,0 +1,66 @@
+version: '2'
+
+services:
+    db:
+        image: mysql
+        ports:
+            - 3306:3306
+        volumes:
+            - "./.data/db:/var/lib/mysql"
+        environment:
+            MYSQL_ROOT_PASSWORD: root
+    redis:
+        image: redis:alpine
+        expose:
+            - 6379
+    php:
+        image: mediafigaro/docker-php7-fpm #image or build
+        #build: php7-fpm
+        expose:
+            - 9000
+        links:
+            - db:mysqldb
+            - redis
+        volumes:
+            - ../project1:/var/www/symfony_project1
+            - ../project2:/var/www/symfony_project2
+            - ../project3:/var/www/symfony_project3
+            - ./logs/symfony:/var/www/symfony/app/logs
+    nginx:
+        build: nginx
+        ports:
+            - 80:80
+        links:
+            - php
+            - varnish
+        volumes_from:
+            - php
+        volumes:
+            - ./logs/nginx/:/var/log/nginx
+    elk:
+        image: willdurand/elk
+        ports:
+            - 8081:80
+        volumes:
+            - ./elk/logstash:/etc/logstash
+            - ./elk/logstash/patterns:/opt/logstash/patterns
+        volumes_from:
+            - php
+            - nginx
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin
+        ports:
+            - 8080:80
+        links:
+            - db
+    varnish:
+        build: varnish/
+        environment:
+            VARNISH_PORT: 8081
+            VARNISH_MEMORY: 200M
+        ports:
+            - 81:8081
+    couchdb:
+        image: couchdb
+        ports:
+            - 8082:5984

@@ -1,0 +1,9 @@
+xensbvol:
+  build: .
+  env_file: dev.env
+  stdin_open: true
+  tty: true
+  volumes_from:
+   - docker-compose
+  volumes:
+   - /xensb

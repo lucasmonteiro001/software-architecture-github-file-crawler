@@ -1,0 +1,5 @@
+sync:
+    build: .
+    env_file: .env
+    volumes:
+        - .:/usr/src/app

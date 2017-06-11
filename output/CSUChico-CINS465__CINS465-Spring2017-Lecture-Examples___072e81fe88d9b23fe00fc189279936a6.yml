@@ -1,0 +1,44 @@
+web:
+  restart: always
+  build: ./web
+  expose:
+    - "8000"
+  links:
+    - postgres:postgres
+  volumes:
+    - ./code/:/code/
+  #command: /bin/bash
+  command: python manage.py runserver 0.0.0.0:8000
+  #command: bash -c "/etc/init.d/celeryd start ; python manage.py runserver 0.0.0.0:8000"
+  #command: /usr/local/bin/gunicorn -w 2 -b :8000 perfproject.wsgi
+
+
+
+
+nginx:
+  restart: always
+  build: ./nginx/
+  ports:
+    - "80:80"
+    - "443:443"
+  volumes:
+    - ./code/firstapp/static:/static
+#   volumes_from:
+#     - web
+  links:
+    - web:web
+
+
+postgres:
+  restart: always
+  image: postgres:latest
+  environment:
+    POSTGRES_PASSWORD: djangoPassword
+    POSTGRES_USER: django
+  volumes:
+    - ./db/postgresql:/var/lib/postgresql
+  #expose it for native data processing script
+  # ports:
+  #   - 127.0.0.1:4000:5432
+  expose:
+    - "5432"

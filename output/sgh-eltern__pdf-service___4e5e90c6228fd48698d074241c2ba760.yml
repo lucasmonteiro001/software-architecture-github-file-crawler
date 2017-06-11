@@ -1,0 +1,18 @@
+version: '2'
+services:
+  web:
+    build: .
+    image: sgh-eltern/pdf-service
+    restart: unless-stopped
+    links:
+      - electron-renderer
+    environment:
+      - RENDERER_ACCESS_KEY
+      - RENDERER_HOST
+      - VIRTUAL_HOST
+  electron-renderer:
+    image: msokk/electron-render-service
+    restart: unless-stopped
+    environment:
+      - RENDERER_ACCESS_KEY
+      - HOSTNAME=0.0.0.0

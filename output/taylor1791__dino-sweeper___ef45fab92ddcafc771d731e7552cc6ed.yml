@@ -1,0 +1,28 @@
+version: '2'
+
+services:
+  db:
+    image: postgres:latest
+    environment:
+      # POSTGRES_USER:
+      # POSTGRES_PASSWORD:
+      POSTGRES_DB: dino_sweeper
+      # PGDATA:
+      # POSTGRES_INITDB_ARGS
+
+  # Development Services
+  psql:
+    image: postgres:latest
+    environment:
+      PGHOST: infras_db_1
+      PGDATABASE: dino_sweeper
+      PGUSER: postgres
+      PGPASSWORD:
+
+  sqitch:
+    working_dir: /src
+    image: matteofigus/docker-sqitch
+    volumes:
+      - ../db:/src
+      - ../:/root/src
+

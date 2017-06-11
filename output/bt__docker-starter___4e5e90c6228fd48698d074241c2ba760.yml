@@ -1,0 +1,43 @@
+version: '3'
+
+services:
+
+  # Nginx Web Server
+  nginx:
+    build: './_docker/nginx'
+    volumes:
+      - ./logs/nginx/:/var/log/nginx
+      - ./frontend:/var/www/frontend
+    ports:
+      - "80:80"
+      - "443:443"
+    links:
+      - "hhvm"
+
+  # HHVM
+  hhvm:
+    build: './_docker/hhvm'
+    expose:
+      - "9000"
+    volumes:
+      - ./api:/var/www/api
+
+  # MariaDB Database Server
+  mariadb:
+    build: './_docker/mariadb'
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./data/mysql:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: "btdev"
+      MYSQL_USER: "dev"
+      MYSQL_PASSWORD: "dev"
+      MYSQL_ROOT_PASSWORD: "root"
+
+  # Beanstalkd Queuing
+  beanstalkd:
+    build: './_docker/beanstalkd'
+    ports:
+      - "11300:11300"
+    privileged: true

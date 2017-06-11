@@ -1,0 +1,20 @@
+version: '2'
+  
+services:
+    nextcloud:
+        build: .
+        container_name: nextcloud 
+        restart: always
+        ports: 
+          - "80:80"
+          - "443:443"
+        volumes:
+          - ./letsencrypt:/etc/letsencrypt
+          - nextcloud-config:/var/www/nextcloud/config:rw
+          - mariadb-data:/var/lib/mysql:rw
+          - nextcloud-data:/var/www/nextcloud/data:rw
+
+volumes:
+  mariadb-data:
+  nextcloud-data:
+  nextcloud-config:

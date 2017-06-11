@@ -1,0 +1,14 @@
+app:
+    container_name: generator-bundle-app
+    build: app
+    volumes:
+        - ./../:/var/www
+    tty: true
+        
+php:
+    container_name: generator-bundle-php
+    build: php
+    expose:
+        - 9000
+    volumes_from:
+        - app

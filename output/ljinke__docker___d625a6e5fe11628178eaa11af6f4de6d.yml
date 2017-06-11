@@ -1,0 +1,17 @@
+report:
+  build: ../../images/gemini/
+  ports:
+    - 8080:8080
+  volumes:
+    - /Users/liujin/Github/Gemini:/code
+  links:
+    - mysql:db
+  extra_hosts:
+    - "vfm_slave:SHAC02NR4VBG3QD"
+mysql:
+  image: mysql
+  environment: 
+    - MYSQL_ROOT_PASSWORD=mysql_pwd_not_use
+    - MYSQL_DATABASE=jasperserver_pro55
+    - MYSQL_USER=jasper
+    - MYSQL_PASSWORD=4321vela

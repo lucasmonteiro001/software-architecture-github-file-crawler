@@ -1,0 +1,54 @@
+# Written By: Ramon Brooker <rbrooker@aetherealmind.com>
+# # (c) 2016
+#
+
+
+version: '2'
+services:
+  bigwig:
+    image: rbrooker/rabbitmq:latest
+    container_name: bigwig
+    hostname: "bigwig"
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - ./rabbit/etc:/etc/rabbitmq
+      - ./rabbit/logs:/var/log/rabbitmq
+    environment:
+      - FEDERATION=1
+      - LOG_LEVEL="{connection,error},{channel,error},{federation,error}"
+  hazel:
+    image: rbrooker/rabbitmq:latest
+    ports:
+      - "55672:55672"
+    links:
+      - bigwig:bigwig
+    container_name: hazel
+    hostname: "hazel"
+    environment:
+      - AMQP_TCP_PORT=55672
+      - MASTER_NAME=bigwig
+      - FEDERATION=1
+      - MASTER=0
+    volumes:
+      - ./rabbit/logs:/var/log/rabbitmq
+  fiver:
+    image: rbrooker/rabbitmq:latest
+    ports:
+      - "35672:35672"
+    links:
+      - bigwig:bigwig
+      - hazel:hazel
+    container_name: fiver
+    depends_on: 
+      - bigwig
+      - hazel
+    hostname: "fiver"
+    environment:
+      - AMQP_TCP_PORT=35672
+      - MASTER_NAME=bigwig
+      - FEDERATION=1
+      - MASTER=0
+    volumes:
+      - ./rabbit/logs:/var/log/rabbitmq

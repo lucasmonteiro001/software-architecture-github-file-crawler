@@ -1,0 +1,34 @@
+deninet.dev:
+   build: .docker/web
+   ports:
+      - "80:80"
+   volumes:
+      - ./docroot:/var/www
+   links:
+      - db
+db:
+   build: .docker/db
+   ports:
+      - 3306:3306
+   environment:
+      - MYSQL_DB=deninet_com
+      - MYSQL_USER=deninet
+      - MYSQL_PASS=thisisawesome
+   volumes:
+      - /var/lib/mysql
+cli:
+   build: .docker/cli
+   volumes:
+      - ./docroot:/var/www
+      - ./tests:/var/tests
+   links:
+      - db
+      - deninet.dev
+      - browser
+browser:
+  hostname: browser
+  image: selenium/standalone-firefox
+  links:
+    - deninet.dev
+  ports:
+    - "4444:4444"

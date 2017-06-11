@@ -1,0 +1,23 @@
+## To run the blog : docker-compose -d -p 80:2368 blog
+
+blog:
+  image: ptimof/ghost
+  command: npm start --production
+  volumes:
+    - .:/var/lib/ghost
+  env_file:
+    - ./variables.env
+  restart: always
+  ports:
+    - "2368"
+    
+dev:
+  image: ptimof/ghost
+  command: npm start
+  volumes:
+    - .:/var/lib/ghost
+  env_file:
+    - ./variables.env
+  restart: always
+  ports:
+    - "2368"

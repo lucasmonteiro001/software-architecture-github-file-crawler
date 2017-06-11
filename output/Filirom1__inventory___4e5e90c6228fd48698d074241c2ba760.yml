@@ -1,0 +1,12 @@
+web:
+  build: .
+  volumes:
+   - .:/app
+  ports:
+   - "80:80"
+  environment:
+    INVENTORY_ES_HOST: http://elasticsearch:9200
+  links:
+   - elasticsearch
+elasticsearch:
+  image: elasticsearch:1.4.4

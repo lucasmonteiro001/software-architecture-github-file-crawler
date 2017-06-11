@@ -1,0 +1,8 @@
+version: '2'
+
+services:
+  plunk.server:
+    image: plunk.server
+    build:
+      context: .
+      dockerfile: Dockerfile

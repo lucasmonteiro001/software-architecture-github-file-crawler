@@ -1,0 +1,29 @@
+version: '2'
+
+services:
+  viking:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: viking
+    restart: always
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/viking
+    depends_on:
+      - mongodb
+      - redis
+    entrypoint: /viking/entrypoint.sh
+
+  mongodb:
+    image: mongo
+    restart: always
+    volumes:
+      - ./data/volume/mongo:/data/db
+
+  redis:
+    image: redis
+    restart: always
+    volumes:
+      - ./data/volume/redis:/data

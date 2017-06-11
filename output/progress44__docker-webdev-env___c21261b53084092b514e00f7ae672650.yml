@@ -1,0 +1,16 @@
+version: "3"
+
+networks: 
+  loadbalancer0:
+    driver: "bridge"
+
+
+services:
+
+  dummy:
+    #image: haproxy
+    container_name: haproxy_global
+    image: alpine:latest
+    networks:
+      - loadbalancer0
+    command: sh

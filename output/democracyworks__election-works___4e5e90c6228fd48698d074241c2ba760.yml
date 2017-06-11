@@ -1,0 +1,69 @@
+---
+version: '2'
+services:
+  app:
+    build: .
+    environment:
+      INITIALIZE_DATOMIC: "true"
+      ELECTION_WORKS_DATOMIC_URI: datomic:dev://datomic:4334/election-works
+      RABBITMQ_PORT_5672_TCP_ADDR: rabbitmq
+      RABBITMQ_PORT_5672_TCP_PORT: 5672
+      ELECTION_WORKS_ELECTION_READ_THREADS: 2
+      ELECTION_WORKS_ELECTION_UPCOMING_THREADS: 2
+      ELECTION_WORKS_ELECTION_CREATE_THREADS: 2
+      ELECTION_WORKS_ELECTION_UPDATE_THREADS: 2
+      ELECTION_WORKS_ELECTION_DELETE_THREADS: 2
+      ELECTION_WORKS_ELECTION_SEARCH_THREADS: 2
+    depends_on:
+      - rabbitmq
+      - datomic
+  election-authority-works:
+    image: quay.io/democracyworks/election-authority-works:tvprod
+    depends_on:
+      - rabbitmq
+      - datomic
+    environment:
+      INITIALIZE_DATOMIC: "true"
+      ELECTION_AUTHORITY_WORKS_DATOMIC_URI: datomic:dev://datomic:4334/election-authority-works
+      RABBITMQ_PORT_5672_TCP_ADDR: rabbitmq
+      RABBITMQ_PORT_5672_TCP_PORT: 5672
+  voter-registration-works:
+    image: quay.io/democracyworks/voter-registration-works:tvprod
+    depends_on:
+      - rabbitmq
+      - datomic
+    environment:
+      VOTER_REGISTRATION_WORKS_DATOMIC_URI: datomic:dev://datomic:4334/voter-registration-works 
+      INITIALIZE_DATOMIC: "true"
+      RABBITMQ_PORT_5672_TCP_ADDR: rabbitmq
+      RABBITMQ_PORT_5672_TCP_PORT: 5672
+  voting-method-works:
+    image: quay.io/democracyworks/voting-method-works:tvprod
+    depends_on:
+      - rabbitmq
+      - datomic
+    environment:
+      DATOMIC_URI: datomic:dev://datomic:4334/voting-method-works
+      INITIALIZE_DATOMIC: "true"
+      RABBITMQ_PORT_5672_TCP_ADDR: rabbitmq
+      RABBITMQ_PORT_5672_TCP_PORT: 5672
+      VOTING_METHOD_WORKS_VOTING_METHOD_SEARCH_THREADS: 2
+      VOTING_METHOD_WORKS_VOTING_METHOD_PREFERENCE_READ_THREADS: 2
+      VOTING_METHOD_WORKS_VOTING_METHOD_PREFERENCE_CREATE_THREADS: 2
+      VOTING_METHOD_WORKS_VOTING_METHOD_PREFERENCE_DELETE_THREADS: 2
+      VOTING_METHOD_WORKS_VOTING_METHOD_PREFERENCE_PAGE_THREADS: 2
+  datomic:
+    image: quay.io/democracyworks/datomic-tx:0.9.5544
+    ports:
+      - "4334:4334"
+      - "4335:4335"
+      - "4336:4336"
+    environment:
+      ALT_HOST: localhost
+    hostname: datomic
+  rabbitmq:
+    image: rabbitmq:3.5.3-management
+    ports:
+      - "45672:5672"
+      - "55672:15672"
+    hostname: rabbitmq

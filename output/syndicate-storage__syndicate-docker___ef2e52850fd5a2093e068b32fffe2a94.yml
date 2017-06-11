@@ -1,0 +1,14 @@
+# docker-compose.yml for syndicate-gateways-node
+
+version: '2'
+
+services:
+  syndicate-gateways-node-svc:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: syndicate-gateways-node
+    entrypoint: /bin/bash
+    ports:
+      - "31111:31111"
+      - "8888:8888"

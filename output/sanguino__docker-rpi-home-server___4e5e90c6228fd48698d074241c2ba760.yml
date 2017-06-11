@@ -1,0 +1,86 @@
+version: '2'
+services:
+  transmission:
+    image: robsharp/rpi-transmission
+    container_name: transmission
+    restart: always
+    environment:
+      - VIRTUAL_HOST=transmission.serverpi.home
+      - VIRTUAL_PORT=9091
+    ports:
+      - 9091:9091
+      - 51413:51413
+      - 51413:51413/udp
+    volumes:
+      - /media/usb/downloading:/root/Downloads
+      - ~/transmission-daemon:/etc/transmission-daemon
+      
+  dockerui:
+    image: hypriot/rpi-dockerui
+    container_name: docker_ui
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - 9000:9000
+    environment:
+      - VIRTUAL_HOST=dockerui.serverpi.home
+      - VIRTUAL_PORT=9000
+      
+  owncloud-db:
+    image: schoeffm/rpi-owncloud-mysql
+    container_name: owncloud-db
+    ports:
+      - 3306:3306
+    environment:
+      - OWNCLOUD_DB_USER=owncloud
+      - OWNCLOUD_DB_PASSWORD=mycloud
+      - MYSQL_ROOT_PASSWORD=foo
+
+  owncloud-data:
+    image: schoeffm/rpi-owncloud-data
+    container_name: owncloud-data
+    environment:
+      - OWNCLOUD_DB_USER=owncloud
+      - OWNCLOUD_DB_PASSWORD=mycloud
+    volumes:
+      - /media:/var/www/html/data
+  
+  owncloud:
+    image: schoeffm/rpi-owncloud
+    container_name: owncloud
+    ports:
+      - 8080:80
+      - 8443:443
+    links:
+      - owncloud-db:mysql
+    volumes_from:
+      - owncloud-data
+    environment:
+      - OWNCLOUD_SERVERNAME=owncloud.serverpi.home
+      - VIRTUAL_HOST=owncloud.serverpi.home
+      - VIRTUAL_PORT=8443
+
+  nginxproxy:
+    image: lroguet/rpi-nginx-proxy
+    container_name: nginxproxy
+    ports:
+      - 80:80
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+
+  smbshare:
+    image: charlesmknox/rpi-samba:v2
+    container_name: samba
+    restart: always
+    ports:
+      - 137:137/tcp
+      - 137:137/udp
+      - 138:138/tcp
+      - 138:138/udp
+      - 139:139
+      - 445:445
+      - 445:445/udp
+    hostname: parenthostname
+    volumes:
+      - /media/usb:/share/data
+    command: -u "pa:qwerty" -u "mi:qwerty" -s "Media:/share/data/:rw:pa,mi"

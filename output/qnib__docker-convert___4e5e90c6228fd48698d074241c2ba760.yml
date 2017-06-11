@@ -1,0 +1,6 @@
+convert:
+   image: qnib/convert
+   command: tail -f /dev/null
+   volumes:
+    - ./video:/video/
+

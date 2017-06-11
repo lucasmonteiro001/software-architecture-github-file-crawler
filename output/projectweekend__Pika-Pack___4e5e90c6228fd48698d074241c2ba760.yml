@@ -1,0 +1,13 @@
+rabbit:
+    image: rabbitmq
+    ports:
+        - "5672:5672"
+test:
+    build: .
+    volumes:
+        - ./tests:/src
+        - ./pika_pack:/src/pika_pack
+    environment:
+        TEST: test
+    links:
+        - rabbit

@@ -1,0 +1,131 @@
+version: '2'
+
+volumes:
+
+  cache: ~
+{% if configuration.database.mariadb.isActivated %}  mariadbdata: ~
+{% endif %}
+{% if configuration.database.mysql.isActivated %}  mysqldata: ~
+{% endif %}
+{% if configuration.database.postgresql.isActivated %}  postgresqldata: ~
+{% endif %}
+
+networks:
+
+  {{ configuration.symfony.machineName }}: ~
+
+services:
+
+{% if configuration.mail.mailcatcher.isActivated %}
+  mailcatcher:
+    image: jderusse/mailcatcher
+    networks:
+      - {{ configuration.symfony.machineName }}
+{% endif %}
+
+{% if configuration.mail.mailhog.isActivated %}
+  mailhog:
+    image: mailhog/mailhog
+    networks:
+      - {{ configuration.symfony.machineName }}
+{% endif %}
+
+{% if configuration.performance.blackfire %}
+  blackfire:
+    image: blackfire/blackfire
+    environment:
+      - BLACKFIRE_SERVER_ID
+      - BLACKFIRE_SERVER_TOKEN
+    networks:
+      - {{ configuration.symfony.machineName }}
+{% endif %}
+
+{% if configuration.database.mariadb.isActivated %}
+  mariadb:
+    build: ./docker/mariadb/
+    container_name: {{ configuration.symfony.machineName }}-mariadb
+    volumes:
+      - mariadbdata:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD={{ configuration.database.mariadb.getRandOrPassword }}
+    networks:
+      - {{ configuration.symfony.machineName }}
+
+{% if configuration.database.mariadb.getOthers('phpmyadmin') %}
+  phpmyadmin-mariadb:
+    image: phpmyadmin/phpmyadmin
+    container_name: {{ configuration.symfony.machineName }}-mariadb-phpmyadmin
+    environment:
+      - PMA_HOST=mariadb
+      - PMA_USER=root
+      - PMA_PASSWORD={{ configuration.database.mariadb.getRandOrPassword }}
+    networks:
+      - {{ configuration.symfony.machineName }}
+{% endif %}
+{% endif %}
+
+{% if configuration.database.mysql.isActivated %}
+  mysql:
+    build: ./docker/mysql/
+    container_name: {{ configuration.symfony.machineName }}-mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD={{ configuration.database.mysql.getRandOrPassword }}
+    volumes:
+      - mysqldata:/var/lib/mysql
+    networks:
+      - {{ configuration.symfony.machineName }}
+
+{% if configuration.database.mysql.getOthers('phpmyadmin') %}
+  phpmyadmin-mysql:
+    image: phpmyadmin/phpmyadmin
+    container_name: {{ configuration.symfony.machineName }}-mysql-phpmyadmin
+    environment:
+      - PMA_HOST=mysql
+      - PMA_USER=root
+      - PMA_PASSWORD={{ configuration.database.mysql.getRandOrPassword }}
+    networks:
+      - {{ configuration.symfony.machineName }}
+{% endif %}
+{% endif %}
+
+{% if configuration.database.postgresql.isActivated %}
+  postgresql:
+    build: ./docker/postgresql/
+    container_name: postgresql
+    volumes:
+      - postgresqldata:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD={{ configuration.database.postgresql.getRandOrPassword }}
+    networks:
+      - {{ configuration.symfony.machineName }}
+{% endif %}
+
+  php:
+    build: ./docker/php/
+    container_name: {{ configuration.symfony.machineName }}
+    volumes:
+      - ./:/www
+      - cache:/www{{ configuration.symfony.getVarPath }}/cache
+{% if configuration.performance.blackfire %}    environment:
+{% endif %}
+{% if configuration.performance.blackfire %}
+      - BLACKFIRE_CLIENT_ID
+      - BLACKFIRE_CLIENT_TOKEN
+{% endif %}
+    networks:
+      - {{ configuration.symfony.machineName }}
+
+  tools:
+    build: ./docker/tool/
+    volumes:
+      - ./:/www
+      - cache:/www{{ configuration.symfony.getVarPath }}/cache
+      - ~/.composer:/var/www/.composer
+{% if configuration.symfony.others('ssh') %}      - ~/.ssh/known_hosts:/var/www/.ssh/known_hosts:ro
+      - $SSH_AUTH_SOCK:/tmp/ssh_auth_sock:ro
+{% endif %}
+{% if configuration.symfony.others('ssh') %}    environment:
+      - SSH_AUTH_SOCK=/tmp/ssh_auth_sock
+{% endif %}
+    networks:
+      - {{ configuration.symfony.machineName }}

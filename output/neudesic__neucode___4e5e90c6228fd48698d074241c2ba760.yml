@@ -1,0 +1,25 @@
+# Copyright 2017 Neudesic, LLC
+#
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with This
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+version: '3'
+services:
+  neucode:
+    build:
+      context: .
+      args:
+        env: dev
+    depends_on:
+      - sqldb
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@sqldb/neucode_dev
+    ports:
+      - "4000:4000"
+    volumes:
+      - .:/app
+  sqldb:
+    image: postgres
+    ports:
+      - "5432:5432"

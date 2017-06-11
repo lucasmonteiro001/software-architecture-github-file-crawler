@@ -1,0 +1,27 @@
+version: '2'
+services:
+
+  postgres:
+    image: postgres:9.5.3
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: smb
+    volumes:
+      - /var/lib/postgresql/data
+
+  app:
+    build: .
+    environment:
+      DB_USERNAME: user
+      DB_PASSWORD: password
+      DB_NAME: smb
+      DB_HOST: postgres
+      DB_PORT: 5432
+    links:
+      - postgres
+    depends_on:
+      - postgres
+    ports:
+      - "5000:5000"
+    command: ./manage.py runserver -h 0.0.0.0

@@ -1,0 +1,28 @@
+version: '2'
+services:
+  mqtt:
+    image: toke/mosquitto
+    ports:
+     - "9001:9001"
+     - "1883:1883"
+  db:
+    image: postgres
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+  django:
+    build: .
+    command: /wait-for-it.sh -t 90 db:5432 -- /entrypoint.sh
+    ports:
+     - "80:80"
+    volumes:
+     - .:/code
+    depends_on:
+     - mqtt
+     - db
+  daemon:
+    build: .
+    command: /wait-for-it.sh -t 90 db:5432 -- python manage.py run_daemon
+    depends_on:
+     - mqtt
+     - db

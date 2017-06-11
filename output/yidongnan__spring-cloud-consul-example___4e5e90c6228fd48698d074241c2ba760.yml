@@ -1,0 +1,53 @@
+zipkin:
+  image: openzipkin/zipkin
+  ports:
+    - "9411:9411"
+
+consul:
+  image: consul
+  ports:
+    - "8400:8400"
+    - "8500:8500"
+    - "8600:8600"
+
+service-b:
+  image:  spring-cloud-consul-example/service-b
+  links:
+    - "consul"
+    - "hystrix-dashboard"
+    - "zipkin"
+
+service-a:
+  image:  spring-cloud-consul-example/service-a
+  links:
+    - "consul"
+    - "service-b"
+    - "hystrix-dashboard"
+    - "zipkin"
+
+admin-dashboard:
+  image:  spring-cloud-consul-example/admin-dashboard
+  ports:
+    - "8040:8040"
+  links:
+    - "service-a"
+    - "service-b"
+    - "zuul"
+    - "hystrix-dashboard"
+    - "consul"
+
+zuul:
+  image:  spring-cloud-consul-example/zuul
+  ports:
+    - "8060:8060"
+  links:
+    - "consul"
+    - "service-a"
+    - "zipkin"
+
+hystrix-dashboard:
+  image:  spring-cloud-consul-example/hystrix-dashboard
+  ports:
+    - "8050:8050"
+  links:
+    - "consul"

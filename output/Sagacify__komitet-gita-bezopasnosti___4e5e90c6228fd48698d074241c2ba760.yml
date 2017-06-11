@@ -1,0 +1,10 @@
+py:
+  build: .
+  command: python3 -m kgitb
+  environment:
+    GH_TOKEN: ${GH_TOKEN}
+  ports:
+    - "17100:5000"
+  volumes:
+    - ./kgitb:/var/www/kgitb
+    - ./requirements.txt:/var/www/requirements.txt

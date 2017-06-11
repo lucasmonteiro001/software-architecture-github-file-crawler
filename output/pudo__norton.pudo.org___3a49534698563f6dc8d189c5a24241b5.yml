@@ -1,0 +1,165 @@
+scraper:
+  image: pudo/scraper-base
+  volumes:
+    - "/srv/data/:/srv/data/"
+  hostname: scraper
+  environment:
+    DATABASE_URI: "postgresql://dw:dw@postgres/dw"
+    DATA_PATH: "/srv/data"
+    AWS_DEFAULT_REGION: "eu-west-1"
+    AWS_CONFIG_FILE: "/etc/aws.config"
+  env_file:
+    - local.env
+
+postgres:
+  image: postgres:9.4
+  volumes:
+    - '/srv/op/postgres/:/var/lib/postgresql/data'
+  environment:
+    POSTGRES_USER:     dw
+    POSTGRES_PASSWORD: dw
+    POSTGRES_DATABASE: dw
+  ports:
+    - "127.0.0.1:6432:5432"
+
+tor:
+  image: mattes/rotating-proxy:latest
+  environment:
+    tors: 10
+
+## Begin scrapers
+
+opennames:
+  extends:
+    file: docker-compose.yml
+    service: scraper
+  build: opennames
+  links:
+    - postgres
+  environment:
+    DATA_PATH: "/srv/data/opennames"
+
+moldovacourts:
+  extends:
+    file: docker-compose.yml
+    service: scraper
+  build: moldova-courts
+  links:
+    - postgres
+
+foerderkatalog:
+  extends:
+    file: docker-compose.yml
+    service: scraper
+  build: foerderkatalog
+  links:
+    - postgres
+
+bundeshaushalt:
+  extends:
+    file: docker-compose.yml
+    service: scraper
+  build: bundeshaushalt
+  links:
+    - postgres
+
+bafin:
+  extends:
+    file: docker-compose.yml
+    service: scraper
+  build: bafin
+  links:
+    - postgres
+
+interpol:
+  extends:
+    file: docker-compose.yml
+    service: scraper
+  build: interpol
+  links:
+    - postgres
+
+handelsregister:
+  extends:
+    file: docker-compose.yml
+    service: scraper
+  build: handelsregister
+  links:
+    - postgres
+    - tor
+  environment:
+    HTTP_PROXY: http://tor:5566
+    HTTPS_PROXY: http://tor:5566
+
+plpr:
+  extends:
+    file: docker-compose.yml
+    service: scraper
+  build: plpr-scraper
+  links:
+    - postgres
+    - tor
+  environment:
+    DATA_PATH: /srv/data/bundestag/plpr
+    HTTP_PROXY: http://tor:5566
+    HTTPS_PROXY: http://tor:5566
+
+mdb:
+  extends:
+    file: docker-compose.yml
+    service: scraper
+  build: mdb-scraper
+  links:
+    - postgres
+    - tor
+  environment:
+    HTTP_PROXY: http://tor:5566
+    HTTPS_PROXY: http://tor:5566
+
+ablaeufe:
+  extends:
+    file: docker-compose.yml
+    service: scraper
+  build: ablaeufe-scraper
+  links:
+    - postgres
+
+fts:
+  extends:
+    file: docker-compose.yml
+    service: scraper
+  build: fts
+  links:
+    - postgres
+
+ted:
+  extends:
+    file: docker-compose.yml
+    service: scraper
+  build: ted
+  links:
+    - postgres
+
+expertgroups:
+  extends:
+    file: docker-compose.yml
+    service: scraper
+  build: expert-groups
+  links:
+    - postgres
+
+tr:
+  extends:
+    file: docker-compose.yml
+    service: scraper
+  build: transparency-register
+  links:
+    - postgres
+
+flexicadastre:
+  extends:
+    file: docker-compose.yml
+    service: scraper
+  build: flexicadastre
+  links:
+    - postgres

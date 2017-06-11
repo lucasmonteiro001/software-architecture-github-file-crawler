@@ -1,0 +1,29 @@
+ui:
+  build: vinci-ui
+  volumes:
+    - $(pwd):/vincione/vinci-ui
+  links:
+    - core
+  ports:
+    - "8000:8000"
+core:
+  build: vinci-core
+  volumes: 
+    - $(pwd):/vincione/vinci-core
+  links: 
+    - data
+  ports:
+    - "8001"
+data:
+  build: vinci-data
+  volumes:
+    - $(pwd):/vincione/vinci-data
+  links:
+    - db
+  ports:
+    - "8002"
+db:
+  image: mongo:3.0.4
+  volumes: $(pwd):/data
+  ports:
+    - "27017"

@@ -1,0 +1,60 @@
+# Some cool things here.
+version: '2'
+
+services:
+  php7:
+    hostname: katli
+    image: kafei/d7p7
+    mem_limit: 256m
+    cpu_shares: 300
+    restart: on-failure
+    ports:
+      - "80"
+    volumes:
+      - "${PWD}/repos/${COMPOSE_PROJECT_NAME}:/var/www/html"
+      - "${PWD}/settings/${COMPOSE_PROJECT_NAME}:/var/www/html/sites/default"
+      - "${PWD}/files/${COMPOSE_PROJECT_NAME}:/var/www/html/sites/default/files"
+      - "${PWD}/files/${COMPOSE_PROJECT_NAME}_legacy:/var/www/html/sites/default/files_legacy"
+      - "${PWD}/config/${COMPOSE_PROJECT_NAME}:/var/www/html/sites/default/config"
+    depends_on:
+      - db
+  php56:
+    hostname: katli
+    image: kafei/d7p56
+    mem_limit: 256m
+    cpu_shares: 300
+    restart: on-failure
+    ports:
+      - "80"
+    volumes:
+      - "${PWD}/repos/${COMPOSE_PROJECT_NAME}:/var/www/html"
+      - "${PWD}/settings/${COMPOSE_PROJECT_NAME}:/var/www/html/sites/default"
+      - "${PWD}/files/${COMPOSE_PROJECT_NAME}:/var/www/html/sites/default/files"
+      - "${PWD}/files/${COMPOSE_PROJECT_NAME}_legacy:/var/www/html/sites/default/files_legacy"
+      - "${PWD}/config/${COMPOSE_PROJECT_NAME}:/var/www/html/sites/default/config"
+    depends_on:
+      - db
+  db:
+    hostname: db
+    image: mysql:latest
+    mem_limit: 512m
+    cpu_shares: 624
+    restart: on-failure
+    ports:
+      - "3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=my-secret-pw
+    volumes:
+      - "${PWD}/sql:/var/sql"
+      - "${PWD}/src/my.cnf:/etc/mysql/conf.d/katli.cnf"
+  mail:
+    hostname: mail
+    image: mailhog/mailhog
+    mem_limit: 156m
+    cpu_shares: 100
+    restart: on-failure
+    ports:
+      - "1025"
+      - "8025"
+    depends_on:
+      - db

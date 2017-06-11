@@ -1,0 +1,70 @@
+redis:
+  image: redis
+  ports:
+    - 26379:6379
+#  volumes:
+#    - /data/redis:/registry/data
+
+mysql:
+  environment:
+    MYSQL_ROOT_PASSWORD: mysql
+    MYSQL_DATABASE: registry
+  image: "mysql:latest"
+  restart: always
+
+registry:
+  build: ./registry_img
+  links:
+    - redis:redis
+    - mysql:mysql
+  ports:
+    - 5000:5000
+  environment:
+#Refer to wiki for confidential information
+    #- OS_CONTAINER=######
+    #- OS_USERNAME=#####
+    #- OS_PASSWORD=#####
+    #- OS_AUTH_URL=#####
+    #- OS_TENANT_NAME=#####
+    - DEBUG=true
+    - STANDALONE=false
+    - LOGLEVEL=debug
+    - DISABLE_TOKEN_AUTH=false
+    - SETTINGS_FLAVOR=swift
+    - INDEX_ENDPOINT=http://index.private.io:5100
+    - SEARCH_BACKEND=sqlalchemy
+    - SQLALCHEMY_INDEX_DATABASE=mysql://root:mysql@mysql:3306/registry
+    - STORAGE_PATH=/var/docker-registry-storage
+    #- GUNICORN_OPTS=["--preload"]
+#  volumes:
+#    - /tmp/registry:/data/registry
+
+index:
+  build: .
+  ports:
+    - 5100:5100
+  environment:
+    - REGISTRY_PROTOCOL=http
+    - NODE_TLS_REJECT_UNAUTHORIZED=0
+    - REGISTRIES=registry.private.io:5000
+    - DISABLE_NEW_ACCOUNTS=true
+    - NODE_ENV=docker
+    - LOG_LEVEL=debug
+  links:
+    - redis:redis
+
+nginx:
+  image: h3nrik/nginx-ldap:latest
+#  environment:
+#    - INDEX_HOSTNAME=index.private.io
+#    - REGISTRY_HOSTNAME=registry.private.io
+  ports:
+    - 80:80
+    - 443:443
+  links:
+    - registry:registry
+    - index:index
+#ask me for the nging conf --jt
+  volumes:
+    - ./nginx:/etc/nginx:ro
+

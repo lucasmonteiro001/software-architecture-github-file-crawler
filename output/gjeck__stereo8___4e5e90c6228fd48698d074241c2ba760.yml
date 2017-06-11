@@ -1,0 +1,22 @@
+db:
+    image: postgres
+    env_file:
+      - .keys.dockenv
+search:
+    image: elasticsearch
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+web:
+    build: .
+    command: python3.4 stereo8/manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
+    links:
+      - db
+      - search
+    env_file:
+      - .keys.dockenv
+    

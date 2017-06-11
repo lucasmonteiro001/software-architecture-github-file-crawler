@@ -1,0 +1,7 @@
+test:
+  build: .
+  volumes:
+    - ./:/usr/src/app/
+    - ./zipline_root:/home/.zipline
+  env_file: test.env
+  net: "host"

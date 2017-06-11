@@ -1,0 +1,51 @@
+version: '2'
+services:
+  config:
+    image: zambee/config-service
+    restart: always
+    ports:
+     - 10000:10000
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "10"
+
+  registry:
+    image: zambee/eureka-service
+    restart: always
+    ports:
+     - 8761:8761
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "10"
+
+  api-gateway:
+    image: zambee/api-gateway
+    restart: always
+    ports:
+     - 10100:10100
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "10"
+
+  ping-service:
+    image: zambee/ping-service
+    restart: always
+    ports:
+     - 10500:10500
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "10"
+
+  pong-service:
+    image: zambee/pong-service
+    restart: always
+    ports:
+     - 10600:10600
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "10"

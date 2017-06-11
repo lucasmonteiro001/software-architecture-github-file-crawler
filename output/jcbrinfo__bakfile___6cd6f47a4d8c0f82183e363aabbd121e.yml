@@ -1,0 +1,57 @@
+# The Docker Compose configuration for this project.
+#
+# WARNING: Always specify the service you want to start (likely `rsync`) when
+# you use the `up` subcommand on this project.
+version: '2'
+services:
+    users:
+        image: tk.bakfile_users
+        build: ./tk.bakfile_users
+        volumes:
+            - home:/home
+        command: [/bin/true]
+    bash:
+        image: tk.bakfile_users
+        depends_on:
+            - users
+        volumes:
+            - home:/home
+        entrypoint: [/bin/bash]
+    rsync:
+        build: ./tk.bakfile_rsync
+        depends_on:
+            - users
+        volumes:
+            - home:/home
+        ports:
+            - "${BAKFILE_RSYNC_PORT}:22"
+    duplicity:
+        image: tk.bakfile_duplicity
+        build: ./tk.bakfile_duplicity
+        depends_on:
+            - users
+        volumes:
+            - home:/home
+            - "${BAKFILE_GNUPG_HOMEDIR}:/root/.gnupg"
+            - duplicity.cache:/root/.cache/duplicity
+        # Do nothing by default so `gpg` can depend on this service.
+        command: [--version]
+    gpg:
+        build: ./tk.bakfile_gpg
+        depends_on:
+            - duplicity
+        volumes:
+            - home:/home
+            - "${BAKFILE_GNUPG_HOMEDIR}:/root/.gnupg"
+    tar:
+        image: tk.bakfile_users
+        depends_on:
+            - users
+        volumes:
+            - home:/home
+            - duplicity.cache:/root/.cache/duplicity
+            - ../bak:/bak
+        entrypoint: [/bin/tar]
+volumes:
+    home: {}
+    duplicity.cache: {}

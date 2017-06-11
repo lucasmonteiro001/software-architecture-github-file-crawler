@@ -1,0 +1,29 @@
+version: '2'
+services:
+  jpetstore-mysql:
+    image: aaravindanarun/jpetstore-mysql:latest
+    container_name: jpetstore-app
+    restart: always
+    environment:
+         - MYSQL_ROOT_PASSWORD=admin
+         - MYSQL_DATABASE=jpetstore
+         - MYSQL_USER=jpetstore
+         - MYSQL_PASSWORD=jpetstore
+    ports:
+         - "3306:3306"
+
+  
+  jpetstore-tomcat:
+    image: aaravindanarun/jpetstore-tomcat:latest
+    container_name: jpetstore-db
+    environment:
+         - MYSQL_DATABASE=jpetstore
+         - MYSQL_USER=jpetstore
+         - MYSQL_PASSWORD=jpetstore
+    ports:
+        - "8080:8080"
+    depends_on: 
+        - jpetstore-mysql
+    links:
+        - jpetstore-mysql
+    restart: always 

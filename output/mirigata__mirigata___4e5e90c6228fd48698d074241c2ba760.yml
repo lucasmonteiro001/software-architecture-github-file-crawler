@@ -1,0 +1,25 @@
+mirigata-db:
+  image: postgres:9.4
+  ports:
+    - ":5432"
+  env_file:
+    - passwords.env
+  environment:
+    POSTGRES_USER: mirigata
+
+infiksi:
+  image: mirigata/infiksi
+  ports:
+    - ":8080"
+
+mirigata:
+  build: .
+  links:
+    - mirigata-db
+    - infiksi
+  ports:
+    - "80:8000"
+  environment:
+    DISCOVERY_MODE: env
+    SECRET_KEY: hmza=$)j(tuainnvk415z*fwj^4#)*+!y20_n+yn1a$%=9yh=o
+

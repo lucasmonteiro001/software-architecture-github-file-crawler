@@ -1,0 +1,21 @@
+version: '2'
+services:
+  mongodb:
+    image: mongo
+    ports:
+      - 27017:27017
+  smtp-server:
+    image: djfarrelly/maildev
+    ports:
+      - 25:25
+      - 1080:80
+  initiatives-backend:
+    image: ${REPO}/ssg/initiatives_backend_auth:${TAG_INITIATIVES_BACKEND}
+    ports:
+      - 8080:8080
+    links:
+      - mongodb
+      - smtp-server
+    environment:
+     - SPRING_PROFILES_ACTIVE=bouchon, docker
+

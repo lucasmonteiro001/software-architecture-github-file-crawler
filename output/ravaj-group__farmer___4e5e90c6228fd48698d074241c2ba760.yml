@@ -1,0 +1,178 @@
+data:
+  container_name: farmer_data
+  restart: always
+  build: data
+  volumes:
+    - /etc/timezone:/etc/timezone:ro
+    - /etc/localtime:/etc/localtime:ro
+    - /etc/farmer/common/docker:/root/.docker
+    - /etc/farmer/common/ssh:/root/.ssh
+  environment:
+    SERVICE_IGNORE: ignore
+
+mysql_api:
+  container_name: farmer_mysql_api
+  restart: always
+  build: mysql/api
+  links:
+    - mysql
+  environment:
+    MYSQL_ROOT_PASSWORD: ${DATABASE_ROOT_PASSWORD}
+    SERVICE_IGNORE: ignore
+
+mysql:
+  container_name: farmer_mysql_server
+  restart: always
+  build: mysql
+  environment:
+    MYSQL_ROOT_PASSWORD: ${DATABASE_ROOT_PASSWORD}
+    SERVICE_IGNORE: ignore
+  volumes_from:
+    - data
+  volumes:
+    - /etc/farmer/db:/var/lib/mysql
+
+etcd:
+  container_name: farmer_etcd_server
+  restart: always
+  image: quay.io/coreos/etcd:v2.2.1
+  ports:
+    - "2379:2379"
+  command:
+    - -name=etcd
+    - -data-dir=/var/etcd/data
+    - -listen-client-urls=http://0.0.0.0:2379
+    - -advertise-client-urls=http://farmer_etcd_server:2379
+    - --debug=true
+  volumes_from:
+    - data
+  volumes:
+    - /etc/farmer/etcd:/var/etcd/data
+  environment:
+    SERVICE_IGNORE: ignore
+
+registrator:
+  container_name: farmer_registrator
+  restart: always
+  image: gliderlabs/registrator:v6
+  command: -internal -ttl 11 -ttl-refresh 10 -resync 10 etcd://farmer_etcd_server:2379/services
+  links:
+    - etcd
+  volumes_from:
+    - data
+  volumes:
+    - /var/run/docker.sock:/tmp/docker.sock
+  environment:
+    SERVICE_IGNORE: ignore
+
+proxy:
+  container_name: farmer_proxy_server
+  restart: always
+  build: proxy
+  links:
+    - etcd
+  ports:
+    - "80:80"
+    - "443:443"
+  volumes_from:
+    - data
+  volumes:
+    - /etc/farmer/proxy/certs:/certs
+  environment:
+    ETCD_NODE: farmer_etcd_server:2379
+    SERVICE_IGNORE: ignore
+
+browser:
+  container_name: farmer_etcd_browser
+  restart: always
+  image: buddho/etcd-browser
+  ports:
+    - "8000:8000"
+  links:
+    - etcd
+  environment:
+    ETCD_HOST: farmer_etcd_server
+    ETCD_PORT: 2379
+    SERVICE_IGNORE: ignore
+
+toolbelt_daemon:
+  container_name: farmer_toolbelt_daemon
+  restart: always
+  build: ./toolbelt
+  links:
+    - etcd
+  volumes_from:
+    - data
+  environment:
+    SERVICE_IGNORE: ignore
+
+logger:
+  container_name: farmer_logger
+  restart: always
+  image: nshou/elasticsearch-kibana
+  environment:
+    SERVICE_IGNORE: ignore
+  ports:
+    - "5601:5601"
+  volumes_from:
+    - data
+  volumes:
+    - /etc/farmer/logger/elasticsearch:/var/lib/elasticsearch
+
+logger_alert:
+  container_name: farmer_logger_alert
+  restart: always
+  build: ./logger/elastalert
+  environment:
+    SERVICE_IGNORE: ignore
+  links:
+    - logger:elasticsearch_host
+    - mailer
+  volumes_from:
+    - data
+  volumes:
+    - /etc/farmer/logger/alert/rules:/opt/rules
+
+mailer:
+  container_name: farmer_mailer
+  restart: always
+  build: mailer
+  links:
+    - etcd
+  environment:
+    ETCD_NODE: farmer_etcd_server:2379
+  volumes_from:
+    - data
+  volumes:
+    - /etc/farmer/mailer:/data
+  ports:
+    - "25:25"
+    - "465:465"
+
+dns:
+  container_name: farmer_dns
+  restart: always
+  build: ./dns
+  links:
+    - etcd
+  environment:
+    SERVICE_IGNORE: ignore
+    HOST_EXTERNAL_IP: ${HOST_EXTERNAL_IP}
+    ETCD_NODE: farmer_etcd_server:2379
+    WEBMIN_ENABLED: 'false'
+  ports:
+    - "53:53/udp"
+  volumes_from:
+    - data
+  volumes:
+    - /etc/farmer/dns/zones:/zones
+
+cleaner:
+  container_name: farmer_cleaner
+  build: ./cleaner
+  restart: always
+  volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
+    - /var/lib/docker:/var/lib/docker
+  environment:
+    SERVICE_IGNORE: ignore

@@ -1,0 +1,12 @@
+todo:
+  build: .
+  command: ember serve --port=4200 --live-reload-port=49152
+  ports:
+   - "4200:4200"
+   - "49152:49152"
+  volumes:
+   - ./app:/app/app
+   - ./config:/app/config
+   - ./public:/app/public
+   - ./tests:/app/tests
+   - ./vendor:/app/vendor

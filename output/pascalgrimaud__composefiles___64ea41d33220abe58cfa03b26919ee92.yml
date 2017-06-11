@@ -1,0 +1,10 @@
+version: '2'
+services:
+    tomcat:
+        container_name: tomcat
+        image: tomcat:8.0.39-jre8-alpine
+        ports:
+            - 8080:8080
+        network_mode: 'bridge'
+        volumes:
+            - ~/volumes/tomcat/postgresql/:/usr/local/tomcat/webapps

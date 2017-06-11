@@ -1,0 +1,9 @@
+jhipster-postgresql:
+  image : postgres
+  volumes:
+  - ~/volumes/jhipster/postgresql/:/var/lib/postgresql/
+  environment:
+    - POSTGRES_USER=bubuxpostgres
+  ports:
+  - "5432:5432"
+  

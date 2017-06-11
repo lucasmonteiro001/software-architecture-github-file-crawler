@@ -1,0 +1,22 @@
+version: '2'
+services:
+  bmgr:
+    build:
+      context: billmanager
+      args:
+        - billmgrRootPassword=${BMGR_ROOT_PASSWORD}
+    restart: always
+    tty: true
+    environment:
+      - VIRTUAL_HOST=${VIRTUAL_HOST}
+    volumes:
+      - bmgr:/usr/local/mgr5
+      - bmgr_db:/var/lib/mysql
+      - bmgr_root_ssh:/root/.ssh
+volumes:
+  bmgr:
+    driver: local
+  bmgr_db:
+    driver: local
+  bmgr_root_ssh:
+    driver: local

@@ -1,0 +1,16 @@
+mail:
+  build: .
+#  image: cinconueves/postfix 
+  ports:
+   - "25:25"
+   - "587:587"
+  environment:
+    -  hostname=mail.cinconueves.com
+  volumes:
+  -  /opt/postfix/log/mail.log:/var/log/mail.log 
+  -  /opt/postfix/relay/relayhost_map.db:/etc/postfix/relayhost_map.db
+  -  /opt/postfix/relay/sasl_passwd.db:/etc/postfix/sasl_passwd.db
+  -  /opt/postfix/users/aliases.db:/etc/aliases.db
+  -  /opt/postfix/sasl/sasldb2:/etc/sasldb2
+  -  /opt/postfix/dkim:/etc/opendkim/domainkeys
+  -  /opt/postfix/tls/certs:/etc/postfix/certs

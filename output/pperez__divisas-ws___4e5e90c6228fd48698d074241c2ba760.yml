@@ -1,0 +1,17 @@
+postgres:
+  image: postgres:9.4
+  volumes:
+    - ./docker-data/postgres:/var/lib/postgresql/data
+  environment:
+    POSTGRES_USER: divisas
+    POSTGRES_PASSWORD: divisas
+tomcat:
+  image: tomcat:8-jre8
+  volumes:
+    - ./docker-data/tomcat:/root/.boadivisas
+    - ./ws/target/ws.war:/usr/local/tomcat/webapps/ws.war
+    - ./logs:/usr/local/tomcat/logs
+  links:
+    - postgres
+  env_file:
+    - ./tomcat.env

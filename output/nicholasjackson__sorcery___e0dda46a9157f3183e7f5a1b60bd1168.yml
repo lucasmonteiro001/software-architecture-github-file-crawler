@@ -1,0 +1,55 @@
+version: '2'
+services:
+  sorcery:
+    image: sorcery
+    ports:
+      - "::8001"
+    environment:
+      - "CONSUL=consul:8500"
+    links:
+      - statsd:statsd
+      - mongo:mongo
+      - redis:redis
+      - callbackserver:callbackserver
+      - syslog:syslog
+  data:
+    image: 'busybox:latest'
+    volumes:
+      - /data/db
+    command: tail -f /dev/null
+  mongo:
+    image: 'mongo:latest'
+    ports:
+      - '::27017'
+    volumes_from:
+      - data
+    environment:
+      - "SERVICE_27017_NAME=mongo-27017"
+  redis:
+    image: 'redis:latest'
+    ports:
+      - '::6380'
+      - '::6379'
+  statsd:
+    image: 'hopsoft/graphite-statsd:latest'
+    ports:
+      - "8180:80"
+      - "2003:2003"
+      - "8125:8125/udp"
+      - "8126:8126"
+    environment:
+      - "SERVICE_8125_NAME=statsd-8125"
+  syslog:
+    image: 'factorish/syslog'
+    command: '-t udp'
+    environment:
+      - "SERVICE_514_NAME=syslog-514"
+  callbackserver:
+    image: nicholasjackson/mimic-docker
+    ports:
+      - "::11988"
+  registrator:
+    command: -internal -tags=dev consul://consul:8500
+    image: gliderlabs/registrator:latest
+    volumes:
+      - "/var/run/docker.sock:/tmp/docker.sock"

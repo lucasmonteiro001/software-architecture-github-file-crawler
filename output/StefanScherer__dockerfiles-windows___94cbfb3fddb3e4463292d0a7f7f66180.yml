@@ -1,0 +1,16 @@
+version: '2.1'
+services:
+  mongo:
+    image: stefanscherer/mongo-windows:3.4.1-nano
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - "mongo"
+
+networks:
+  default:
+    external:
+      name: nat

@@ -1,0 +1,15 @@
+redis:
+  image: redis
+node:
+  image: starfox64/supinbot
+  ports:
+    - 8080:8080/tcp
+  labels:
+    io.rancher.container.pull_image: always
+  links:
+    - redis:redis
+  volumes:
+    - /var/supinbot:/supinbot/shared
+  environment:
+    - SUPINBOT_REDIS_URI=redis://redis:6379
+    - NODE_ENV=production

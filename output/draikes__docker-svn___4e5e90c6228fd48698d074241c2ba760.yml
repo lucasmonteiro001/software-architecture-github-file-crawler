@@ -1,0 +1,13 @@
+version: '2'
+
+services:
+  svn:
+    restart: always
+    image: dnraikes/docker-svn:latest
+    ports:
+    - "10443:443"
+    - "10080:80"
+    - "10022:22"
+    volumes:
+    - /scratch/docker/svn/rootca:/etc/rootca 
+    - /scratch/docker/svn/repo:/var/www/repo

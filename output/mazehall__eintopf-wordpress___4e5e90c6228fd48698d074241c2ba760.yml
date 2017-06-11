@@ -1,0 +1,14 @@
+web:
+  image: maxexcloo/nginx-php:latest
+  environment:
+    - VIRTUAL_HOST=wordpress.dev
+  volumes:
+    - ${PROJECT_PATH}/web:/data/http
+  links:
+    - db:mysql
+
+db:
+  image: mysql:5.7
+  environment:
+    - MYSQL_ROOT_PASSWORD=secret
+    - MYSQL_DATABASE=wordpress

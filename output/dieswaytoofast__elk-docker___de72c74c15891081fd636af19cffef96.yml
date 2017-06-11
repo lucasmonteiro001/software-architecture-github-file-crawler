@@ -1,0 +1,27 @@
+---
+version: '2'
+
+services:
+  foo:
+    build: .
+    image: postgres
+    hostname: foo
+    domainname: weave.local.
+    dns: 172.17.0.1
+    dns_search: weave.local.
+
+
+
+  bar:
+    build: .
+    image: postgres
+    hostname: bar
+    domainname: weave.local.
+    dns: 172.17.0.1
+    dns_search: weave.local.
+
+networks:
+  default:
+    external:
+      name: weave
+

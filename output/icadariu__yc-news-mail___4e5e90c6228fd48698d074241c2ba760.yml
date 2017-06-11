@@ -1,0 +1,19 @@
+# you will need at least docker-compose version 1.7.1
+version: '2'
+services:
+  node:
+    image: node
+    container_name: nodeapp
+    links:
+      - mongo
+    volumes:
+      - .:/data
+    working_dir: /data
+    command: npm start
+  mongo:
+    image: mongo
+    container_name: mongo
+    volumes:
+      - ./mongodb:/data
+    expose:
+      - 27017

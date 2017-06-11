@@ -1,0 +1,11 @@
+web:
+  build: webapp
+  links:
+   - mongodb
+  ports:
+   - "3000:3000"
+  environment:
+     MONGO_PORT_27017_TCP_ADDR: mongodb
+     MONGO_PORT_27017_TCP_PORT: 27017
+mongodb:
+  image: mongo

@@ -1,0 +1,14 @@
+version: "2"
+
+services:
+    jenkins:
+        #image: jenkins:2.32.1-alpine
+        build:
+            context: .
+            dockerfile: Dockerfile-jenkins
+
+        ports:
+            - 8080:8080
+            - 50000:50000
+        volumes:
+            - ./data/jenkins_home:/var/jenkins_home

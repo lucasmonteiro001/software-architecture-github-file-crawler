@@ -1,0 +1,23 @@
+puppetserver:
+  image: puppetserver:2.4.0-1puppetlabs1-jessie
+  tty: true
+  stdin_open: true
+  environment:
+    JAVA_ARGS: "-Xms1g -Xmx1g -XX:MaxPermSize=256m"
+    AUTOSIGN: "true"
+    CERTNAME: puppetserver
+  expose:
+    - 8080
+    - 8140
+  volumes:
+    - /mount/point/for/puppetserver:/etc/puppetlabs
+puppetagent:
+  image: puppetagent:1.5.3-1jessie
+  tty: true
+  stdin_open: true
+  environment:
+    PUPPETSERVER: puppetserver
+    AGENTNAME: jessie-agent
+    ENVIRONMENT: production
+  links:
+    - puppetserver

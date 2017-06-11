@@ -1,0 +1,121 @@
+mongodb:
+  image: mongo:2.6
+  command: mongod --smallfiles
+  volumes:
+    - data/mongodb:/data/db
+  expose:
+    - "27017"
+
+elasticsearch:
+  image: elasticsearch
+  volumes:
+    - config/tresor-logging/elasticsearch:/elasticsearch/config
+    - data/elasticsearch:/data
+  expose:
+    - "9200"
+    - "9300"
+
+logstash:
+  build: components/tresor-logging/logstash
+  volumes:
+    - config/tresor-logging/logstash/logstash.conf:/logstash/logstash.conf
+  links:
+    - elasticsearch
+  expose:
+    - "9400"
+    - "9500"
+  ports:
+    - "9400:9400"
+    - "9500:9500"
+
+esfilter:
+  build: components/tresor-logging/node-es-filter-proxy
+  links:
+    - elasticsearch
+  environment:
+    - ES_FILTER_HOST=0.0.0.0
+    - ES_FILTER_PORT=4004
+    - ES_HOST=http://elasticsearch
+    - ES_PORT=9200
+  ports:
+    - "4004:4004"
+
+kibana:
+  build: components/tresor-logging/node-dynconfig-kibana
+  environment:
+    - KIBANA_HOST=0.0.0.0
+    - KIBANA_PORT=3003
+    - "ES_URL=http://\"+window.location.hostname+\":4004"
+  ports:
+    - "3003:3003"
+
+pdp:
+  build: components/tresor-pdp
+  volumes:
+    - data/policies:/opt/policies
+  links:
+    - logstash
+  expose:
+    - "8080"
+  ports:
+    - "8080:8080"
+
+broker:
+  build: components/tresor-broker
+  volumes:
+    - config/tresor-broker/config/mongoid.yml:/root/tresor-broker/config/mongoid.yml
+    - config/tresor-broker/config/settings/production.yml:/root/tresor-broker/config/settings/production.yml
+    - config/tresor-broker/config/initializers/run_resque_inline.rb:/root/tresor-broker/config/initializers/run_resque_inline.rb
+  links:
+    - mongodb
+    - pdp
+
+pap:
+  build: components/tresor-pap
+  volumes:
+    - config/tresor-pap/inc/global/overwrites.inc.php:/var/www/html/tresor-pap/inc/global/overwrites.inc.php
+  links:
+    - broker
+    - pdp
+
+proxyhttp:
+  build: components/tresor-proxy
+  command: -b http://broker:3000 -n 127.0.0.1 --sso --xacml -fpurl https://tresor-dev-fp.snet.tu-berlin.de -hrurl http://tresor.snet.tu-berlin.de/trust -pdpurl http://broker:broker@pdp:8080/pdp -l DEBUG
+  links:
+    - broker
+    - pdp
+    - pap
+    - kibana
+  ports:
+    - "80:80"
+
+proxytls:
+  build: components/tresor-proxy
+  command: -b http://broker:3000 -n 127.0.0.1 -p 443 --tls --tls_key certificates/wildcard_key.pem --tls_crt certificates/wildcard_cert_combined.pem --sso --xacml -fpurl https://tresor-dev-fp.snet.tu-berlin.de -hrurl http://tresor.snet.tu-berlin.de/trust -pdpurl http://broker:broker@pdp:8080/pdp -l DEBUG
+  volumes:
+    - config/tresor-proxy/certificates:/root/tresor-proxy/certificates
+  links:
+    - broker
+    - pdp
+    - pap
+    - kibana
+  ports:
+    - "443:443"
+
+#mysql:
+#  build: components/mysql
+#  ports:
+#    - "3306:3306"
+#
+#psql:
+#  build: components/psql
+#  ports:
+#    - "5432:5432"
+#
+#pip:
+#  build: components/tresor-pip
+#  links:
+#    - mysql
+#    - psql
+#  ports:
+#    - "8080:8080"

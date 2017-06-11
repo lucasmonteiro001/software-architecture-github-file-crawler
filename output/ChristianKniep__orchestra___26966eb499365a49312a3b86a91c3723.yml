@@ -1,0 +1,176 @@
+consul:
+    hostname: consul
+    container_name: consul
+    image: qnib/consul
+    environment:
+     - DC_NAME=dc1
+     - BOOTSTRAP_CONSUL=true
+     - RUN_SERVER=true
+    ports:
+     - "8500:8500"
+    dns: 127.0.0.1
+    
+carbon:
+    hostname: carbon
+    container_name: carbon
+    image: qnib/carbon
+    dns: 127.0.0.1
+    environment:
+     - DC_NAME=dc1
+     - SERVICE_2003_NAME=carbon
+     - FORWARD_TO_LOGSTASH=true
+     - SKIP_PSWATCH=true
+    links:
+    - consul:consul
+    ports:
+     - 2003:2003
+
+gapi:
+    hostname: graphite-api
+    container_name: graphite-api
+    dns: 127.0.0.1
+    image: qnib/graphite-api
+    environment:
+     - DC_NAME=dc1
+     - SKIP_PSWATCH=true
+     - FORWARD_TO_LOGSTASH=true
+     - COLLECT_METRICS=true
+     - SERVICE_8888_NAME=graphite-api
+    ports:
+     - 8888:80
+    links:
+     - consul:consul
+     - carbon:carbon
+    volumes_from:
+     - carbon
+    privileged: true
+
+logger:
+    image: qnib/logger
+    links:
+     - consul:consul
+    ports:
+     - "5514:5514"
+    environment:
+     - DC_NAME=dc1
+     - FORWARD_TO_LOGSTASH=true
+     - COLLECT_METRICS=true
+     - CNT_TYPE=service
+    dns: 127.0.0.1
+    hostname: logger
+    container_name: logger
+    privileged: true
+    
+elasticsearch:
+    image: qnib/es-kopf
+    dns: 127.0.0.1
+    hostname: elasticsearch
+    container_name: elasticsearch
+    environment:
+    - DC_NAME=dc1
+    - ES_CLUSTER_NAME=qnib2015
+    - FORWARD_TO_LOGSTASH=true
+    - COLLECT_METRICS=true
+    - SKIP_PSWATCH=true
+    volumes:
+    - /var/lib/elasticsearch
+    ports:
+    - "9200:9200"
+    links:
+       - consul:consul
+    privileged: true
+
+kibana3:
+    image: qnib/kibana3
+    ports:
+    - "8181:80"
+    environment:
+    - DC_NAME=dc1
+    - FORWARD_TO_LOGSTASH=false
+    - COLLECT_METRICS=false
+    - SKIP_PSWATCH=true
+    links:
+    - consul:consul
+    dns: 127.0.0.1
+    hostname: kibana3
+    container_name: kibana3
+    privileged: true
+
+grafana:
+    image: qnib/grafana
+    hostname: grafana
+    container_name: grafana
+    ports:
+    - "8182:80"
+    dns: 127.0.0.1
+    environment:
+     - DC_NAME=dc1
+     - SKIP_PSWATCH=true
+    links:
+     - consul:consul
+    volumes:
+     - ./opt/grafana-1.9.1/app/dashboards/:/opt/grafana-1.9.1/app/dashboards/
+    privileged: true
+
+gweb:
+    hostname: graphite-web
+    container_name: graphite-web
+    dns: 127.0.0.1
+    image: qnib/graphite-web
+    environment:
+     - DC_NAME=dc1
+     - SKIP_PSWATCH=true
+     - SERVICE_8888_NAME=graphite-web
+    ports:
+     - 80:80
+    links:
+     - consul:consul
+     - carbon:carbon
+    volumes_from:
+     - carbon
+    privileged: true
+
+mongodb:
+    image: qnib/mongodb
+    dns: 127.0.0.1
+    hostname: mongodb
+    container_name: mongodb
+    ports:
+     - "27017:27017"
+     - "28017:28017"
+    links:
+     - consul:consul
+    privileged: true
+
+rocketchat:
+    image: qnib/rocketchat
+    dns: 127.0.0.1
+    hostname: rocketchat
+    container_name: rocketchat
+    ports:
+     - "3000:3000"
+    links:
+     - consul:consul
+     - mongodb:db
+    environment:
+    - RUN_SERVER=false
+    - BOOTSTRAP_CONSUL=false
+    privileged: true
+
+hubot:
+    image: qnib/hubot-rocketchat
+    #dns: 127.0.0.1
+    hostname: hubot
+    container_name: hubot
+    links:
+     - consul:consul
+    environment:
+    - RUN_SERVER=false
+    - BOOTSTRAP_CONSUL=false
+    - ROCKETCHAT_URL=192.168.99.100:3000
+    - ROCKETCHAT_ROOM=GENERAL
+    - ROCKETCHAT_USER=hubot
+    - ROCKETCHAT_PASSWORD=hubot
+    - BOT_NAME=bot
+    - HUBOT_GRAPHITE_URL=http://192.168.99.100
+    privileged: true

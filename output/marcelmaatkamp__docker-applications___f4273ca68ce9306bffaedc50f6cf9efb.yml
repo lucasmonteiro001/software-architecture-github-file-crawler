@@ -1,0 +1,9 @@
+honey:
+ image: honeynet/conpot
+
+tor-hs:
+ image: marcelmaatkamp/tor-hidden-service
+ links:
+  - honey
+# volumes:
+#  - "./volumes/tor/etc:/etc/tor"

@@ -1,0 +1,36 @@
+version: "2.0"
+services:
+  nginx:
+    build: nginx
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./nginx/logs/:/opt/log/nginx/
+    volumes_from:
+      - htdocs
+    ports:
+      - "8081:80"
+    links:
+      - phpfpm
+  phpfpm:
+    build: php
+    volumes:
+      - ./php/php.ini:/usr/local/etc/php/php.ini:ro
+    volumes_from:
+      - htdocs
+    links:
+      - xunsearch
+      - redis
+  xunsearch:
+    image: hightman/xunsearch
+    expose:
+      - 8383
+      - 8384
+  redis:
+    build: redis
+  htdocs:
+    image: busybox
+    stdin_open: true
+    privileged: true
+    volumes:
+      - ..:/var/www/html

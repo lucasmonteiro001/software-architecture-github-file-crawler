@@ -1,0 +1,16 @@
+xserver:
+  build: .
+  dockerfile: Dockerfile-X
+  ports:
+    - 5900:5900
+  command: vncserver :0
+  volumes:
+    - x11:/tmp/.X11-unix
+client:
+  image: neitsch/phoenix-engine-remote
+  environment:
+    - QUEUE_HOST=143.44.65.120
+    - DISPLAY=/tmp/.X11-unix:0
+  volumes:
+    - x11:/tmp/.X11-unix:0
+

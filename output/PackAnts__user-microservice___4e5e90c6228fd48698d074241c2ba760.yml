@@ -1,0 +1,19 @@
+version: '2'
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    volumes:
+      - .:/usr/app
+    environment:
+      - MYSQL_USER=root
+      - MYSQL_ROOT_PASSWORD=test
+      - MYSQL_DATABASE=user_microservice
+  db:
+    image: mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=test
+      - MYSQL_DATABASE=user_microservice

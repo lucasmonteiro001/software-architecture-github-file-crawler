@@ -1,0 +1,21 @@
+version: '2'
+services:
+  teiid:
+    image: jboss/teiid
+    ports:
+    # - "9990:9990"
+     - "31000:31000"
+    volumes_from:
+      - base_data
+    volumes:
+     -  ./../../../mongodb-vertical/ontop/teiid/standalone/configuration:/opt/jboss/wildfly/standalone/configuration
+     - ./../../../mongodb-vertical/ontop/teiid/standalone/deployment:/opt/jboss/wildfly/standalone/deployments
+     - ./../../../vertical-mysql/ontop/teiid/modules:/opt/jboss/wildfly/modules
+  ontop:
+    build: ../../../single-server/ontop/ontop
+    links:
+       - teiid
+    ports:
+       - "3008:8080"
+    volumes:
+       - ./../../..//mongodb-vertical/ontop/ontop-mapping:/ontop

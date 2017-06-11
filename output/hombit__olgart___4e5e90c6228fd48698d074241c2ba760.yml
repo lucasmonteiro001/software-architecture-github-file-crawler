@@ -1,0 +1,70 @@
+version: '2'
+services:
+   db:
+     volumes:
+       - pgdata:/var/lib/postgresql/data
+     image: postgres
+     environment:
+       - POSTGRES_USER=olgart
+       - POSTGRES_DB=olgart
+     restart: always
+
+   app:
+     build: ./app/
+     volumes:
+       - static:/www/static/:ro
+       - media:/www/media/
+       - ./backup:/backup:ro
+#     ports:
+#       - "8000:8000"
+#     environment:
+#       - DJANGODEBUG=1
+     env_file:
+       - secrets.env
+     depends_on:
+       - db
+     restart: always
+
+   backup:
+     build: ./app/
+     volumes:
+       - media:/www/media/:ro
+       - ./backup:/backup
+     entrypoint: ./docker-backup.sh
+     env_file:
+       - secrets.env
+     depends_on:
+       - db
+     restart: always
+
+   cloudbackup:
+     build: ./cloudbackup/
+     volumes:
+        - ./backup:/backup:ro
+     env_file:
+        - secrets.env
+     restart: always
+
+   proxy:
+     build: ./proxy/
+     volumes:
+       - static:/www/static/:ro
+       - media:/www/media/:ro
+       - ssl:/etc/dhparams/
+       - ssl:/etc/letsencrypt
+     ports:
+       - "80:80"
+       - "443:443"
+     environment:
+       - TZ=Europe/Moscow
+       - LE_EMAIL=hombit@olgart.ru
+       - NGINX_HOST=olgart.ru
+     depends_on:
+       - app
+     restart: always
+
+volumes:
+   static:
+   media:
+   pgdata:
+   ssl:

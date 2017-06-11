@@ -1,0 +1,9 @@
+idm:
+  build: .
+  ports: 
+    - 8080
+  volumes: 
+    - /opt/openidm/conf:/opt/openidm/conf:rw
+    - /opt/openidm/logs:/opt/openidm/logs:rw
+    - /opt/openidm/script:/opt/openidm/script:rw
+

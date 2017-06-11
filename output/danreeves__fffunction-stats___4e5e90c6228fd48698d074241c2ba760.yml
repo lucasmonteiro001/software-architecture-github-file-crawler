@@ -1,0 +1,9 @@
+web:
+    image: node:0.12.7-onbuild
+    volumes:
+        - ./:/usr/src/app
+    ports:
+        - "80:80"
+    env_file: .env
+    command: npm run dev
+    env_file: .env_config

@@ -1,0 +1,77 @@
+version: '2'
+services:
+  java:
+    build:
+      context: ./java8
+      dockerfile: java8.dockerfile
+    image: registry.docker.kosmala.work/jdk:java8
+  hadoop-base:
+    build:
+      context: ./hadoop-base
+      dockerfile: Dockerfile
+    image: registry.docker.kosmala.work/hadoop/hadoop-base
+  hadoop-datanode:
+    build:
+      context: ./hadoop-datanode
+      dockerfile: Dockerfile
+    image: registry.docker.kosmala.work/hadoop/hadoop-datanode
+    depends_on:
+      - hadoop-base
+      - hadoop-namenode
+    links:
+      - hadoop-namenode
+  hadoop-history:
+    build:
+      context: ./hadoop-history
+      dockerfile: Dockerfile
+    image: registry.docker.kosmala.work/hadoop/hadoop-history
+  hadoop-mapreduce:
+    build:
+      context: ./hadoop-mapreduce
+      dockerfile: Dockerfile
+    image: registry.docker.kosmala.work/hadoop/hadoop-mapreduce
+    depends_on:
+      - hadoop-datanode
+      - hadoop-nodemanager
+    links:
+      - hadoop-datanode
+      - hadoop-nodemanager
+  hadoop-mapreduce-jobhistory:
+    build:
+      context: ./hadoop-mapreduce-jobhistory
+      dockerfile: Dockerfile
+    image: registry.docker.kosmala.work/hadoop/hadoop-mapreduce-jobhistory
+    depends_on:
+      - hadoop-datanode
+      - hadoop-nodemanager
+    links:
+      - hadoop-datanode
+      - hadoop-nodemanager
+    ports:
+      - 8080:19888
+  hadoop-namenode:
+    build:
+      context: ./hadoop-namenode
+      dockerfile: Dockerfile
+    image: registry.docker.kosmala.work/hadoop/hadoop-namenode
+    depends_on:
+      - hadoop-base
+    ports:
+      - 8090:50070
+  hadoop-nodemanager:
+    build:
+      context: ./hadoop-nodemanager
+      dockerfile: Dockerfile
+    image: registry.docker.kosmala.work/hadoop/hadoop-nodemanager
+    depends_on:
+      - hadoop-base
+      - hadoop-resourcemanager
+    links:
+      - hadoop-resourcemanager
+  hadoop-resourcemanager:
+    build:
+      context: ./hadoop-resourcemanager
+      dockerfile: Dockerfile
+    image: registry.docker.kosmala.work/hadoop/hadoop-resourcemanager
+    ports:
+      - 8088:8088

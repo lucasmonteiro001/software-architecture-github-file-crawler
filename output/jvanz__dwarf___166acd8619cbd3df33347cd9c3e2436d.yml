@@ -1,0 +1,67 @@
+zookeeper:
+        image: jplock/zookeeper
+        container_name: "zookeeper"
+        ports:
+                - 2181:2181
+                - 2888:2888
+                - 3888:3888
+
+mesos-master:
+        image: mesosphere/mesos-master:0.28.1
+        container_name: "mesos_master"
+        environment:
+                - MESOS_zk=zk://zookeeper:2181/mesos
+                - MESOS_quorum=1
+                - MESOS_cluster=mesos-crawler
+                - MESOS_hostname_lookup=false
+        links:
+                - zookeeper:zookeeper
+                - cassandra:cassandra
+                - kafka:kafka
+        ports:
+                - 5050:5050
+
+mesos-agent:
+        build: .
+        dockerfile: Dockerfile_agent
+        container_name: "mesos_agent"
+        volumes:
+                - /sys/fs/cgroup:/sys/fs/cgroup
+                - /var/run/docker.sock:/var/run/docker.sock
+        environment:
+                - MESOS_master=zk://zookeeper:2181/mesos
+                - MESOS_ip_discovery_command=ip addr show eth0 | grep -Po 'inet \K[\d.]+'
+                - MESOS_log_dir=/var/log/mesos
+                - MESOS_switch_user=false
+                - MESOS_hostname_lookup=false
+        links:
+                - zookeeper:zookeeper
+                - cassandra:cassandra
+                - kafka:kafka
+        ports:
+                - 5051:5051
+
+cassandra:
+        image: cassandra
+
+devel:
+        build: .
+        dockerfile: Dockerfile_build
+        container_name: "dwarf_devel"
+        command: -c "while :; do sleep 1; done"
+        privileged: true
+        volumes:
+                - ..:/framework
+        links:
+                - zookeeper:zookeeper
+                - mesos-master:mesos
+                - cassandra:cassandra
+                - kafka:kafka
+
+kafka:
+        image: guilhermesft/kafka
+        container_name: kafka
+        links:
+                - zookeeper:zookeeper
+        ports:
+                - 9092:9092

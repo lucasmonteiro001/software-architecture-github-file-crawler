@@ -1,0 +1,43 @@
+registry:
+  image: registry:2
+  ports:
+    - 5000:5000
+  environment:
+    REGISTRY_AUTH: htpasswd
+    REGISTRY_AUTH_HTPASSWD_PATH: /auth/htpasswd
+    REGISTRY_AUTH_HTPASSWD_REALM: Demo Registry
+    REGISTRY_HTTP_TLS_CERTIFICATE: /certs/domain.crt
+    REGISTRY_HTTP_TLS_KEY: /certs/domain.key
+  volumes:
+    - ./registry/data:/var/lib/registry
+    - ./registry/auth:/auth
+    - ./registry/certs:/certs
+postgres:
+  image: postgres:9.5.4
+  environment:
+    PGDATA: /pgdata
+    POSTGRES_DB: beanie_prod
+  ports:
+    - 5432
+  volumes:
+    - ./pgdata:/pgdata
+node:
+  image: node:6.5.0
+  command: /bin/true
+  working_dir: /beanie
+  volumes:
+    - ./:/beanie
+web:
+  image: trenpixster/elixir:1.3.2
+  command: mix phoenix.server
+  working_dir: /beanie
+  environment:
+    MIX_ENV: prod
+    PORT: 80
+  ports:
+    - 80
+  volumes:
+    - ./:/beanie
+  links:
+    - postgres
+    - registry

@@ -1,0 +1,45 @@
+---
+version: '2'
+
+services:
+
+  nginx:
+    restart: always
+    image: northwesternmutual/aichallenge-nginx
+    ports:
+      - "8080:80"
+    networks:
+      - ai_challenge
+
+  mongodb:
+    image: mongo:latest
+    volumes:
+      - /data/db
+    ports:
+      - "27017"
+    networks:
+      - ai_challenge
+
+  algorithm:
+    image: northwesternmutual/aichallenge-algorithm
+    ports:
+      - "80"
+    networks:
+      - ai_challenge
+
+  simulator:
+    image: northwesternmutual/aichallenge-simulator
+    ports:
+      - "80"
+    networks:
+      - ai_challenge
+
+  tournament:
+    image: northwesternmutual/aichallenge-tournament
+    ports:
+      - "80"
+    networks:
+      - ai_challenge
+
+networks:
+  ai_challenge:

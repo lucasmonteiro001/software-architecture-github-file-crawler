@@ -1,0 +1,32 @@
+version: "2"
+services:
+  db:
+    image: cassandra:3.9
+    mem_limit: 1024m
+    expose:
+      - "9042"
+      - "9160"
+    volumes:
+      - /var/lib/cassandra
+  maids:
+    image: smartdevicelink/shaid-maids:1.0.10
+    mem_limit: 512m
+    depends_on:
+      - db
+    links:
+      - db
+    entrypoint: scripts/wait-for-it.sh db:9160 -- node index.js
+    environment:
+      - CASSANDRA_CONTACTS=db
+      - MAIDS_HOSTNAME=maids
+  pylon:
+    image: smartdevicelink/shaid-pylon:1.0.6
+    mem_limit: 512m
+    ports:
+      - "3000:3000"
+    links:
+      - maids
+    environment:
+      - MAIDS_HOSTNAME=maids
+    expose:
+      - "3000"

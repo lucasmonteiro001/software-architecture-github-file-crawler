@@ -1,0 +1,25 @@
+mariadb:
+  image: bitnami/mariadb
+  environment:
+    - MARIADB_USER=drupal
+    - MARIADB_PASSWORD=drupal
+    - MARIADB_DATABASE=drupal
+  volumes:
+    - mariadb-data:/bitnami/mariadb/data
+
+drupal:
+  image: bitnami/php-fpm
+  links:
+    - mariadb:mariadb
+  volumes:
+    - /vagrant:/app
+
+apache:
+  image: bitnami/apache
+  ports:
+    - 80:80
+  links:
+    - drupal:php-fpm
+  volumes:
+    - apache-vhost:/bitnami/apache/conf/vhosts
+    - /vagrant:/app

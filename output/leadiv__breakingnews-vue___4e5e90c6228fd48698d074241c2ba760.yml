@@ -1,0 +1,29 @@
+version: '2'
+services:
+  web:
+    environment:
+      - NODE_ENV=development
+      - API_INTERVAL=120000
+      - API_URL=/static/api.mock.json
+    build:
+      context: .
+      dockerfile: Dockerfile.devx
+    command: ["npm", "run", "dev"]
+    ports:
+      - '8080:8080'
+    volumes:
+      - .:/home/app/breakingnews-vue
+      - /home/app/breakingnews-vue/node_modules
+  test:
+    environment:
+      - NODE_ENV=testing
+      - API_INTERVAL=120000
+      - API_URL=/static/api.mock.json
+    build:
+      context: .
+      dockerfile: Dockerfile.devx
+    command: ['npm', 'run', 'unit:watch']
+    user: root
+    volumes:
+      - .:/home/app/breakingnews-vue
+      - /home/app/breakingnews-vue/node_modules

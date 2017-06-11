@@ -1,0 +1,95 @@
+version: '2'
+services:
+  nginx:
+    container_name: nginx
+#    image: nginx:1.11.6
+    build: nginx/
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx/htpasswd.users:/etc/nginx/htpasswd.users
+      - ./nginx/fullchain.pem:/etc/fullchain.pem;
+      - ./nginx/privkey.pem:/etc/privkey.pem;
+      - /root/wordpress/logs:/var/log/nginx
+ #     - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - kibana
+    networks:
+      - docker_elk
+    restart: always   
+  elasticsearch:
+    container_name: elasticsearch
+    build: elasticsearch/
+#    command: elasticsearch -Des.network.host=_non_loopback_ -Des.cluster.name: my-cluster
+#    volumes:
+#    - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    restart: always  
+    environment:
+      ES_JAVA_OPTS: "-Xms3g -Xmx3g"
+    volumes:
+      - /home/elasticsearch/data:/usr/share/elasticsearch/data     
+    networks:
+      - docker_elk
+  logstash:
+    build: logstash/
+    container_name: logstash
+    command: -f /etc/logstash/conf.d/
+    volumes:
+      - ./logstash/config:/etc/logstash/conf.d
+      - ./logstash/tmp:/tmp
+      - ./logstash/ca.pem:/etc/ca.pem
+      - ./logstash/server.crt:/etc/server.crt
+      - ./logstash/server.key:/etc/server.key
+      - ./logstash/pattern:/etc/pattern
+      #- ./logstash/jvm.options:/etc/logstash/jvm.options
+#      - ./logstash-forwarder.crt:/etc/pki/tls/certs/logstash-forwarder.crt
+#      - ./logstash-forwarder.key:/etc/pki/tls/certs/logstash-forwarder.key
+    ports:
+      - "5044:5044"
+      - "5000:5000"
+      - "25826:25826/udp"
+    networks:
+      - docker_elk
+#    links:
+#      - redis 
+    restart: always 
+    depends_on:
+      - elasticsearch
+    environment:
+      - LS_HEAP_SIZE=2048m
+      - LS_JAVA_OPTS=-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=18080 -Dcom.sun.management.jmxremote.rmi.port=18080 -Djava.rmi.server.hostname=DOCKER_HOST_IP -Dcom.sun.management.jmxremote.local.only=false -Dio.netty.native.workdir=/home/temp -Djava.io.tmpdir=/home/temp
+  kibana:
+    build: kibana/
+    container_name: kibana
+    volumes:
+      - ./kibana/config/:/etc/kibana/
+      - ./kibana/kibana:/usr/share/kibana
+#      - ./kibana/commons.style.css:/usr/share/kibana/optimize/bundles/commons.style.css
+#      - ./kibana/chrome.jade:/usr/share/kibana/src/ui/views/chrome.jade
+#      - ./kibana/ui_app.jade:/usr/share/kibana/src/ui/views/ui_app.jade
+#      - ./kibana/root_redirect.jade:/usr/share/kibana/src/ui/views/root_redirect.jade
+    ports:
+      - "5601:5601"
+    networks:
+      - docker_elk
+    depends_on:
+      - elasticsearch
+    restart: always
+#  redis:
+#    container_name: redis
+#    image: redis:3.2.6-alpine
+#    depends_on:
+#      - logstash
+#    ports:
+#      - "6379:6379" 
+#    restart: always
+#    networks:
+#      - docker_elk     
+networks:
+  docker_elk:
+    driver: bridge

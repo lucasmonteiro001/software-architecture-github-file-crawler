@@ -1,0 +1,22 @@
+webphpdata:
+  image: webphpdata
+  privileged: true
+  volumes:
+   - /var/www/html
+  command:  echo 'data-only-new'
+
+phpfpm:
+  image: dhub.8dat.com/php:5.6.9-fpm
+  volumes_from:
+   - webphpdata
+
+web:
+  image: dhub.8dat.com/nginx
+  ports:
+    - "80:80"
+  volumes_from:
+     - webphpdata
+  volumes:
+    - ./nginx/:/etc/nginx/
+  links:
+    - phpfpm

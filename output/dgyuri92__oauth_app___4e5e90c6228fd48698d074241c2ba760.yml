@@ -1,0 +1,32 @@
+---
+gitlab:
+  hostname: gitlab
+  container_name: oauth_gitlab
+  build: ./gitlab
+  expose:
+    - "80"
+    - "443"
+  ports:
+    - "80:80"
+    - "443:443"
+  environment:
+    GITLAB_OMNIBUS_CONFIG: "external_url 'https://gitlab:443/'"
+  # default credentials:  root:5iveL!fe
+
+oauthapp:
+  hostname: oauthapp
+  container_name: oauth_oauthapp
+  build: ./oauth_app
+  expose:
+    - "80"
+    - "8080"
+  links:
+    - gitlab
+  ports:
+    - "8080:443"
+  environment:
+    REQUESTS_CA_BUNDLE: /etc/ssl/certs/
+    UWSGI_EXTRA_PARAMS: "--py-autoreload 1 --catch-exceptions" # ONLY FOR DEVELOPMENT
+  volumes:
+    - ./oauth_app/application:/usr/src/application
+  restart: always

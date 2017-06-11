@@ -1,0 +1,20 @@
+version: '2'
+
+services:
+ discovery-microservice:
+  image: blackdev92/discovery-microservice
+  ports:
+   - "1111:1111"
+  links:
+   - controller-microservice
+   - view-microservice
+
+ controller-microservice:
+  image: blackdev92/controller-microservice
+  ports:
+   - "2222:2222"
+
+ view-microservice:
+  image: blackdev92/view-microservice
+  ports:
+   - "8080:8080"

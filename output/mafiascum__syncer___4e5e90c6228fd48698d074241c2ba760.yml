@@ -1,0 +1,31 @@
+web:
+  build: ./app
+  volumes:
+    - "./app:/src/app"
+  ports:
+    - "3030:3000"
+  links:
+    - "db:redis"
+  external_links:
+    - mafiascum
+    - mariadb
+  env_file:
+    - env/web.env
+  command: nodemon -L app/bin/www
+
+nginx:
+  restart: always
+  build: ./nginx/
+  ports:
+    - "80:80"
+    - "443:443"
+  volumes:
+    - /www/public
+    - ./ssl:/etc/nginx/ssl
+  volumes_from:
+    - web
+  links:
+    - web:web
+
+db:
+  image: redis

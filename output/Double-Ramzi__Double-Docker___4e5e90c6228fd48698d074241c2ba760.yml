@@ -1,0 +1,35 @@
+version: '2'
+services:
+    mysql:
+        container_name: mysql
+        image: mysql
+        ports:
+            - "3306:3306"
+        environment:
+            MYSQL_ROOT_PASSWORD: root
+            MYSQL_DATABASE: symfony
+            MYSQL_USER: symfony
+            MYSQL_PASSWORD: symfony
+    php-fpm:
+        container_name: php
+        build: ./php-fpm
+        expose:
+            - "9000"
+        volumes:
+            - ./double-gestion.project:/var/www/double-gestion.project
+        links:
+            - mysql
+    nginx:
+        container_name: nginx
+        build: ./nginx
+        ports:
+            - "80:80"
+        links:
+            - php-fpm
+        volumes_from:
+            - php-fpm:ro
+    maildev:
+        container_name: maildev
+        image: djfarrelly/maildev
+        ports:
+            - "8080:80"

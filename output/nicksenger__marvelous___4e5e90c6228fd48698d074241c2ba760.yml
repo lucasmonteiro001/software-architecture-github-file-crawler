@@ -1,0 +1,33 @@
+version: '2'
+services:
+  postgres:
+    build: postgres/
+    networks:
+      - marvelous
+    ports:
+      - "5432:5432/tcp"
+    environment:
+       POSTGRES_DB: postgres
+       POSTGRES_USER: postgres
+       POSTGRES_PASSWORD: postgres
+  node:
+    build: server/
+    networks:
+      - marvelous
+    ports:
+      - "5005:8080/tcp"
+    links:
+      - "postgres:pg"
+    environment:
+      PORT: 8080
+      POSTGRES_HOST: pg
+      POSTGRES_DB: postgres
+      PG_SCHEMA: marvelous
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+volumes:
+  postgres-data:
+    driver: local
+networks:
+  marvelous:
+    driver: bridge

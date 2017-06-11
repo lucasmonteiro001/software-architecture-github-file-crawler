@@ -1,0 +1,31 @@
+version: "2"
+services:
+  db:
+    image: postgres:9.6.1
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres96:/var/lib/postgresql
+  elasticsearch:
+    image: elasticsearch:1.7.6
+  web:
+    build:
+      context: .
+      args:
+        requirements: dev_linux.txt
+    command: launch :8000
+    environment:
+      DJANGO_SETTINGS_MODULE: filmfest.settings.docker
+    volumes:
+      - .:/app/src
+      - web_media:/app/media
+    links:
+      - db:db
+      - elasticsearch:elasticsearch
+    ports:
+      - "8000:8000"
+volumes:
+  postgres96:
+    driver: local
+  web_media:
+    driver: local

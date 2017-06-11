@@ -1,0 +1,12 @@
+version: '2.1'
+services:
+  web:
+
+
+  postgres:
+    image: postgres:9.6.0
+
+
+  redis:
+
+

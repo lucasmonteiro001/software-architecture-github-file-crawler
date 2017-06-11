@@ -1,0 +1,15 @@
+app_server:
+  image: infiniteautomata/reddit:latest
+  links:
+    - postgresql:db
+    - rabbitmq:rabbitmq
+    - cassandra:cassandra
+    - memcached:memcached
+postgresql:
+  image: infiniteautomata/postgresql:latest
+rabbitmq:
+  image: infiniteautomata/rabbitmq
+cassandra:
+  image: infiniteautomata/cassandra 
+memcached:
+  image: infiniteautomata/memcached

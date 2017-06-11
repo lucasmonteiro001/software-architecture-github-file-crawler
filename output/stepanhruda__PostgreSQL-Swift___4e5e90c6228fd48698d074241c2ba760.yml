@@ -1,0 +1,28 @@
+test:
+  build: .
+  command: make test
+  environment:
+    - PGHOST=postgres
+    - PGUSER=postgres
+    - PGPORT=5432
+    - CONTAINERIZED=true
+    - PGDATABASE=spec
+  links:
+    - postgres
+
+postgres:
+  image: postgres:9.4
+  ports:
+    - 32768:5432
+
+migrate:
+  build: .
+  command: make db.migrate
+  environment:
+    - PGHOST=postgres
+    - PGUSER=postgres
+    - PGPORT=5432
+    - CONTAINERIZED=true
+    - PGDATABASE=postgres
+  links:
+    - postgres

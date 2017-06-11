@@ -1,0 +1,33 @@
+version: '2'
+services: 
+  rabbitmq:
+    image: rabbitmq:3-management
+    
+  delaymxmgm:
+    image: fpommerening/spartakiade2017-rabbitmq:rabbitmq-delaymxmgm
+    
+  mongo:
+    image: mongo:3.2
+  
+  core:
+    image: fpommerening/spartakiade2017-rabbitmq:core-base
+
+  imagedb:
+    image: fpommerening/spartakiade2017-rabbitmq:picflow-database
+    
+  certstore:
+    image: fpommerening/spartakiade2017-rabbitmq:ssl-certstore
+    
+  ca:
+    image: fpommerening/spartakiade2017-rabbitmq:ssl-ca
+    
+  web:
+    depends_on:
+      - delaymxmgm
+      - rabbitmq
+      - mongo
+      - imagedb
+      - ca
+    image: fpommerening/spartakiade2017-rabbitmq:StartupApp
+    ports:
+      - 18317:18317

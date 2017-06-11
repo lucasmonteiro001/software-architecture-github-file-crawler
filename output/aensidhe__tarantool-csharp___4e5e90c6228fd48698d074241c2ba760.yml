@@ -1,0 +1,14 @@
+version: '2'
+
+services:
+  tarantool:
+    image: tarantool/tarantool:1.7
+    command: tarantool /usr/local/share/tarantool/tarantool.docker.lua
+    volumes:
+      - $PWD/tarantool:/usr/local/share/tarantool
+    ports:
+      - "3301:3301"
+    environment:
+        TARANTOOL_USER_NAME: admin
+        TARANTOOL_USER_PASSWORD: adminPassword
+        TARANTOOL_SLAB_ALLOC_ARENA: 0.1

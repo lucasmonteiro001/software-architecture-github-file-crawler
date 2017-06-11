@@ -1,0 +1,41 @@
+version: '2'
+services:
+  maildev:
+    image: djfarrelly/maildev
+    ports:
+      - 25:25
+      - 80:80
+  influxdb:
+    image: tutum/influxdb
+    ports:
+      - 8083:8083
+      - 8086:8086
+    environment:
+      - ADMIN_USER=riemann
+      - INFLUXDB_INIT_PWD=riemann
+      - PRE_CREATE_DB=metrics_db
+  grafana:
+    image: tutum/grafana
+    ports:
+      - 8080:80
+    environment:
+      - HTTP_USER=admin
+      - HTTP_PASS=admin
+      - INFLUXDB_PROTO=http
+      - INFLUXDB_HOST=influxdb
+      - INFLUXDB_PORT=8086
+      - INFLUXDB_NAME=metrics_db
+      - INFLUXDB_USER=riemann
+      - INFLUXDB_PASS=riemann
+    links:
+      - influxdb
+  riemann:
+    build: .
+    ports:
+      - 4567:4567
+      - 5555:5555/tcp
+      - 5555:5555/udp
+      - 5556:5556
+    links:
+      - maildev
+      - influxdb

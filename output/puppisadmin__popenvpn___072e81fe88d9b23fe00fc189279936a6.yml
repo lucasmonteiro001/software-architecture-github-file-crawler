@@ -1,0 +1,7 @@
+server:
+    build: .
+    container_name: popenvpn_server
+    ports:
+        - "1192:1192"
+    volumes:
+        - ./config:/var/www/config

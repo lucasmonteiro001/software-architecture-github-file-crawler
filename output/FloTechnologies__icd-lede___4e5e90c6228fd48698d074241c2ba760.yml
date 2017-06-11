@@ -1,0 +1,24 @@
+version: '2'
+
+services:
+  lede-build:
+    build:
+      context: .
+      dockerfile: ./Dockerfile-base
+    container_name: lede-build
+    image: flotechnologies/lede-build
+    environment:
+      # Not used currently
+      BINTRAY_USER: "${BINTRAY_USER}"
+      BINTRAY_KEY: "${BINTRAY_KEY}"
+
+  mt7620:
+    image: flotechnologies/lede-build
+    container_name: lede-build
+    depends_on:
+      - lede-build
+    command: make -j8 V=s
+    volumes:
+      - ./artifacts:/root/bin/targets
+    environment:
+      FORCE_UNSAFE_CONFIGURE: 1

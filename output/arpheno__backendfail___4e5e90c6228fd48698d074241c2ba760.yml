@@ -1,0 +1,46 @@
+#monitor:
+#  image: hopsoft/graphite-statsd
+#  net: container:webapp
+messagequeue:
+  image: rabbitmq
+  ports:
+    - "5672:5672"
+    - "15672:15672"
+cache:
+  image: memcached
+#data:
+#  image: ubuntu:14.04
+#  volumes:
+#    - /var/lib/postgresql/data
+db:
+  image: postgres
+#  volumes_from: [data]
+webapp:
+  build: .
+  volumes:
+   - /usr/bin/docker:/bin/docker
+   - /var/run/docker.sock:/var/run/docker.sock
+   - /usr/lib/x86_64-linux-gnu/libapparmor.so.1.1.0:/lib/x86_64-linux-gnu/libapparmor.so.1
+   - ~/static:/usr/src/app/serve/static/
+   - ~/media:/usr/src/app/media/
+   - ./backendfail:/usr/src/app/
+   - /var/containers:/var/containers/
+  ports:
+   - "8000:8000"
+#   - "8005:80"
+#   - "2003:2003"
+#   - "8125:8125/udp"
+#   - "8126:8126"
+  links:
+    - db
+    - cache
+    - messagequeue
+server:
+  image: arpheno/nginx
+  ports:
+    - "80:80"
+    - "443:443"
+  net: "host"
+  volumes:
+   - ~/static:/mnt/static/
+   - ~/media:/mnt/media/

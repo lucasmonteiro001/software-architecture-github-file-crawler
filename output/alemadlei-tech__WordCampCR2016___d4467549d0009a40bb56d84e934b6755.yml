@@ -1,0 +1,32 @@
+version: '2'
+services:
+  wordcampcr_2016_db:
+    image: mysql:5.7
+    ports:
+      - "3306:3306"
+    volumes:
+      - "./.mysqldata/db:/var/lib/mysql"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: wordcampcr2016
+      MYSQL_USER: wordcampcr2016
+      MYSQL_PASSWORD: wordcampce2016
+  wordcampcr_2016_web:
+    build:
+      dockerfile: wordcampcr2016.dockerfile
+      context: .
+    depends_on:
+      - wordcampcr_2016_db
+    extra_hosts:
+      local.worcampcr2016.com: 127.0.0.1
+    links:
+      - wordcampcr_2016_db
+    ports:
+      - "80:80"
+    volumes:
+      - "../03-Dockerfile-desarrollo/wordcampcr2016_plugin:/var/www/html/wp-content/plugins/wordcampcr2016_plugin"
+      - "../03-Dockerfile-desarrollo/wordcampcr2016_theme:/var/www/html/wp-content/themes/wordcampcr2016_theme"
+      - "../03-Dockerfile-desarrollo/configuracion/php/wordcampcr_2016.ini:/usr/local/etc/php/conf.d/wordcampcr_2016.ini"
+    environment:
+      WORDPRESS_DB_HOST: wordcampcr_2016_db:3306
+      WORDPRESS_DB_PASSWORD: root

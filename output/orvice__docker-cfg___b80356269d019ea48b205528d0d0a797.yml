@@ -1,0 +1,15 @@
+version: "2"
+
+services:
+  influxdb:
+    image: influxdb
+    restart: always
+    volumes:
+      - $PWD/data:/var/lib/influxdb
+    ports:
+      - "127.0.0.1:8086:8086"
+      - "127.0.0.1:8083:8083"
+      - "127.0.0.1:2003:2003"
+    environment:
+      - INFLUXDB_ADMIN_ENABLED=true
+ 

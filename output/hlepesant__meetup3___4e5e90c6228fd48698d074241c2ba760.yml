@@ -1,0 +1,29 @@
+version: '2'
+services:
+  mysql:
+    image: mysql:5.5
+    volumes:
+      - ./share/mysql/data:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=MeetUp
+      - MYSQL_DATABASE=meetupdb
+      - MYSQL_USER=meetup
+      - MYSQL_PASSWORD=DockerTours
+
+  phpfpm:
+    build: ./phpfpm/ 
+    volumes:
+      - ./share/nginx/html:/usr/share/nginx/html
+    links:
+      - mysql
+
+  nginx:
+    image: nginx:1.9.15
+    volumes:
+      - ./share/nginx/html:/usr/share/nginx/html
+      - ./share/nginx/conf:/etc/nginx/conf.d
+    ports:
+      - "80:80"
+    links:
+      - phpfpm
+

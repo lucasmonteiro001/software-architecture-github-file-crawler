@@ -1,0 +1,42 @@
+app:
+    image: my-app
+    volumes:
+        - .:/var/www/html/
+#        - ./logs/symfony:/var/www/symfony/app/logs
+    tty: true
+php:
+    image: my-php
+    volumes_from:
+        - app
+    links:
+        - db
+        - mailcatcher
+        - memcached
+        - elasticsearch
+    ports:
+        - 80:80
+db:
+    image: mysql:5.6
+    ports:
+        - 3306:3306
+    volumes_from:
+        - app
+    environment:
+        MYSQL_ROOT_PASSWORD: root
+        MYSQL_DATABASE: bach
+        MYSQL_USER: peter
+        MYSQL_PASSWORD: apekop01
+mailcatcher:
+    image: yappabe/mailcatcher
+    ports:
+        - 1025:1025
+        - 1080:1080
+memcached:
+    image: memcached
+    ports:
+        - 11211:11211
+elasticsearch:
+  image: elasticsearch
+  ports:
+    - 9200:9200
+    - 9300:9300

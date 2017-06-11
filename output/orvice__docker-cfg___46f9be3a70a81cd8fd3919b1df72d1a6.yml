@@ -1,0 +1,15 @@
+version: "2"
+
+services:
+  minio:
+    image: minio/minio
+    restart: always
+    volumes:
+      - $PWD/data:/export
+      - $PWD/config:/root/.minio
+    ports:
+      - "9000:9000"
+    command: "server /export"
+    container_name: "minio"
+
+ 

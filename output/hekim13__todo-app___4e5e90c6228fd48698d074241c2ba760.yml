@@ -1,0 +1,14 @@
+dev:
+  build: .
+  environment:
+   - "NODE_ENV=dev"
+  volumes:
+   - ./config/env/dev.js:/src/config/env/dev.js
+  expose:
+   - 1337
+  entrypoint:
+   - npm
+  command:
+   - start
+  ports:
+   - "80:1337"

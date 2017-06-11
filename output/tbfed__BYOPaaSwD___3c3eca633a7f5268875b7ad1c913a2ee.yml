@@ -1,0 +1,19 @@
+wp:
+  image: dcrites/byopaaswd_wordpress
+  links:
+    - mysql:mysql
+  ports:
+    - "80"
+  volumes_from:
+    - paasdata
+mysql:
+  image: mysql
+  volumes_from:
+    - paasdata
+  environment:
+    - MYSQL_ROOT_PASSWORD=mysecretpassword
+paasdata:
+  image: dcrites/byopaaswd_busybox
+#  volumes:
+#    - /vagrant/files/data/mysql:/var/lib/mysql
+#    - /vagrant/files/data/www:/var/www/html

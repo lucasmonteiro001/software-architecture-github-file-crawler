@@ -1,0 +1,16 @@
+version: '2'
+services:
+  ontop:
+    build: ../../../single-server/ontop/ontop
+    links:
+      - base_mysql
+    ports:
+      - "3008:8080"
+    volumes:
+      - ./../../../single-server/ontop/ontop-mapping:/ontop
+  semagrow-server:
+    image: semagrow/semagrow
+    ports:
+      - "8090:8080"
+    volumes:
+      - ./../../../single-server/semagrow/semagrow:/etc/default/semagrow

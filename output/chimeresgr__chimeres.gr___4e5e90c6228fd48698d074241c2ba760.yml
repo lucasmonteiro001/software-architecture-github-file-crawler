@@ -1,0 +1,22 @@
+db:
+  image: mariadb:5.5
+  environment:
+  - MYSQL_DATABASE=chimeres
+  - MYSQL_USER=chimeres
+  - MYSQL_PASSWORD=chimeres
+  - MYSQL_ROOT_PASSWORD=toor
+web:
+  build: .
+  ports:
+    - "8000:8000"
+  volumes:
+    - .:/app
+  links:
+    - db
+  environment:
+    - DJANGO_SETTINGS_MODULE=chimeres.settings.dev
+    - DEFAULT_FROM_EMAIL=noreply@example.com
+    - ALLOWED_HOSTS=*
+    - DATABASE_URL=mysql://chimeres:chimeres@db/chimeres
+  command:
+    ./docker/run-compose.sh

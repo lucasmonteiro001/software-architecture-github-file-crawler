@@ -1,0 +1,30 @@
+version: '3'
+
+services:
+  # Jupyter Service
+  jupyter:
+    image: deep-onc
+    build:    
+      context: .
+      dockerfile: Dockerfile      
+    environment: 
+      - KERAS_BACKEND=tensorflow
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./tensor_logs:/tensorboard
+      - ./notebooks:/notebooks
+  # Tensorboard service
+  tensorboard:
+    image: deep-onc
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "6006:6006"
+    volumes:
+      - ./tensor_logs:/tensorboard
+    entrypoint: 
+      - tensorboard
+      - --logdir
+      - /tensorboard

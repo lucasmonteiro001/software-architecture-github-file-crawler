@@ -1,0 +1,19 @@
+version: '2'
+services:
+     nginx:
+          build: nginx/
+          ports:
+               - "443:443"
+               - "80:80"
+          depends_on:
+               - phpfpm
+          links:
+               - phpfpm
+          volumes_from:
+               - phpfpm
+     phpfpm:
+          build: php-fpm/
+          expose:
+               - 9000
+          volumes:
+               - ./www:/www:rw

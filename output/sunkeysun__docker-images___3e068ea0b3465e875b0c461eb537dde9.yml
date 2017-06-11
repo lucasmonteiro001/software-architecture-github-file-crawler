@@ -1,0 +1,14 @@
+# nginx
+
+nginx:
+    image: sunkeysun/nginx
+    ports:
+        - 80:80
+    volumes:
+        - "${PWD}/config:/opt/nginx/conf"
+        - "${PWD}/html:/opt/nginx/html"
+        - "${PWD}/logs:/opt/nginx/logs"
+    command:
+        - "-g"
+        - "daemon off;"
+

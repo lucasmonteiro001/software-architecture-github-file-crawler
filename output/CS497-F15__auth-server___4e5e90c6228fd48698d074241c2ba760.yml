@@ -1,0 +1,12 @@
+authserver:
+  build: .
+  environment:
+    GOPATH: /src
+  ports:
+    - "3000:3000"
+  links:
+    - postgres:postgres
+  command: NODE_ENV=pro npm start
+
+postgres:
+  build: postgres/

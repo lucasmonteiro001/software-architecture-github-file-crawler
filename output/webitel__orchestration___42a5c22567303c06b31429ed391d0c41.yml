@@ -1,0 +1,179 @@
+--- 
+version: '2'
+
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:5.4.0
+    container_name: elasticsearch
+    environment:
+      - bootstrap.memory_lock=true
+      - xpack.security.enabled=false
+      - xpack.monitoring.enabled=false
+      - "ES_JAVA_OPTS=-Xms${ES_MEMORY} -Xmx${ES_MEMORY}"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    mem_limit: "${ES_MEMORY_LIMIT}"
+    cap_add:
+      - IPC_LOCK
+    ports:
+      - "172.17.0.1:9200:9200"
+    volumes:
+      - "${WEBITEL_DIR}/elasticsearch5:/usr/share/elasticsearch/data"
+    networks:
+      - wtel
+  rabbitmq:
+    image: rabbitmq:3
+    container_name: rabbitmq
+    ports:
+      - "172.17.0.1:5672:5672"
+    environment:
+      - "RABBITMQ_DEFAULT_USER=webitel"
+      - "RABBITMQ_DEFAULT_PASS=${WEBITEL_PASS}"
+    volumes:
+      - rabbitmq:/var/lib/rabbitmq
+    networks:
+      - wtel
+  mongo:
+    image: mongo:3.4
+    container_name: mongo
+    volumes:
+      - "${WEBITEL_DIR}/mongodb:/data/db"
+    ports:
+      - "172.17.0.1:27017:27017"
+    command: --storageEngine wiredTiger
+    networks:
+      - wtel
+    ulimits:
+      nproc: 65535
+      nofile: 65535
+  kibana:
+    image: "webitel/kibana:${WEBITEL_VERSION}"
+    container_name: kibana
+    environment:
+      - "ENGINE_URL=${WEBITEL_PROTO}://${WEBITEL_HOST}/engine/"
+      - "FS_URL=${WEBITEL_WS}://${WEBITEL_HOST}/verto/"
+    ports:
+      - "5601"
+    depends_on:
+      - elasticsearch
+    networks:
+      - wtel
+  acr:
+    image: "webitel/acr:${WEBITEL_VERSION}"
+    container_name: acr
+    restart: always
+    env_file: "${DIR}/env/common"
+    environment:
+      - "broker:connectionString=amqp://webitel:${WEBITEL_PASS}@rabbitmq?heartbeat=0"
+    ports:
+      - "172.17.0.1:10030:10030"
+    depends_on:
+      - mongo
+    networks:
+      - wtel
+  wconsole:
+    image: "webitel/wconsole:${WEBITEL_VERSION}"
+    container_name: wconsole
+    privileged: true
+    restart: always
+    env_file: "${DIR}/env/common"
+    environment: 
+      - "ROOT_PASSWORD=${WEBITEL_PASS}"
+    volumes:
+      - "${WEBITEL_DIR}/db:/webitel/db"
+    ports:
+      - "172.17.0.1:10024:10024"
+    depends_on:
+      - mongo
+    networks:
+      - wtel
+  engine:
+    image: "webitel/engine:${WEBITEL_VERSION}"
+    container_name: engine
+    env_file: "${DIR}/env/common"
+    restart: always
+    ports:
+      - "172.17.0.1:10022:10022"
+    depends_on:
+      - mongo
+      - rabbitmq
+      - wconsole
+      - freeswitch
+    environment:
+      - "webitelServer:secret=${WEBITEL_PASS}"
+      - "cdrServer:host=${WEBITEL_PROTO}://${WEBITEL_HOST}/cdr/"
+      - "broker:connectionString=amqp://webitel:${WEBITEL_PASS}@rabbitmq?heartbeat=0"
+    volumes:
+      - "${WEBITEL_DIR}/ssl:/ssl"
+    networks:
+      - wtel
+  storage:
+    image: "webitel/storage:${WEBITEL_VERSION}"
+    container_name: storage
+    restart: always
+    ports:
+      - "172.17.0.1:10021:10021"
+      - "172.17.0.1:10023:10023"
+      - "172.17.0.1:10025:10025"
+    env_file:
+      - "${DIR}/env/common"
+      - "${DIR}/env/storage"
+    environment:
+      - "broker:connectionString=amqp://webitel:${WEBITEL_PASS}@rabbitmq?heartbeat=0"
+    volumes:
+      - "${WEBITEL_DIR}/recordings:/recordings"
+      - "${WEBITEL_DIR}/ssl:/ssl"
+      - storage:/cdr/cache
+    depends_on:
+      - elasticsearch
+      - mongo
+    networks:
+      - wtel
+  freeswitch:
+    image: "webitel/freeswitch:${WEBITEL_VERSION}"
+    container_name: freeswitch
+    restart: always
+    privileged: true
+    network_mode: "host"
+    env_file: "${DIR}/env/freeswitch"
+    tmpfs: /db
+    volumes:
+      - fs-data:/recordings
+      - fs-sounds:/sounds      
+      - "${WEBITEL_DIR}/lua:/scripts/lua"
+      - "${WEBITEL_DIR}/ssl:/certs"
+    depends_on:
+      - rabbitmq
+  nginx:
+    image: "webitel/nginx:${WEBITEL_VERSION}"
+    container_name: nginx
+    env_file:
+      - "${DIR}/env/storage"
+    environment:
+      - "WEBITEL_HOST=${WEBITEL_HOST}"
+      - "WEBITEL_SSL=${WEBITEL_SSL}"
+    volumes:
+      - "${WEBITEL_DIR}/ssl:/etc/nginx/ssl"
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - engine
+      - storage
+    networks:
+      - wtel
+  
+volumes:
+  rabbitmq:
+  storage:
+  fs-data:
+  fs-sounds:
+
+networks:
+  wtel:
+    driver: bridge

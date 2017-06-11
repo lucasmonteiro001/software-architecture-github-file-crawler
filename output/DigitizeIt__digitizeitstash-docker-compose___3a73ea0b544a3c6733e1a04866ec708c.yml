@@ -1,0 +1,37 @@
+nginx:
+  image: "elegoev/nginx:v1.9.7"
+  restart: always
+  ports:
+    - "80:80"
+  links:
+    - dockerui:dockerui
+    - drupal-daas-portal:drupal-daas-portal
+    - drupal-acme-portal:drupal-acme-portal
+    - camunda-bpm-daas:camunda-bpm-daas
+    - camunda-bpm-workbench:camunda-bpm-workbench
+  volumes:
+    - /var/docker/stacks/digitizeitstash/docker-compose/auth/:/etc/nginx/conf.d
+    - /var/docker/stacks/digitizeitstash/docker-compose/data/html:/usr/share/nginx/html
+
+drupal-acme-portal:
+  image: "digitizeitstash/drupal-acme-portal"
+  restart: always
+
+drupal-daas-portal:
+  image: "digitizeitstash/drupal-daas-portal"
+  restart: always
+
+camunda-bpm-daas:
+  image: "digitizeitstash/camunda-bpm-daas"
+  restart: always
+
+camunda-bpm-workbench:
+  image: "elegoev/camunda-bpm-workbench"
+  restart: always
+
+dockerui:
+  image: "elegoev/dockerui"
+  restart: always
+  privileged: true
+  volumes:
+    - /var/run/docker.sock:/var/run/docker.sock

@@ -1,0 +1,15 @@
+version: '2'
+services:
+  db:
+    image: mariadb
+    volumes:
+      - "./.data/db:/var/lib/mysql"
+    restart: always
+    ports:
+        - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: DpG3+/h6eggQf0bItPU3kQoiNtRuvp6W1d/MvsvkM8Q
+      MYSQL_DATABASE: mybatissample
+      MYSQL_USER: mybatissample
+      MYSQL_PASSWORD: 59oZ2tPUku2ucLfub7aNu6lqE9bzMbHly2gJI9qar48
+

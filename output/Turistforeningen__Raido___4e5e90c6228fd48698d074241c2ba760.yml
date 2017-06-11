@@ -1,0 +1,34 @@
+version: '2'
+
+services:
+  node:
+    image: node:6
+    network_mode: 'bridge'
+    working_dir: /usr/src/app
+    volumes:
+      - ".:/usr/src/app"
+    ports:
+      - "8080"
+    links:
+      - postgres
+    depends_on:
+      - postgres
+    environment:
+      - NODE_ENV=development
+      - NPM_CONFIG_LOGLEVEL=silent
+      - NPM_CONFIG_PROGRESS=false
+      - NPM_CONFIG_SPIN=false
+      - VIRTUAL_HOST=raido.app.dnt.privat
+      - VIRTUAL_PORT=8080
+    command: npm start
+
+  postgres:
+    image: turistforeningen/pgrouting-n50:latest
+    network_mode: 'bridge'
+
+  psql:
+    image: turistforeningen/pgrouting-n50:latest
+    links:
+      - postgres
+    network_mode: 'bridge'
+    command: psql -U postgres -h postgres -d postgres

@@ -1,0 +1,24 @@
+author:
+  image: nicolasbarbe/magnolia-base-debug
+  ports:
+    - "9090:8080"
+    - "1099:1099"
+    - "1043:1043"
+  environment:
+    - INSTANCE_TYPE=author_derby
+    - MAGNOLIA_HOME=/var/data
+  volumes:
+    - ./quickstart-webapp/target/quickstart-webapp-1.0-SNAPSHOT:/var/lib/tomcat7/webapps/ROOT
+    - /magnolia/data/quickstart-project/author:/var/data
+    - .:/var/src
+
+public:
+  image: nicolasbarbe/magnolia-base
+  ports:
+    - "80:8080"
+  environment:
+    - INSTANCE_TYPE=public_derby
+    - MAGNOLIA_HOME=/var/data
+  volumes:
+    - ./quickstart-webapp/target/quickstart-webapp-1.0-SNAPSHOT:/var/lib/tomcat7/webapps/ROOT
+    - /magnolia/data/quickstart-project/public:/var/data

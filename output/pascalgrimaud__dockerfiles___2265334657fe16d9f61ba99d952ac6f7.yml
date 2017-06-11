@@ -1,0 +1,5 @@
+tomcat:
+  image: pascalgrimaud/jboss:4.2.2
+  ports:
+  - "8080:8080"
+

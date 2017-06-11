@@ -1,0 +1,63 @@
+mysqldata:
+  image: harshjv/mysql-data:0.9.16-1.0
+
+composerdata:
+  image: harshjv/composer-data:0.9.16-1.0
+
+mysql:
+  image: tutum/mysql
+  environment:
+    MYSQL_PASS: password
+  ports:
+    - "3306:3306"
+  volumes_from:
+    - mysqldata
+  volumes:
+    - ./mysql:/var/lib/mysql
+
+phpmyadmin:
+  image: sauveterre/docker-phpmyadmin
+  environment:
+    PMA_SECRET: yW5gmMTijQt7GcGIgk6frcjN
+
+dbredis:
+  image: redis:3.0.5
+  volumes:
+    - ./redis:/data
+  ports:
+    - "6379:6379" # Redis
+  command: redis-server
+
+nodejs:
+  image: sauveterre/docker-nodejs
+  links:
+    - dbredis:redis
+  ports:
+    - "3000:3000" # Node
+  hostname: "node"
+  volumes:
+    - /home/elie/Workspace/Doctr/backend:/var/www/backend
+  command: node resources/api/socket/Socket.js
+
+phpnginx:
+  image: sauveterre/docker-php-nginx
+  volumes_from:
+    - composerdata
+  links:
+    - mysql:mysql
+    - dbredis:redis
+    - nodejs:node
+  ports:
+    - "80:80" # Nginx
+    - "443:443" # Nginx
+#    - "3000:3000" # Node
+#    - "6379:6379" # Redis
+  volumes_from:
+    - phpmyadmin
+  volumes:
+    - ./nginx/sites-enabled:/etc/nginx/sites-enabled
+    - ./nginx/ssl:/etc/nginx/ssl
+    - ./logs:/var/log/nginx
+    - ./composer/:/root/.composer
+    - /home/elie/Workspace/Doctr/backend/:/var/www/backend
+    - /home/elie/Workspace/Doctr/wordpress/:/var/www/wordpress

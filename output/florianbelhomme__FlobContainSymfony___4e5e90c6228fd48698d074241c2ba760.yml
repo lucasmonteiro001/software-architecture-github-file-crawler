@@ -1,0 +1,64 @@
+version: '2'
+
+volumes:
+
+  cache: ~
+  mysqldata: ~
+
+services:
+
+  mail:
+    image: jderusse/mailcatcher
+
+  mysql:
+    build: ./docker/mysql/
+    volumes:
+      - mysqldata:/var/lib/mysql
+    environment:
+      - MYSQL_DATABASE=dosy
+      - MYSQL_ROOT_PASSWORD=mIG693HW12011CH
+
+  phpmyadmin-mysql:
+    image: phpmyadmin/phpmyadmin
+    links:
+      - mysql
+    environment:
+      - PMA_HOST=mysql
+      - PMA_USER=root
+      - PMA_PASSWORD=mIG693HW12011CH
+
+  php:
+    build: ./docker/php/
+    links:
+      - mail
+      - mysql
+    volumes:
+      - ./:/www
+      - cache:/srv/var/cache
+    environment:
+      - SYMFONY_ENV=dev
+      - SYMFONY_DEBUG=true
+      - DATABASE_HOST=mysql
+      - DATABASE_PORT=~
+      - DATABASE_NAME=dosy
+      - DATABASE_USER=root
+      - DATABASE_PASSWORD=mIG693HW12011CH
+      - MAILER_HOST=mail
+
+  tools:
+    build: ./docker/tools/
+    links:
+      - mail
+      - mysql
+    volumes:
+      - ./:/www
+      - cache:/srv/var/cache
+    environment:
+      - SYMFONY_ENV=dev
+      - SYMFONY_DEBUG=true
+      - DATABASE_HOST=mysql
+      - DATABASE_PORT=~
+      - DATABASE_NAME=dosy
+      - DATABASE_USER=root
+      - DATABASE_PASSWORD=mIG693HW12011CH
+      - MAILER_HOST=mail

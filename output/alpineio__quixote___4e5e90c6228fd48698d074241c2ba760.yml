@@ -1,0 +1,25 @@
+wordpress:
+  image: wordpress
+  links:
+    - db:mysql
+  ports:
+    - "3001:80"
+  working_dir: /var/www/html
+  volumes:
+   - ./:/var/www/html/wp-content/themes/development
+
+db:
+  image: mariadb
+  #ports:
+  #  - "33061:3306"
+  environment:
+    MYSQL_ROOT_PASSWORD: secret
+phpmyadmin:
+  image: corbinu/docker-phpmyadmin
+  links:
+    - db:mysql
+  ports:
+    - 3100:80
+  environment:
+    MYSQL_USERNAME: root
+    MYSQL_ROOT_PASSWORD: secret

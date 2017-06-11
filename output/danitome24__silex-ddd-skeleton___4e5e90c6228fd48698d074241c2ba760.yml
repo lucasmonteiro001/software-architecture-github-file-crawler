@@ -1,0 +1,9 @@
+web:
+  build: .
+  ports:
+    - "8000:80"
+    - "3306:3306"
+  volumes:
+    - .:/var/www/html
+  env_file:
+    - environment.env

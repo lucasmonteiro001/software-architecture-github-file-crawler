@@ -1,0 +1,14 @@
+local: &LOCAL
+  image: rodrigowirth/alpine-node:7.2.1
+  command: npm run dev
+  ports:
+    - 3000
+  environment:
+    BOARD_ID: 9
+    DEBUG: glasshouse-imperium-api:*
+    KANBANIZE_API_KEY: GRGAbl7VFvnkfI58fGfWtFIWPxPPDuqqbj1NOp8g
+    KANBANIZE_URL: https://imperium.kanbanize.com/index.php/api/kanbanize/
+    VIRTUAL_PORT: 3000
+    VIRTUAL_HOST: gitlab-kanbanize.local.bravi.com.br
+  volumes:
+    - .:/src

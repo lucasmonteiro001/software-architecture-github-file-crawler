@@ -1,0 +1,13 @@
+version: '2'
+services:
+  ejbminitest:
+    build: .
+    image: baztian/ejb-mini:latest
+    command: /opt/jboss/wildfly/bin/standalone.sh -b 0.0.0.0 --debug
+    ports:
+     - "18080:8080"
+     - "18787:8787"
+#    links:
+#     - db
+#  db:
+#    image: postgres

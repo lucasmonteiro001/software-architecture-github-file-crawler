@@ -1,0 +1,18 @@
+data-con:
+  image: alpine
+  hostname: data
+  stdin_open: true
+  restart: always
+  command: sh
+  volumes:
+   - /srv/docker/data/mariadb:/var/lib/mysql
+maria-db-con:
+  image: mariadb
+  hostname: maria-db
+  ports:
+    - "3306:3306"
+  volumes_from:
+   - data-con
+  stdin_open: true
+  environment:
+   - MYSQL_ROOT_PASSWORD=<mysql-password>

@@ -1,0 +1,22 @@
+version: '2' # specify docker-compose version
+
+# Define the services/containers to be run
+services:
+  client: # name of the client service
+    build: client       # specify the directory of the Dockerfile
+    image: client:dev   # specify image name and tag
+    ports:
+      - "4200:4200" # specify port forwarding (host_port:container_port)
+
+  server: #name of the server service
+    build: server       # specify the directory of the Dockerfile
+    image: server:dev   # specify image name and tag
+    ports:
+      - "3000:3000"     # specify ports forwarding (host_port:container_port)
+    links:
+      - database
+
+  database: # name of the mongodb service
+    image: mongo        # specify image to build container from
+    ports:
+      - "27017:27017"   # specify port forwarding (host_port:container_port)

@@ -1,0 +1,34 @@
+version: "2"
+
+services:
+  dori:
+    build: .
+    image: doirisks/dori
+    container_name: dori
+    ports: 
+      - "8081:80"
+    networks:
+      - dori_network
+    links:
+      - dori_mysql
+    command: "/bin/bash /src/setup/onstart.sh"
+    
+
+  dori_mysql:
+    image: mysql/mysql-server
+    container_name: dori_mysql
+    volumes:
+      - "dori_data:/var/lib/mysql"
+    networks:
+      - dori_network
+    environment:
+      - MYSQL_USER=doirisks
+      - MYSQL_PASSWORD=bitnami
+      - MYSQL_DATABASE=doiarchive
+      - MYSQL_ROOT_PASSWORD=Admin2015
+
+volumes:
+  dori_data:
+  
+networks:
+  dori_network:

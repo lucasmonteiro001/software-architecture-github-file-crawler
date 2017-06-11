@@ -1,0 +1,173 @@
+version: '2'
+
+services:
+      
+  proxy:
+    # this receives outside http/https traffic and
+    # routes it to services in the SDN, it also
+    # sets up SSL and offer the only open ports to
+    # the outside - 80 and 443, we configure it
+    # with a dnddock alias to allow testing it easily from the
+    # host machine running these docker services
+    image: jwilder/nginx-proxy
+    environment:
+      - DNSDOCK_ALIAS=clb.docker
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+
+  dnsdock:
+    # for this to work, the host machine needs /etc/resolvconf configs
+    # see instructions at https://github.com/mskyttner/dns-test-docker
+    # the aacebedo image is an update of tonistiigi/dnsdock:amd64-1.13.1
+    # which has Dockerfile and docs available at Docker Hub
+    # (note the static ip on the docker bridge)
+    image: aacebedo/dnsdock:v1.15.0-amd64
+    ports:
+     - 172.17.0.1:53:53/udp
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      
+  elk:
+    image: advantageous/elk:0.1
+    command: /usr/local/bin/start.sh
+      
+  db:
+    image: gbifs/clbdb:2.48
+    container_name: db
+    env_file: .env
+
+  web:
+    # this is "routing" all web traffic and knows
+    # all other services in the SDN by their 
+    # docker-compose names which are used in app.conf
+    image: nginx:alpine
+    environment: 
+      - VIRTUAL_HOST=clb.docker
+    volumes:
+      - ./index.html:/usr/share/nginx/html/index.html
+      - ./app.conf:/etc/nginx/conf.d/app.conf
+    depends_on:
+      - varnish
+      - solr
+      - elk
+      - ws
+
+  rabbit:
+    image: rabbitmq:3.6-management
+    container_name: rabbit
+    env_file: .env
+
+  varnish:
+    image: million12/varnish
+    env_file: .env
+    environment:
+      - VCL_CONFIG=/etc/clb/default.vcl
+    volumes_from:
+      - ws
+    depends_on:
+      - ws
+
+  solr:
+    image: gbifs/clbsolr:2.48
+    env_file: .env
+    hostname: solr
+    environment:
+      - VERBOSE=yes
+
+  ws:
+    image: gbifs/clbws:2.47
+    container_name: ws
+    environment:
+      - DNSDOCK_ALIAS=ws
+    depends_on:
+      - db
+      - solr
+      - elk
+      
+  crawler:
+    image: gbifs/clbcli:2.48
+    env_file: .env
+    depends_on:
+      - db
+      - solr
+      - rabbit
+      - elk
+    environment:
+      - COMMAND=crawler
+      - MAX_HEAP=256M
+    volumes:
+      - ./crawler_data:/usr/local/clb/data
+      - ./cli/datasets.txt:/usr/local/clb/data/datasets.txt
+
+  analyzer:
+    image: gbifs/clbcli:2.48
+    env_file: .env
+    depends_on:
+      - db
+      - solr
+      - rabbit
+      - elk
+    environment:
+      - COMMAND=analysis
+      - MAX_HEAP=256M
+    volumes_from:
+      - crawler
+
+  importer:
+    image: gbifs/clbcli:2.48
+    env_file: .env
+    depends_on:
+      - db
+      - solr
+      - rabbit
+      - elk
+    environment:
+      - COMMAND=importer
+      - MAX_HEAP=2G
+    volumes_from:
+      - crawler
+
+  matcher:
+    image: gbifs/clbcli:2.48
+    env_file: .env
+    depends_on:
+      - db
+      - solr
+      - rabbit
+      - elk
+    environment:
+      - COMMAND=dataset-matcher
+      - MAX_HEAP=2G
+    volumes_from:
+      - crawler
+
+  normalizer:
+    image: gbifs/clbcli:2.48
+    env_file: .env
+    depends_on:
+      - db
+      - solr
+      - rabbit
+      - elk
+    environment:
+      - COMMAND=normalizer
+      - MAX_HEAP=2G
+    volumes_from:
+      - crawler
+
+  admin:
+    image: gbifs/clbcli:2.48
+    env_file: .env
+    depends_on:
+      - db
+      - solr
+      - rabbit
+      - elk
+    command: /bin/bash
+    environment:
+      - MAX_HEAP=256M
+    volumes_from:
+      - crawler

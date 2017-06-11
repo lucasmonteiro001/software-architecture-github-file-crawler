@@ -1,0 +1,23 @@
+db_redis:
+    build: .
+    dockerfile: redis-server.dock
+db_redis_sentinel:
+    build: .
+    dockerfile: redis-sentinel.dock
+    links:
+        - db_redis:dbredis
+db_postgres:
+    image: postgres
+    environment:
+        POSTGRES_USER: pybossa
+        POSTGRES_PASSWORD: tester
+web:
+    build: .
+    dockerfile: pybossa-server.dock
+    ports:
+        - "5000:5000"
+    links:
+        - db_redis:dbredis
+        - db_redis_sentinel:dbredissentinel
+        - db_postgres:dbpostgres
+

@@ -1,0 +1,15 @@
+web:
+  image: testx/cloud-platform
+  ports:
+    - "90:80"
+  volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
+  environment:
+    - MONGO_URL=mongodb://mongo/testx
+    - ROOT_URL=http://testx.io
+  links:
+    - mongo
+mongo:
+  image: mongo:3.2
+  volumes:
+    - ./mongo-data:/data/db

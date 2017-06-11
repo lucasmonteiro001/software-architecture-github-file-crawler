@@ -1,0 +1,12 @@
+acgf-wordpress:
+  image: wordpress
+  links:
+    - acgf-mysql:mysql
+  ports:
+    - 8181:80
+  volumes:
+    - ~/Projects/wordpress/acgf:/var/www/html
+acgf-mysql:
+  image: mysql
+  environment:
+    MYSQL_ROOT_PASSWORD: root

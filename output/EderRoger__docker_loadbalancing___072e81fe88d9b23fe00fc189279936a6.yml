@@ -1,0 +1,48 @@
+node1:
+  build: /vagrant/docker/nodes
+  restart: always
+
+node2:
+  build: /vagrant/docker/nodes
+  restart: always
+
+haproxy:
+  build: /vagrant/docker/haproxy
+  restart: always
+  links:
+      - node1
+      - node2
+  expose:
+    - "80"
+    - "443"
+  ports:
+    - "80:80"
+    - "443:443"
+
+elasticsearch:
+  image: elasticsearch
+  command: elasticsearch -Des.network.host=0.0.0.0
+  restart: always
+  ports:
+    - "9300:9300"
+    - "9200:9200"
+
+logstash:
+   image: logstash
+   volumes:
+     - ./logs:/tmp
+   volumes_from:
+     - node1
+     - node2
+   command: /opt/logstash/bin/logstash -f /tmp/logstash.conf
+   restart: always
+   links:
+    - elasticsearch
+
+kibana:
+  image: kibana
+  restart: always
+  ports:
+    - "5601:5601"
+  links:
+    - elasticsearch

@@ -1,0 +1,7 @@
+version: "2"
+services:
+  rust:
+    image: geraldofada/rust-workstation
+    volumes:
+      - "./:/rust/workspace"
+    tty: true

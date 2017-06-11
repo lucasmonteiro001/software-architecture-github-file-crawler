@@ -1,0 +1,6 @@
+job:
+  #image: openedinc/lr-oe
+  build: .
+  command: bundle exec ruby lr-oe.rb
+  env_file: 
+    - ./docker.env

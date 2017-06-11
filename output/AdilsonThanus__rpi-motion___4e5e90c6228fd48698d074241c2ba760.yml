@@ -1,0 +1,11 @@
+motion:
+  image: adilsonthanus/rpi-motion
+  volumes:
+   - /dev/video0:/dev/video0
+  ports:
+   - "8080:8080"
+   - "8081:8081"
+  privileged: true
+#  expose:
+#   - "8080"
+#   - "8081"

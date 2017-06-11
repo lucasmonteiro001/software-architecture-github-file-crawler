@@ -1,0 +1,6 @@
+version: "2"
+services:
+  icecap:
+    build: .
+  mimic:
+    image: mimic

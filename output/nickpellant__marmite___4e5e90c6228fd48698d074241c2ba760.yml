@@ -1,0 +1,5 @@
+marmite:
+  build: .
+  command: rspec
+  volumes:
+    - .:/marmite

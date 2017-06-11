@@ -1,0 +1,26 @@
+mongodata:
+  image: mongo:latest
+  volumes:
+    - db:/data/db
+  command: --break-mongo
+
+mongo:
+  image: mongo:latest
+  volumes_from:
+    - mongodata
+  ports:
+    - "27017:27017"
+  command: --smallfiles --rest --auth
+
+app:
+  build: .
+  volumes:
+    - application:/usr/src/app
+    - files:/usr/src/files
+  ports:
+    - "80:80"
+  links:
+    - mongo:mongo
+  environment:
+    aw_environment: development
+    PORT: 80

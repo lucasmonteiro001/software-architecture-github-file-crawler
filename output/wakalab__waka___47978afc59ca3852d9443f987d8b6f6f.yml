@@ -1,0 +1,14 @@
+version: '2'
+services:
+  grafana:
+    container_name: grafana
+    build: .
+    volumes:
+     - /opt/docker/grafana/var/lib/grafana:/var/lib/grafana
+    restart: always
+    environment:
+     - GF_SECURITY_ADMIN_PASSWORD=grafana
+     - GF_SECURITY_ADMIN_USER=grafana
+     - GF_SERVER_HTTP_PORT=80
+    tty: true
+

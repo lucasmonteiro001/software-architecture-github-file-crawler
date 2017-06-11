@@ -1,0 +1,23 @@
+version: "2"
+services:
+  http:
+    image: try-phabricator
+    build: .
+    command: [/bin/bash, /run-apache.sh]
+    environment:
+      - "mysql_host=127.0.0.1"
+      - "mysql_port=3306"
+      - "phabricator_base_uri=http://phabricator.local"
+    volumes:
+      - "./data/repo:/var/repo"
+    ports:
+      - "80:80"
+  mysql:
+    image: try-phabricator
+    build: .
+    command: [/bin/bash, /run-mysql.sh]
+    network_mode: "service:http"
+    volumes:
+      - "./data/mysql:/var/lib/mysql"
+
+# vim: ts=2 sw=2 sts=2

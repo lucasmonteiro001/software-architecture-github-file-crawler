@@ -1,0 +1,26 @@
+db:
+  image: postgres:9.3
+  volumes_from:
+    - upliftinglemma-net-db-data
+  expose:
+    - "5432"
+
+nginx:
+  image: nginx
+  volumes:
+    - "nginx:/etc/nginx/conf.d"
+  ports:
+    - "3000:80"
+  links:
+    - web
+
+web:
+  build: .
+  command: bundle exec rails server -b 0.0.0.0 -p 3000
+  volumes:
+    - ".:/usr/src/app"
+  volumes_from:
+    - gems-2.1
+  links:
+    - db
+

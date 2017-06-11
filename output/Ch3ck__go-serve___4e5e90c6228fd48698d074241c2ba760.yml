@@ -1,0 +1,15 @@
+api:
+  build: ./main/api
+  ports:
+    - "9000:9000"
+  links:
+    - auth
+    - location
+    - user
+auth:
+  build: ./main/auth
+location:
+  build: ./main/location
+user:
+  build: ./main/user
+

@@ -1,0 +1,14 @@
+image: meteorhacks/meteord
+
+dashboard:
+  image: unreal0/intermediate
+  ports:
+   - "80:80"
+  links:
+   - mongo
+  environment:
+   - MONGO_URL=mongodb://mongo/intermediate
+   - ROOT_URL=http://intermediate.com
+
+mongo:
+  image: mongo:latest

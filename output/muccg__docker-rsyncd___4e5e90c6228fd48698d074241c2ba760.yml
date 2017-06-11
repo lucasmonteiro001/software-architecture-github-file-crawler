@@ -1,0 +1,9 @@
+version: '2'
+services:
+
+  rsyncd:
+    image: muccg/rsyncd
+    ports:
+      - "873"
+    volumes:
+      - "./data:/data"

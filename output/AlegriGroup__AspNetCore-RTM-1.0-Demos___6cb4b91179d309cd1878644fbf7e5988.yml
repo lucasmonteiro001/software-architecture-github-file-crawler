@@ -1,0 +1,10 @@
+version: '2'
+
+services:
+  aspnetcore_mvc_docker:
+    image: username/aspnetcore_mvc_docker
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "24954:80"

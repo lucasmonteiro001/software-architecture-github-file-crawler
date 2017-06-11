@@ -1,0 +1,27 @@
+# This configuration does not include a processing node
+# Which makes for faster setup times
+version: '2'
+volumes:
+  dbdata:
+    driver: local
+  appmedia:
+    driver: local
+services:
+  db:
+    build: ./db
+    container_name: db
+    ports:
+      - "5432"
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+  webapp:
+    build: .
+    container_name: webapp
+    entrypoint: /bin/bash -c "chmod +x /webodm/*.sh && /bin/bash -c \"/webodm/wait-for-it.sh db:5432 -- /webodm/start.sh\""
+    volumes:
+      - appmedia:/webodm/app/media
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    restart: on-failure:10

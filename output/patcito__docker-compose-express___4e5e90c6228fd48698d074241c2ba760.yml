@@ -1,0 +1,13 @@
+db:
+  image: postgres
+  ports:
+    - "5432"
+web:
+  image: patcito/nodejs
+  command: npm start
+  volumes:
+    - .:/myapp
+  ports:
+    - "3000:3000"
+  links:
+    - db

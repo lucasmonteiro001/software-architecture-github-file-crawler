@@ -1,0 +1,17 @@
+version: '2'
+services:
+  web:
+    build: .
+    command: bundle exec rails s -p 3000 -b '0.0.0.0'
+    volumes:
+      - .:/app
+      - /var/lib/sicuro
+    ports:
+      - "3000:3000"
+    links:
+      - db
+    environment:
+      - POSTGRES_HOST=postgres://db/sicuro
+      - RAILS_ENV=development
+  db:
+    image: postgres

@@ -1,0 +1,8 @@
+Bind:
+  image: lixter/ldap:latest
+  ports:
+    - "389:389/tcp"
+    - "10000:10000/tcp"
+  volumes:
+    - /data/ldap/volume/data:/data
+  restart: always

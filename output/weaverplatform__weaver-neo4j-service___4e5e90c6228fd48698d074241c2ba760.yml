@@ -1,0 +1,10 @@
+version: '2'
+services:
+  neo4j-service:
+    image: sysunite/neo4j-service:0.0.1
+    expose: 
+     - "9474"
+    ports:
+     - "9474:9474"
+    volumes:
+      - ./db:/usr/src/app/db

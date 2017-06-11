@@ -1,0 +1,9 @@
+version: '2'
+services:
+  trafficlight:
+    build: .
+    devices:
+      - "/dev/mem:/dev/mem"
+    cap_add:
+      - SYS_RAWIO
+    restart: always

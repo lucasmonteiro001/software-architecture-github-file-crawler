@@ -1,0 +1,16 @@
+version: '2'
+
+services:
+
+  jupyter:
+    image: jayjohnson/jupyter:2.0.6
+    container_name: "jupyter"
+    hostname: "jupyter"
+    env_file: 
+      - ./test/jupyter.env
+    ports:
+      - "82:8888"
+    volumes:
+      - .:/opt/work
+    network_mode: "host"
+

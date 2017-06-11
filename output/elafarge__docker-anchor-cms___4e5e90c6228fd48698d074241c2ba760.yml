@@ -1,0 +1,22 @@
+anchor-db:
+  container_name: anchor_db
+  image: mariadb
+  volumes:
+      - "./volumes/mysql:/var/lib/mysql:rw"
+  environment:
+    - MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD
+    - MYSQL_USER=$MYSQL_USER
+    - MYSQL_PASSWORD=$MYSQL_PASSWORD
+    - MYSQL_DATABASE=anchor
+anchor-server:
+  container_name: anchor_server
+  ports:
+    - "80:80"
+  volumes:
+    - "./volumes/nginx/sites-available:/etc/nginx/sites-available:rw"
+    - "./volumes/anchor/anchor/config:/var/www/anchor/anchor/config:rw"
+    - "./volumes/anchor/themes:/var/www/anchor/themes:rw"
+    - "./volumes/anchor/content:/var/www/anchor/content:rw"
+  links:
+    - anchor-db
+  image: elafarge/docker-anchor-cms

@@ -1,0 +1,39 @@
+web:
+  image: jacobom/lemp:web
+  restart: always
+  volumes:
+    - ./:/var/www
+  ports:
+    - "80"
+  expose:
+    - "80"
+  links:
+    - db
+    - cache
+  privileged: true
+  cpu_shares: 512
+  environment:
+    TZ: "America/Los_Angeles"
+    VIRTUAL_HOST: "$HOST"
+    NGINX_ERROR_LOG_LEVEL: "notice"
+    DB_NAME: "sensorHub"
+    GITHUB_API_TOKEN: "$GITHUB_API_TOKEN"
+db:
+  restart: always
+  image: jacobom/lemp:mysql
+  ports:
+    - "3360"
+  expose:
+    - "3360"
+  environment:
+    TZ: "America/Los_Angeles"
+    DB_NAME: "sensorHub"
+cache:
+  restart: always
+  image: jacobom/lemp:redis
+  ports:
+    - "6379"
+  expose:
+    - "6379"
+  environment:
+    TZ: "America/Los_Angeles"

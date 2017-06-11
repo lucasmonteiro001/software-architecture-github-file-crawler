@@ -1,0 +1,14 @@
+microservicephp:
+  image: canopycloud/microservice-php:latest
+  ports:
+    - "8000:80"
+
+microservicenodejs:
+  image: canopycloud/microservice-nodejs:latest
+  ports:
+    - "8100:80"
+
+microservicepython:
+  image: canopycloud/microservice-python:latest
+  ports:
+    - "8200:80"

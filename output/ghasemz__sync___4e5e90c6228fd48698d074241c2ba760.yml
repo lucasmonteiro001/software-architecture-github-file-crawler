@@ -1,0 +1,10 @@
+sync:
+  build: .
+  environment:
+   - VOLUME=all
+   - SYNC_DEST=/volume
+   - REMOTE_HOST=rasanak.com
+   - INCLUDE_PATTERN=*.tar.gz
+   - EXCLUDE_PATTERN=*
+  volumes:
+   - /tmp/volume:/volume

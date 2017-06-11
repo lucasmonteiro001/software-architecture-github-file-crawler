@@ -1,0 +1,11 @@
+version: "2.0"
+services:
+    db:
+        image: mariadb
+        env_file: db.properties
+        ports:
+            - "3306:3306"
+    web:
+        build: front-end
+        ports:
+            - "4200:4200"

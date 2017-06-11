@@ -1,0 +1,26 @@
+#
+# Source code address
+# https://hub.docker.com/u/tranhuucuong91/
+#
+# Syntax: https://docs.docker.com/compose/compose-file/
+#
+version: "2"
+
+services:
+    jupyter:
+        image: tranhuucuong91/jupyter:1.0
+        # command: trap-sleep-infinity.sh
+        # volumes:
+        #     - ./trap-sleep-infinity.sh:/usr/bin/trap-sleep-infinity.sh:ro
+        #     - ./data/:/data/
+        ports:
+            - "9999:9999"
+        hostname: jupyter
+        domainname: coclab.lan
+        cpu_shares: 512             # 0.5 CPU
+        mem_limit: 536870912        # 512 MB RAM
+        #privileged: true
+        #restart: always
+        #stdin_open: true
+        #tty: true
+

@@ -1,0 +1,8 @@
+version: "2"
+services:
+  helloworld:
+    image: helloworld-service:latest
+    ports:
+      - "12080:8080"
+    volumes:
+      - "../../target/docker/logs:/opt/logs"

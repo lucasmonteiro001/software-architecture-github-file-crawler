@@ -1,0 +1,35 @@
+static:
+  build: ./static/
+  ports:
+    - "127.0.0.1:2992:2992"
+  volumes:
+    - ./static:/app/static
+
+web:
+  build: ./web/
+  volumes_from:
+    - static
+  volumes:
+    - ./web:/app/web
+  expose:
+    - "8000"
+  ports:
+    - "127.0.0.1:8000:8000"
+  links:
+    - db:db
+  command: python manage.py runserver 0:8000
+  environment:
+    DJANGO_DEBUG: true
+
+db:
+  image: mariadb
+  volumes:
+    - ./data/mysql:/var/lib/mysql
+  ports:
+    - "127.0.0.1:3306:3306"
+  environment:
+    MYSQL_ROOT_PASSWORD: letmein
+    MYSQL_DATABASE: spec_ibride
+    MYSQL_USER: spec_ibride
+    MYSQL_PASSWORD: letmein
+

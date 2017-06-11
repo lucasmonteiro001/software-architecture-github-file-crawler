@@ -1,0 +1,4 @@
+---
+noip:
+  build: .
+  env_file: ./env_file

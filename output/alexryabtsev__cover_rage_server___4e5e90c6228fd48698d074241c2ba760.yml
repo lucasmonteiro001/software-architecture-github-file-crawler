@@ -1,0 +1,18 @@
+version: '2'
+services:
+  app:
+    build: .
+    ports:
+      - "8888:8888"
+    depends_on:
+      - redis
+    environment:
+      - RAGE_SRV_REDIS_HOST=redis
+      - RAGE_SRV_SCHEME=http
+      - RAGE_SRV_HOST=cover-rage.doomatel.com
+    volumes:
+      - .:/app
+  redis:
+    image: redis:3.2-alpine
+volumes:
+  redis_data:

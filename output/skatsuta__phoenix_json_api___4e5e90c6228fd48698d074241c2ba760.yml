@@ -1,0 +1,14 @@
+web:
+  build: .
+  environment:
+    DATABASE_URL: ecto://postgres:postgres@db/postgres
+    PORT: 4001
+  links:
+    - db
+  ports:
+    - 4001:4001
+db:
+  image: postgres
+  environment:
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: postgres

@@ -1,0 +1,56 @@
+base:
+  build: .
+  volumes:
+    - .:/var/www
+
+php:
+  build: docker/php
+  links:
+    - mysql
+
+phpfpm:
+  build: docker/php-fpm
+
+phpdev:
+  build: docker/php-dev
+  volumes_from:
+    - base
+  links:
+    - mysql
+    - seleniumhub
+  environment:
+    ENVIRONMENT: Development
+  ports:
+    - "2023:22"
+    - "8000:8000"
+
+phpfpm:
+  build: docker/php-fpm
+  volumes_from:
+    - base
+  links:
+    - mysql
+
+nginx:
+  build: docker/nginx
+  links:
+    - phpdev:php
+  ports:
+    - "80:80"
+  volumes_from:
+    - base
+
+mysql:
+  image: mysql
+  environment:
+    MYSQL_ROOT_PASSWORD: password
+    MYSQL_DATABASE: app
+
+seleniumhub:
+  image: selenium/hub
+
+seleniumfirefox:
+  image: selenium/node-firefox
+  links:
+    - seleniumhub:hub
+    - nginx

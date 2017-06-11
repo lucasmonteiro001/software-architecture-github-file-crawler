@@ -1,0 +1,34 @@
+#
+# Docker container definition
+#
+version: '2'
+services:
+  #
+  # haveged deployment
+  #
+  haveged:
+    mem_limit: 268435456
+    privileged: true
+    image: picoded/haveged
+    stdin_open: true
+    tty: true
+    labels:
+      io.rancher.container.pull_image: always
+      io.rancher.container.hostname_override: container_name
+      io.rancher.scheduler.affinity:host_label_ne: no-haveged=true,no-essential=true
+      io.rancher.scheduler.global: 'true'
+  #
+  # logrotate deployment
+  #
+  logrotate:
+    mem_limit: 268435456
+    image: picoded/docker-logrotate
+    stdin_open: true
+    volumes:
+    - /var/lib/docker/containers/:/var/lib/docker/containers/:rw
+    tty: true
+    labels:
+      io.rancher.container.pull_image: always
+      io.rancher.container.hostname_override: container_name
+      io.rancher.scheduler.affinity:host_label_ne: no-logrotate=true,no-essential=true
+      io.rancher.scheduler.global: 'true'

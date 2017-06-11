@@ -1,0 +1,55 @@
+redmine-mysql:
+  restart: always
+  image: slsay/docker-mysql:latest
+  environment:
+    - MYSQL_ROOT_PASSWORD=admin
+    - MYSQL_DATABASE=redmine
+
+redmine:
+  restart: always
+  image: slsay/docker-redmine:latest
+  links:
+    - redmine-mysql:mysql
+  volumes:
+    - /srv/docker/redmine/redmine/plugins:/usr/src/redmine/plugins
+  ports:
+    - 3000:3000
+
+sonar-mysql:
+  restart: always
+  image: slsay/docker-mysql:latest
+  environment:
+    - MYSQL_ROOT_PASSWORD=admin
+    - MYSQL_DATABASE=sonar
+    - MYSQL_USER=sonar
+    - MYSQL_PASSWORD=sonar
+    
+sonar:
+  restart: always
+  image: slsay/docker-sonar:latest
+  environment:
+    - SONARQUBE_JDBC_USERNAME=sonar
+    - SONARQUBE_JDBC_PASSWORD=sonar
+    - SONARQUBE_JDBC_URL=jdbc:mysql://mysql:3306/sonar?useUnicode=true&characterEncoding=utf8&rewriteBatchedStatements=true
+  links:
+    - sonar-mysql:mysql
+  ports:
+    - 9000:9000
+    - 9092:9092
+
+mongo:
+  restart: always
+  image: slsay/docker-mongodb:latest
+  ports:
+    - 27017:27017
+
+jenkins:
+  restart: always
+  image: slsay/docker-jenkins:latest
+  links:
+    - mongo:mongo
+  volumes:
+    - /srv/docker/jenkins/jenkins:/var/jenkins_home
+  ports:
+    - 8080:8080
+    - 50000:50000

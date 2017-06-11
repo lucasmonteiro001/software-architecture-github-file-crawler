@@ -1,0 +1,17 @@
+version: '2'
+services:
+  homeautomation:
+    image: maxcanna/homeautomation:latest
+    restart: always
+    networks:
+      - front
+    ports:
+      - 80:80
+    environment:
+      - NODE_ENV=production
+      - PORT=80
+    volumes:
+      - ./constants.js:/var/www/homeautomation/constants.js
+
+networks:
+  front:

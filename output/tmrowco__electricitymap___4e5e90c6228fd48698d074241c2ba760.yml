@@ -1,0 +1,19 @@
+version: '2'
+services:
+  web:
+    build:
+      context: .
+      dockerfile: web/Dockerfile
+    command: npm run server-dev
+    environment:
+      - NODE_ENV=development
+    ports: ['8000:8000']
+    volumes:
+      - './web/app:/home/web/app'
+      - './web/package.json:/home/web/package.json'
+      - './web/public:/home/web/public'
+      - './web/server.js:/home/web/server.js'
+      - './web/views:/home/web/views'
+      - './web/webpack.config.js:/home/web/webpack.config.js'
+      - './web/locales:/home/web/locales'
+      - './config:/home/config'

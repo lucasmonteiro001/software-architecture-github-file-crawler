@@ -1,0 +1,127 @@
+version: '2'
+
+services:
+    db:
+        restart: always
+        image: postgres
+        volumes:
+            - falkor_db:/var/lib/postgresql/data/
+        networks:
+            backend:
+                aliases:
+                    - db
+                    
+    redis:
+        restart: always
+        image: redis
+        networks:
+            channels:
+                aliases:
+                    - redis
+                    
+    web:
+        depends_on:
+            - redis
+        restart: always
+        build: ./hub
+        environment:
+            - "DEBUG=true"
+            - "REDIS=true"
+        command: daphne -b 0.0.0.0 -p 8000 falkor_project.asgi:channel_layer
+        networks:
+            channels:
+            frontend:
+                aliases:
+                    - web
+                    
+    web-worker:
+        depends_on:
+            - db
+            - redis
+        restart: always
+        build: ./hub
+        environment:
+            - "DEBUG=true"
+            - "POSTGRES=true"
+            - "REDIS=true"
+        command: python manage.py runworker
+        networks:
+            channels:
+            backend:
+            
+    dockerworker:
+        depends_on:
+            - redis
+        restart: always
+        build: ./hub
+        environment:
+            - "POSTGRES=true"
+            - "REDIS=true"
+        command: python manage.py dockerworker
+        networks:
+            channels:
+            backend: 
+            
+    dockerexecworker:
+        depends_on:
+            - redis
+        restart: always
+        build: ./hub
+        environment:
+            - "POSTGRES=true"
+            - "REDIS=true"
+        command: python manage.py dockerexecworker
+        networks:
+            channels:
+            backend:
+            
+    web-static:
+      build: ./hub
+      volumes:
+        - /static
+      command: python manage.py collectstatic --noinput
+    
+    web-proxy:
+      depends_on:
+            - proxy
+            - db
+      build: ./hub
+      environment:
+            - "POSTGRES=true"
+      command: python manage.py fix_networks
+      networks:
+            backend:
+      
+    proxy:
+        restart: always
+        build: ./proxy
+        environment:
+            - DOMAIN_NAME
+            - SECRET
+        networks:
+            - frontend
+        ports:
+            - "80:8080"
+            - "443:8443"
+        volumes:
+            - /etc/letsencrypt/:/etc/letsencrypt/
+        volumes_from:
+            - web-static:ro
+    
+    docker:
+        restart: always
+        image: bobrik/socat
+        command: -d -d TCP-L:2375,fork UNIX:/var/run/docker.sock
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        networks:
+            frontend:
+            backend:
+            
+networks:
+    backend:
+    channels:
+    frontend:
+
+volumes:
+    falkor_db:

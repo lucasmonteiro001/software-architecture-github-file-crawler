@@ -1,0 +1,20 @@
+elasticsearch:
+  image: cantireinnovations/elasticsearch-marvel
+  ports: 
+    - "9200:9200"
+    - "9300:9300"
+
+elasticsearchnode:
+  image: cantireinnovations/elasticsearch-marvel
+  expose: 
+    - "9200"
+    - "9300"
+    
+kibana:
+  image: cantireinnovations/kibana
+  environment:
+    - ELASTICSEARCH_HOST=elasticsearch
+  links:
+    - "elasticsearch"
+  ports:
+    - "5601:5601"

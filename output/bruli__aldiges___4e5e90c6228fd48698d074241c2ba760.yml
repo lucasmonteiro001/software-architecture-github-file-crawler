@@ -1,0 +1,8 @@
+apache2:
+  build: ./docs/docker/apache2
+  volumes:
+    - ".:/var/www"
+  ports:
+    - 80:80
+  external_links:
+    - aldigespersistenceapi_apache2_1

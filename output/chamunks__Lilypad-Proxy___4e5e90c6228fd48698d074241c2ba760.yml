@@ -1,0 +1,7 @@
+proxy:
+  image: chamunks/lilypad-proxy:latest
+  ports:
+    - "25565:25565"
+  volumes:
+    - "./proxy/proxy.yml:/app/proxy.yml"
+  restart: always

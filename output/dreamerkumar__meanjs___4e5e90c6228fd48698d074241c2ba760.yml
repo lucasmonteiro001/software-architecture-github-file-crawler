@@ -1,0 +1,9 @@
+web:
+   image: dreamerkumar/meanjs:latest
+   links:
+    - mymongodb:db_1
+   ports:
+    - "3000:3000"
+   command: bash -c "cd Development/meanjs && NODE_ENV=production grunt"
+mymongodb:
+    image: mongo

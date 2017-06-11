@@ -1,0 +1,40 @@
+version: '2'
+
+volumes:
+  postgres_data: {}
+  postgres_backup: {}
+
+services:
+  postgres:
+    build: ./compose/postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - postgres_backup:/backups
+    environment:
+      - POSTGRES_USER=example_project
+
+  django:
+    build:
+      context: .
+      dockerfile: ./compose/django/Dockerfile
+    command: /start-dev.sh
+    depends_on:
+      - postgres
+      - redis
+      - elasticsearch
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    environment:
+      - POSTGRES_USER=example_project
+      - USE_DOCKER=yes
+
+  elasticsearch:
+    build: ./compose/elasticsearch
+    ports:
+      - "9200:9200"
+
+  redis:
+    image: redis:latest
+

@@ -1,0 +1,22 @@
+version: "2.1"
+
+volumes:
+  turbo_postgres_data: {}
+
+services:
+
+  postgres:
+    build: ./deploy/docker/postgres
+    volumes:
+      - turbo_postgres_data:/var/lib/postgresql/data
+
+  django:
+    build: 
+      dockerfile: ./deploy/docker/django/Dockerfile
+      context: .
+    depends_on:
+      - postgres
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"

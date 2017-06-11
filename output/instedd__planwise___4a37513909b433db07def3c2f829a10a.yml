@@ -1,0 +1,20 @@
+mapcache:
+  image: instedd/planwise-mapserver:mapcache
+  # build: .
+  # dockerfile: Dockerfile.mapcache
+  volumes:
+    - "./mapcache.xml:/mapcache/mapcache.xml:ro"
+  links:
+    - mapserver
+  ports:
+    - "5002:80"
+
+mapserver:
+  image: instedd/planwise-mapserver:mapserver
+  # build: .
+  # dockerfile: Dockerfile.mapserver
+  volumes:
+    - "../data:/data:ro"
+    - "./planwise.map:/etc/mapserver/mapserver.map:ro"
+  ports:
+    - "5001:80"

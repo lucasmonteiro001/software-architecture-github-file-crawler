@@ -1,0 +1,22 @@
+themosis:
+  restart: always
+  image: rluders/themosis-framework
+  expose:
+    - "80"
+  links:
+    - db
+  volumes:
+    - .:/var/www/project
+  environment:
+    HOSTNAME: development
+    VIRTUALHOST: themosis.dev
+db:
+  restart: always
+  image: mysql
+  environment:
+    - MYSQL_ROOT_PASSWORD=root
+    - MYSQL_DATBASE=themosis
+    - MYSQL_USER=themosis
+    - MYSQL_PASSWORD=root
+  expose:
+    - "3306"

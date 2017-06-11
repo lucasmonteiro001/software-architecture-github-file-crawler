@@ -1,0 +1,13 @@
+version: '2'
+services:
+  db:
+    image: mysql/mysql-server:8.0
+    ports:
+      - "6603:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: supergeheim
+      MYSQL_USER: mosaik
+      MYSQL_PASSWORD: nochgeheimer
+      MYSQL_DATABASE: mosaiktest
+    volumes:
+      - "./db/sampletable.sql:/docker-entrypoint-initdb.d/sampletable.sql"

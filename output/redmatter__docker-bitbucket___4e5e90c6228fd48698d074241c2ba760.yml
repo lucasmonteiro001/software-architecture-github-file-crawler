@@ -1,0 +1,37 @@
+version: "2"
+services:
+  bitbucket:
+    build: server
+    environment:
+      BITBUCKET_USER: atlbitbucket
+      BITBUCKET_GROUP: atlbitbucket
+      BITBUCKET_BACKUP_USER: backup
+      BITBUCKET_BACKUP_PASS: letmein
+      BITBUCKET_URL: http://bitbucket
+    ports:
+     - "8081:80"
+    volumes_from:
+     - server-data
+    links:
+     - mysql
+
+  mysql:
+    image: "mysql:5.6"
+    volumes:
+     - mysql-data:/var/lib/mysql
+     - ./mysql-initdb:/docker-entrypoint-initdb.d
+    environment:
+      MYSQL_ROOT_PASSWORD: letmein
+      MYSQL_DATABASE: bitbucket
+      MYSQL_USER: atlbitbucket
+      MYSQL_PASSWORD: letmein
+    ports:
+     - "3306:3306"
+
+  server-data:
+    build: server-data
+
+volumes:
+  mysql-data:
+
+# vim: tabstop=2 shiftwidth=2 expandtab:

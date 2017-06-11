@@ -1,0 +1,41 @@
+#
+# cytoeditor server-side infrastructure
+# This version requires the use of 
+#   docker v1.9+
+#   docker-compose v1.5+, running with --x-experimental-networking
+#
+
+# A scalable cache
+#     saves data to ./data/mongo
+mongo:
+    image: mongo:3.0
+    container_name: "mongo"
+    volumes:
+      - "./data/mongo:/data/db"
+
+
+# Cytopathology Editor
+editor:
+    image: rotarudan/cytopathologyeditor
+    container_name: "editor"
+    environment:
+      - MONGOHQ_URL=mongodb://mongo:27017/material-dev
+      - PORT=3000
+      - FACEBOOK_ID=fb_id
+      - FACEBOOK_SECRET=sb_secret
+      - TWITTER_KEY=tw_key
+      - TWITTER_SECRET=tw_key
+      - GOOGLE_ID=g_id
+      - LINKEDIN_ID=l_id
+      - LINKEDIN_SECRET=l_secret
+      - GITHUB_ID=gh_id
+      - GITHUB_SECRET=gh_secret
+      - MAILER_FROM=cytopathologyeditor@ucm.es
+      - MAILER_SERVICE_PROVIDER=Gmail
+      - MAILER_EMAIL_ID=SMTP_email
+      - MAILER_PASSWORD=SMTP_pw
+    volumes:
+      - "./data/uploads:/home/cytoeditor/public/uploads"
+    ports:
+      - "3000:3000"
+      - "35729:35729"

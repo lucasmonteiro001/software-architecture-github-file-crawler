@@ -1,0 +1,14 @@
+version: '2'
+services:
+    vault:
+        build: .
+        image: vault:compose
+        container_name: "vault"
+        network_mode: "host"
+        volumes:
+        - /home/vagrant:/home/developer
+        - /var/run/docker.sock:/var/run/docker.sock
+        stdin_open: true
+        tty: true
+        user: 1000:1000
+

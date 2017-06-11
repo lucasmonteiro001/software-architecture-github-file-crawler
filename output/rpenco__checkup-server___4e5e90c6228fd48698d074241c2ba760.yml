@@ -1,0 +1,13 @@
+version: '2'
+services:
+  checkup_server:
+    container_name: checkup_server 
+    image: rpenco/checkup-server
+    ports:
+     - "8080:8080"
+    environment:
+     - "CONFIGFILE=/src/shared/configuration.yml"
+     - "DBFILE=/src/shared/db.json" 
+    volumes:
+     - ./data:/src/shared
+

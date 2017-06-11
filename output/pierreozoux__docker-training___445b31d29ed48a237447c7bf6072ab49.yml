@@ -1,0 +1,15 @@
+version: '2'
+services:
+  app:
+    build: .
+    links:
+      - "redis:redis"
+    networks:
+    - backmoby
+  redis:
+    image: redis
+    networks:
+    - backmoby
+networks:
+  backmoby:
+    driver: overlay

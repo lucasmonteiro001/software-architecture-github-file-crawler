@@ -1,0 +1,14 @@
+bundler:
+  image: debian:jessie
+  volumes:
+    - /bundle
+
+blog:
+  build: .
+  ports:
+    - "8080:4000"
+  volumes:
+    - .:/app
+  volumes_from:
+    - bundler
+  command: bundle exec jekyll serve -H 0.0.0.0

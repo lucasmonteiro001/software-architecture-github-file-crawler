@@ -1,0 +1,8 @@
+version: '2'
+services:
+    php5.5.36-fpm:
+        build:
+            context: php5.5.36-fpm
+    php7.0.6-fpm:
+        build:
+            context: php7.0.6-fpm

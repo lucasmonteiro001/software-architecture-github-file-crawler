@@ -1,0 +1,22 @@
+version: '2'
+services:
+  ckan:
+    # build: ./
+    image: mkalish/opendatadc_ckan:1.0
+    volumes: 
+      - ./ckanext:/usr/lib/ckan/default/src/ckanext-open_data_dc/ckanext
+    ports:
+      - "5000:5000"
+    links:
+      - db
+      - solr
+  db:
+    image: ckan/postgresql:latest
+    ports:
+      - "5432:5432"
+  solr:
+    image: ckan/solr:dev-v2.6
+    links:
+      - db
+    ports:
+      - "8983:8983"

@@ -1,0 +1,16 @@
+todoapp:
+  image: johscheuer/todo-app-web:k8s
+  links:
+   - redismaster:redis-master
+   - redisslave:redis-slave
+  ports:
+   - "3000:3000"
+redisslave:
+  image: johscheuer/redis-slave:k8s
+  links:
+   - redismaster:redis-master
+redismaster:
+  image: redis
+  command: redis-server --appendonly yes
+  volumes:
+   - /tmp:/data

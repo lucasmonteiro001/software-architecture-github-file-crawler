@@ -1,0 +1,47 @@
+version: '2'
+
+services:
+
+  cadvisor:
+    container_name: cadvisor
+    restart: unless-stopped
+    image: google/cadvisor:latest
+    volumes:
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    command: -storage_driver=influxdb -storage_driver_db=cadvisor -storage_driver_host=influx:8086
+    ports:
+      - 127.0.0.1:8080:8080
+    depends_on:
+      - influxdb
+    networks:
+      - app_net
+
+  influxdb:
+    container_name: influx
+    restart: unless-stopped
+    image: influxdb
+    ports:
+      - 127.0.0.1:8086:8086
+      - 127.0.0.1:8083:8083
+    networks:
+      - app_net
+
+  grafana:
+    container_name: grafana
+    restart: unless-stopped
+    image: grafana/grafana
+    ports:
+      - 127.0.0.1:3000:3000
+    environment:
+      - GF_SERVER_ROOT_URL=http://localhost:3000
+      - GF_SECURITY_ADMIN_PASSWORD=password
+    depends_on:
+      - influxdb
+    networks:
+      - app_net
+
+networks:
+  app_net:
+    driver: bridge

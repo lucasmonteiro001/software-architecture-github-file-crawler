@@ -1,0 +1,10 @@
+version: '3'
+services:
+    web:
+        build: .
+        command: ./docker-entrypoint.sh
+        volumes:
+            - .:/www
+            - ~/.ssh:/root/.ssh  # works on mac, probably doesnt work on linux
+        ports:
+           - "3000:3000"  # localost: dockermachine

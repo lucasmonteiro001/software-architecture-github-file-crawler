@@ -1,0 +1,8 @@
+picloud_client:
+    build: .
+    volumes:
+         - .:/src
+    environment:
+        PICLOUD_API_KEY: secretapikey
+        PICLOUD_SOCKET_URL: ws://192.168.99.100:9000
+        PICLOUD_HTTP_URL: http://192.168.99.100:9000

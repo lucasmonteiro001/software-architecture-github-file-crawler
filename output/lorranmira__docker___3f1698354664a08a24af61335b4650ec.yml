@@ -1,0 +1,13 @@
+version: '2'
+services:
+  squid:
+    build: .
+    #image: squid
+    environment:
+      - LOCAL_NETWORK="10.1.1.0/24"
+    ports:
+      - "3128:3128"
+    volumes:
+      - /docker/squid/cache:/var/spool/squid3
+      - /docker/containers/squid/log:/var/log/squid3
+    restart: always

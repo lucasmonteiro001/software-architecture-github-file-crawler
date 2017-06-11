@@ -1,0 +1,10 @@
+discussiontool:
+  container_name: discussiontool
+  image: learninglayers/discussiontool:2.6.0
+  ports:
+    - 80
+  env_file:
+    - common.env
+    - discussiontool.env
+  actions:
+    - create_oidcclients: [discussiontool.env]

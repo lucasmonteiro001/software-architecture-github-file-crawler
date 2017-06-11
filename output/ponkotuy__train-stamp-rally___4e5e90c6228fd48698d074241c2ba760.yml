@@ -1,0 +1,17 @@
+version: '3'
+services:
+  db:
+    image: mariadb:10.1
+    volumes:
+      - /docker/train-stramp-rally/mysql:/var/lib/mysql
+    env_file: .env
+    ports:
+      - "3310:3306"
+  web:
+    image: ponkotuy/trainstamprally
+    volumes:
+      - .:/redloader
+    ports:
+      - "9045:9000"
+    depends_on:
+      - db

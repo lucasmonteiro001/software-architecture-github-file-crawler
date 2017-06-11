@@ -1,0 +1,65 @@
+data:
+  build: docker/data
+  hostname: data
+  domainname: localdomain
+  volumes:
+    - ../data-mount/var-lib-ckan:/var/lib/ckan
+    - ../data-mount/etc-postgres:/etc/postgresql/9.3/main
+    - ../data-mount/var-lib-postgres/:/var/lib/postgresql/9.3/main
+    - ../data-mount/solr-data:/opt/solr/example/solr/ckan/data
+    - ../data-mount/datapusher/:/datapusher/
+
+postgres:
+  build: docker/postgres
+  hostname: postgres
+  domainname: localdomain
+  volumes_from:
+    - data
+  environment:
+    - CKAN_PASS=ckan_pass
+    - DATASTORE_PASS=datastore_pass
+
+solr:
+  build: docker/solr
+  hostname: solr
+  domainname: localdomain
+  volumes_from:
+    - data
+
+datapusher:
+  build: _service-provider/
+  hostname: datapusher
+  domainname: localdomain
+  volumes_from:
+    - data
+
+ckan:
+  build: .
+  hostname: comovamos
+  domainname: eokoe.com
+  links:
+    - postgres:postgres
+    - solr:solr
+    - datapusher:datapusher
+  command: /sbin/my_init
+  volumes_from:
+    - data
+  volumes:
+    - ./_config/:/etc/ckan/default/
+    - ./_etc/apache2/apache.conf:/etc/ckan/default/apache.conf
+    - ./_etc/apache2/apache.wsgi:/etc/ckan/default/apache.wsgi
+    - ./_etc/supervisor/conf.d:/etc/supervisor/conf.d
+
+nginx:
+  build: docker/nginx
+  hostname: nginx-ckan
+  domainname: eokoe.com
+  links:
+    - ckan:ckan
+  ports:
+    - "6002:80"
+  volumes:
+    - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf
+
+
+

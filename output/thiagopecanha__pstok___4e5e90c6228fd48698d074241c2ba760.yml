@@ -1,0 +1,39 @@
+version:                 '3'
+
+services:
+  pstok.dev:
+    depends_on:
+      - postgres
+      - memcached
+    links:
+      - postgres
+    build:               .
+    command:             bundle exec hanami s --host '0.0.0.0' --port 2300
+    hostname:            pstok.dev
+    domainname:          pstok.dev
+    stdin_open:          true
+    tty:                 true
+    ports:
+      - "2300:2300"
+    volumes:
+      - .:/pstok
+    env_file:
+      - '.env.development'
+
+  memcached:
+    image:               memcached
+    ports:
+    - "11211"
+
+  postgres:
+    image:               'postgres:9.5'
+    environment:
+      POSTGRES_USER:     'pstok_base'
+      POSTGRES_PASSWORD: 'yourpassword'
+    ports:
+    - '5432:5432'
+    volumes:
+    - 'postgres:/var/lib/postgresql/data'
+
+volumes:
+  postgres:

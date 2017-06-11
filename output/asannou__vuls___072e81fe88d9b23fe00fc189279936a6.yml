@@ -1,0 +1,6 @@
+vuls:
+  image: asannou/vuls
+  volumes:
+    - ./config.toml:/app/config.toml
+    - ./vuls.sqlite3:/app/vuls.sqlite3
+    - /path/to/id_rsa:/app/id_rsa:ro

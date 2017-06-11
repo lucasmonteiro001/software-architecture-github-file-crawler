@@ -1,0 +1,39 @@
+consul:
+  image: qnib/consul
+  environment:
+  - DC_NAME=dc1
+  ports:
+   - "18500:8500"
+   - "12003:2003"
+  dns: 127.0.01
+  hostname: consul
+  privileged: true
+
+influxdb:
+  image: qnib/influxdb
+  environment:
+  - DC_NAME=dc1
+  ports:
+   - "18083:8083"
+   - "18086:8086"
+  dns: 127.0.0.1
+  hostname: influxdb
+  links:
+  - consul:consul
+  volumes: 
+   - /opt/influxdb/shared
+  privileged: true
+
+statsd:
+  image: qnib/statsd
+  ports:
+   - "8125:8125"
+  links:
+  - consul:consul
+  - influxdb:influxdb
+  environment:
+  - DC_NAME=dc1
+  dns: 127.0.0.1
+  hostname: statsd
+  privileged: true
+

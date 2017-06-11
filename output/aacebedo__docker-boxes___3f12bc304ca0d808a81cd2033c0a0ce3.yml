@@ -1,0 +1,37 @@
+version: '2'
+services:
+  seafile:
+    image: seafile:latest
+    labels:
+      - traefik.frontend.rule=Host:${SEAFILE_HOSTNAME}
+      - traefik.frontend.entryPoints=http,https
+    hostname: ${SEAFILE_HOSTNAME}
+    networks:
+      - cloudbox_network
+    environment:
+      - HOSTNAME=${SEAFILE_HOSTNAME}
+      - SERVERNAME=${SEAFILE_SERVERNAME}
+      - ADMIN_EMAIL=${SEAFILE_ADMIN_EMAIL}
+      - ADMIN_PASSWORD=${SEAFILE_ADMIN_PASSWORD}
+      - SMTP_SERVER=${SEAFILE_SMTP_SERVER}
+      - SMTP_EMAIL=${SEAFILE_SMTP_EMAIL}
+      - SMTP_PASSWORD=${SEAFILE_SMTP_PASSWORD}
+    restart: always
+    volumes:
+      - ${SEAFILE_DATADIR}:/var/lib/seafile
+  roundcube:
+    image: roundcube:latest
+    labels:
+      - traefik.frontend.rule=Host:${ROUNDCUBE_HOSTNAME}
+      - traefik.frontend.entryPoints=http,https
+    hostname: ${ROUNDCUBE_HOSTNAME}
+    networks:
+      - cloudbox_network
+    environment:
+      - SMTP_SERVER=${ROUNDCUBE_SMTP_SERVER}
+      - IMAP_SERVER=${ROUNDCUBE_IMAP_SERVER}
+      - DES_KEY=${ROUNDCUBE_DES_KEY}
+networks:
+  cloudbox_network:
+    external:
+      name: ${CLOUDBOX_NETWORK}

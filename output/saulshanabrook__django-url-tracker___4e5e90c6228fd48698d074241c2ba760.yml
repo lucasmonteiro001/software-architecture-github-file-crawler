@@ -1,0 +1,7 @@
+tests:
+  build: .
+  command: "coverage run /usr/local/bin/django-admin.py test"
+  volumes:
+    - .:/usr/src/app
+  environment:
+    DJANGO_SETTINGS_MODULE: tests.settings

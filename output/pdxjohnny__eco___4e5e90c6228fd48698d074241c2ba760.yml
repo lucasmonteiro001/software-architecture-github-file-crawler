@@ -1,0 +1,24 @@
+web:
+  build: .
+  command: /app/run http
+  environment:
+    SERVICE_PROTOCOL: "http"
+    ENABLE_AUTH: "false"
+  volumes:
+    - "./static:/app/static"
+  ports:
+    - "8080:8080"
+  links:
+    - db
+db:
+  build: .
+  command: /app/run db
+  environment:
+    SERVICE_PROTOCOL: "http"
+    ENABLE_AUTH: "false"
+  expose:
+    - "8080"
+  links:
+    - mongo
+mongo:
+  image: mongo

@@ -1,0 +1,25 @@
+db:
+    container_name: db
+    build: api/database/postgres
+    ports:
+     - "5432:5432"
+
+frontend:
+    container_name: frontend
+    build: www
+    ports:
+     - "80:9000"
+    links:
+     - db
+
+api:
+    container_name: api
+    build: api
+    ports:
+     - "3000:3000"
+    restart: always
+    environment:
+     - RAILS_ENV=docker
+    links:
+     - db
+     - frontend

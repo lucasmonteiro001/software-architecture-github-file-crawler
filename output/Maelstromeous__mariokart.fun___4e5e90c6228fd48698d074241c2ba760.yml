@@ -1,0 +1,27 @@
+version: '3'
+services:
+    nginx:
+        image: nginx:1.12
+        container_name: mariokartfun-nginx
+        ports:
+            - "80"
+        volumes:
+            - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+            - ../:/var/www/html # RELATIVE TO SERVER DOCKER!
+        environment:
+            - VIRTUAL_HOST=www.mariokart.fun,mariokart.fun,dev.mariokart.fun
+    composer:
+        image: composer/composer
+        volumes:
+            - .:/app
+        command: install
+    php-cli:
+        image: maelstromeous/docker:php-71-cli
+        command: bash -c "sleep 10; /var/www/html/docker/run.sh"
+        volumes:
+            - ./:/var/www/html
+# Connect this container to the rest of the stack (DIG-website)
+networks:
+    default:
+        external:
+            name: local

@@ -1,0 +1,13 @@
+version: '2'
+services:
+  db:
+    image: mongo
+    volumes:
+      - /var/lib/mongodb:/data/db
+  dispotrains:
+    build: .
+    command: /usr/bin/supervisord
+    ports:
+      - "9000:9000"
+    links:
+      - db

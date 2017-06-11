@@ -1,0 +1,8 @@
+pm_server:
+    container_name: pm_server
+    image: pm_server
+    volumes:
+        - "/etc/pm_server:/srv/conf"
+    ports:
+        - "23:23"
+    restart: always

@@ -1,0 +1,13 @@
+force-https-lb:
+  ports:
+  - '80'
+  tty: true
+  image: rancher/load-balancer-service
+  stdin_open: true
+force-https-server:
+  ports:
+  - 80/tcp
+  restart: on-failure:5
+  tty: true
+  image: geldim/https-redirect
+  stdin_open: true

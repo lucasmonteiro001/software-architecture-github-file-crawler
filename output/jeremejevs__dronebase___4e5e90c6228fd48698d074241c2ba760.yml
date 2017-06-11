@@ -1,0 +1,5 @@
+app:
+  image: node
+  working_dir: /app
+  volumes:
+    - .:/app

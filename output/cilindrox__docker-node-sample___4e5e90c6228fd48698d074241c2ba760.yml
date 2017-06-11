@@ -1,0 +1,30 @@
+version: '3'
+services:
+  api:
+    build: .
+    depends_on:
+      - redis
+    command: npm start
+    ports:
+      - '3000'
+    links:
+      - redis
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - REDIS_URL=redis
+      - NPM_TOKEN
+    restart: unless-stopped
+  nginx:
+    image: 'nginx:alpine'
+    ports:
+      - '8080:8080'
+    volumes:
+      - ./config/nginx.conf:/etc/nginx/nginx.conf
+      - ./config/api.conf:/etc/nginx/conf.d/api.conf
+    links:
+      - api
+  redis:
+    image: 'redis:3-alpine'
+    ports:
+      - '6379:6379'

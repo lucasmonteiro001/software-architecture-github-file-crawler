@@ -1,0 +1,14 @@
+php:
+  image: php:7-fpm
+  volumes:
+    - ./src:/src
+
+web:
+  image: nginx:latest
+  ports:
+    - "80:80"
+  volumes:
+    - ./src:/src
+    - ./site.conf:/etc/nginx/conf.d/default.conf
+  links:
+    - php

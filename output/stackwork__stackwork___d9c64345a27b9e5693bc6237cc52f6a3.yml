@@ -1,0 +1,6 @@
+service:
+  image: ${rootProject.stackwork.imageId}
+${name}:
+  image: ${stackwork.imageId}
+  links:
+  - service:server

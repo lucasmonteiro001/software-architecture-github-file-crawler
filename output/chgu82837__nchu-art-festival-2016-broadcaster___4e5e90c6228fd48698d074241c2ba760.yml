@@ -1,0 +1,36 @@
+version: '2'
+networks:
+  vhosts:
+    external: 
+      name: nginx_vhosts
+volumes:
+  node_modules:
+    driver: local
+services:
+  main: &main
+    build: .
+    ports: ['80:3000']
+    command: [npm, run, main]
+  npm: 
+    <<: *main
+    volumes:
+     - node_modules:/usr/src
+     - ./app:/usr/src/app
+     - .:/workspace
+    entrypoint: [npm-docker]
+    command: [run, main]
+  shell:
+    image: busybox
+    volumes:
+     - node_modules:/usr/src
+     - .:/usr/src/outside
+    working_dir: /usr/src
+    command: sh
+  nchu_art_festival:
+    <<: *main
+    ports: []
+    networks:
+    - vhosts
+    restart: always
+
+

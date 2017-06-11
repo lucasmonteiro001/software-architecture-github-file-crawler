@@ -1,0 +1,7 @@
+consumer:
+  build: .
+producer:
+  image: consumeproducenodejs_consumer
+  command: node producer.js
+  links:
+   - consumer:consumer

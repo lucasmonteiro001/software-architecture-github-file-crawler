@@ -1,0 +1,10 @@
+version: '2'
+services:
+  docker-admin:
+    ports:
+    - "8083:8080"
+    image: kk580kk/dubbo-admin
+    volumes:
+      - ./dubbo.properties:/home/tomcat/apache-tomcat-6.0.48/webapps/ROOT/WEB-INF/dubbo.properties
+    environment:
+    - JAVA_OPTS=-Duser.timezone=Asia/Shanghai

@@ -1,0 +1,48 @@
+fs_ws:
+  image: tianon/true
+  volumes:
+    - ./nginx-conf:/etc/nginx/conf.d:rw
+    - ./nginx-certs:/etc/nginx/ssl:rw
+    - ./nginx-logs:/etc/nginx/logs:rw
+
+fs_db.media:
+  image: tianon/true
+  volumes:
+    - ./mysql-autoload:/docker-entrypoint-initdb.d:ro
+    - ./mysql-datadir:/var/lib/mysql:z
+    - ./mysql-shr:/shr:z
+    - ./mysql-conf.d:/etc/mysql/conf.d:z
+
+fs_as:
+  image: tianon/true
+  volumes:
+    - ./srv/media:/opt/data/media
+    - ./srv/deployments:/opt/jboss/wildfly/standalone/deployments
+    - ./srv/releases:/opt/jboss/wildfly/releases
+    - ./srv/log:/opt/jboss/wildfly/standalone/log
+
+db.media:
+  image: mysql:5.6
+  env_file: .env
+  volumes_from:
+    - fs_db.media
+
+app:
+  build: ./wildfly-custom
+  #environment:
+  # - VIRTUAL_HOST=api.nrm.se
+  # - VIRTUAL_PORT=8080
+  volumes_from:
+    - fs_as
+  links:
+    - db.media:dbmedia
+
+
+ws:
+  image: nginx
+  environment:
+   - VIRTUAL_HOST=api.nrm.se
+  volumes_from:
+    - fs_ws
+  links:
+    - app

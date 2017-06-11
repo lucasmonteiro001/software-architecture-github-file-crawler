@@ -1,0 +1,12 @@
+version: '2'
+services:
+  server:
+    image: ronaldtanner/timesystem-server
+    volumes:
+      - "./tmp:/tmp"
+  client:
+    image: ronaldtanner/timesystem-client
+    links:
+      - server
+    environment:
+      timeserver: server

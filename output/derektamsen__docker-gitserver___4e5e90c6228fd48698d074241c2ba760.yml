@@ -1,0 +1,20 @@
+---
+version: '2'
+services:
+  gitserver:
+    image: derektamsen/gitserver
+    build: ./
+    mem_limit: 512m
+    cpu_shares: 512
+    read_only: true
+    restart: on-failure:5
+    ports:
+      - "2222:22"
+    volumes:
+      - data:/data
+    environment:
+      - SSH_KEY="${GITSERVER_SSH_KEY}"
+      - SSH_ADMIN="${GITSERVER_SSH_ADMIN}"
+volumes:
+  data:
+    driver: local

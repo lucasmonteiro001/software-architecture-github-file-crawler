@@ -1,0 +1,25 @@
+#-------------------------------------------------------------------------------
+# Start Jenkins2
+# - install all default plugins
+# - to be able to use Docker, install the plugin: Docker Pipeline
+#   https://wiki.jenkins-ci.org/display/JENKINS/Docker+Pipeline+Plugin
+#
+# Specific configuration:
+# - group_add: stat -c %g /var/run/docker.sock
+# - docker: which docker
+#-------------------------------------------------------------------------------
+version: '2'
+services:
+    jenkins2:
+        container_name: jenkins2
+        image: jenkins:2.32.2-alpine
+        group_add:
+            - 999
+        volumes:
+            - /usr/bin/docker:/usr/bin/docker
+            - /var/run/docker.sock:/var/run/docker.sock
+            - ~/volumes/jenkins2:/var/jenkins_home
+        ports:
+            - 18080:8080
+            - 50000:50000
+        privileged: true

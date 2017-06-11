@@ -1,0 +1,29 @@
+# Using php56 from ready image on docker hub
+nginx:
+  image: pseudecoder/centos-nginx
+  volumes:
+    - ./config/nginx/sites:/etc/nginx/sites
+    - ./app/php56/www:/var/www
+  links:
+    - default_web
+  ports:
+    - 80:80
+    - 443:443
+
+default_web:
+  image: pseudecoder/centos-php56
+  volumes:
+    - ./config/php56-fpm/www.conf:/etc/php-fpm.d/www.conf
+  links:
+    - mongodb
+    - redisdb
+
+mongodb:
+  image: pseudecoder/centos-mongodb
+  volumes:
+    - ./config/mongodb/mongod.conf:/etc/mongod.conf
+
+redisdb:
+  image: pseudecoder/centos-redis
+  volumes:
+    - ./config/redis/redis.conf:/etc/redis/redis.conf

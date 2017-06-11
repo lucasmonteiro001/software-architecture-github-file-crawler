@@ -1,0 +1,14 @@
+# For openCATS
+version : '2'
+services:
+
+  opencats:
+    image: sasan/opencats:v0.7
+    ports:
+      - "3306:3306"
+      - "8080:80"
+      - "222:22"
+    volumes:
+      - ./mysql:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: toor

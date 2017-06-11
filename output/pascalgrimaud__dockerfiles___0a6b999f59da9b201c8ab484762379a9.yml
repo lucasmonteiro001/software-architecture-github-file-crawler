@@ -1,0 +1,10 @@
+jhipster-mysql:
+  image : mysql
+  volumes:
+  - ~/volumes/jhipster/mysql/:/var/lib/mysql/
+  environment:
+  - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+  - MYSQL_DATABASE=jhipster
+  ports:
+  - "3306:3306"
+  command: mysqld --lower_case_table_names=1

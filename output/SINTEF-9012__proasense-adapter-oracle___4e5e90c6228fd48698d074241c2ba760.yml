@@ -1,0 +1,18 @@
+version: '2'
+services:
+#  kafka:
+#    container_name: kafka
+#    image: spotify/kafka
+#    ports:
+#      - "2181:2181"
+#      - "9092:9092"
+  oracle-imm:
+    build: oracle-imm/
+    container_name: oracle-imm
+#    depends_on:
+#      - kafka
+  oracle-scrap:
+    build: oracle-scrap/
+    container_name: oracle-scrap
+#    depends_on:
+#      - kafka

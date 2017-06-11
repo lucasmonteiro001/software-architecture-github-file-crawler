@@ -1,0 +1,39 @@
+####
+# ATENTION:
+# Replace all occurences of packagefinder with your project's name
+####
+
+# v2 syntax
+version: '2'
+
+# Named volumes
+volumes:
+  # Postgres Data
+  packagefinder-postgres-data:
+    driver: local
+
+services:
+
+  # Postgres (9.5)
+  postgres:
+    image: ambientum/postgres:9.6
+    container_name: packagefinder-postgres
+    volumes:
+      - packagefinder-postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5431:5431"
+    environment:
+      - POSTGRES_PASSWORD=packagefinder
+      - POSTGRES_DB=packagefinder
+      - POSTGRES_USER=packagefinder
+
+  # PHP (with Caddy)
+  app:
+    image: ambientum/php:7.0-caddy
+    container_name: packagefinder-app
+    volumes:
+      - .:/var/www/app
+    ports:
+      - "80:8080"
+    links:
+      - postgres

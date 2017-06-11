@@ -1,0 +1,8 @@
+web:
+  build: .
+  ports:
+  - 5000:3000
+  command: node server.js
+paypal:
+  build: .
+  command: node paypal.js

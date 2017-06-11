@@ -1,0 +1,27 @@
+version: '2'
+services:
+  keycloak:
+    image: jboss/keycloak
+    hostname: keycloak.test
+    domainname: local
+    environment:
+      - KEYCLOAK_USER=admin
+      - KEYCLOAK_PASSWORD=admin
+    ports:
+      - "8080"
+    stop_signal: RTMIN+3
+  keycloak-adapter-tests:
+    container_name: "keycloak-adapter-test-container"
+    build: .
+    privileged: true
+    hostname: wildfly-adapter.test
+    domainname: local
+    ports:
+      - "8080"
+    links:
+      - keycloak:keycloak.test.local
+    stdin_open: true
+    tty: true
+    stop_signal: RTMIN+3
+
+

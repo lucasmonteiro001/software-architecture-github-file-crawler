@@ -1,0 +1,54 @@
+version: '2'
+services:
+  traefik:
+    image: traefik:latest
+    labels:
+      - traefik.enable=false
+    networks:
+      - utilities_network
+    environment:
+      - DOMAIN=${TRAEFIK_DOMAIN}
+      - SUBDOMAINS=${TRAEFIK_SUBDOMAINS}
+      - ADMIN_EMAIL=${TRAEFIK_ADMIN_EMAIL}
+      - ADMIN_AUTH=${TRAEFIK_ADMIN_AUTH}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - ${TRAEFIK_PORT}:80
+      - ${TRAEFIK_SECUREPORT}:443
+      - ${TRAEFIK_CONTROLPORT}:82
+    hostname: traefik
+    restart: always
+
+  cfdnsupdater:
+    image: cfdnsupdater:latest
+    environment:
+      - DOMAIN=${CFDNSUPDATER_DOMAIN}
+      - EMAIL=${CFDNSUPDATER_EMAIL}
+      - APIKEY=${CFDNSUPDATER_APIKEY}
+      - PERIOD=${CFDNSUPDATER_PERIOD}
+      - RECORDTYPES=${CFDNSUPDATER_RECORDTYPES}
+      - RECORDNAMES=${CFDNSUPDATER_RECORDNAMES}
+    restart: always
+    hostname: cfdnsudpater
+    labels:
+      - traefik.enable=false
+   
+  dnsdock:
+    image: dnsdock:latest
+    environment:
+      - DNSDOCK_DOMAIN=${DNSDOCK_DOMAIN}
+    restart: always
+    hostname: dnsdock
+    labels:
+      - traefik.enable=false
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - ${DNSDOCK_PORT}:53
+      - ${DNSDOCK_CONTROLPORT}:80
+
+networks:
+  utilities_network:
+    external:
+      name: ${UTILITIES_NETWORK}

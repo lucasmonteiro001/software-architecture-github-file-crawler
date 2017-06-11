@@ -1,0 +1,19 @@
+dagger:
+  image: "dagger-scratch"
+  links:
+    - "consul:consul"
+  ports:
+    - "46632"
+    - "46633"
+    - "46666"
+  environment:
+    - "DAGGER_PLUGIN_PATH=/"
+  command: "worker --consul consul:8500 --iface eth0"
+
+consul:
+  image: "progrium/consul:latest"
+  ports:
+    - "8400"
+    - "8500"
+    - "53"
+  command: "-server -bootstrap-expect 1 -ui-dir /ui"

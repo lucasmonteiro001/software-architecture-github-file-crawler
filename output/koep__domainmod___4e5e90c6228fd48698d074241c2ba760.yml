@@ -1,0 +1,22 @@
+version: '2'
+
+services:
+    db:
+        image: mysql:5.5.54
+        container_name: db
+        environment:
+            MYSQL_ROOT_PASSWORD: 'domainmod'
+            MYSQL_DATABASE: 'db_name'
+            MYSQL_USER: 'db_username'
+            MYSQL_PASSWORD: 'dbPassword123'
+        volumes:
+        - /etc/localtime:/etc/localtime:ro
+    domainmod:
+        image: koep/domainmod:latest
+        container_name: domainmod
+        ports:
+        - 80:80
+        depends_on:
+        - db
+        volumes:
+        - /etc/localtime:/etc/localtime:ro

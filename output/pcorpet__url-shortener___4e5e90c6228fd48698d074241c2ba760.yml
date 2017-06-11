@@ -1,0 +1,26 @@
+version: "2"
+services:
+  db:
+    image: mongo:latest
+    expose:
+      - 27017
+  web:
+    image: lascap/url-shortener-dev
+    environment:
+      PORT: 8080
+      MONGODB_URL: db/test
+    command: [./url-shortener]
+    volumes:
+      - ./public:/go/src/app/public:ro
+    ports:
+      - '8080:8080'
+    links:
+      - db
+  builder:
+    build:
+      context: .
+      dockerfile: Dockerfile.build
+    image: lascap/url-shortener-dev
+    volumes:
+      - .:/go/src/app/:ro
+      - ./release:/go/src/app/release:rw

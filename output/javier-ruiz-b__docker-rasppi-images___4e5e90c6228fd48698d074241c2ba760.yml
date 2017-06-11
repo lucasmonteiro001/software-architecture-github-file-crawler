@@ -1,0 +1,16 @@
+version: '2'
+  
+services:
+    ovpn-key-generator:
+        build: openvpn-key-generator
+    
+    ovpn-server:
+        build: openvpn-server
+        restart: always
+        
+    nextcloud:
+        build: nextcloud
+        restart: always
+
+volumes:
+    data:

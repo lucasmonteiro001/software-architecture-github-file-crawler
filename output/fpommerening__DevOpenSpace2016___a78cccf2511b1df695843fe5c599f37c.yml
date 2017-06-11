@@ -1,0 +1,36 @@
+version: '2'
+services: 
+  rabbitmq:
+    image: rabbitmq:3-management
+
+  mongo:
+    image: mongo:3.2
+
+  compose:
+    image: fpommerening/devopenspace2016:logging-compose
+    
+  weblogger:
+    image: fpommerening/devopenspace2016:logging-web
+    
+  loadbalancer:
+    image: fpommerening/devopenspace2016:logging-loadbalancer
+    
+  console:
+    image: fpommerening/devopenspace2016:logging-console
+    
+  caller:
+    image: fpommerening/devopenspace2016:logging-caller
+   
+  core:
+    image: fpommerening/devopenspace2016:core-base
+
+  image-db:
+    image: fpommerening/devopenspace2016:picflow-database
+
+  web:
+    depends_on:
+      - rabbitmq
+      - mongo
+    image: fpommerening/devopenspace2016:StartUpApp
+    ports:
+      - 15106:15106

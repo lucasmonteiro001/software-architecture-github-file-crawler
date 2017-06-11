@@ -1,0 +1,19 @@
+web:
+    image:  nsdont/taiga-docker
+    command: circusd /taiga/circus/circus.ini
+    links:
+        - db
+    volumes:
+        - backend/settings/local.py:/taiga/backend/settings/local.py
+        - front/dist/js/conf.json:/taiga/front/dist/js/conf.json
+        - events/conf.py:/taiga/events/conf.py
+        - circus:/taiga/circus
+        - logs:/taiga/logs
+
+db:
+    image: postgres:9.3
+    environment:
+        POSTGRES_PASSWORD: taiga
+        POSTGRES_USER: taiga
+    volumes:
+        - postgres_data:/var/lib/postgresql/data

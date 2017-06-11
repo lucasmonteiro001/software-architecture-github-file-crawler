@@ -1,0 +1,22 @@
+postgres:
+  build: database
+  environment:
+    - POSTGRES_USER=diaspora
+    - POSTGRES_PASSWORD=diaspora
+  volumes:
+    - ../data/postgres/:/var/lib/postgresql
+
+redis:
+  build: redis
+
+diaspora:
+  build: diaspora
+  links:
+    - postgres
+    - redis
+  volumes:
+    - home:/home
+    - ../config/diaspora:/home/diaspora/diaspora/config/remote-config
+  expose:
+    - "3000"
+  working_dir: /home/diaspora

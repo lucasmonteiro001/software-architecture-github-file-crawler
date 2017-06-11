@@ -1,0 +1,23 @@
+#For reference see instructions at https://github.com/chrvadala/docker-compose-examples
+
+web:
+  image: node
+  volumes:
+    - ".:/usr/src/app"
+  dns: 8.8.8.8
+  working_dir: /usr/src/app
+  links:
+    - db
+  ports:
+    - "3000:3000"
+    - "3001:3001"
+    - "5858:5858"
+  command: sh -c "npm start & ./node_modules/.bin/node-inspector --web-host 0.0.0.0 --web-port=3001"
+  environment:
+    APP_PORT: 3000
+    DB_NAME: "project"
+
+db:
+  image: mongo
+  ports:
+    - "27017:27017"

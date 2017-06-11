@@ -1,0 +1,27 @@
+nginx:
+  container_name: nginx
+  build: ./nginx
+  volumes:
+    - ./nginx/ssl:/etc/nginx/ssl
+  ports:
+    - "80:80"
+    - "443:443"
+  links:
+    - ghost
+  restart: always
+
+ghost:
+  container_name: ghost
+  volumes:
+    - ./ghost/content:/var/lib/ghost
+    - ./ghost/config.js:/var/lib/ghost/config.js
+  build: ./ghost
+  expose:
+    - "2368"
+  environment:
+    - NODE_ENV=default
+    - "DOMAIN=http://localhost"
+    - "SMTP_SERVICE=SMTP Service"
+    - "SMTP_USER=username"
+    - "SMTP_PASSWORD=password"
+  restart: always

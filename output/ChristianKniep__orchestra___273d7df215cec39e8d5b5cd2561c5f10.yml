@@ -1,0 +1,38 @@
+es0:
+    extends:
+      file: base.yml
+      service: es
+    hostname: es0
+    container_name: es0
+    ports:
+     - "9220:9200"
+    environment:
+    - ES_TAGS=es,es0
+    external_links:
+    - consul:consul
+
+es1:
+    extends:
+      file: base.yml
+      service: es
+    hostname: es1
+    container_name: es1
+    ports:
+     - "9221:9200"
+    environment:
+    - ES_TAGS=es,es1
+    external_links:
+    - consul:consul
+
+es2:
+    extends:
+      file: base.yml
+      service: es
+    hostname: es2
+    container_name: es2
+    ports:
+     - "9222:9200"
+    environment:
+    - ES_TAGS=es,es2
+    external_links:
+    - consul:consul

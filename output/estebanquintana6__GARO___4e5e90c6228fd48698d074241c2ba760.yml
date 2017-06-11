@@ -1,0 +1,54 @@
+# Docker Compose
+version: '3'
+services:
+
+    templates:
+
+        # Building & tagging
+        image: 'manager.asora.co/garo/templates:1.0.1'
+        build: 
+            context: './templates'
+
+        # Runtime settings
+        container_name: 'garo-templates'
+        restart: always
+        ports: [ '3030' ]
+
+        # Networking
+        networks: 
+            - 'garo-inner'
+
+        # Development volumes
+        volumes:
+            - './templates/pug:/srv/pug:ro'
+            - './templates/router.js:/srv/router.js:ro'
+
+    server:
+
+        # Building & tagging
+        image: 'manager.asora.co/garo/server:1.0.1'
+        build:
+
+            context: './server'
+            args:
+                config: 'default.https'
+
+        # Runtime settings
+        container_name: 'garo-server'
+        restart: always
+        ports: [ '80:80', '443:443' ]
+
+        # Networking
+        networks: 
+            - 'garo-inner'
+            - 'default'
+
+        # Development volumes
+        volumes:
+            - './server/static:/srv/static:ro'
+
+networks:
+    
+    # Internal network (for resource pipeline)
+    garo-inner:
+        driver: bridge

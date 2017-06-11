@@ -1,0 +1,16 @@
+certificado-barrabrasil:
+  ports:
+  - 443:80
+  labels:
+    io.rancher.loadbalancer.ssl.ports: '443'
+  tty: true
+  image: rancher/load-balancer-service
+  links:
+  - web:web
+  stdin_open: true
+web:
+  ports:
+  - 80:80/tcp
+  tty: true
+  image: barrabrasil/barra-brasil:${VERSION}
+  stdin_open: true

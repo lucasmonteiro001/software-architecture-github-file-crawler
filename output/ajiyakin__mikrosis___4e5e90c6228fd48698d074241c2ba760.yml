@@ -1,0 +1,12 @@
+version: '2'
+services:
+    dbmikrosis:
+        image: mysql:8.0.0
+        container_name: dbmikrosis
+        environment:
+            - MYSQL_ROOT_PASSWORD=root
+            - MYSQL_DATABASE=dbmikrosis
+        ports:
+            - "3306:3306"
+        volumes:
+            - ./database/data:/var/lib/mysql

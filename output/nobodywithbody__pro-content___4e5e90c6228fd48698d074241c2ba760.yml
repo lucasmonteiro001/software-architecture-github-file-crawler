@@ -1,0 +1,93 @@
+version: '2'
+services:
+  lb:
+    image: camptocamp/haproxy-consul:latest
+    container_name: 'load-balancer'
+    environment:
+      HAPROXY_DOMAIN: 'local.dev'
+      SERVICE_80_IGNORE: 'yes'
+      SERVICE_8080_NAME: 'proxy'
+    ports:
+      - "80:80"
+      - "8080"
+    links:
+      - "consul"
+  consul:
+    image: progrium/consul:latest
+    command: -server -bootstrap
+    container_name: 'consul'
+    environment:
+      SERVICE_53_IGNORE: 'yes'
+      SERVICE_8300_IGNORE: 'yes'
+      SERVICE_8301_IGNORE: 'yes'
+      SERVICE_8302_IGNORE: 'yes'
+      SERVICE_8400_IGNORE: 'yes'
+      SERVICE_8500_NAME: 'consul'
+    ports:
+      - 8500:8500
+  registrator:
+    command: "-internal consul://consul:8500"
+    image: gliderlabs/registrator:latest
+    container_name: 'registrator'
+    links:
+      - "consul"
+    volumes:
+      - "/var/run/docker.sock:/tmp/docker.sock"
+  backend:
+    build: ./backend
+    volumes:
+      - ./backend:/www/app
+    links:
+      - consul
+      - postgres
+    command: foreman start
+    depends_on:
+      - postgres
+    environment:
+      SERVICE_NAME: 'backend'
+      # SERVICE_CHECK_HTTP: '/'
+      # SERVICE_CHECK_INTERVAL: '5s'
+  redis:
+    image: 'redis'
+  logstash:
+    image: 'logstash:2.3.4'
+    command: logstash -f /etc/logstash/conf.d/logstash.conf
+    volumes:
+      - ./logstash/config:/etc/logstash/conf.d
+    links:
+      - elasticsearch
+  elasticsearch:
+    image: elasticsearch:latest
+    command: elasticsearch -Des.network.host=0.0.0.0
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+  kibana:
+    image: 'kibana:latest'
+    volumes:
+      - ./kibana/config/:/opt/kibana/config/
+    environment:
+      SERVICE_NAME: 'kibana'
+    links:
+      - elasticsearch
+  postgres:
+    image: 'postgres'
+    expose:
+     - 5432
+    ports:
+     - '3001:5432'
+    volumes:
+     - /var/tmp/postgresql:/var/lib/postgresql/data
+    environment:
+     - POSTGRES_PASSWORD=docker
+     - POSTGRES_USER=docker
+     - POSTGRES_DB=proelcode_development
+  swagger-ui:
+    image: schickling/swagger-ui
+    environment:
+      API_URL: 'http://backend.local.dev/documentation'
+      SERVICE_NAME: 'swagger'
+    ports:
+      - 80
+    links:
+      - backend

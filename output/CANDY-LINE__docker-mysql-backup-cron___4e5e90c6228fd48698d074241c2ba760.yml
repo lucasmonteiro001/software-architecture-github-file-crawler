@@ -1,0 +1,21 @@
+backup:
+  #image: nickbreen/mysql-backup-cron
+  build: .
+  links:
+    - db:mysql
+  environment:
+    STORAGE_TYPE: s3
+    BUCKET: s3://BUCKET/[PREFIX/]
+    ACCESS_KEY: KEY
+    SECRET_KEY: SECRET
+    REGION: eu-central-1
+    DBS: DB_NAME
+    CRON_D_BACKUP: |
+      # Run at strange (UTC) hours, (14,22,06 NZDT, 13,21,05 NZST)
+      * *    * * *   root /backup.sh | logger
+
+db:
+  image: mysql:5.7
+  environment:
+    MYSQL_ROOT_PASSWORD: asecretpassword
+    MYSQL_DATABASE: db1

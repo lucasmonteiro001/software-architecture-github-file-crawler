@@ -1,0 +1,7 @@
+web:
+  build: .
+  command: 'bash -c ''./bander-api dev.cfg'''
+  working_dir: /app/user
+  ports:
+    - 80:80
+    - 5432:5432

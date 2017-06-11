@@ -1,0 +1,106 @@
+version: "3.1"
+
+services:
+    # DB configuration
+    mongodb:
+        container_name: mongodb_docker
+        image: mongo:latest
+        deploy:
+            replicas: 3
+            restart_policy:
+                condition: any
+        ports:
+            - '27017:27017'
+        volumes:
+            - 'mongo_docker:/data/db'
+        restart: always
+
+    postgres:
+        container_name: postgres_docker
+        image: postgres:latest
+        deploy:
+            replicas: 3
+            restart_policy:
+                condition: any
+        environment:
+            POSTGRES_USER: 'docker'
+            POSTGRES_PASSWORD: 'docker'
+            POSTGRES_DB: 'docker'
+        ports:
+            - '5432:5432'
+        volumes:
+            - 'postgres_docker:/var/lib/postgresql/data'
+        restart: always
+
+    mysql:
+        container_name: mysql_docker
+        image: mysql:latest
+        deploy:
+             replicas: 3
+             restart_policy:
+                 condition: any
+        environment:
+            MYSQL_DATABASE: 'docker'
+            MYSQL_USER: 'docker'
+            MYSQL_PASSWORD: 'docker'
+            MYSQL_RANDOM_ROOT_PASSWORD: 'yes'
+        ports:
+            - '3306:3306'
+        volumes:
+            - 'mysql_docker:/var/lib/mysql'
+        restart: always
+
+    # Server configuration
+    nginx:
+        container_name: nginx_docker
+        image: nginx
+        deploy:
+             replicas: 3
+             restart_policy:
+                 condition: any
+        ports:
+            - '8080:80'
+        volumes:
+            - './:/srv/louvre'
+            - './docker/nginx/:/etc/nginx/conf.d:ro'
+        links:
+            - php
+        depends_on:
+            - php
+            - nodejs
+        restart: always
+
+    nodejs:
+        container_name: node_docker
+        image: node
+        ports:
+            - '9800'
+        restart: always
+
+    php:
+        container_name: php_docker
+        build: '.'
+        deploy:
+             replicas: 3
+             restart_policy:
+                 condition: any
+        volumes:
+            - './:/srv/louvre'
+        restart: always
+
+    # Testing configuration
+    blackfire:
+        container_name: blackfire_docker
+        image: blackfire/blackfire
+        deploy:
+             replicas: 2
+             restart_policy:
+                 condition: any
+        links:
+            - php
+        restart: always
+
+volumes:
+    mongo_docker:
+    postgres_docker:
+    mysql_docker:

@@ -1,0 +1,88 @@
+version: '2'
+services: 
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - 5672:5672
+      - 15672:15672
+  
+  imagedb:
+    image: fpommerening/devopenspace2016:picflow-database
+    ports:
+      - 5432:5432
+    hostname: imagedb
+  
+  documentdb:
+    image: mongo:3.2
+    ports:
+      - 27017:27017
+    
+  externaldb:
+    image: mongo:3.2
+    
+  extapp:
+    image: fpommerening/devopenspace2016:picflow-extapp
+    depends_on:
+      - externaldb
+    ports:
+      - 8000:8000
+    environment:
+      - ConnectionStringEntryDB=mongodb://externaldb
+    
+  uploader:
+    image: fpommerening/devopenspace2016:picflow-uploader
+    depends_on:
+      - rabbitmq
+      - documentdb
+      - extapp
+    hostname: uploader
+    environment:
+      - ConnectionStringRabbitMQ=host=rabbitmq
+      - ConnectionStringDocumentDB=mongodb://documentdb
+      - ExternalAppUrl=http://extapp:8000/api/postimage
+    
+  processor:
+    image: fpommerening/devopenspace2016:picflow-processor
+    depends_on:
+      - rabbitmq
+      - documentdb
+    environment:
+      - ConnectionStringRabbitMQ=host=rabbitmq
+      - ConnectionStringDocumentDB=mongodb://documentdb
+    
+  authorization:
+    image: fpommerening/devopenspace2016:picflow-authorization
+    depends_on:
+      - rabbitmq
+      - imagedb
+    environment:
+      - ConnectionStringRabbitMQ=host=rabbitmq
+      - ConnectionStringImageDB=host=imagedb;database=devspace;password=leipzig;username=devspace
+    
+  persistor:
+    image: fpommerening/devopenspace2016:picflow-persistor
+    depends_on:
+      - rabbitmq
+      - imagedb
+      - documentdb
+    environment:
+      - ConnectionStringRabbitMQ=host=rabbitmq
+      - ConnectionStringImageDB=host=imagedb;database=devspace;password=leipzig;username=devspace
+      - ConnectionStringDocumentDB=mongodb://documentdb
+
+  webapp:
+    image: fpommerening/devopenspace2016:picflow-webapp
+    depends_on:
+      - rabbitmq
+      - imagedb
+      - documentdb
+      - persistor
+      - authorization
+      - uploader
+      - processor
+    ports:
+      - 5000:5000
+    environment:
+      - ConnectionStringRabbitMQ=host=rabbitmq
+      - ConnectionStringImageDB=host=imagedb;database=devspace;password=leipzig;username=devspace
+      - ConnectionStringDocumentDB=mongodb://documentdb

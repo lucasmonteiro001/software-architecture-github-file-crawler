@@ -1,0 +1,20 @@
+version: '2'
+services:
+  browser:
+    image: selenium/standalone-chrome
+    container_name: browser
+    ports:
+      - "4444:4444"
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+  tests:
+    build: .
+    container_name: tests
+    command: rspec
+    links:
+      - browser
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+

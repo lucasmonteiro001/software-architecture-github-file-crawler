@@ -1,0 +1,14 @@
+web:
+  build: .
+  restart: always
+  ports:
+    - '9292:9292'
+  links:
+    - overpass-api
+  environment:
+    - OVERPASS_HOST=overpass-api
+    - RACK_ENV=production
+overpass-api:
+  build: ./docker-overpass-api/
+  ports:
+    - 80

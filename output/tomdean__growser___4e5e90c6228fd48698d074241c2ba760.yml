@@ -1,0 +1,52 @@
+web:
+  restart: always
+  build: ./
+  expose:
+    - "8000"
+  volumes:
+    - /usr/src/app/static
+  links:
+    - postgres
+  environment:
+    - PYTHONPATH=/usr/src/app/
+    - GROWSER_CONFIG=/usr/src/app/growser.cfg
+  command: gunicorn -w 4 -b :8000 growser.web:app
+
+nginx:
+  restart: always
+  build: ./deploy/nginx/
+  ports:
+    - "80:80"
+    - "443:443"
+  volumes_from:
+    - web
+  links:
+    - web
+
+data:
+  build: ./deploy/postgres/
+  volumes:
+    - /var/lib/postgresql
+    - ./data:/data
+  command: "true"
+
+postgres:
+  restart: always
+  build: ./deploy/postgres/
+  volumes_from:
+    - data
+  ports:
+    - "5432:5432"
+
+celery:
+  build: ./
+  links:
+    - postgres
+    - redis
+
+redis:
+  build: ./deploy/redis/
+  expose:
+    - "6379"
+  ports:
+    - "6379:6379"

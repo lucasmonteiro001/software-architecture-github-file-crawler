@@ -1,0 +1,17 @@
+version: '2'
+services:
+    aria2c:
+        build: ./aria2c
+        volumes:
+            - /mnt/data/downloads:/downloads:rw
+        network_mode: "host"
+        restart: unless-stopped
+        user: andry
+        command: aria2c
+    webui:
+        image: armbuild/busybox
+        volumes:
+            - ./webui/webui-aria2-master:/usr/html
+        network_mode: "host"
+        restart: unless-stopped
+        command: /bin/busybox httpd -f -p 9000 -h /usr/html

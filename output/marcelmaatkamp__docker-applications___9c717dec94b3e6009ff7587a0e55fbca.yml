@@ -1,0 +1,11 @@
+server:
+ image: rancher/server
+ restart: always
+ volumes:
+  - ./volumes/rancher/server/mysql/lib:/var/lib/mysql
+  - ./volumes/rancher/server/mysql/log:/var/log/mysq
+  - ./volumes/rancher/server/cattle:/var/lib/cattle
+  - ./volumes/rancher/server/ldap/cert.crt:/ca.crt
+ ports:
+  - 9090:8080
+

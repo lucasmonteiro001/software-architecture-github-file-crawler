@@ -1,0 +1,19 @@
+nginx:
+    build: nginx
+    restart: always
+    ports:
+        - "80:80"
+    links:
+        - fpm
+fpm:
+    build: fpm
+    restart: always
+    expose:
+        - "9000"
+    links:
+        - mongo
+mongo:
+    image: mvertes/alpine-mongo
+    restart: always
+    volumes:
+        - ./data:/data/db

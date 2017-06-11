@@ -1,0 +1,15 @@
+version: '2'
+services:
+  notifications:
+    build: .
+    depends_on:
+      - notification_store
+    network_mode: "service:notification_store"
+    environment:
+      - POSTMARK_API_KEY
+  notification_store:
+    image: redis
+    expose:
+      - "80"
+    ports:
+      - 8080:80

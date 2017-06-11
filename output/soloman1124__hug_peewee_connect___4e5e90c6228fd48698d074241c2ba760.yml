@@ -1,0 +1,6 @@
+console:
+  build: .
+  volumes:
+    - .:/usr/src/app
+  entrypoint:
+    - /bin/bash

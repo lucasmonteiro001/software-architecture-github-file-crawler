@@ -1,0 +1,18 @@
+version: '2'
+services:
+  wordpress-mysql:
+    volumes:
+    - ~/wordpress-mysql:/var/lib/mysql
+    image: mysql:5.7
+    environment:
+    - MYSQL_ROOT_PASSWORD=q1w2e3r4
+    restart: always
+  my-wordpress:
+    image: wordpress
+    environment:
+    - WORDPRESS_DB_PASSWORD=q1w2e3r4
+    restart: always
+    ports:
+    - "80:80"
+    links:
+    - wordpress-mysql:mysql

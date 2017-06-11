@@ -1,0 +1,53 @@
+version: '2'
+
+# add this to /etc/hosts
+# 127.0.0.1 localhost kafka01 kafka02 kafka03 kafka04 kafka05 kafka06
+
+services:
+  zookeeper:
+    build: .
+    ports:
+      - "2181:2181"
+    command: /usr/bin/zookeeper-server-start /etc/kafka/zookeeper.properties
+  kafka01:
+    build: .
+    ports:
+      - "9092:9092"
+    command: /usr/bin/kafka-server-start /etc/kafka/kafka01.server.properties
+    links:
+      - zookeeper
+  kafka02:
+    build: .
+    ports:
+      - "9093:9093"
+    command: /usr/bin/kafka-server-start /etc/kafka/kafka02.server.properties
+    links:
+      - zookeeper
+  kafka03:
+    build: .
+    ports:
+      - "9094:9094"
+    command: /usr/bin/kafka-server-start /etc/kafka/kafka03.server.properties
+    links:
+      - zookeeper
+  kafka04:
+    build: .
+    ports:
+      - "9095:9095"
+    command: /usr/bin/kafka-server-start /etc/kafka/kafka04.server.properties
+    links:
+      - zookeeper
+  kafka05:
+    build: .
+    ports:
+      - "9096:9096"
+    command: /usr/bin/kafka-server-start /etc/kafka/kafka05.server.properties
+    links:
+      - zookeeper
+  kafka06:
+    build: .
+    ports:
+      - "9097:9097"
+    command: /usr/bin/kafka-server-start /etc/kafka/kafka06.server.properties
+    links:
+      - zookeeper

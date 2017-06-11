@@ -1,0 +1,13 @@
+version: '2'
+services:
+  tests:
+    image: "${DOCKER_REPOSITORY}:${COMMIT}"
+    volumes:
+      - $SSH_AUTH_SOCK:/ssh-agent
+    environment:
+      - UID
+      - AWS_SECRET_ACCESS_KEY
+      - AWS_ACCESS_KEY_ID
+      - AWS_STAGING_SECRET
+      - AWS_STAGING_ID
+      - SSH_AUTH_SOCK=/ssh-agent

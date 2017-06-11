@@ -1,0 +1,31 @@
+postgis:
+    image: mdillon/postgis:latest
+    environment:
+        - POSTGRES_PASSWORD=root123
+
+nginx:
+    image: 'jwilder/nginx-proxy:latest'
+    ports:
+        - '80:80'
+    volumes:
+        - /var/run/docker.sock:/tmp/docker.sock
+
+spring:
+    build: ./taxi-spring-boot
+    ports:
+        - '8080'
+    links:
+        - postgis
+    environment:
+        - VIRTUAL_HOST=spring.taxiapp.com
+        - VIRTUAL_PORT=8080
+
+rails:
+    build: ./taxi-rails
+    ports:
+        - '3000'
+    links:
+        - postgis
+    environment:
+        - VIRTUAL_HOST=rails.taxiapp.com
+        - VIRTUAL_PORT=3000

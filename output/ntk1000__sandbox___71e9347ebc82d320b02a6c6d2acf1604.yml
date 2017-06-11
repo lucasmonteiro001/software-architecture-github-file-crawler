@@ -1,0 +1,70 @@
+version: '2'
+services:
+    mackerel:
+        build:
+            context: $GOPATH/src/github.com/ntk1000/sandbox/mw/mackerel
+            dockerfile: Dockerfile
+        container_name: 'mackerel'
+        environment:
+            - apikey=${Mackerel_API}
+            - auto_retirement=true
+            - enable_docker_plugin=true
+            - opts=-v
+            - include=/etc/mackerel-agent/conf.d/*.conf
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+              #- /var/lib/mackerel-agent:/var/lib/mackerel-agent
+            - /proc/mounts:/host/proc/mounts:ro
+            - /sys/fs/cgroup:/host/sys/fs/cgroup:ro
+
+    fluentd:
+        build:
+            context: $GOPATH/src/github.com/ntk1000/sandbox/logc/fluentd
+            dockerfile: DockerfileES
+        container_name: 'fluentd'
+        ports: 
+            - "24224:24224"
+        links:
+            - es
+        networks:
+            - app
+            - datastore
+
+    es:
+        image: elasticsearch:latest
+        container_name: 'es'
+        command: elasticsearch -Des.network.host=0.0.0.0
+        ports:
+            - "9200:9200"
+            - "9300:9300"
+        networks:
+            - datastore
+
+    kibana:
+        image: kibana:latest
+        container_name: 'kibana'
+        environment:
+            - ELASTICSEARCH_URL=http://es:9200
+        ports: 
+            - "5601:5601"
+        links:
+            - es
+        networks:
+            - datastore
+
+    app:
+        build:
+            context: $GOPATH/src/github.com/ntk1000/sandbox/clock
+            dockerfile: Dockerfile
+        container_name: 'clock'
+        logging:
+            driver: "fluentd"
+            options:
+                fluentd-address: "localhost:24224"
+        links:
+            - fluentd
+        networks:
+            - app
+networks:
+    app:
+    datastore:

@@ -1,0 +1,42 @@
+version: "3"
+
+services:
+  
+  rest-app:
+    image: shengli/nginx-hello
+    ports:
+      - 6100:80
+    networks:
+      - nginxdemo
+    deploy:
+      mode: replicated
+      replicas: 3
+      placement:
+        constraints: [node.role == manager ]
+
+  ws-app:
+    image: shengli/nginx-hello
+    ports:
+      - 6200:80
+    networks:
+      - nginxdemo
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: [node.role == manager ]
+
+  nginx:
+    image: nginx-websocket-and-rest
+    ports:
+      - 6300:80
+    networks:
+      - nginxdemo
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: [node.role == manager ]
+
+networks:
+  nginxdemo:        

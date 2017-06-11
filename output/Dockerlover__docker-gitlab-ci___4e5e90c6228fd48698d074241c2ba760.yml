@@ -1,0 +1,42 @@
+ci_postgresql:
+  image: sameersbn/postgresql:9.4
+  environment:
+    - DB_USER=gitlab_ci
+    - DB_PASS=123456
+    - DB_NAME=gitlab_ci_production
+  volumes:
+    - /var/data/gitlab-ci/postgresql:/var/lib/postgresql
+ci_redis:
+  image: sameersbn/redis:latest
+  volumes:
+    - /var/data/gitlab-ci/redis:/var/lib/redis
+ci:
+  image: sameersbn/gitlab-ci:7.11.4-2
+  links:
+    - ci_redis:redisio
+    - ci_postgresql:postgresql
+  ports:
+    - "10081:80"
+  environment:
+    - TZ=Asia/Kolkata
+    - GITLAB_URL=http://localhost:10080
+    - GITLAB_APP_ID=
+    - GITLAB_APP_SECRET=
+    - GITLAB_CI_HOST=localhost
+    - GITLAB_CI_PORT=10081
+    - GITLAB_CI_EMAIL=liuhong1.happy@163.com
+    - GITLAB_CI_SUPPORT=liuhong1.happy@163.com
+    - GITLAB_CI_NOTIFY_ON_BROKEN_BUILDS=true
+    - GITLAB_CI_NOTIFY_PUSHER=false
+    - GITLAB_CI_BACKUPS=daily
+    - GITLAB_CI_BACKUP_TIME=01:00
+    - SMTP_ENABLED=true
+    - SMTP_DOMAIN=www.163.com
+    - SMTP_HOST=smtp.163.com
+    - SMTP_PORT=25
+    - SMTP_USER=liuhong1.happy@163.com
+    - SMTP_PASS=969713145230
+    - SMTP_STARTTLS=true
+    - SMTP_AUTHENTICATION=login
+  volumes:
+    - /var/data/gitlab-ci/gitlab-ci:/home/gitlab_ci/data

@@ -1,0 +1,9 @@
+version: "2.1"
+services:
+  tileserver:
+    build: .
+    userns_mode: host
+    ports:
+      - 8000:80
+    volumes:
+      - ./tiles:/tiles

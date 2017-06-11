@@ -1,0 +1,52 @@
+---
+
+version: "2"
+
+services:
+
+  proxy:
+    image: nginx:1.12.0
+    volumes:
+      - ./ops/config/nginx:/etc/nginx/conf.d
+    volumes_from:
+      - app
+    depends_on:
+      - app
+
+  app:
+    build:
+      dockerfile: ops/dockerfiles/app/Dockerfile
+      context: .
+      args:
+        - user=${UID}
+    user: ${UID}:${UID}
+    volumes:
+      - ./:/srv/http/
+    env_file: .env
+    depends_on:
+      - db
+
+  db:
+    image: mysql:5.7.17
+    environment:
+      - MYSQL_ROOT_PASSWORD=pass
+      - MYSQL_DATABASE=db
+    volumes:
+      - ./ops/config/mysql:/etc/mysql/conf.d
+
+  srcbuild:
+    build:
+      dockerfile: ops/dockerfiles/srcbuild/Dockerfile
+      context: .
+      args:
+        - user=${UID}
+    user: ${UID}:${UID}
+    volumes_from:
+      - app
+    env_file: .env
+    environment:
+      - HOME=/srv/http
+
+  maildev:
+    image: djfarrelly/maildev:0.14.0
+    command: bin/maildev --web 80 --smtp 25 --outgoing-user test --outgoing-pass test --open

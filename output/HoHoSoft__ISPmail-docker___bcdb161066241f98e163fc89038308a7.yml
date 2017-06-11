@@ -1,0 +1,30 @@
+mailserver:
+  build: .
+#  external_links:
+#    - "mysql_db_1:db"
+  links:
+    - "db:db"
+  environment:
+    MYSQL_HOST: db
+    MYSQL_DB: mailserver
+    MYSQL_USER: mailserver
+    MYSQL_PASSWORD: password
+  volumes:
+    - ./certs:/etc/certs
+    - ./vmail:/var/vmail
+  ports:
+    - "143:143"
+    - "25:25"
+  hostname: mail.example.org
+db:
+  image: mysql:5.7
+  volumes:
+    - ./init_mailserver_db.sql:/docker-entrypoint-initdb.d/init_mailserver_db.sql
+    - ./mysql/data:/var/lib/mysql
+  environment:
+    MYSQL_ROOT_PASSWORD: my-secret-pw
+    MYSQL_DATABASE: mailserver
+    MYSQL_USER: mailserver
+    MYSQL_PASSWORD: password
+  ports:
+    - "3306:3306"

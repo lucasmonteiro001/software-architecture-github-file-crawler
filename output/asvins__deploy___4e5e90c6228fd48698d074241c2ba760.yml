@@ -1,0 +1,73 @@
+core:
+  build: ../core
+  ports:
+    - "8006:8080"
+  links:
+    - postgres:db
+    - zookeeper:zk
+    - kafka
+warehouse:
+  build: ../warehouse
+  ports:
+   - "8003:8080"
+  links:
+   - postgres:db
+   - zookeeper:zk
+   - kafka
+operations:
+  build: ../operations
+  ports:
+    - "8005:8080"
+  links:
+    - postgres:db
+    - zookeeper:zk
+    - kafka
+    - core
+    - warehouse
+notification:
+  build: ../notification
+  ports:
+   - "8002:8080"
+  links:
+   - zookeeper:zk
+   - kafka
+auth:
+  build: ../auth
+  ports:
+   - "8001:8080"
+  links:
+   - redis
+   - zookeeper:zk
+   - kafka
+subscription:
+  build: ../subscription
+  ports:
+    - "8004:8080"
+  links:
+    - postgres:db
+    - kafka
+    - zookeeper:zk
+redis:
+  image: redis
+postgres_setup:
+  build: ./postgres
+  links:
+    - postgres:db
+postgres:
+  image: postgres
+zookeeper:
+  image: wurstmeister/zookeeper
+  ports:
+    - "2181:2181"
+kafka:
+  image: wurstmeister/kafka:0.8.2.0
+  hostname: kafka
+  ports:
+    - "9092:9092"
+  links:
+    - zookeeper:zk
+  environment:
+    KAFKA_ADVERTISED_HOST_NAME: "kafka"
+    KAFKA_ADVERTISED_PORT: 9092
+  volumes:
+    - /var/run/docker.sock:/var/run/docker.sock

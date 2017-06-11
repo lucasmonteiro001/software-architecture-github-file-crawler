@@ -1,0 +1,10 @@
+version: "2"
+services:
+  mirrord:
+    build: .
+    volumes:
+      - /home/mirror:/home/mirror
+      - ./conf/config.yml:/app/config.yml
+      - ./mirrord:/app/mirrord
+      - ./log:/app/log.log
+    network_mode: host

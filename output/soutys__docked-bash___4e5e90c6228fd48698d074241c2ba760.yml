@@ -1,0 +1,12 @@
+dock_test:
+  container_name: some_dock_test
+  build: .
+  ports:
+    - "8443:443"
+  volumes:
+    - ./RPMS:/RPMS
+#  command: bash
+  cap_add:
+    - SYS_PTRACE
+  security_opt:
+    - apparmor:unconfined

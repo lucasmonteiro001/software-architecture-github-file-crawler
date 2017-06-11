@@ -1,0 +1,5 @@
+project:
+  image: symfony:latest
+  tty: true
+  ports:
+    - "8080:80"

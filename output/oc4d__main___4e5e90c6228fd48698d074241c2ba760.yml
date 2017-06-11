@@ -1,0 +1,38 @@
+version: "2"
+services:
+  mysql:
+    image: mysql:5.7
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./mysql/mysql.cnf:/etc/mysql/conf.d/oc4d.cnf:ro
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    restart: unless-stopped
+  wiki:
+    build: wiki/docker-mediawiki
+    depends_on:
+      - mysql
+    ports:
+      - "$WEB_PORT:80"
+    volumes:
+      - ./wiki/conf:/var/www-shared/html
+      - ./wiki/conf/php-overrides.ini:/usr/local/etc/php/conf.d/oc4d.ini
+    links:
+      - mysql
+    environment:
+      DOCKER_HOST: $DOCKER_HOST
+    restart: unless-stopped
+  parsoid:
+    build: wiki/docker-parsoid
+    ports:
+      - "8142:8142"
+    volumes:
+      - ./wiki/parsoid-data:/data
+    environment:
+        MW_HOST: wiki
+        PORT: 8142
+    restart: unless-stopped
+volumes:
+  mysql-data:
+    external: true
+

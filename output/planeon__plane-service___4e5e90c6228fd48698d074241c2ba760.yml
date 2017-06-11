@@ -1,0 +1,27 @@
+version: '3'
+services:
+  mysql:
+    container_name: plane-mysql
+    build:
+      context: ./docker
+      dockerfile: Dockerfile-mysql
+    environment:
+      MYSQL_DATABASE: plane
+      MYSQL_USER: planedbuser
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: pass
+    volumes:
+      - ./mysql/db:/var/lib/mysql
+  plane-service:
+    container_name: plane-service
+    build:
+      context: ./docker
+      dockerfile: Dockerfile-plane-service
+    ports:
+      - '80:80'
+    volumes:
+      - ./plane-service:/var/www/plane-service
+    depends_on:
+      - mysql
+volumes:
+  db:

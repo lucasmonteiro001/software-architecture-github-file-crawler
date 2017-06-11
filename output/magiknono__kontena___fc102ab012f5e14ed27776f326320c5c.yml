@@ -1,0 +1,12 @@
+api:
+  build: .
+  ports:
+    - 4040:9292
+  environment:
+    - RACK_ENV=production
+    - MONGODB_URI=mongodb://mongodb:27017/kontena_development
+  links:
+   - mongodb
+mongodb:
+  image: mongo:2.8
+  command: mongod --smallfiles

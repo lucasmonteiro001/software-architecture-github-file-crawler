@@ -1,0 +1,6 @@
+es:
+  #build: .
+  image: waitingkuo/elasticsearch-zh
+  ports:
+    - 9200:9200
+    - 9300:9300

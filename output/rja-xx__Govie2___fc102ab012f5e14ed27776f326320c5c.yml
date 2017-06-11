@@ -1,0 +1,15 @@
+version: '2'
+services:
+  server:
+    container_name: gserver
+    build: gserver/.
+    ports:
+      - 8773:8773
+    links:
+      - es
+
+  es:
+    container_name: gsearch
+    build: ges/.
+    ports:
+      - 9200:9200

@@ -1,0 +1,53 @@
+version: '2'
+services:
+    honey:
+        image: banjocat/walter_honey:latest
+        ports:
+            - "22:2000"
+        depends_on:
+            - logstash
+
+    nginx:
+        image: nginx:1.10-alpine
+        volumes:
+            - "/app/honey_walter/nginx.conf:/etc/nginx/nginx.conf"
+            - "/etc/ssl/honey_walter/server.crt:/etc/nginx/site.crt"
+            - "/etc/ssl/honey_walter/server.key:/etc/nginx/site.key"
+            - "/etc/ssl/honey_walter/client.crt:/etc/nginx/client.crt"
+        ports:
+            - "9999:443"
+            - "9998:80"
+        depends_on:
+            - kibana
+
+    elastic:
+        image: elasticsearch:2
+        volumes:
+            - "/app/honey_walter/elastic_volume:/usr/share/elasticsearch/data"
+        expose:
+            - 9020
+
+    logstash:
+        image: logstash:2
+        command: logstash -f /etc/logstash/logstash.conf
+        volumes:
+            - "/app/honey_walter/logstash.conf:/etc/logstash/logstash.conf"
+        expose:
+            - 5000
+        depends_on:
+            - elastic
+
+    kibana:
+        image: kibana:4
+        volumes:
+            - "/app/honey_walter/kibana.yml:/opt/kibana/config/kibana.yml"
+            - "/app/honey_walter/kibana_volume:/var/lib/kibana"
+        expose:
+            - 5600
+        depends_on:
+            - elastic
+    freegeoip:
+        expose:
+            - 8080
+        image: fiorix/freegeoip
+

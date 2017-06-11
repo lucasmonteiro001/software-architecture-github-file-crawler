@@ -1,0 +1,25 @@
+data:
+  build: ./docker/data
+db:
+  build: ./docker/postgres/
+  volumes_from:
+    - data
+redis:
+  build: ./docker/redis/
+git:
+  build: ./docker/git/
+web:
+  build: ./docker/web
+  env_file: ./.env
+  links:
+    - db
+    - redis
+    - git
+  ports:
+    - "3000"
+nginx:
+  build: ./docker/nginx
+  ports:
+    - "80:80"
+  volumes:
+    - /usr/local/etc/nginx/:/etc/nginx/

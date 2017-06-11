@@ -1,0 +1,10 @@
+bitsandpieces:
+  container_name: bitsandpieces
+  image: learninglayers/bitsandpieces:4.5.0
+  ports:
+    - 80
+  env_file:
+    - common.env
+    - bitsandpieces.env
+  actions:
+    - create_oidcclients: [bitsandpieces.env]

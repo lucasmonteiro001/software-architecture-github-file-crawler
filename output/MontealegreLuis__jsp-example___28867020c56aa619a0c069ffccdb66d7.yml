@@ -1,0 +1,33 @@
+version: '2'
+
+services:
+  tomcat:
+    container_name: ${CONTAINERS_PREFIX}_tomcat
+    build:
+      context: ./containers/images
+      dockerfile: tomcat.Dockerfile
+    image: ${CONTAINERS_PREFIX}/tomcat
+    ports:
+      - "80:8080"
+    links:
+      - db
+    volumes:
+      - .:/usr/local/tomcat/webapps
+  data:
+    container_name: ${CONTAINERS_PREFIX}_storage
+    build:
+      context: ./containers/images
+      dockerfile: data.Dockerfile
+    image: ${CONTAINERS_PREFIX}/storage
+  db:
+    container_name: ${CONTAINERS_PREFIX}_mysql
+    build:
+      context: ./containers/images
+      dockerfile: mysql.Dockerfile
+    image: ${CONTAINERS_PREFIX}/mysql
+    volumes_from:
+      - data
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}

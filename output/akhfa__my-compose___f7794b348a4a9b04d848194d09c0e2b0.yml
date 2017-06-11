@@ -1,0 +1,22 @@
+version: '2'
+services:
+    fpm:
+        image: bitnami/php-fpm:7.1.1-r0
+    db:
+        image: mariadb:10.1.21
+        environment: 
+        - MYSQL_ROOT_PASSWORD=akhfa
+        volumes:
+        - /var/lib/mysql:/var/lib/mysql
+        restart: always
+    web:
+        image: nginx:1.11.9
+        depends_on: 
+        - fpm
+        - db
+        ports:
+        - "80:80"
+        - "443:443"
+        volumes:
+        - /var/log/nginx:/var/log/nginx
+        restart: always

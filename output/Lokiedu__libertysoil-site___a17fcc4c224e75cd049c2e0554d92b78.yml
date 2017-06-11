@@ -1,0 +1,69 @@
+db:
+  image: "postgres:9.5"
+  ports:
+    - "127.0.0.1:5432:5432"
+  volumes:
+    - "/mnt/data/postgres:/var/lib/postgresql/data"
+  environment:
+    - "POSTGRES_PASSWORD=Laik7akoh2ai"
+  restart: always
+backup:
+  image: "quay.io/dipstudio/pg-backup:master"
+  ports:
+    - "127.0.0.1:18080:18080"
+  links:
+    - db
+  environment:
+    - "BACKUP_DAYS_TO_KEEP=14"
+    - "BACKUP_SCHEDULE=@every 24h"
+    - "BACKUP_S3_DIR=postgres-staging"
+  env_file:
+    - "./secrets.env"
+  restart: always
+redis:
+  image: "redis:3.0"
+  restart: always
+sphinx:
+  image: "quay.io/dipstudio/libertysoil-sphinx:latest"
+  links:
+    - "db:postgres"
+  environment:
+    - "POSTGRES_PASSWORD=Laik7akoh2ai"
+  ports:
+    - "127.0.0.1:9312:9312"
+    - "127.0.0.1:9306:9306"
+  restart: always
+app:
+  image: "quay.io/dipstudio/libertysoil:master"
+  ports:
+    - "127.0.0.1:8000:8000"
+  links:
+    - db
+    - redis
+    - sphinx
+  environment:
+    - "API_HOST=http://alpha.libertysoil.org"
+    - "VIRTUAL_HOST=alpha.libertysoil.org"
+    - "DB_ENV=staging"
+  env_file:
+    - "./secrets.env"
+  restart: always
+queue:
+  image: "quay.io/dipstudio/libertysoil:master"
+  links:
+    - db
+    - redis
+  environment:
+    - "API_HOST=http://alpha.libertysoil.org"
+    - "DB_ENV=staging"
+  env_file:
+    - "./secrets.env"
+  command: npm run tasks
+  restart: always
+web:
+  image: "quay.io/indeyets/nginx-proxy-custom"
+  ports:
+    - "80:80"
+  volumes:
+    - "/var/run/docker.sock:/tmp/docker.sock:ro"
+  restart: always

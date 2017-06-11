@@ -1,0 +1,23 @@
+version: '2'
+services:
+  couchdb:
+    image: planck/db:with-fixtures 
+    container_name: planck-db
+    ports:
+      - "5984:5984"
+    networks:
+      dbs:
+        aliases:
+          - couchdb
+
+  couchdb-lucene:
+    image: planck/db-lucene:with-fixtures
+    container_name: planck-lucene
+    networks:
+      dbs:
+        aliases:
+          - couchdb-lucene
+
+networks:
+  dbs:
+    driver: bridge

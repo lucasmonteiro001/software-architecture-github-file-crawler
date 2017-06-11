@@ -1,0 +1,15 @@
+version: '2'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: ./docker/app/Dockerfile
+    env_file: ./docker/app/.env
+    environment:
+      - TERM=xterm-256color
+    volumes:
+      - yarn-cache:/root/.yarn-cache
+
+volumes:
+  yarn-cache: {}

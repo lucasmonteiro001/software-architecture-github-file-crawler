@@ -1,0 +1,20 @@
+jenkinsdata:
+  image: busybox
+  volumes:
+   - /var/jenkins_home
+  command: true
+jenkins:
+  image: siteminds/jenkins
+  volumes_from:
+   - jenkinsdata
+  ports:
+   - "8080:8080"
+  privileged: true 
+registry:
+  image: registry
+  environment:
+   - STORAGE_PATH=/registry
+  volumes:
+   - registry-stuff:/registry
+  ports:
+   - "5000:5000"

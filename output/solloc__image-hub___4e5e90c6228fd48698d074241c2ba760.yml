@@ -1,0 +1,19 @@
+version: '2'
+
+services:
+
+  image-hub:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: npm start
+    container_name: image-hub
+    image: solloc/image-hub
+    networks:
+      - dev-network
+    ports:
+      - '80:3000'
+
+networks:
+  dev-network:
+    driver: bridge

@@ -1,0 +1,26 @@
+version: '2'
+services:
+  web:
+    image: alpine
+    ports:
+      - "18080:8080"
+    depends_on:
+      - db
+    restart: always
+    environment:
+      GIN_MODE: "release"
+    volumes:
+      - "./:/lolipos"
+    command: "/lolipos/lolipos"
+  db:
+    image: mysql:5.7
+    ports:
+      - "127.0.0.1:13306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: "lolipos"
+    volumes:
+      - "./sql:/docker-entrypoint-initdb.d"
+      - "loliposdb:/var/lib/mysql"
+volumes:
+  loliposdb:
+    driver: local

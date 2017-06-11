@@ -1,0 +1,9 @@
+version: '2'
+services:
+  web:
+    build: .
+    ports:
+     - "4321:5000"
+    volumes:
+     - .:/code
+

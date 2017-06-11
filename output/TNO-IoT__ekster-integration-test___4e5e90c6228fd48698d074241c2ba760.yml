@@ -1,0 +1,17 @@
+prosody:
+  build: ./prosody/
+  volumes:
+   - ./prosody/.prosody:/var/lib/prosody
+  ports:
+   - "5222:5222"
+ekster:
+  build: ./ekster/
+  links:
+   - mongodb:backend
+   - prosody:xmpp
+  environment:
+   - XMPP_JID=registry.xmpp.local
+   - XMPP_PASSWD=testing
+   - BACKEND_TYPE=mongoose
+mongodb:
+  image: mongo

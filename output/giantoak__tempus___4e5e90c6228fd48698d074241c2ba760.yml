@@ -1,0 +1,15 @@
+web:
+  build: .
+  command: /src/run.sh
+  ports:
+   - "8080:8080"
+  volumes:
+   - .:/src
+  links:
+   - opencpu
+  env_file:
+   - tempus.env
+opencpu:
+  build: opencpu-app/.
+  expose: 
+   - "80"

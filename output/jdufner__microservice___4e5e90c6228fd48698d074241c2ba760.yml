@@ -1,0 +1,76 @@
+version: "2"
+
+services:
+  elasticsearch:
+    build: elasticsearch/
+    environment:
+      ES_JAVA_OPTS: "-Xms1g -Xmx1g"
+  logstash:
+    build: logstash/
+    command: "-f /etc/logstash/conf.d/"
+    environment:
+      - LS_HEAP_SIZE=500m
+    links:
+      - elasticsearch
+    volumes:
+      - "./logstash/config:/etc/logstash/conf.d"
+      - "/tmp/log:/log"
+  kibana:
+    build: kibana/
+    ports:
+      - "5601:5601"
+    links:
+      - elasticsearch
+    volumes:
+      - "./kibana/config/:/etc/kibana"
+  service-registry:
+    build: service-registry/
+    links:
+      - elasticsearch
+    volumes:
+      - /tmp/log/service-registry:/log
+  gateway:
+    build: gateway/
+    ports:
+      - "8080:8080"
+    links:
+      - service-registry
+    volumes:
+      - /tmp/log/gateway:/log
+  monitor:
+    build: monitor/
+    ports:
+      - "8180:8080"
+    links:
+      - service-registry
+    volumes:
+      - /tmp/log/monitor:/log
+  git-ssh-server:
+    image: unixtastic/git-ssh-server
+    ports:
+      - "2222:22"
+    volumes:
+      - "/tmp/git:/git"
+  configuration:
+    build: configuration/
+    ports:
+      - "8280:8080"
+    links:
+      - service-registry
+      - git-ssh-server
+    volumes:
+      - /tmp/log/configuration:/log
+  hello-world:
+    build: hello-world/
+    links:
+      - service-registry
+      - configuration
+    volumes:
+      - /tmp/log/hello-world:/log
+  primes:
+    build: primes/
+    links:
+      - service-registry
+      - configuration
+    volumes:
+      - /tmp/log/primes:/log

@@ -1,0 +1,8 @@
+limitstyle:
+  image: laravel-hw
+  container_name: laravel-hw
+  restart: always
+  volumes:
+    - ./:/var/www/laravel/
+  ports:
+    - "8112:80"

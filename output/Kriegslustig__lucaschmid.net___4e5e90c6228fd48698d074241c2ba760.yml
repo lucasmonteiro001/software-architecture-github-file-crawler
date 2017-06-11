@@ -1,0 +1,18 @@
+version: '2'
+services:
+  db:
+    image: mongo
+    env_file: .env
+    volumes:
+      - ${MONGO_LOCATION}:/data/db
+  web:
+    build: ./
+    container_name: lucaschmid.net
+    volumes:
+      - ./:/var/app
+    ports:
+      - 443:443
+      - 80:80
+    restart: always
+    env_file: .env
+

@@ -1,0 +1,18 @@
+version: '2'
+
+services:
+
+  pihole:
+    container_name: pihole
+    restart: always
+    build: ./images/pihole
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+      - "80:80/tcp"
+    cap_add:
+      - NET_ADMIN
+    environment:
+      ServerIP: 192.168.1.253
+    volumes:
+      - './data/pihole:/etc/pihole'

@@ -1,0 +1,37 @@
+db:
+  image: mysql
+  environment:
+    MYSQL_DATABASE: jumpserver
+    MYSQL_USER: jumpserver
+    MYSQL_PASSWORD: twugHigeu
+    MYSQL_ROOT_PASSWORD: BawdEshFau
+  volumes:
+    - /data/mysql:/var/lib/mysql
+    - ./db-init:/docker-entrypoint-initdb.d
+
+mail:
+  image: catatnight/postfix
+  environment:
+    maildomain: ops.vobile.org
+    smtp_user: vobile:EwbIjfiv
+
+jumpserver:
+  image: hhding/jumpserver-docker
+  ports:
+    - "60010:22"
+    - "80:80"
+    - "389:389"
+  links:
+    - db:mysql
+    - mail
+  environment:
+    MYSQL_DATABASE: jumpserver
+    MYSQL_USER: jumpserver
+    MYSQL_PASSWORD: twugHigeu
+    MAIL_SMTP_USER: vobile:EwbIjfiv
+    LDAP_ADMIN_PASS: MelRikjas
+
+  volumes:
+    - /data/ldap:/var/lib/ldap/
+    - /data/logs:/opt/jumpserver/logs
+

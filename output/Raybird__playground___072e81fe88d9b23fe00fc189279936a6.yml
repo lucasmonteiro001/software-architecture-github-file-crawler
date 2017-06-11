@@ -1,0 +1,46 @@
+version: '2'
+volumes:
+  database: {}
+  temp: {}
+services:
+  nginx:
+    extends:
+      file: base.yml
+      service: service
+    image: raybird/dockernginx
+    ports:
+      - "18080:80"
+    links:
+      - php
+    logging:
+      driver: syslog
+      options:
+        tag: "playground-http"
+  php:
+    extends:
+      file: base.yml
+      service: service
+    image: raybird/dockerphp7fpm
+    links:
+      - mariadb
+    logging:
+      driver: syslog
+      options:
+        tag: "playground-php"
+  mariadb:
+    extends:
+      file: base.yml
+      service: service
+    image: mariadb:latest
+    ports:
+      - 3306:3306
+# phpmyadmin for develop
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    links:
+      - mariadb
+    env_file: .env
+    environment:
+      PMA_HOST: mariadb
+    ports:
+      - "18081:80"

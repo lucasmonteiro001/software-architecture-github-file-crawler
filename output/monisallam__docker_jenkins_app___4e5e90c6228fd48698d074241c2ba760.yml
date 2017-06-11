@@ -1,0 +1,45 @@
+version: "2"
+
+services:
+  voting-app:
+    image: 172.28.128.4/admin/frontend-userinput:jenkins1
+    ports:
+      - "80"
+    networks:
+      - back-tier
+
+  result-app:
+    image: 172.28.128.4/admin/frontend-display:jenkins1
+    ports:
+      - "80"
+    networks:
+      - back-tier
+
+  worker:
+    image: 172.28.128.4/admin/myworker:2.0
+    networks:
+      - back-tier
+
+  redis:
+    image: redis:alpine
+    ports: ["6379"]
+    networks:
+      - back-tier
+
+  db:
+    image: postgres:9.4
+    volumes:
+      - "db-data:/var/lib/postgresql/data"
+    networks:
+      - back-tier
+
+volumes:
+  db-data:
+
+networks:
+  back-tier:
+    ipam:
+        driver: default
+        config:
+        - subnet: 10.0.201.0/24
+          gateway: 10.0.201.1

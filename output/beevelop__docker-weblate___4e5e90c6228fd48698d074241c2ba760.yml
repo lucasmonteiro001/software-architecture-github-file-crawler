@@ -1,0 +1,51 @@
+volumes:
+  container_name: weblate-volumes
+  image: tianon/true
+  volumes:
+    - /docker/weblate/config:/app/etc:ro
+    - /docker/weblate/data:/app/data
+    - /docker/weblate/db:/var/lib/postgresql/data
+
+server:
+  container_name: weblate
+  image: beevelop/weblate
+  environment:
+    SECRET_KEY: Un1c0rns_4R3_4w3s0m3
+    ADMIN_PASSWORD: Un1c0rn
+
+    TIME_ZONE: Europe/Berlin
+    SITE_TITLE: Dockweblate
+
+    LANGUAGE_CODE: de-de
+
+    WEBLATE_DEBUG: 1
+    WEBLATE_ADMIN_NAME: Admin
+    WEBLATE_ADMIN_EMAIL: weblate@example.com
+    WEBLATE_EMAIL: weblate@example.com
+
+    EMAIL_HOST: smtp.gmail.com
+    EMAIL_HOST_USER: Herbert
+    EMAIL_HOST_PASSWORD: Un1c0rn
+    EMAIL_PORT: 465
+  links:
+    - database
+    - cache
+  ports:
+    - "8000:8000"
+  volumes_from:
+    - volumes
+  restart: always
+
+database:
+  container_name: weblate-db
+  image: kiasaki/alpine-postgres
+  volumes_from:
+    - volumes
+  restart: always
+  environment:
+    POSTGRES_PASSWORD: weblate
+    POSTGRES_USER: weblate
+
+cache:
+  container_name: weblate-cache
+  image: memcached:1.4

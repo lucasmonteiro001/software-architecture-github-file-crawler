@@ -1,0 +1,25 @@
+version: '2'
+services:
+  web:
+    build: 
+      context: ./docker/web
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./src:/opt/src
+    links:
+      - database
+
+  database:
+    build:
+      context: ./docker/mysql
+      dockerfile: Dockerfile
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=ajax
+    volumes:
+      - ./docker/mysql/data:/var/lib/mysql
+    mem_limit: 256m

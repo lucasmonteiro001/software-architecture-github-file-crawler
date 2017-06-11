@@ -1,0 +1,9 @@
+version: "2"
+services:
+  app:
+    build:
+      context: .
+      dockerfile: test.Dockerfile
+    volumes:
+      - .:/app
+    image: myapp:$BUILDKITE_JOB_ID

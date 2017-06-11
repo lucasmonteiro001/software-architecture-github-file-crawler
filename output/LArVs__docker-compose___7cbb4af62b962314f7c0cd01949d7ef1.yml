@@ -1,0 +1,11 @@
+web:
+    image: wordpress
+    links:
+        - db:mysql
+    ports:
+        - 127.0.3.1:80:80
+
+db:
+    image: mysql:5.6
+    environment:
+        MYSQL_ROOT_PASSWORD: 123456

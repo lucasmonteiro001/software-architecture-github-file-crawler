@@ -1,0 +1,70 @@
+version: '2'
+services:
+  sickrage:
+    image: sickrage:latest 
+    labels:
+      - traefik.frontend.rule=Host:sickrage.${DOMAIN} 
+      - traefik.frontend.entryPoints=http,https
+    environment:
+      - USERNAME=${SICKRAGE_USERNAME}
+      - PASSWORD=${SICKRAGE_PASSWORD}
+    hostname: sickrage.${DOMAIN}
+    restart: always
+    volumes:
+      - ${NZBSDIR}:/mnt/data/downloads/nzbs
+      - ${TORRENTSDIR}:/mnt/data/downloads/torrents
+      - ${TVSHOWSDIR}:/mnt/data/tvshows
+    networks:
+      - seedbox_network
+
+  couchpotato:
+    image: couchpotato:latest
+    labels:
+      - traefik.frontend.rule=Host:couchpotato.${DOMAIN}
+      - traefik.frontend.entryPoints=http,https
+    hostname: couchpotato.${DOMAIN}
+    environment:
+      - USERNAME=${COUCHPOTATO_USERNAME}
+      - PASSWORD=${COUCHPOTATO_PASSWORD}  
+    restart: always
+    volumes:
+      - ${NZBSDIR}:/mnt/data/downloads/nzbs
+      - ${TORRENTSDIR}:/mnt/data/downloads/torrents
+      - ${MOVIESDIR}:/mnt/data/movies
+    networks:
+      - seedbox_network
+
+  nzbget:
+    image: nzbget:latest
+    labels:
+      - traefik.frontend.rule=Host:nzbget.${DOMAIN}
+      - traefik.frontend.entryPoints=http,https
+    hostname: nzbget.${DOMAIN}
+    environment:
+      - USERNAME=${NZBGET_USERNAME}
+      - PASSWORD=${NZBGET_PASSWORD} 
+    restart: always
+    volumes:
+      - ${NZBSDIR}:/var/lib/nzbget
+    networks:
+      - seedbox_network
+
+  transmission:
+    image: transmission:latest 
+    labels:
+      - traefik.frontend.rule=Host:transmission.${DOMAIN}
+      - traefik.frontend.entryPoints=http,https
+    hostname: transmission.${DOMAIN}
+    environment:
+      - USERNAME=${TRANSMISSION_USERNAME}
+      - PASSWORD=${TRANSMISSION_PASSWORD}
+    restart: always
+    volumes:
+      - ${TORRENTSDIR}:/var/lib/transmission
+    networks:
+      - seedbox_network
+
+networks:
+  seedbox_network:
+    external:
+      name: ${SEEDBOX_NETWORK}

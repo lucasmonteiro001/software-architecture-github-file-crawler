@@ -1,0 +1,16 @@
+cadinternet:
+    container_name: cadinternet
+    image: mckatoo/nginx-php:0.2
+    ports:
+        - "801:80"
+    environment:
+        - db=172.17.0.2
+    volumes:
+        - ./vhost:/etc/nginx/sites-available/default
+        - ./vhost:/etc/nginx/sites-enabled/default
+        - ./site:/var/www
+        - ./logs/:/var/log/nginx/
+        - ./logs/php/:/var/log/php/
+        - ./php.ini:/etc/php/7.0/fpm/php.ini
+        - ./php-fpm.conf:/etc/php/7.0/fpm/php-fpm.conf
+    tty: true

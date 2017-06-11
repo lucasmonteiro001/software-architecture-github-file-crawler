@@ -1,0 +1,35 @@
+nginx-proxy:
+  image: jwilder/nginx-proxy
+  container_name: nginx-proxy
+  ports:
+    - "80:80"
+  volumes:
+    - /var/run/docker.sock:/tmp/docker.sock:ro
+ng2:
+  image: "ng2:1"
+  container_name: "ng2study"
+  volumes:
+    - ~/private/ng2-study/dist:/var/www/html
+  environment:
+    - VIRTUAL_HOST=ng2study.local
+mongo:
+  image: "mongo:3"
+  container_name: "mongo.local"
+  volumes:
+    - /docker/data/mongo:/data/db
+  ports:
+    - "27017:27017"
+app:
+  build: "."
+  container_name: "nodejsapp"
+  # image: "dev/node:1"
+  user: "root"
+  mem_limit: "256m"
+  memswap_limit: "1G"
+  volumes:
+    # - .:/usr/src/app
+    - /tmp/logs:/tmp/logs
+  links:
+    - mongo:mongo.local
+  environment:
+    - VIRTUAL_HOST=nodejsstudy.local

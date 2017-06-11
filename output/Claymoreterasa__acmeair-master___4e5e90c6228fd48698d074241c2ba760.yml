@@ -1,0 +1,64 @@
+session_db1:
+  container_name: session_db1
+  image: mongo
+  net: ${NETWORK}
+
+booking_db1:
+  container_name: booking_db1
+  image: mongo
+  net: ${NETWORK}
+
+customer_db1:
+  container_name: customer_db1
+  image: mongo
+  net: ${NETWORK}
+
+flight_db1:
+  container_name: flight_db1
+  image: mongo
+  net: ${NETWORK}
+
+
+nginx:
+  container_name: nginx
+  net: ${NETWORK}
+  restart: always
+  build: ./nginx/
+  ports:
+    - "80:80"
+
+main:
+  container_name: main
+  net: ${NETWORK}
+  build: ./acmeair-mainapp/
+  environment:
+    - LICENSE=accept
+
+as:
+  container_name: as
+  net: ${NETWORK}
+  build: ./acmeair-as/
+  environment:
+    - LICENSE=accept
+
+bs:
+  container_name: bs
+  net: ${NETWORK}
+  build: ./acmeair-bs/
+  environment:
+    - LICENSE=accept
+
+cs:
+  container_name: cs
+  net: ${NETWORK}
+  build: ./acmeair-cs/
+  environment:
+    - LICENSE=accept
+
+fs:
+  container_name: fs
+  net: ${NETWORK}
+  build: ./acmeair-fs/
+  environment:
+    - LICENSE=accept
+

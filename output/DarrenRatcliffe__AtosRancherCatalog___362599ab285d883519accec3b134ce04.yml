@@ -1,0 +1,11 @@
+mongo:
+  image: mongo:3.2
+  command: --nojournal
+orion:
+  image: fiware/orion
+  links:
+    - mongo
+  ports:
+    - ${public_port}:1026
+  command: -dbhost mongo
+  image: fiware/iotbroker

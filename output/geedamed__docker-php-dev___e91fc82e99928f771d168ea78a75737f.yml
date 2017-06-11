@@ -1,0 +1,18 @@
+version: '3'
+services:
+    srv:
+        image: phpmyadmin/phpmyadmin
+        container_name: pma
+        tty: true
+        networks:
+            - dev
+        ports:
+            - "8080:80"
+        volumes:
+            - "./../pma/mount/www/config.inc.php:/www/config.inc.php"
+            - "./../pma/mount/www/themes/original:/www/themes/original"
+        environment:
+            PMA_ARBITRARY: 1
+networks:
+    dev:
+        external: true

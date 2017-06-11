@@ -1,0 +1,51 @@
+# This docker-compose file sets up (at present) two services:
+# * Zookeeper
+# * One Kafka instance, connected to Zookeeper
+# * One router instance, eventually to be connected to kafka
+#
+# Zookeeper is presently exposed over port 2181 (the default)
+# Kafka is exposed over port 9092 (also the default)
+# 
+# TODO
+# * Expose router http endpoint
+# * Connect router to kafka
+#
+# docker-compose v 2.1, hopefully
+version: '2'
+services:
+  zk:
+    image: wurstmeister/zookeeper
+    ports:
+      - "2181:2181"
+  kafkabroker:
+    image: wurstmeister/kafka
+    ports:
+      - "9092:9092"
+    depends_on: 
+      - "zk"
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: kafkabroker
+      KAFKA_ZOOKEEPER_CONNECT: zk:2181
+      KAFKA_CREATE_TOPICS: "sample-topic:20:1"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+  consumer:
+    build: ./consumer
+    command: node app/app.js
+#    ports:
+#      - "3000:3000"
+    depends_on: 
+      - "kafkabroker"
+  producer:
+    build: ./producer
+    command: node app/app.js
+    ports:
+      - "3001:3000"
+    depends_on: 
+      - "kafkabroker"
+  pyconsumer:
+    build: ./pyconsumer
+    command: python /code/code/pyconsumer.py
+    depends_on:
+      - "kafkabroker"
+      

@@ -1,0 +1,24 @@
+version: "3"
+
+services:
+  django:
+    hostname: django
+    build: .
+    working_dir: /app
+    env_file: .docker-assets/django.env
+    command: .docker-assets/django_start.sh
+    ports:
+      - "8000:8000"
+    volumes:
+      - ".:/app"
+      - "../albedo-vendors/bin:/usr/local/bin"
+      - "../albedo-vendors/dist-packages:/usr/local/lib/python3.5/dist-packages"
+    links:
+      - mysql
+  mysql:
+    hostname: mysql
+    image: vinta/mysql:5.7
+    env_file: .docker-assets/mysql.env
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    ports:
+      - "3306:3306"

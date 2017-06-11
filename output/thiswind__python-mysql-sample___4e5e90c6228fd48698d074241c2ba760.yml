@@ -1,0 +1,8 @@
+app:
+  build: app
+
+  ports:
+    - "5000:5000"
+
+  command: python /code/application.py
+

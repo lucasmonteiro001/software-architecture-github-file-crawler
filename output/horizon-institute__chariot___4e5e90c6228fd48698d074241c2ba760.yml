@@ -1,0 +1,51 @@
+version: '2'
+services:
+    influx:
+        image: influxdb:alpine
+        ports:
+            - "8086:8086"
+
+    db:
+        image: postgres:alpine
+        environment:
+            POSTGRES_DB: chariot
+            POSTGRES_USER: chariot
+            POSTGRES_PASSWORD: chariot
+
+    app:
+        build: src/app
+        links:
+            - db
+            - influx
+        volumes:
+            - ./src/app:/app
+            - /media
+            - /static
+
+    web:
+        restart: always
+        image: nginx:alpine
+        container_name: chariot_web
+        ports:
+            - "80:80"
+            - "443:443"
+        links:
+            - app
+        volumes:
+            - ./src/conf/nginx${CONF_TAG}.conf:/etc/nginx/nginx.conf:ro
+            - ./cert/certs:/cert
+            - ./src/www:/www
+        volumes_from:
+            - app
+
+    cert:
+        build: src/cert
+        links:
+            - web
+        volumes:
+            - /var/run/docker.sock:/tmp/docker.sock
+            - ./cert:/etc/letsencrypt
+        environment:
+            - DOMAINS
+            - CHECK_FREQ=10
+            - SERVER_CONTAINER=chariot_web

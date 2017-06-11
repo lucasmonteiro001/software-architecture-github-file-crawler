@@ -1,0 +1,30 @@
+# read about the content here
+#   https://docs.docker.com/compose/compose-file/
+
+
+# the postgreas database for zen
+postgres-zen:
+  hostname: postgres-zen
+  container_name: postgres-zen
+  image: coderdojo/postgres-zen
+  command: postgres
+  ports: 
+    - "5432"
+
+# the zen service
+zen: 
+  hostname: zen
+  container_name: zen
+  image: coderdojo/zen
+  command: setup/05_bash.sh
+  ports: 
+    # zen runs on this port
+    - "0.0.0.0:8000:8000"
+    # apiBaseUrl
+    - "0.0.0.0:8080:8080"
+    # forum 
+    - "0.0.0.0:4567:4567"
+  links: 
+    - postgres-zen
+  volumes:
+    - ../code:/user/src/app/cp-local-development

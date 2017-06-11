@@ -1,0 +1,10 @@
+version: "2"
+services:
+  web-app:
+    image: registry.services.dmtio.net/mss-awl-helloworld-web:1.0.0
+    ports:
+      - "80:8081"
+    environment:
+      PORT: 8081 
+      HEALTHCHECK: /
+      CONTAINER_LEVEL: foo

@@ -1,0 +1,33 @@
+mysql:
+  image: paradigma/c7-mariadb
+  expose:
+    - "3306"
+  ports:
+    - "3306:3306"
+  volumes:
+    - ./src/data/mysql:/var/lib/mysql
+  env_file:
+    - './db.env'
+
+php:
+  image: paradigma/c7-php-fpm
+  expose:
+    - "9000"
+  volumes:
+    - ./src/public:/var/www/public
+  links:
+    - mysql
+  env_file:
+    - './db.env'
+  environment:
+    MYSQL_HOST: "mysql"
+
+web:
+  image: paradigma/c7-nginx
+  ports:
+    - "8080:80"
+  volumes:
+    - ./src/public:/var/www/public
+    - ./src/vhost.conf:/etc/nginx/conf.d/vhost.conf
+  links:
+    - php

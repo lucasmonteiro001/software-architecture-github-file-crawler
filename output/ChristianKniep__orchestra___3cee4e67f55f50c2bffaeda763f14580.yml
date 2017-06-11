@@ -1,0 +1,151 @@
+grafana:
+  extends: 
+    file: base.yml
+    service: grafana
+  volumes_from:
+  - slurmctld
+  #volumes:
+  #- ${DOCKERDIR}/docker-grafana/opt/qnib/grafana/:/opt/qnib/grafana/
+
+elasticsearch:
+  extends:
+    file: base.yml
+    service: elasticsearch
+  links:
+  - consul:consul
+
+kibana:
+  extends:
+    file: base.yml
+    service: kibana3
+  links:
+  - consul:consul
+  - elasticsearch:elasticsearch
+
+kibana4:
+  extends:
+    file: base.yml
+    service: kibana4
+  links:
+  - consul:consul
+  - elasticsearch:elasticsearch
+
+kopf: 
+  extends:
+    file: base.yml
+    service: kopf
+  links:
+  - elasticsearch:elasticsearch
+
+logger:
+  extends:
+    file: base.yml
+    service: logger
+  links:
+  - consul:consul
+
+carbon:
+  extends:
+    file: base.yml
+    service: carbon
+  links:
+  - consul:consul
+
+gapi:
+  extends:
+    file: base.yml
+    service: gapi
+  links:
+  - consul:consul
+  - carbon:carbon
+  volumes_from:
+   - carbon
+
+neo4j:
+  extends:
+    file: base.yml
+    service: neo4j
+  links:
+  - consul:consul
+
+inventory:
+  extends:
+    file: base.yml
+    service: inventory
+  links:
+  - consul:consul
+  - neo4j:neo4j
+
+consul:
+  extends:
+    file: base.yml
+    service: consul
+
+slurmctld:
+    extends:
+        file: base.yml
+        service: slurmctld
+    links:
+    - consul:consul
+    - logger:logger
+    #volumes:
+    #- ${DOCKERDIR}/docker-slurmctld/opt/qnib/slurm/bin/:/opt/qnib/slurm/bin/
+
+compute0:
+    extends:
+        file: base.yml
+        service: compute
+    hostname: compute0
+    links:
+    - consul:consul
+    - slurmctld:slurmctld
+    - logger:logger
+    #volumes:
+    #- ${DOCKERDIR}/docker-compute/opt/qnib/jobscripts/:/opt/qnib/jobscripts/
+
+compute1:
+    extends:
+        file: base.yml
+        service: compute
+    hostname: compute1
+    links:
+    - consul:consul
+    - slurmctld:slurmctld
+    - logger:logger
+    #volumes:
+    #- ${DOCKERDIR}/docker-compute/opt/qnib/jobscripts/:/opt/qnib/jobscripts/
+
+compute2:
+    extends:
+        file: base.yml
+        service: compute
+    hostname: compute2
+    links:
+    - consul:consul
+    - slurmctld:slurmctld
+    - logger:logger
+    #volumes:
+    #- ${DOCKERDIR}/docker-compute/opt/qnib/jobscripts/:/opt/qnib/jobscripts/
+
+compute3:
+    extends:
+        file: base.yml
+        service: compute
+    hostname: compute3
+    links:
+    - consul:consul
+    - slurmctld:slurmctld
+    - logger:logger
+    #volumes:
+    #- ${DOCKERDIR}/docker-compute/opt/qnib/jobscripts/:/opt/qnib/jobscripts/
+
+slurmd:
+    extends:
+        file: base.yml
+        service: compute
+    links:
+    - consul:consul
+    - slurmctld:slurmctld
+    - logger:logger
+    #volumes:
+    #- ${DOCKERDIR}/docker-compute/opt/qnib/jobscripts/:/opt/qnib/jobscripts/

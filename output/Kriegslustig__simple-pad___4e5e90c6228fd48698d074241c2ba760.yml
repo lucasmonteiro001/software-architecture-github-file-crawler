@@ -1,0 +1,15 @@
+version: '2'
+
+services:
+  simple_pad:
+    build: .
+    ports:
+      - 4244:80
+    links:
+      - mongo
+    restart: always
+
+  mongo:
+    image: mongo
+    restart: always
+

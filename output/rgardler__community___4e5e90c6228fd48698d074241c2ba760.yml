@@ -1,0 +1,8 @@
+interest:
+  build: interest
+  ports: 
+    - 8080:8080
+meetup:
+  build: meetup
+  ports: 
+    - 8081:8081

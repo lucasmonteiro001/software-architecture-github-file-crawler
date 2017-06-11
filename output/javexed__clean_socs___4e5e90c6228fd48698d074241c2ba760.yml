@@ -1,0 +1,46 @@
+sabnzb:
+  image: timhaak/sabnzbd
+  ports:
+    - 8080:8080
+    - 9090:9090
+  volumes:
+    - ./sabnzb:/config
+    - ./data:/data
+    - /etc/localtime:/etc/localtime:ro
+  hostname: docker
+  restart: always
+sickbeard:
+  image: timhaak/sickbeard
+  volumes:
+    - ./sickbeard:/config
+    - ./data:/data
+    - /etc/localtime:/etc/localtime:ro
+  ports: 
+    - 8081:8081
+  links:
+    - sabnzb
+  restart: always
+couchpotato:
+  image: timhaak/couchpotato
+  volumes:
+    - ./couchpotato:/config
+    - ./data:/data
+    - /etc/localtime:/etc/localtime:ro
+  ports:
+    - 5050:5050
+  links:
+    - sabnzb
+    - deluge
+  restart: always
+deluge:
+  image: jakexks/deluge-torrent-seedbox
+  ports:
+   - 8083:80
+   - 8112:8112
+   - 58846:58846
+   - 58847:58847
+   - 58847:58847/udp
+  volumes: 
+   - ./data/deluge/:/home/deluge
+   - /etc/localtime:/etc/localtime:ro
+  restart: always

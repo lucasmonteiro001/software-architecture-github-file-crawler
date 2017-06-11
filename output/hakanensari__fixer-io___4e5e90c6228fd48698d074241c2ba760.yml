@@ -1,0 +1,15 @@
+version: '2'
+services:
+  db:
+    image: postgres
+  web:
+    build: .
+    volumes:
+      - .:/app
+    ports:
+      - 8080:8080
+    environment:
+      RACK_ENV: production
+      DATABASE_URL: postgres://postgres@db/postgres
+    links:
+      - db

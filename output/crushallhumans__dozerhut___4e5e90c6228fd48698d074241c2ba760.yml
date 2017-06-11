@@ -1,0 +1,24 @@
+db:
+  image: mysql
+  ports:
+    - "3306:3306"
+  environment:
+    MYSQL_ROOT_PASSWORD: root
+    MYSQL_USER: splash
+    MYSQL_PASSWORD: splash
+    MYSQL_DATABASE: SplashCodeTest
+  volumes:
+    - "./:/docker-entrypoint-initdb.d"
+
+web:
+  build: .
+  volumes:
+    - "./html:/var/www/html"
+  links:
+    - db
+    - redis
+  ports:
+    - "8080:80"
+
+redis:
+  image: redis

@@ -1,0 +1,7 @@
+db-postgres:
+  image: postgres:9.6.2
+  environment:
+    - POSTGRES_PASSWORD:postgres
+    - POSTGRES_USER:postgres
+  ports:
+    - 5435:5432

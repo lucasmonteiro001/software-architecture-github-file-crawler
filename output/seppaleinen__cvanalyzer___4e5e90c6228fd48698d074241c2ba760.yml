@@ -1,0 +1,27 @@
+version: "2"
+
+services:
+  dropwizard:
+    restart: always
+    image: seppaleinen/dropwizard
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    volumes:
+      - /var/log/cvanalyzer/:/var/log/cvanalyzer/
+    volumes_from:
+      - elk
+    links:
+      - elk
+    depends_on:
+      - elk
+
+  elk:
+    restart: always
+    image: seppaleinen/elk
+    ports:
+      - "80:80"
+    expose:
+      - "8000"
+    volumes:
+      - /etc/pki/tls/certs/

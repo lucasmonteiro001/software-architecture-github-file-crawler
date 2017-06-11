@@ -1,0 +1,15 @@
+version: '2'
+services:
+  db:
+    image: postgres
+
+  web:
+    build: .
+    volumes:
+     - /app/public
+     - .:/app
+     - /app/node_modules
+    ports:
+      - "3000:3001"
+    links:
+      - db

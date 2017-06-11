@@ -1,0 +1,12 @@
+web:
+  build: .
+  ports:
+    - "80:3000"
+  links:
+    - mongo
+  environment:
+    - NODE_ENV=production
+    - SECRET_ENDPOINT
+
+mongo:
+  image: mongo

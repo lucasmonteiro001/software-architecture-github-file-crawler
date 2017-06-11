@@ -1,0 +1,7 @@
+pres:
+  image: bob/reveal
+  command: grunt serve
+  ports:
+    - 8000:8000
+  volumes:
+    - .:/reveal

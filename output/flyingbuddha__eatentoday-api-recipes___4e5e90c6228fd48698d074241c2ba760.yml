@@ -1,0 +1,27 @@
+version: '3'
+
+services:
+  eaten-today-api-recipes:
+    build:
+      context: .
+      dockerfile: Dockerfile.development
+
+    container_name: eaten-today-recipes
+
+    environment:
+      PORT: 80
+      NODE_ENV: development
+
+    labels:
+      API_ROUTE: '/recipes'
+      API_GID: '1337'
+
+    expose:
+      - '80'
+
+    network_mode: bridge
+
+    volumes:
+      - ./:/usr/src/app
+
+    restart: always

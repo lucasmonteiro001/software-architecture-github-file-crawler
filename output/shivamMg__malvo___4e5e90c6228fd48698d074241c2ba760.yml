@@ -1,0 +1,43 @@
+version: '2.1'
+
+services:
+    nginx:
+        image: nginx
+        command: nginx -g 'daemon off;'
+        depends_on:
+            - app
+        networks:
+            - proxy_nw
+        ports:
+            - '8000:80'
+        volumes:
+            - './data/media_root:/usr/share/nginx/media_root'
+            - './data/logs/nginx:/var/log/nginx'
+            - './data/conf/nginx.conf:/etc/nginx/nginx.conf:ro'
+    app:
+        build: .
+        command: ['./data/wait-for-it.sh', 'db:5432', '--', './docker-entrypoint.sh']
+        depends_on:
+            - db
+        env_file:
+            - './data/conf/app.env'
+        networks:
+            - proxy_nw
+            - db_nw
+        volumes:
+            - '.:/code'
+    db:
+        image: postgres
+        env_file:
+            - './data/conf/db.env'
+        networks:
+            - db_nw
+        volumes:
+            - './data/db/data:/var/lib/postgresql/data'
+            - './data/logs/postgres:/var/lib/postgresql'
+
+networks:
+    proxy_nw:
+        driver: bridge
+    db_nw:
+        driver: bridge

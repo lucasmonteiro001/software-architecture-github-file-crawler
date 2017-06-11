@@ -1,0 +1,22 @@
+memcachephp:
+  image: dockerizedrupal/memcachephp:2.0.0
+  hostname: memcachephp
+  ports:
+    - "80:80"
+    - "443:443"
+  volumes_from:
+    - memcachephp-data
+  environment:
+    - SERVER_NAME=localhost
+    - TIMEZONE=Etc/UTC
+    - TIMEOUT=300
+    - PROTOCOLS=https,http
+    - HTTP_BASIC_AUTH=Off
+    - HTTP_BASIC_AUTH_USERNAME=container
+    - HTTP_BASIC_AUTH_PASSWORD=
+memcachephp-data:
+  image: dockerizedrupal/memcachephp:2.0.0
+  hostname: memcachephp-data
+  entrypoint: ["/bin/echo", "Data-only container for memcache.php."]
+  volumes:
+    - /memcachephp

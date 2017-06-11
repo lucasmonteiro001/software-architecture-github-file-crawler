@@ -1,0 +1,14 @@
+
+version: "3"
+services:
+   sinopia:
+      build: 
+        context: .
+        args:
+            gid: 130
+            uid: 130
+      ports:
+          - 4873:4873
+      volumes:
+          - /opt/sinopia:/opt/sinopia
+      

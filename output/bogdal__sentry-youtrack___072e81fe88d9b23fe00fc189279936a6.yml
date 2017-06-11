@@ -1,0 +1,44 @@
+postgres:
+  image: postgres
+redis:
+  image: redis
+sentry-celery-beat:
+  build: ./sentry
+  environment:
+    - SENTRY_SECRET_KEY=secret
+  links:
+    - postgres
+    - redis
+  command: sentry celery beat
+sentry-celery-worker:
+  build: ./sentry
+  environment:
+    - SENTRY_SECRET_KEY=secret
+  links:
+    - postgres
+    - redis
+  command: sentry celery worker
+sentry:
+  build: ./sentry
+  environment:
+    - SENTRY_SECRET_KEY=secret
+  links:
+    - postgres
+    - redis
+    - youtrack:my.youtrack
+    - youtrack_ssl:ssl.youtrack
+  ports:
+    - "9000:9000"
+  volumes:
+    - ..:/plugin
+
+youtrack:
+  image: uniplug/youtrack
+  ports:
+   - "80:80"
+youtrack_ssl:
+  image: yajo/https-proxy
+  links:
+   - youtrack:www
+  ports:
+   - "443:443"

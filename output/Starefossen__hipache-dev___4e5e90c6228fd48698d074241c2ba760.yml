@@ -1,0 +1,31 @@
+www:
+  build: .
+  volumes:
+    - src/bin:/usr/usr/app/bin
+    - src/lib:/usr/usr/app/lib
+    - src/static:/usr/usr/app/static
+    - src/test:/usr/usr/app/test
+  links:
+    - redis
+#    - memcached
+#    - etcd
+#    - zookeeper
+  command: npm test
+  environment:
+    NODE_ENV: development
+    NO_ZOOKEEPER: true
+    NO_MEMCACHED: true
+    NO_ETCD: true
+
+redis:
+  image: redis:2.8
+
+#memcached:
+#  image: memcached:1.4
+#
+#etcd:
+#  image: quay.io/coreos/etcd:v2.0.4
+#
+#zookeeper:
+#  image: jplock/zookeeper:3.4.6
+

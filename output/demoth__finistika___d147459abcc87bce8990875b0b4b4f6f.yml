@@ -1,0 +1,11 @@
+version: "3"
+services:
+  fin-rabbit-mq:
+    labels:
+      description: "Rabbit MQ server for our needs"
+    container_name: fin-mq
+    hostname: fin-mq
+    build: fin-mq
+    ports:
+      - "15672:15672"
+      - "5672:5672"

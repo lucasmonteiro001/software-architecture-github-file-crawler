@@ -1,0 +1,14 @@
+web-server:
+  image: iitgdocker/apache:latest
+  ports:
+    - "80:80"
+    - "443:443"
+  volumes:
+    - /data/apache/conf.d:/data/conf.d
+    - /data/apache/html:/var/www/html:ro
+    - /data/apache/ssl:/etc/httpd/ssl:ro
+    - /data/apache/aide:/var/lib/aide
+    - /data/apache/log:/var/log/httpd
+  #environment:
+    #- APACHE_SERVERNAME=wingsof.chicken.com
+    - MOD_SECURITY_ENABLE=1

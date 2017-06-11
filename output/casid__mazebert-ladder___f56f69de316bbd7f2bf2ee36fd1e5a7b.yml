@@ -1,0 +1,8 @@
+mbl-db-test:
+  container_name: mbl-db-test
+  image: mbl-db:latest
+  environment:
+    - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+    - MYSQL_ROOT_PASSWORD=
+  ports:
+    - "33060:3306"

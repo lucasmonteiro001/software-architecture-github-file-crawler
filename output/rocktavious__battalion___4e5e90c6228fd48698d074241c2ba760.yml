@@ -1,0 +1,31 @@
+base:
+  build: .
+  dockerfile: Dockerfile
+  command: bash
+
+tests:
+  extends:
+    file: docker-compose.yml
+    service: base
+  command: py.test -v --capture=sys --cov-report term --cov-report html --cov-report xml --junitxml /out/TEST-all.xml --cov battalion battalion_tests
+  volumes:
+    - "$PWD/out:/out"
+
+pep8:
+  extends:
+    file: docker-compose.yml
+    service: base
+  command: flake8 --output-file=/out/flake8.txt battalion/
+  volumes:
+    - "$PWD/out:/out"
+
+release:
+  extends:
+    file: docker-compose.yml
+    service: base
+  command: python setup.py increment register sdist bdist_wheel upload
+  volumes:
+    - "~/.pypirc:/root/.pypirc"
+  environment:
+  - RELEASE_VERSION
+  - RELEASE_TYPE

@@ -1,0 +1,40 @@
+postgres_data:
+    image: busybox
+    volumes:
+        - /var/lib/postgres
+    command: /bin/sh
+
+postgres:
+    image: postgres:9.4
+    volumes_from:
+        - postgres_data
+    env_file: .env
+    expose:
+        - "5432"
+
+uwsgi:
+    build: .
+    restart: always
+    volumes:
+        - .:/app 
+        - /var/www/static
+    links:
+        - postgres
+    env_file: .env
+    command: /app/uwsgi.sh
+    expose:
+        - "4000"
+    working_dir: /app
+
+nginx:
+    image: nginx:latest
+    volumes_from:
+        - uwsgi
+    volumes:
+        - ./nginx.conf:/etc/nginx/nginx.conf:ro
+        - ./uwsgi_params.par:/etc/nginx/uwsgi_params.par:ro
+        #- ./.htpasswd:/etc/nginx/.passwd:ro
+    links:
+        - uwsgi
+    ports:
+        - "0.0.0.0:80:80"

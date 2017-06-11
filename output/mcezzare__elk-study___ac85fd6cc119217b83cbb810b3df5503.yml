@@ -1,0 +1,18 @@
+version: '2'
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    #container_name: my-rabbitmq
+    volumes:
+      - .:/var/lib/rabbitmq
+    ports:
+      - 4369:4369
+      - 5671:5671
+      - 5672:5672
+      - 15672:15672
+    environment:      
+      RABBITMQ_DEFAULT_VHOST: localhost
+      HOSTNAME: localhost
+# if you want to study only this container 
+# type docker-compose up in this folder and follow the instructions on file
+# _ELK/study/RabbitMQ-Sequence.txt

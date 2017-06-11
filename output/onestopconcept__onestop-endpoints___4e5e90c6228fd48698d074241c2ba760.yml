@@ -1,0 +1,33 @@
+endpoints:
+    build: .
+    links:
+        - mysql:db
+        - subversion:svn
+    volumes:
+        - ./data/applications-checkout:/var/onestop-endpoints/applications-checkout
+    ports:
+        - 9758:8080
+    environment:
+        ENDPOINTS_SECRET: secret
+        ENDPOINTS_JDBC_URL: jdbc:mysql://db/onestop_endpoints?user=root&password=passw0rd&useUnicode=true&characterEncoding=UTF-8
+        ENDPOINTS_DISPLAY_EXPECTED_HASH: "true"
+        ENDPOINTS_APPLICATION_REPOSITORY: http://svn/svn/docker
+
+mysql:
+    image: mysql:5.5
+    environment:
+        MYSQL_DATABASE: onestop_endpoints
+        MYSQL_ROOT_PASSWORD: passw0rd
+    volumes:
+        - ./migration:/docker-entrypoint-initdb.d
+        - ./data/mysql:/var/lib/mysql
+    ports:
+        - 127.0.0.1:9759:3306
+
+subversion:
+    image: marvambass/subversion
+    volumes:
+        - ./data/svn:/var/local/svn
+        - ./data/svn-backup:/var/svn-backup
+    ports:
+        - 18080:80

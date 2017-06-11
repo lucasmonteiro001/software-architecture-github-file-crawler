@@ -1,0 +1,10 @@
+version: '2'
+
+services:
+  jekyll:
+    image: jekyll/jekyll:pages
+    command: jekyll serve -w --config=_config.yml,_config-dev.yml --force_polling --port=4004
+    ports:
+      - 4004:4004
+    volumes:
+      - .:/srv/jekyll

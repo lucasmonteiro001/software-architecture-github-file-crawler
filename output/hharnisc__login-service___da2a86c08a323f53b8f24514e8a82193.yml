@@ -1,0 +1,37 @@
+version: '2'
+
+services:
+  integration-tester:
+    build: .
+    environment:
+      - JWT_SECRET=secret
+    links:
+      - login
+  login:
+    build: ../..
+    command: npm start
+    links:
+      - auth
+      - user
+    expose:
+      - "8080"
+  auth:
+    image: hharnisc/auth
+    command: npm start
+    environment:
+      - JWT_SECRET=secret
+    links:
+      - rethinkdb
+    expose:
+      - "8080"
+  user:
+    image: hharnisc/user
+    command: npm start
+    links:
+      - rethinkdb
+    expose:
+      - "8080"
+  rethinkdb:
+    image: rethinkdb
+    expose:
+      - "28015"

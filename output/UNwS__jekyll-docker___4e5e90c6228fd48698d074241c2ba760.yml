@@ -1,0 +1,7 @@
+# This is test file
+web:  
+  image: unws/gh-pages:bleeding
+  volumes:
+    - /tmp/gh-pages:/html
+  ports:
+    - "4000:4000"

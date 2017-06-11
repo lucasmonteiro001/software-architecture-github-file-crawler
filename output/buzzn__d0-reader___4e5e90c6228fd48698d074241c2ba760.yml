@@ -1,0 +1,14 @@
+version: '2'
+
+
+services:
+
+  app:
+    build:
+      context: .
+    restart: always
+    devices:
+      - '/dev/ttyUSB0'
+    environment:
+      - MQTT_BROKER_HOST=mqtt://iot.eclipse.org
+      - MQTT_TOPIC=metering

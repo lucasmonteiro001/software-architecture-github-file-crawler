@@ -1,0 +1,28 @@
+version: '2'
+services:
+  web:
+    restart: on-failure:5
+    build: ./web
+    expose:
+      - "5000"
+    command: /usr/local/bin/gunicorn -w 2 -b :8000 run:server
+    env_file: .env
+    volumes:
+      - ./web/data:/usr/src/app/web/data
+      - /var/lib/postgresql/data:/var/lib/postgresql/data
+    links:
+      - postgres:postgres
+
+  nginx:
+    build: ./nginx/
+    ports:
+      - "80:80"
+    links:
+      - web:web
+
+  postgres:
+    image: postgres:9.5
+    volumes:
+      - /var/lib/postgresql/data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"

@@ -1,0 +1,11 @@
+tcp-connect:
+  build: .
+  links:
+    - tcp-server
+  command: npm test
+
+tcp-server:
+  image: gophernet/netcat
+  expose:
+    - "9000"
+  command: -lk -vv -p 9000 -e '/bin/sh'

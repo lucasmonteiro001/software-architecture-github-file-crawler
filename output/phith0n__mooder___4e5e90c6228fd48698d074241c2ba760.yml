@@ -1,0 +1,24 @@
+version: '2'
+services:
+ web:
+   build: .
+   command: --url-alias /media /data
+   ports:
+    - "8000:80"
+   depends_on:
+    - db
+   env_file:
+    - .env
+   volumes:
+    - file-data:/data
+ db:
+   image: postgres
+   environment:
+    - POSTGRES_PASSWORD=postgres
+   volumes:
+    - db-data:/var/lib/postgresql/data
+volumes:
+  file-data:
+    driver: local
+  db-data:
+    driver: local

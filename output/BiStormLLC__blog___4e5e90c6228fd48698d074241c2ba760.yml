@@ -1,0 +1,40 @@
+version: '3'
+
+services:
+    
+  db:
+    image: mariadb
+    volumes:
+     - data:/var/lib/mysql
+     - ./data/dump.sql:/docker-entrypoint-initdb.d/dump.sql
+    restart: always
+    container_name: model
+    environment:
+     MYSQL_ROOT_PASSWORD: wordpress
+     MYSQL_DATABASE: wp_blog
+     MYSQL_PASSWORD: wordpress
+     MYSQL_USER: root
+    ports:
+     - 3306:3306
+    
+  wordpress:
+    build: .
+    image: bistormllc/blog
+    container_name: view_controller
+    volumes:
+     - ./media:/media
+     - ./wp:/var/www/html
+    restart: always
+    ports: 
+     - 8301:8301
+    depends_on: 
+     - db
+    environment:
+     WORDPRESS_DB_HOST: db:3306
+     WORDPRESS_DB_PASSWORD: wordpress
+     WORDPRESS_DB_USER: root
+     WORDPRESS_WP_CACHE: 'true'
+     WORDPRESS_DB_NAME: wp_blog 
+     
+volumes:
+    data:

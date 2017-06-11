@@ -1,0 +1,20 @@
+version: '2'
+
+networks:
+  default:
+    driver: bridge
+
+services:
+  jekyll:
+    environment:
+      - FORCE_BUNDLER
+      - FORCE_CACHE
+    image: 'jekyll/jekyll:builder'
+    ports:
+      - '4000:4000'
+    volumes:
+      - ./:/srv/jekyll
+  s3_website:
+    build: .
+    volumes:
+      - ./_site:/srv/s3_website/_site

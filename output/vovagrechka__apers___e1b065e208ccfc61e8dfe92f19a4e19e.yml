@@ -1,0 +1,19 @@
+#=======================================================================
+# APERS
+#
+# (C) Copyright 2015-2016 Vladimir Grechka
+#=======================================================================
+
+version: '2'
+
+services:
+
+    apers-build:
+        build: ./node5
+        ports:
+            - "8051:3000"
+        volumes:
+            - /tmp:/tmp
+            - ../../..:/apers
+            - /home/vagrant/foundation:/foundation  # TODO:vgrechka Use environment variable
+

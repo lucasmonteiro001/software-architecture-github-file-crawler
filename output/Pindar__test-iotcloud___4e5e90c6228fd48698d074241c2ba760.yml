@@ -1,0 +1,35 @@
+--
+kafka:
+  image: spotify/kafka
+  ports:
+    - "2181:2181"
+    - "9092:9092"
+  env_file: .env
+
+influxdb:
+  image: tutum/influxdb
+  ports:
+    - "8083:8083"
+    - "8086:8086"
+    - "8090"
+    - "8099"
+  environment:
+    - PRE_CREATE_DB=db1
+
+grafana:
+  image: grafana/grafana
+  ports:
+    - "3000:3000"
+  links:
+    - influxdb
+
+testwriteservice:
+  image: pindar/test-write-service
+  links:
+    - influxdb
+    - kafka
+
+testingress:
+  image: pindar/test-ingress
+  links:
+    - kafka

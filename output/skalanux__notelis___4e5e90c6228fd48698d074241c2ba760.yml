@@ -1,0 +1,15 @@
+web:
+    image: codenvy/angular-yeoman
+    command: python -m SimpleHTTPServer 9005
+    volumes:
+        - ./src:/home/user/application
+    ports:
+        - "3000:3000"
+        - "9000:9000"
+    net:
+        host
+couchdb:
+    image: klaemo/couchdb
+    ports:
+        - "5984:5984"
+

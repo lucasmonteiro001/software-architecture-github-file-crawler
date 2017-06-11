@@ -1,0 +1,48 @@
+version: '2'
+services:
+    prometheus:
+        restart: always
+        build: ./prometheus
+        volumes:
+            - prometheus_data:/prometheus
+        command:
+            - '-config.file=/etc/prometheus/prometheus.yml'
+            - '-alertmanager.url=http://alertmanager:9093'
+    node-exporter:
+        restart: always
+        image: prom/node-exporter:0.12.0rc1
+    grafana:
+        restart: always
+        image: grafana/grafana:3.0.1
+        env_file:
+            - 'grafana/env'
+        volumes:
+            - grafana_data:/var/lib/grafana
+        depends_on:
+            - prometheus
+    alertmanager:
+        restart: always
+        build: ./alertmanager
+        command:
+            - '-config.file=/alertmanager.yml'
+    ssl:
+        restart: always
+        image: opencapacity/lets-nginx:1.3
+        env_file:
+            - 'ssl/env'
+        environment:
+            - UPSTREAM=grafana:3000
+        ports:
+            - "443:443"
+        volumes:
+            - letsencrypt:/etc/letsencrypt
+            - letsencrypt_backups:/var/lib/letsencrypt
+            - dhparam_cache:/cache
+        depends_on:
+            - grafana
+volumes:
+    prometheus_data: {}
+    grafana_data: {}
+    letsencrypt: {}
+    letsencrypt_backups: {}
+    dhparam_cache: {}

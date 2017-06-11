@@ -1,0 +1,80 @@
+version: '2'
+
+services:
+    db:
+        build: ./mysql-minimal
+        mem_limit: 128M
+        cpu_quota: 50000
+        image: lrtpyn/mysql-minimal:5.7.17
+        container_name: wordpress-db
+        expose: 
+            - 3306
+        volumes:
+            - wordpress-db-data:/var/lib/mysql
+        environment:
+            MYSQL_ROOT_PASSWORD: password
+            MYSQL_DATABASE: wordpress-db
+            MYSQL_USER: wordpress
+            MYSQL_PASSWORD: password
+        networks: 
+            - back
+
+    wordpress:
+        build: ./wordpress-minimal
+        mem_limit: 256M
+        cpu_quota: 50000
+        image: lrtpyn/wordpress-minimal:4.7.2-php7.1-apache
+        container_name: wordpress
+        expose:
+            - 80
+        volumes:
+            - wordpress-data:/var/www/html/wp-content
+        environment:
+            VIRTUAL_HOST: ${VIRTUAL_HOST}   # Required for nginx proxy : proxied container
+            HTTPS_METHOD: redirect          # Required for nginx proxy : serve traffic in SSL mode with redirecting to SSL, enable HSTS
+            WORDPRESS_DB_HOST: db:3306
+            WORDPRESS_TABLE_PREFIX: wp_
+            WORDPRESS_DB_NAME: wordpress-db
+            WORDPRESS_DB_USER: wordpress
+            WORDPRESS_DB_PASSWORD: password
+            WORDPRESS_AUTH_KEY: '+N#E2dqz)K3[@&y@89  &+f-)m4bIPVhCVm|,cX8UQ_F{Ar/0/F6V{DV.1ZGw9rh'
+            WORDPRESS_SECURE_AUTH_KEY: ')gC``hq] VO13T14gt3<)K}o%2IDu`(a_B!x`G@`/6&Mp|C `iHsPXR+eyx#]YYk'
+            WORDPRESS_LOGGED_IN_KEY: '^kA!Q#&*j`/Se#^TPiA;)=2VZBXO*4 4<cFO|*XxV|}JFzYo_jM=`(:B<|VJX=wd'
+            WORDPRESS_NONCE_KEY: '^kA!Q#&*j`/Se#^TPiA;)=2VZBXO*4 4<cFO|*XxV|}JFzYo_jM=`(:B<|VJX=wd'
+            WORDPRESS_AUTH_SALT: 'xV@YV5.]UQ sAx>rC6e]xoj}J[FE>x^VuD=8GP+wxkGaSWAdDR{e(f<w:|&v|pHx'
+            WORDPRESS_SECURE_AUTH_SALT: 'woGS}4qCVeMJsYnWUA!Y-,=!QhK~-x;><m!6Lk+-!f<c|dlt|9kaf2xo>c3k|{+o'
+            WORDPRESS_LOGGED_IN_SALT: '=KU>/A!f@1v B>[vK%t4.M(_&>Pgnz.;YZIU8.It*Qw-E!U?YCHk,o!2mRx1+`Rv'
+            WORDPRESS_NONCE_SALT: 'BFRB0#aktbN-u[B7)Z+6*?71-AE*5f/(CCLk_y+*_Y+A/!|.5xQC~xW6oId59TK~'
+        depends_on:
+            - db
+        networks: 
+            - back
+            - front
+
+    nginx:
+        mem_limit: 64M
+        cpu_quota: 50000
+        image: jwilder/nginx-proxy
+        container_name: wordpress-nginx
+        ports:
+            - 80:80
+            - 443:443
+        volumes:
+            - ./nginx/my_proxy.conf:/etc/nginx/conf.d/my_proxy.conf:ro
+            - /var/run/docker.sock:/tmp/docker.sock:ro
+            - ${CERTS_PATH}:/etc/nginx/certs
+        depends_on: 
+            - wordpress
+        networks: 
+            - front
+
+volumes:
+    wordpress-db-data:
+        driver: local
+    wordpress-data:
+        driver: local
+
+networks:
+    back:
+    front:
+    

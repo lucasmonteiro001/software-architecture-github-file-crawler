@@ -1,0 +1,9 @@
+version: '2'
+
+services:
+  ytd:
+    build:
+      context: .
+    container_name: ytd
+    volumes:
+      - .:/app

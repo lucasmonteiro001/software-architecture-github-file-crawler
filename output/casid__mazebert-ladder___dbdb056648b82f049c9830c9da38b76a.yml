@@ -1,0 +1,19 @@
+mbl-db-debug:
+  container_name: mbl-db-debug
+  image: mbl-db:latest
+  environment:
+    - MYSQL_ROOT_PASSWORD=development
+
+mbl-debug:
+  container_name: mbl-debug
+  image: tomcat:8.0.30-jre8
+  environment:
+    - JPDA_ADDRESS=8000
+    - JPDA_TRANSPORT=dt_socket
+    - MAZEBERT_SETTINGS_FILE=/opt/mazebert/settings.json
+  command: catalina.sh jpda run
+  links:
+    - mbl-db-debug:database
+  ports:
+    - "8080:8080"
+    - "8000:8000"

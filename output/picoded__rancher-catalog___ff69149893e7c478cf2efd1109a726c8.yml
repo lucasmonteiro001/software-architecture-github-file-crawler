@@ -1,0 +1,36 @@
+#
+# Docker container definition
+#
+version: '2'
+services:
+  #
+  # Gitlab data
+  #
+  gitlab-data:
+    labels:
+      io.rancher.container.start_once: 'true'
+      io.rancher.container.hostname_override: container_name
+      io.rancher.scheduler.affinity:host_label: ${gitlab_label}=true
+    entrypoint:
+    - /bin/true
+    hostname: gitlab-data
+    image: gitlab/gitlab-ce:latest
+    volumes:
+    - /etc/gitlab
+    - /var/log/gitlab
+    - /var/opt/gitlab
+  #
+  # Gitlab server
+  #
+  gitlab-server:
+    labels:
+      io.rancher.sidekicks: gitlab-data
+      io.rancher.container.pull_image: always
+      io.rancher.scheduler.affinity:host_label: ${gitlab_label}=true
+    tty: true
+    hostname: ${gitlab_hostname}
+    image: gitlab/gitlab-ce:latest
+    volumes_from:
+    - gitlab-data
+    stdin_open: true
+    mem_limit: ${gitlab_mem}

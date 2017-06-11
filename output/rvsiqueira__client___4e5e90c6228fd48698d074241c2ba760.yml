@@ -1,0 +1,18 @@
+---
+version: "2"
+
+services:
+  client:
+    build:
+      context: ./build
+      args:
+        backend_service_name: bob-api
+    environment:
+      SERVICE_80_NAME: bob
+      SERVICE_TAGS: public
+      POSTGRESQL_DB_NAME: bob
+    network_mode: bridge
+    dns: 172.17.0.1
+    dns_search: service.consul.
+    ports:
+      - 9000:80

@@ -1,0 +1,16 @@
+db:
+  image: mysql
+  ports:
+    - "3306"
+  env_file: ".env-db"
+
+web:
+  build: .
+  command: bash -c "bundle exec rake db:create db:migrate && bundle exec ruby toopaste.rb -p 3000"
+  volumes:
+    - .:home/toopaste
+  ports:
+    - "3000:3000"
+  links:
+    - db
+  env_file: ".env-web"

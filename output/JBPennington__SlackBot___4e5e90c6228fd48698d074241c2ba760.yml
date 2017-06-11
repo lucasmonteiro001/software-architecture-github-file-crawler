@@ -1,0 +1,42 @@
+nginx:
+    restart: always
+    build: ./nginx
+    links:
+        - bot1:bot1
+        - bot2:bot2
+        - bot3:bot3
+        - bot4:bot4
+    ports:
+        - "80:80"
+bot1:
+    build: ./Bot
+    dockerfile: ./Dockerfile
+    links:
+        - redis
+    ports:
+        - "5000"
+bot2:
+    build: ./Bot
+    dockerfile: ./Dockerfile
+    links:
+        - redis
+    ports:
+        - "5000"
+bot3:
+    build: ./Bot
+    dockerfile: ./Dockerfile
+    links:
+        - redis
+    ports:
+        - "5000"
+bot4:
+    build: ./Bot
+    dockerfile: ./Dockerfile
+    links:
+        - redis
+    ports:
+        - "5000"
+redis:
+    build: ./Redis
+    ports:
+        - "6379"

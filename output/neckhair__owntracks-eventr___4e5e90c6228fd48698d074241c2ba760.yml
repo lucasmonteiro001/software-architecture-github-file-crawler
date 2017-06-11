@@ -1,0 +1,9 @@
+version: '2'
+services:
+  mqtt:
+    build: docker/.
+    ports:
+      - 8883:8883
+    volumes:
+      - .:/tmp
+      - ./docker/mosquitto.conf:/mosquitto/config/mosquitto.conf

@@ -1,0 +1,14 @@
+version: '3.0'
+services:
+  web:
+    image: andreani/nginx
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - /home/cmtedouglas/nginx-encrypt:/var/www
+      - /home/cmtedouglas/nginx-encrypt/sites-available:/etc/nginx/sites-enabled
+      - /home/cmtedouglas/nginx-encrypt/log:/var/log/nginx
+      - /home/cmtedouglas/nginx-encrypt/snippets:/etc/nginx/snippets
+      - /etc/letsencrypt:/etc/letsencrypt
+      - /home/cmtedouglas/nginx-encrypt/sslcerts:/etc/ssl/certs

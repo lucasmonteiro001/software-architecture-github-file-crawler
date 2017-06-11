@@ -1,0 +1,11 @@
+version: '2'
+services:
+  web:
+    image: 'starefossen/github-pages:latest'
+    ports:
+      - '4000:4000'
+    volumes:
+      - ./:/usr/src/app
+networks:
+  default:
+    driver: bridge

@@ -1,0 +1,7 @@
+bot:
+  build: .
+  dockerfile: Dockerfile.bot
+  links:
+    - redis
+redis:
+  image: redis

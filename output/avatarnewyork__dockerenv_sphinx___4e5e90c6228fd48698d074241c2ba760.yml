@@ -1,0 +1,14 @@
+sphinx:
+  build: .
+  ports:
+    - "9366:9306"
+  links:
+    - db
+  volumes:
+    - "sphinxsearch:/etc/sphinx"
+db:
+  image: avatarnewyork/dockerenv-mysql:mysql50
+  volumes:
+    - /var/mysql/sphinxmysql:/var/lib/mysql
+  ports:
+    - "3366:3306"

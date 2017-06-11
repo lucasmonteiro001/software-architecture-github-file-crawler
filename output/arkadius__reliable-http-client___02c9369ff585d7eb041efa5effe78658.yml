@@ -1,0 +1,13 @@
+rabbitmq:
+  image: glopart/rabbitmq:latest
+
+sampleecho:
+  image: arkadius/sampleecho:0.4.0
+
+sampleapp:
+  image: arkadius/sampleapp:0.4.0
+  links:
+    - rabbitmq
+    - sampleecho
+  ports:
+    - "8081:8081"

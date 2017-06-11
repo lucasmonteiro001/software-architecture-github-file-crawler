@@ -1,0 +1,14 @@
+transactor:
+  build: ./transactor
+  ports: 
+    - "4334:4334"
+    - "4335:4335"
+  volumes:
+    - ./data:/data/datomic/data/
+
+bot:
+  build: .
+  env_file: .env
+  command: lein run
+  links:
+    - transactor

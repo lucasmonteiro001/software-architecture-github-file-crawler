@@ -1,0 +1,34 @@
+version: '2'
+
+services:
+  standalone:
+    image: starkandwayne/consul:edge
+    command: "start starkandwayne/consul"
+    environment:
+      HAB_CONSUL: |
+        bootstrap_expect=1
+  consul1:
+    image: starkandwayne/consul:edge
+    command: "start starkandwayne/consul --group cluster --peer standalone"
+    environment:
+      HAB_CONSUL: |
+        bootstrap_expect=3
+  consul2:
+    image: starkandwayne/consul:edge
+    command: "start starkandwayne/consul --group cluster --peer standalone"
+    environment:
+      HAB_CONSUL: |
+        bootstrap_expect=3
+  consul3:
+    image: starkandwayne/consul:edge
+    command: "start starkandwayne/consul --group cluster --peer standalone"
+    environment:
+      HAB_CONSUL: |
+        bootstrap_expect=3
+  tests:
+    image: starkandwayne-consul-tests
+    build: ./
+    environment:
+      STANDALONE_HOST: "standalone"
+      CLUSTER_HOST: "consul1"
+      CONSUL_PORT: "4443"

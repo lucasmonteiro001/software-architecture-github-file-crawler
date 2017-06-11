@@ -1,0 +1,10 @@
+version: '2'
+services:
+    eclipse-neon:
+        image: eclipse:neon
+        container_name: eclipse-neon
+        environment:
+            - DISPLAY=:0
+        volumes:
+            - /tmp/.X11-unix:/tmp/.X11-unix
+            - ~/volumes/eclipse/workspace:/home/developer/workspace

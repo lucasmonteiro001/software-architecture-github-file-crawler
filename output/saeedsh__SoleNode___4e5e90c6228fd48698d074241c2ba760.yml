@@ -1,0 +1,21 @@
+version: '2'
+services:
+  mongodb:
+    image: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - /data/mongodb:/data/db
+
+  solnode:
+    image: sdshariati/solenode:latest
+    environment:
+    - _DB_HOST=mongodb
+    - _KAFKA_PROXY_ADDRESS=http://service.solentech.com.br:8082/topics/SOLENLOG-ACID
+    - _SERVER_NAME=ACID1
+    - _SCHEMA_ID=1
+    - _TAGS_TTL_HOURS=720
+    ports:
+      - "9000:9000"
+    links:
+      - mongodb:mongodb

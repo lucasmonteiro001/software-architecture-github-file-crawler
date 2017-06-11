@@ -1,0 +1,55 @@
+bind:
+  build: ./images/bind9/
+  hostname: ns1
+  domainname: delransolutions.com
+  ports:
+   - "53:53/udp"
+   - "53:53/tcp"
+  volumes:
+   - ./vols/bind9/:/etc/bind/keys/:ro
+   - /dev/urandom:/dev/random
+
+httpd-proxy:
+  build: ./images/httpd-proxy/
+  links:
+   - idp:idp
+   - ldap:ldap
+   - sp:sp
+   - phpcas:phpcas
+  ports:
+   - "80:80"
+   - "443:443"
+  volumes:
+   - ./vols/httpd-proxy/certificates:/etc/httpd/ssl/:ro
+
+idp:
+  build: ./images/shibboleth-idp/
+  environment:
+   - JETTY_MAX_HEAP=64m
+  ports:
+   - "8443:8443"
+  volumes:
+   - ./vols/shibboleth-idp/credentials:/opt/shibboleth-idp/credentials/:ro
+   - ./vols/shibboleth-idp/ext-conf:/opt/shibboleth-idp/ext-conf/:ro
+  links:
+   - ldap:ldap
+#  mem_limit: 256M
+
+ldap:
+  build: ./images/389ds/
+  expose: 
+   - "389"
+
+sp:
+  build: ./images/httpd-sp/ 
+  expose: 
+   - "443"
+  volumes:
+   - ./vols/httpd-sp/keys:/etc/shibboleth/keys/:ro
+
+phpcas:
+  build: ./images/httpd-phpcas/ 
+  #volumes:
+  # - ./vols/httpd-phpcas/keys:/etc/shibboleth/keys/:ro
+  extra_hosts:
+    secure.delransolutions.com: 192.168.99.100

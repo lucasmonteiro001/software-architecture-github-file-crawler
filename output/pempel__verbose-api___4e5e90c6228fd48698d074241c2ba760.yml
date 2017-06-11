@@ -1,0 +1,14 @@
+app:
+  build: "."
+  dockerfile: "dockerfile"
+  ports:
+    - "3000:3000"
+  links:
+    - "db"
+  volumes:
+    - ".:/var/www/verbose-api"
+  env_file:
+    - "env.development"
+
+db:
+  image: "mongo:3.0.7"

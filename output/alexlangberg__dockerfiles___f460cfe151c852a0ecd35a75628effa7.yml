@@ -1,0 +1,25 @@
+debian:
+  build: ../debian-jessie
+node:
+  build: ../node
+storage:
+  build: ../storage
+mediasampler:
+  build: .
+  environment:
+      - HOSTNAME
+  env_file: env
+  restart: always
+  links:
+    - storage
+  volumes_from:
+    - storage
+nginx:
+  build: ../nginx-mediasampler
+  restart: always
+  links:
+    - storage
+  volumes_from:
+    - storage
+  ports:
+    - "7979:80"

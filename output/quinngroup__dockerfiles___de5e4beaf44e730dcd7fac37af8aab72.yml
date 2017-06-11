@@ -1,0 +1,17 @@
+version: "2"
+
+services:
+  scheduler:
+    image: magsol/distributed-dask:latest
+    ports:
+      - "8786:8786"
+      - "8787:8787"
+      - "9786:9786"
+    command: start-scheduler.sh
+    container_name: distributed_scheduler
+
+  worker:
+    image: magsol/distributed-dask:latest
+    command: start-worker.sh
+    depends_on:
+      - scheduler

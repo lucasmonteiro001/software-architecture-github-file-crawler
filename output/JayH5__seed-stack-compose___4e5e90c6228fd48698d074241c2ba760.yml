@@ -1,0 +1,37 @@
+# Set up a zookeeper, mesos and marathon "cluster"
+# Adapted from https://github.com/bobrik/mesos-compose
+zookeeper:
+  image: praekelt/zookeeper
+  ports:
+   - 2181:2181
+  environment:
+    ZK_CONFIG: tickTime=2000,initLimit=10,syncLimit=5,maxClientCnxns=128,forceSync=no,clientPort=2181
+    ZK_ID: 1
+
+master:
+  image: praekelt/mesos-master
+  net: host
+  environment:
+    MESOS_IP: 127.0.0.1
+    MESOS_ZK: zk://127.0.0.1:2181/mesos
+    MESOS_QUORUM: 1
+
+slave1:
+  image: praekelt/mesos-slave
+  net: host
+  pid: host
+  environment:
+    MESOS_IP: 127.0.0.1
+    MESOS_MASTER: zk://127.0.0.1:2181/mesos
+    MESOS_CONTAINERIZERS: docker
+    MESOS_PORT: 5051
+  volumes:
+    - /sys/fs/cgroup:/sys/fs/cgroup
+    - /var/run/docker.sock:/var/run/docker.sock
+
+marathon:
+  image: praekelt/marathon
+  net: host
+  environment:
+    MARATHON_MASTER: zk://127.0.0.1:2181/mesos
+    MARATHON_ZK: zk://127.0.0.1:2181/marathon

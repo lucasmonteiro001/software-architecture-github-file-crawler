@@ -1,0 +1,125 @@
+version: '2'
+
+networks:
+  konfettiNetwork:
+    external: false
+
+volumes:
+  konfettiDb:
+    external: false
+
+services:
+  konfettiapi:
+    build: .
+    # image: konfetti/api
+    container_name: konfettiApi
+    restart: unless-stopped
+    expose:
+      - "8280"
+    networks:
+      - konfettiNetwork
+    depends_on:
+      - database
+    volumes:
+      - /konfetti/logs:/logs
+      - ./konfetti/config:/konfetti/config
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    env_file:
+      - /konfetti/config/api.env
+
+  konfettiapp:
+    build: ../konfetti-app/
+#    image: konfettiapp/app
+    container_name: konfettiApp
+    restart: unless-stopped
+    expose:
+      - "80"
+    networks:
+      - konfettiNetwork
+    depends_on:
+      - konfettiapi
+
+  konfettiadmin:
+    # image: konfetti/admin
+    build: ../konfetti-admin
+    container_name: konfettiAdmin
+    restart: unless-stopped
+    expose:
+      - "80"
+    networks:
+      - konfettiNetwork
+    depends_on:
+      - konfettiapi
+
+  konfetticoupongenerator:
+    build: ../konfetti-coupongenerator/
+#    image: konfetti/couponservice
+    container_name: konfettiCouponService
+    restart: unless-stopped
+    expose:
+      - "2342"
+    networks:
+      - konfettiNetwork
+
+#  konfettiBootAdmin:
+#    image: konfetti/spring-boot-admin
+#    container_name: konfettiBootAdmin
+#    restart: unless-stopped
+#    expose:
+#      - "8180"
+#    networks:
+#      - konfettiNetwork
+#    env_file:
+#      - /konfetti/config/spring-boot-admin.env
+
+  database:
+    image: mysql:5.7.12
+    container_name: konfettiDb
+    restart: unless-stopped
+#    ports:
+#      - "3306"
+    networks:
+      - konfettiNetwork
+    environment:
+      MYSQL_ROOT_PASSWORD: rootPassword
+      MYSQL_DATABASE: konfetti
+      MYSQL_USER: konfetti
+      MYSQL_PASSWORD: konfetti
+    volumes:
+      - konfettiDb:/var/lib/mysql
+#    env_file:
+#      - /konfetti/config/database.env
+  konfettihomepage:
+    # image: konfettiapp/homepage
+    build: ../konfetti-homepage
+    container_name: konfettiHomepage
+    expose:
+      - "80"
+    networks:
+      - konfettiNetwork
+
+  konfettiloadbalancer:
+    image: nginx
+    ports:
+      - "80:80" # legacy
+      - "443:443" # ssl
+
+      - "8280:8280" #api has dedicated port
+#      - "2001:80" #app moved to :443/
+#      - "8080:80" #admin moved to :443/admin
+#      - "2342:2342" #coupon-generator moved to /coupongenerator
+#      - "8180:8180" #bootAdmin moved to :443/bootadmin
+#      - "3307:3306" #database only inside compose
+    links:
+      - "konfettiapi:konfettiapi"
+      - "konfettiapp:konfettiapp"
+      - "konfettiadmin:konfettiadmin"
+      - "konfetticoupongenerator:konfetticoupongenerator"
+      # - "konfettiBootAdmin:konfettiBootAdmin"
+      - "konfettihomepage:konfettihomepage"
+    volumes:
+      - ./nginx:/etc/nginx
+    container_name: konfettiLoadbalancer
+    networks:
+      - konfettiNetwork

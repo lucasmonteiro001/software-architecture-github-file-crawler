@@ -1,0 +1,67 @@
+version: '2'
+services:
+  ereol:
+    build: './private/docker/web'
+    ports:
+      - 80
+    links:
+      - db-ereol
+    volumes:
+      - './:/var/www/html'
+      - './private/docker/sites/ereol:/var/www/html/sites/default'
+    environment:
+      MYSQL_HOST: db-ereol
+      MYSQL_DATABASE: drupal
+      MYSQL_USER: drupal
+      MYSQL_PASSWORD: drupal
+
+  ego:
+    build: './private/docker/web'
+    ports:
+      - 80
+    links:
+      - db-ereol
+    volumes:
+      - './:/var/www/html'
+      - './private/docker/sites/ego:/var/www/html/sites/default'
+    environment:
+      MYSQL_HOST: db-ego
+      MYSQL_DATABASE: drupal
+      MYSQL_USER: drupal
+      MYSQL_PASSWORD: drupal
+
+  db-ereol:
+    image: mariadb:5
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: drupal
+      MYSQL_USER: drupal
+      MYSQL_PASSWORD: drupal
+    volumes:
+      - './private/docker/db-init/ereol:/docker-entrypoint-initdb.d'
+
+  db-ego:
+    image: mariadb:5
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: drupal
+      MYSQL_USER: drupal
+      MYSQL_PASSWORD: drupal
+    volumes:
+      - './private/docker/db-init/ego:/docker-entrypoint-initdb.d'
+
+  # eReolen theme
+  ereol-gulp:
+    image: node:alpine
+    volumes:
+      - './sites/all/themes/brin:/src'
+    working_dir: /src
+    command: npm start
+
+  # eReolen Go theme
+  ego-gulp:
+    image: node:alpine
+    volumes:
+      - './sites/all/themes/wille:/src'
+    working_dir: /src
+    command: npm start

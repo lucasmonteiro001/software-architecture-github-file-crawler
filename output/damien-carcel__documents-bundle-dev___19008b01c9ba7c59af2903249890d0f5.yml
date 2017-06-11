@@ -1,0 +1,44 @@
+version: '2'
+
+services:
+  fpm:
+    image: carcel/fpm:7.1
+    depends_on:
+      - mysql
+    environment:
+      PHP_IDE_CONFIG: 'serverName=documents-bundle-cli'
+      PHP_XDEBUG_ENABLED: 0
+      XDEBUG_CONFIG: 'remote_host=xxx.xxx.xxx.xxx'
+    user: docker
+    volumes:
+      - ./:/home/docker/symfony
+      - ~/.composer:/home/docker/.composer
+    working_dir: /home/docker/symfony
+    networks:
+      - documents-bundle
+
+  nginx:
+    image: carcel/nginx
+    depends_on:
+      - fpm
+    environment:
+      PHP_IDE_CONFIG: 'serverName=documents-bundle'
+    ports:
+      - '8080:80'
+    volumes:
+      - ./:/home/docker/symfony
+    networks:
+      - documents-bundle
+
+  mysql:
+    image: mysql:5.7
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_USER=documents_bundle
+      - MYSQL_PASSWORD=documents_bundle
+      - MYSQL_DATABASE=documents_bundle
+    networks:
+      - documents-bundle
+
+networks:
+  documents-bundle: ~

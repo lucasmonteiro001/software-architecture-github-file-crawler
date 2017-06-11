@@ -1,0 +1,70 @@
+#docker run -d -p 9000:9000 --privileged -v /var/run/docker.sock:/var/run/docker.sock dockerui/dockerui
+#dockerui:
+#  image: dockerui/dockerui
+#  ports:
+#   - "9000:9000"
+#  volumes:
+#   - /var/run/docker.sock:/var/run/docker.sock
+#  privileged: true
+
+#docker run -e USERNAME=ooiui -e PASS=ooiui -d --name ooiuidb -v $HOME/postgres_data:/var/lib/postgresql oceanzus/docker_postgis
+ooiuidb:
+  restart: always
+  image: oceanzus/docker_postgis
+  volumes:
+   - $HOME/postgres_data:/var/lib/postgresql
+  environment:
+    USERNAME: ooiui
+    PASS: ooiui
+  ports:
+   - "5432:5432"
+  expose:
+   - "5432"
+
+muframe:
+  restart: always
+  image: oceanzus/muframe
+  volumes:
+   - $HOME/muframe_data:$HOME/muframe_data
+  environment:
+    USERNAME: ooiui
+    PASS: ooiui
+  ports:
+   - "7090:7090"
+  expose:
+   - "7090"
+
+#docker run -e HOST_IP=0.0.0.0 -e DB_PORT=5432 -e DB_USER=ooiui -e DB_PASS=ooiui -e DB_HOST=ooiuidb -e DB_NAME=ooiuidev -e DB_RESET=true -d --name ooiuiservices --link ooiuidb:ooiuidb oceanzus/ooi-ui-services-deploy
+ooiuiservices:
+  restart: always
+  image: oceanzus/ooi-ui-services
+  ports:
+   - "4000:4000"
+  expose:
+   - "4000"
+  environment:
+    HOST_IP: 0.0.0.0
+    DB_PORT: 5432
+    DB_USER: ooiui
+    DB_PASS: ooiui
+    DB_HOST: ooiuidb
+    DB_NAME: ooiui
+    DB_RESET: true
+    DB_SCHEMA: ooiui
+    DEFAULT_ADMIN_USERNAME: admin
+    DEFAULT_ADMIN_PASSWORD: password
+    DEPLOYMENT_SCENARIO: PRODUCTION
+    SECRET_KEY: 'ccdf5de08ac74855bda3e7e309d871e5'
+    UFRAME_URL: 'http://d3b.ooi.rutgers.edu:12575'
+    UFRAME_URL_BASE: '/sensor/inv'
+    UFRAME_DATA_REQUEST_LIMIT: 2880
+    UFRAME_ASSETS_URL: 'http://d3b.ooi.rutgers.edu:12573'
+    REDMINE_KEY: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    REDMINE_PROJECT_ID: 'ooi-ui-api-testing'
+    UI_API_KEY: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    REDMINE_URL: 'https://uframe-cm.ooi.rutgers.edu'
+    REDIS_URL: 'redis://:password@localhost:6379'
+    USE_MOCK_DATA: False
+  links:
+   - ooiuidb
+   - muframe

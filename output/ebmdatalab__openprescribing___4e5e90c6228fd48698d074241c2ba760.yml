@@ -1,0 +1,65 @@
+version: '2'
+services:
+  db-test:
+    image: mdillon/postgis:latest
+    env_file: .env-test
+  test:
+    image: ebmdatalab/openprescribing-test:latest
+    command: /bin/bash -c './scripts/docker_setup.sh test && cd openprescribing && make test'
+    env_file: .env-test
+    environment:
+      - DJANGO_SETTINGS_MODULE=openprescribing.settings.test
+      - TRAVIS=${TRAVIS}
+      - BROWSER=${BROWSER}
+      - TEST_SUITE=${TEST_SUITE}
+      - TRAVIS_JOB_NUMBER=${TRAVIS_JOB_NUMBER}
+      - TRAVIS_BUILD_NUMBER=${TRAVIS_BUILD_NUMBER}
+      - SAUCE_USERNAME=${SAUCE_USERNAME}
+      - SAUCE_ACCESS_KEY=${SAUCE_ACCESS_KEY}
+      - USE_SAUCELABS=${USE_SAUCELABS}
+      - GOOGLE_APPLICATION_CREDENTIALS=/code/google-credentials.json
+    extra_hosts:
+      - "saucehost:${SAUCE_HOST}"
+    ports:
+      - "6080:6080"
+      - "6060:6060"
+    volumes:
+      - .:/code
+    depends_on:
+      - db-test
+
+  test-production:
+    image: ebmdatalab/openprescribing-base:latest
+    command: /bin/bash -c './scripts/docker_setup.sh production && cd openprescribing && python manage.py check --deploy --settings openprescribing.settings.production'
+    env_file: .env-test
+    environment:
+      - TRAVIS=${TRAVIS}
+      - TEST_SUITE=${TEST_SUITE}
+      - BROWSER=${BROWSER}
+      - TRAVIS_JOB_NUMBER=${TRAVIS_JOB_NUMBER}
+      - TRAVIS_BUILD_NUMBER=${TRAVIS_BUILD_NUMBER}
+      - SAUCE_USERNAME=${SAUCE_USERNAME}
+      - SAUCE_ACCESS_KEY=${SAUCE_ACCESS_KEY}
+      - USE_SAUCELABS=${USE_SAUCELABS}
+      - GOOGLE_APPLICATION_CREDENTIALS=/code/google-credentials.json
+    extra_hosts:
+      - "saucehost:${SAUCE_HOST}"
+    ports:
+      - "6080:6080"
+      - "6060:6060"
+    volumes:
+      - .:/code
+    depends_on:
+      - db-test
+
+  db-dev:
+    image: mdillon/postgis:latest
+    env_file: .env-dev
+  dev:
+    image: ebmdatalab/openprescribing-test:latest
+    command: /bin/bash -c './scripts/docker_setup.sh local &&  cd openprescribing && /bin/bash -l'
+    env_file: .env-dev
+    volumes:
+      - .:/code
+    depends_on:
+      - db-dev

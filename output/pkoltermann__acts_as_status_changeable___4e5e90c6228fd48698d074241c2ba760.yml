@@ -1,0 +1,15 @@
+app:
+  image: busybox
+  volumes:
+    - ./:/data/app
+rails:
+  build: docker/rails
+  ports:
+    - "3000:3000"
+  volumes_from:
+    - app
+#command: rails s --debugger
+  command: "tail -f /data/app/Gemfile"
+  environment:
+    TZ: Europe/Warsaw
+    RAILS_ENV: development

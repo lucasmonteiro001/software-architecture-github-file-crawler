@@ -1,0 +1,15 @@
+pgdata:
+  image: busybox:latest
+  volumes:
+    - /var/lib/postgresql/data
+ 
+postgres:
+  image: postgres:9.4
+  ports:
+    - "5445:5432"
+  environment:
+    POSTGRES_PASSWORD: manifold
+    POSTGRES_USER: manifold
+    POSTGRES_DATABASE: manifold
+  volumes_from:
+    - pgdata

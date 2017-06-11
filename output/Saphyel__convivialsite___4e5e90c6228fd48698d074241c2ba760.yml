@@ -1,0 +1,24 @@
+version: '2'
+services:
+  d8:
+    build:
+      context: apache
+    ports:
+      - 8089:80
+    links:
+      - mysql
+      - selenium
+    volumes:
+      - .:/var/www/html
+  mysql:
+    image: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: 'root'
+    ports:
+      - 3307:3306
+  selenium:
+    image: selenium/standalone-firefox:2.52.0
+    ports:
+      - 4444:4444
+    environment:
+      JAVA_OPTS: -Djava.security.egd=file:/dev/./urandom

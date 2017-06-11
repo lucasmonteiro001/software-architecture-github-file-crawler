@@ -1,0 +1,18 @@
+web:
+    build: .
+    ports:
+        - "9090:9090"
+    volumes:
+        - .:/code
+    links:
+        - redis:redis
+
+nginx:
+    build: ./docker/nginx
+    links:
+        - web:web
+    ports:
+        - "3000:80"
+
+redis:
+    image: redis

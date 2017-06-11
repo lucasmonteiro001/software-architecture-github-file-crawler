@@ -1,0 +1,45 @@
+################################################################################
+# our multi-container application :: autobot
+################################################################################
+
+
+########################################
+# container :: hubot
+########################################
+hubot:
+  build: .
+  links:
+    - redis
+  environment:
+    - HUBOT_HIPCHAT_JID
+    - HUBOT_HIPCHAT_PASSWORD
+    - CONFLUENCE_USERNAME
+    - CONFLUENCE_PASSWORD
+
+
+########################################
+# container :: data store
+########################################
+redis:
+  image: redis
+
+
+########################################
+# container :: continuous delivery
+########################################
+drone:
+  # *mostly* just the drone image https://github.com/drone/drone/pull/1028/files
+  image: pdericson/drone
+  ports:
+    - 443:443
+  volumes:
+    - /srv/autobot/cert.pem:/srv/autobot/cert.pem
+    - /srv/autobot/key.pem:/srv/autobot/key.pem
+    - /var/run/docker.sock:/var/run/docker.sock
+  environment:
+    - DRONE_BITBUCKET_CLIENT
+    - DRONE_BITBUCKET_SECRET
+    - DRONE_SERVER_PORT=:443
+    - DRONE_SERVER_SSL_CERT=/srv/autobot/cert.pem
+    - DRONE_SERVER_SSL_KEY=/srv/autobot/key.pem
+    - DRONE_WORKER_NODES=unix:///var/run/docker.sock

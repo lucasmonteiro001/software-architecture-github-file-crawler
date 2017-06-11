@@ -1,0 +1,14 @@
+web:
+  build: .
+  entrypoint: /bin/bash
+  # Do npm install during startup to ensure that everything is built
+  command: -c 'cd /exp-container/app && npm install && ../start.sh'
+  ports:
+    - "3000:3000"
+  environment:
+    - NODE_ENV=development
+    - DEV_APP_ENABLED=true
+  volumes:
+    - ./:/exp-container/app:Z
+    # Link node modules with host fs to avoid uneccessary rebuild after container restart
+    - ./tmp/docker_node_modules:/exp-container/app/node_modules:Z

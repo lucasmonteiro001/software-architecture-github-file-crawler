@@ -1,0 +1,15 @@
+version: '2'
+services:
+  web:
+    build: .
+    image: darignac/outgo
+    ports:
+      - "3000:3000"
+    env_file: compose.env
+    command: entrypoint_dev.sh
+    volumes_from:
+      - data
+  data:
+    image: cogniteev/echo
+    volumes:
+      - ./:/app

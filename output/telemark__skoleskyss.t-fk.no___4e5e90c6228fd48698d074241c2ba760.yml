@@ -1,0 +1,97 @@
+queueserver:
+  image: mongo:3.2.6
+
+sessionserver:
+  image: mongo:3.2.6
+
+duplicateserver:
+  image: mongo:3.2.6
+
+services_base:
+  image: telemark/tfk-seneca-base
+  container_name: skoleskyss_services_base
+  env_file: skoleskyss.env
+  restart: always
+  net: container:skoleskyss_web
+
+services_counter:
+  image: telemark/tfk-seneca-counter
+  container_name: skoleskyss_services_counter
+  env_file: skoleskyss.env
+  restart: always
+  net: container:skoleskyss_web
+
+services_stats_dispatcher:
+  image: telemark/tfk-seneca-skoleskyss-stats-dispatcher
+  container_name: skoleskyss_services_stats_dispatcher
+  env_file: skoleskyss.env
+  restart: always
+  net: container:skoleskyss_web
+
+services_session:
+  image: telemark/tfk-seneca-session
+  container_name: skoleskyss_services_session
+  env_file: skoleskyss.env
+  restart: always
+  net: container:skoleskyss_web
+
+services_seeiendom:
+  image: telemark/tfk-seneca-seeiendom-lookup
+  container_name: skoleskyss_services_seeiendom
+  env_file: skoleskyss.env
+  restart: always
+  net: container:skoleskyss_web
+
+services_sms:
+  image: telemark/tfk-seneca-sms
+  container_name: skoleskyss_services_sms
+  env_file: skoleskyss.env
+  restart: always
+  net: container:skoleskyss_web
+
+services_distance:
+  image: telemark/tfk-seneca-skoleskyss-walking-distance
+  container_name: skoleskyss_services_distance
+  env_file: skoleskyss.env
+  restart: always
+  net: container:skoleskyss_web
+
+services_log:
+  image: telemark/tfk-seneca-log-external
+  container_name: skoleskyss_services_log
+  env_file: skoleskyss.env
+  restart: always
+  net: container:skoleskyss_web
+
+services_queue:
+  image: telemark/tfk-seneca-queue
+  container_name: skoleskyss_services_queue
+  env_file: skoleskyss.env
+  restart: always
+  net: container:skoleskyss_web
+
+services_duplicate:
+  image: telemark/tfk-seneca-skoleskyss-duplicate
+  container_name: skoleskyss_services_duplicate
+  env_file: skoleskyss.env
+  restart: always
+  net: container:skoleskyss_web
+
+services_dispatcher:
+  image: telemark/tfk-seneca-skoleskyss-dispatcher
+  container_name: skoleskyss_services_dispatcher
+  env_file: skoleskyss.env
+  restart: always
+  net: container:skoleskyss_web
+
+skoleskyss_web:
+  image: telemark/skoleskyss.t-fk.no
+  container_name: skoleskyss_web
+  env_file: skoleskyss.env
+  restart: always
+  links:
+    - queueserver
+    - sessionserver
+    - duplicateserver
+  ports:
+    - 8000:8000

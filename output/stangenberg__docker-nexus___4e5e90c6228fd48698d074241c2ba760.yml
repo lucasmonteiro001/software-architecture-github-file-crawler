@@ -1,0 +1,11 @@
+main:
+  image: stangenberg/nexus
+  ports:
+    - "9000:9000"
+  volumes_from:
+    - data
+
+data:
+  image: stangenberg/data
+  volumes:
+    - /nexus-work

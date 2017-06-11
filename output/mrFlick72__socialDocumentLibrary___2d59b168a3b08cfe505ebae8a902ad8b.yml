@@ -1,0 +1,161 @@
+mongoHost:
+  image: mongo
+  ports:
+    - "27017:27017"
+  volumes:
+    - "/data/db:/data/db"
+
+databaseHost:
+  image: mysql
+  ports:
+    - "3306:3306"
+  volumes:
+    - "/var/lib/mysql:/var/lib/mysql"
+  environment:
+  - MYSQL_ROOT_PASSWORD=root
+
+redisHost:
+  image: redis
+  ports:
+    - "6379:6379"
+
+messagingSystemHost:
+  image: webcenter/activemq:5.13.1
+  ports:
+    - "8161:8161"
+    - "61616:61616"
+    - "61613:61613"
+
+nginx:
+  image: nginx
+  ports:
+    - "80:80"
+  volumes:
+    - "./ngnix.conf:/etc/nginx/nginx.conf:ro"
+  links:
+    - "user-documentlibrary-client:user-documentlibrary-client"
+    - "user-documentlibrary-client-1:user-documentlibrary-client-1"
+
+eureka-server:
+    image: social-documet-library/eureka-server
+    ports:
+      - "8761:8761"
+    environment:
+      - server.port=8761
+
+user-documentlibrary-client:
+  image: social-document-library/user-documentlibrary-client
+  ports:
+    - "9090:9090"
+  environment:
+    - spring.profiles.active=docker
+    - server.port=9090
+  links:
+    - "databaseHost:databaseHost"
+    - "redisHost:redisHost"
+    - "eureka-server:eureka-server"
+user-documentlibrary-client-1:
+  image: social-document-library/user-documentlibrary-client
+  ports:
+    - "9091:9091"
+  environment:
+    - spring.profiles.active=docker
+    - server.port=9091
+  links:
+  - "databaseHost:databaseHost"
+  - "redisHost:redisHost"
+  - "eureka-server:eureka-server"
+
+admin-documentlibrary-client:
+  image: social-document-library/admin-documentlibrary-client:lastest
+  ports:
+    - "7070:7070"
+  environment:
+    - spring.profiles.active=docker
+    - server.port=7070
+  links:
+    - "databaseHost:databaseHost"
+    - "messagingSystemHost:messagingSystemHost"
+    - "redisHost:redisHost"
+    - "eureka-server:eureka-server"
+
+admin-documentlibrary-client-1:
+  image: social-document-library/admin-documentlibrary-client:lastest
+  ports:
+    - "7071:7071"
+  environment:
+    - spring.profiles.active=docker
+    - server.port=7071
+  links:
+    - "databaseHost:databaseHost"
+    - "messagingSystemHost:messagingSystemHost"
+    - "redisHost:redisHost"
+    - "eureka-server:eureka-server"
+
+search-book-service:
+  image: social-document-library/search-book-service
+  ports:
+    - "6060:6060"
+  environment:
+    - spring.profiles.active=docker
+    - server.port=6060
+  links:
+    - "mongoHost:mongoHost"
+    - "eureka-server:eureka-server"
+
+search-book-service-1:
+  image: social-document-library/search-book-service
+  ports:
+    - "6061:6061"
+  environment:
+    - spring.profiles.active=docker
+    - server.port=6061
+  links:
+    - "mongoHost:mongoHost"
+    - "eureka-server:eureka-server"
+
+book-social-metadata-service:
+  image: social-document-library/book-social-metadata-service
+  ports:
+    - "4040:4040"
+  environment:
+    - spring.profiles.active=docker
+    - server.port=4040
+  links:
+    - "mongoHost:mongoHost"
+    - "eureka-server:eureka-server"
+
+book-social-metadata-service-1:
+  image: social-document-library/book-social-metadata-service
+  ports:
+    - "4041:4041"
+  environment:
+  - spring.profiles.active=docker
+  - server.port=4041
+  links:
+    - "mongoHost:mongoHost"
+    - "eureka-server:eureka-server"
+
+book-repository-service:
+  image: social-document-library/book-repository-service:lastest
+  ports:
+    - "8080:8080"
+  environment:
+    - spring.profiles.active=docker
+    - server.port=8080
+  links:
+    - "mongoHost:mongoHost"
+    - "eureka-server:eureka-server"
+    - "messagingSystemHost:messagingSystemHost"
+
+book-repository-service-1:
+  image: social-document-library/book-repository-service:lastest
+  ports:
+    - "8081:8081"
+  environment:
+    - spring.profiles.active=docker
+    - server.port=8081
+  links:
+    - "mongoHost:mongoHost"
+    - "eureka-server:eureka-server"
+    - "messagingSystemHost:messagingSystemHost"

@@ -1,0 +1,7 @@
+app:
+    tty: true # Enables debugging capabilities when attached to this container.
+    build: .
+    environment:
+        - PORT=1337
+    ports:
+        - "8081:1337"

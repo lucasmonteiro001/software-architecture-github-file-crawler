@@ -1,0 +1,49 @@
+build: # For building binaries to be placed into pipeline's tar
+  build: .
+  working_dir: /
+  command: 'sh -c "
+    go build -o /smog-bin/smog /src/com.mvndaai/smog/*.go ;
+    go build -o /smog-bin/smog-tester /src/com.mvndaai/smog-tester/*.go
+    "'
+  volumes:
+   - ./bin/:/smog-bin/
+   - ./src/com.mvndaai/smog/:/src/com.mvndaai/smog/:ro
+   - ./src/com.mvndaai/smog-tester/:/src/com.mvndaai/smog-tester/:ro
+
+dev:
+  build: .
+  working_dir: /
+  command: 'sh -c "
+    gofmt -w /src/com.mvndaai/smog/
+    ;gofmt -w /src/com.mvndaai/smog-tester/
+    ;golint /src/com.mvndaai/smog/
+    ;golint /src/com.mvndaai/smog-tester/
+    ;go vet ./src/com.mvndaai/smog/
+    ;go vet ./src/com.mvndaai/smog-tester/
+    ;go test ./src/com.mvndaai/smog/
+    "'
+  volumes:
+   - ./src/com.mvndaai/smog/:/src/com.mvndaai/smog/
+   - ./src/com.mvndaai/smog-tester/:/src/com.mvndaai/smog-tester/
+
+cover: # For coverage (TODO: make it work)
+  build: .
+  working_dir: /
+  command: 'sh -c "go test -coverprofile=coverage.out ./src/com.mvndaai/smog/ ; sed -i \"s\_\.\g\" coverage.out ; go tool cover -html=coverage.out; bash"'
+  volumes:
+   - ./src/com.mvndaai/smog/:/src/com.mvndaai/smog/
+   - ./coverage/:/tmp/
+
+functional:
+  build: pipeline/tests/docker/functional/
+  working_dir: /
+  command: '/smog-tester'
+
+run:
+  build: pipeline/implementation/docker/smog/
+  container_name: smog
+  command: 'bash -c "/smog/command.sh"'
+  environment:
+   PORT: 8080
+  ports:
+   - "8080:8080"

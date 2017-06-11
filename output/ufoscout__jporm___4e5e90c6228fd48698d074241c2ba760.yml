@@ -1,0 +1,37 @@
+version: "2"
+
+services:
+  jpo_postgres:
+    image: "postgres:9.6-alpine"
+    hostname: jpo_postgres
+    ports:
+      - "5432:5432"
+
+  jpo_mysql:
+    image: "mysql:5.7"
+    hostname: jpo_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: mysqldb
+      MYSQL_USER: mysql
+      MYSQL_PASSWORD: mysql
+    ports:
+      - "3306:3306"
+
+  jpo_oracle:
+    image: "wnameless/oracle-xe-11g"
+    hostname: jpo_oracle
+    ports:
+      - "49160:22"
+      - "49161:1521"
+
+  jpo_sql-server:
+    image: "microsoft/mssql-server-linux:latest"
+    environment:
+      ACCEPT_EULA: Y
+      SA_PASSWORD: oiw4ool9Qu
+    ports:
+      - "1433:1433"
+#    volumes: 
+#      - /etc/timezone:/etc/timezone
+#      - <host folder>:/var/opt/mssql

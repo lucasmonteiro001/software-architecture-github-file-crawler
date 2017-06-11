@@ -1,0 +1,7 @@
+raspberrypints:
+  image: stratolinux/pints:0.3.0
+  restart: always
+  ports:
+    - "${EXPOSED_PORT}:80"
+  volumes:
+    - "${CONFIGDIR}:/var/www/Pints/data"

@@ -1,0 +1,54 @@
+
+redis:
+    build: ./redis
+    volumes:
+       - /data/redis:/data
+
+ids:
+    build: ./ids
+    links:
+        - redis
+    volumes:
+        - /code/pixeldragon/code:/code
+        - /data/ids/public:/data
+      
+flower:
+    build: ./flower
+    ports:
+        - "5555:5555"
+    links:
+        - redis
+        - ids
+
+iipsrv:         
+    build: ./iipsrv
+    ports:
+        - "9000:80"
+    volumes:
+        - /data/ids/public:/data
+        - /data/log/iipsrv:/log
+        
+# loris:         
+#    build: ./loris
+#    ports:
+#        - "5004:5004"
+#    volumes:
+#        - /data/ids/public:/usr/local/share/images
+        
+ 
+nginx:
+    build: ./nginx
+    ports:
+        - "80:80"
+        - "443:443"
+    links:
+        - flower
+        - iipsrv
+#        - loris
+        
+    volumes:
+        - ./nginx/conf.d:/etc/nginx/conf.d
+        - ./nginx/html:/usr/share/nginx/html
+        - /data/log/nginx:/var/log/nginx
+        - /data/cache/nginx:/var/cache/nginx
+        

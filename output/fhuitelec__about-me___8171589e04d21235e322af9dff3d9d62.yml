@@ -1,0 +1,44 @@
+nginx:
+    image: fhuitelec:nginx 
+    volumes:
+        - "./config/nginx/about.conf:/etc/nginx/sites-enabled/about"
+        - "./config/nginx/nginx.conf:/etc/nginx/nginx.conf"
+    volumes_from: [ "code", "symfony-data" ]
+    environment:
+        - VIRTUAL_HOST=about.*,www.about.*
+        - CERT_NAME=huitelec.fr 
+        - HTTPS_METHOD=noredirect
+    links:
+        - php-fpm:php-fpm
+
+php-fpm:
+    image: fydh/rpi-php:7.0.11-fpm-alpine 
+    volumes_from: [ "code", "symfony-data" ]
+    links:
+        - postgres:postgres
+
+postgres:
+    image: randyp/rpi-postgres
+    privileged: true
+    restart: always
+    volumes_from: [ "postgres-data" ]
+    environment:
+        POSTGRES_PASSWORD: postgres
+    expose:
+        - 5433
+    ports:
+        - 5433:5432
+
+postgres-data:
+    image: sander85/rpi-busybox
+    volumes:
+        - "/home/fabien/dockerdata/about/pg93master:/var/lib/postgresql/data"
+        - "/home/fabien/dockerdata/about/shared:/data"
+
+code:
+    image: sander85/rpi-busybox
+    volumes:
+        - "../../..:/var/www/about"
+
+symfony-data:
+    build: ./dockerfiles/symfony-volumes

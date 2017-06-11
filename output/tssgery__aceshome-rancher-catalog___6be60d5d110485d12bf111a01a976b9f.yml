@@ -1,0 +1,9 @@
+couchpotato:
+  image: stratolinux/couchpotato:0.1.0
+  restart: always
+  ports:
+    - "${EXPOSED_PORT}:5050"
+  volumes:
+    - "${CONFIGDIR}:/config"
+    - "${VIDEODIR}:/videos"
+    - "${DOWNLOADDIR}:/downloads"

@@ -1,0 +1,37 @@
+version: '2'
+
+services:
+  db:
+    image: postgres:9.5
+    ports:
+      - "5432:5432"
+    networks:
+      app:
+        aliases:
+          - postgres
+    environment:
+        POSTGRES_USER: communityshare
+        POSTGRES_PASSWORD: communityshare
+
+  server:
+    image: dmsnell/communityshare:5.0
+    command: python3 -u community_share_local_app.py
+    ports:
+      - "5000:5000"
+    networks:
+      - app
+    volumes:
+      - .:/communityshare
+    privileged: true
+    environment:
+      - LOCAL_CODE_PATH=$PWD
+
+  webpack:
+    image: dmsnell/communityshare:5.0
+    command: /communityshare/config/start_webpack.sh
+    volumes:
+      - .:/communityshare
+    privileged: true
+
+networks:
+  app:

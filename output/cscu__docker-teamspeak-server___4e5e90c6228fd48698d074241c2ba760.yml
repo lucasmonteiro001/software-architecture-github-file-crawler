@@ -1,0 +1,13 @@
+server:
+  build: .
+  command: /start
+  ports:
+   - "9987:9987/udp"
+   - "30033:30033"
+   - "10011:10011"
+  volumes:
+    - ./data:/data
+
+  tty: true
+  stdin_open: true
+  restart: always

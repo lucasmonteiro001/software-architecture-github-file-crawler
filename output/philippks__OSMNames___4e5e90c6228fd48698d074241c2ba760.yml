@@ -1,0 +1,18 @@
+version: '2'
+services:
+  osmnames:
+    build: .
+    volumes:
+      - .:/osmnames
+      - ./data:${DATA_DIR}
+    depends_on:
+      - postgres
+    tmpfs: /tmp
+    env_file: .env
+
+  postgres:
+    image: mdillon/postgis:9.6
+    environment:
+      - POSTGRES_PASSWORD
+    ports:
+      - "54320:5432"

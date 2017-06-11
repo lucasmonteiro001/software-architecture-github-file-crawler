@@ -1,0 +1,7 @@
+jiromm_com:
+  build: .
+  dockerfile: Dockerfile
+  ports:
+   - "8280:80"
+  volumes:
+   - .:/var/www

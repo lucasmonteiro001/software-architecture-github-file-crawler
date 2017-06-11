@@ -1,0 +1,64 @@
+version: '2'
+services:
+  zookeeper:
+    image: "mesoscloud/zookeeper:3.4.8-ubuntu-14.04"
+    network_mode: "host"
+    ports:
+      - "2181:2181"
+    restart: always
+    labels:
+      - "SERVICE_NAME=zookeeper"
+      - "SERVICE_2888_IGNORE=true"
+      - "SERVICE_3888_IGNORE=true"
+
+
+  mesosmaster:
+    image: "mesoscloud/mesos-master:0.28.1-centos-7"
+    network_mode: "host"
+    ports:
+      - "5050:5050"
+    environment:
+      - "MESOS_QUORUM=1"
+      - "MESOS_ZK=zk://172.17.42.1:2181/mesos"
+      - "MESOS_CLUSTER=composed"
+    labels:
+      - "SERVICE_NAME=mesos-master"
+
+
+  mesosslave:
+    image: "mesoscloud/mesos-slave:0.28.1-centos-7"
+    privileged: true
+    network_mode: "host"
+    restart: "on-failure:10"
+    environment:
+      - "MESOS_MASTER=zk://172.17.42.1:2181/mesos"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "~/.docker:/etc/docker"
+    labels:
+      - "SERVICE_NAME=mesos-slave"
+
+  marathon:
+    image: "mesoscloud/marathon:1.1.1-centos-7"
+    network_mode: "host"
+    ports:
+      - "8080:8080"
+    environment:
+      - "MARATHON_MASTER=zk://172.17.42.1:2181/mesos"
+      - "MARATHON_ZK=zk://172.17.42.1:2181/marathon"
+    labels:
+      - "SERVICE_NAME=marathon"
+
+
+  chronos:
+    image: "mesoscloud/chronos:2.4.0-centos-7"
+    network_mode: "host"
+    restart: "always"
+    ports:
+      - "4400:4400"
+    environment:
+      - "CHRONOS_HTTP_PORT=4400"
+      - "CHRONOS_MASTER=zk://172.17.42.1:2181/mesos"
+      - "CHRONOS_ZK_HOSTS=zk://172.17.42.1:2181/mesos"
+    labels:
+    - "SERVICE_NAME=chronos"

@@ -1,0 +1,13 @@
+version: '2'
+services:
+  telegram-iot-gateway:
+    image: disrael/telegram-iot-gateway
+    container_name: iot-gateway
+    environment:
+      PORT: ${PORT}
+      CLJ_PROFILE: ${PROFILE}
+      AUTH_TOKENS: ${AUTH_TOKENS}
+    ports:
+      - ${PORT}:${PORT}
+    volumes:
+      - ~/.m2:/root/.m2

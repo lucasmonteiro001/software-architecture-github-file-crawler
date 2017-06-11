@@ -1,0 +1,92 @@
+# Docker for Mezzanine CMS + REST API
+version: '2'
+
+services:
+  # A microservice for the web app.
+  web:
+    container_name: web
+    restart: always
+    build: ./web
+    expose:
+      - "8000"
+    links:
+      - postgres:postgres
+    depends_on:
+      - postgres
+    volumes:
+      - ./web:/usr/src/app
+#      - ./web/static:/usr/src/app/static
+#      - ./web/static/media:/usr/src/app/static/media
+    env_file: .env
+    command: /start.sh
+
+  # A microservice for the web server.
+  nginx:
+    container_name: nginx
+    restart: always
+    build: ./nginx
+    ports:
+      - "60:80"
+    volumes:
+      - /www/static
+      - /www/static/media
+    volumes_from:
+      - web
+    links:
+      - web:web
+
+  # A microservice for the database.
+#  postgres:
+#    restart: always
+#    image: postgres:latest
+#    ports:
+#      - "5432:5432"
+##    volumes_from:
+##      - dbdata
+#    volumes:
+#      - /home/ubuntu/pgdata:/var/lib/postgresql
+
+  scrapyd:
+    build: ./scrapyd
+#    image: vimagick/scrapyd
+    ports:
+      - "6800:6800"
+    restart: always
+
+  scrapy:
+    build: ./scrapyd
+#    image: vimagick/scrapyd
+    command: bash
+    volumes:
+      - ./web:/code
+#      - ./mykgb:/code
+    working_dir: /code/mykgb
+    restart: always
+
+#  dbdata:
+#    image: postgres:latest
+#    volumes:
+#      - /var/lib/postgresql
+#    command: true
+
+  postgres:
+    restart: always
+    image: sameersbn/postgresql:9.6-1
+    ports:
+      - "5432:5432"
+    environment:
+      - DEBUG=false
+
+      - DB_USER=destinyuser
+      - DB_PASS=Joomla8
+      - DB_NAME=destiny
+      - DB_TEMPLATE=
+
+      - DB_EXTENSION=
+
+      - REPLICATION_MODE=
+      - REPLICATION_USER=
+      - REPLICATION_PASS=
+      - REPLICATION_SSLMODE=
+    volumes:
+      - ~/pgdata:/var/lib/postgresql

@@ -1,0 +1,101 @@
+version: '2'
+
+services:
+  backend:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    image: nanocloud/backend
+    volumes:
+      - static:/opt/back/assets/dist
+    env_file:
+      - config.env
+    networks:
+      - nanocloud
+    depends_on:
+      - postgres
+      - storage
+    restart: always
+
+  frontend:
+    build:
+      context: ./assets
+      dockerfile: Dockerfile
+    image: nanocloud/frontend
+    volumes:
+      - static:/opt/dist
+    networks:
+      - nanocloud
+
+  proxy:
+    build: ./proxy
+    image: nanocloud/proxy
+    ports:
+      - 80:80
+      - 443:443
+    depends_on:
+      - backend
+    networks:
+      - nanocloud
+    restart: always
+
+  storage:
+    build: ./storage
+    image: nanocloud/storage
+    environment:
+     - PLAZA_PORT=9090
+    ports:
+     - 445/udp:445/udp
+     - 445:445
+     - 9090:9090
+    networks:
+      - nanocloud
+    depends_on:
+      - plaza
+    volumes:
+      - plaza:/opt/plaza
+    restart: always
+
+  plaza:
+    build: ./plaza
+    image: nanocloud/plaza
+    environment:
+      - GOOS=linux
+      - GOARCH=amd64
+    networks:
+      - nanocloud
+    volumes:
+      - plaza:/go/src/github.com/Nanocloud/nanocloud/plaza/
+
+  guacamole-client:
+    build: ./guacamole-client
+    image: nanocloud/guacamole-client
+    networks:
+      - nanocloud
+    restart: always
+
+  guacd:
+    build: ./guacd
+    image: nanocloud/guacd
+    networks:
+     - nanocloud
+    restart: always
+
+  postgres:
+    image: postgres:9.5.3
+    environment:
+      - PGDATA=/var/lib/postgresql/data/pgdata
+      - POSTGRES_USER=nanocloud
+    networks:
+      - nanocloud
+    restart: always
+
+networks:
+  nanocloud:
+    driver: bridge
+
+volumes:
+  static:
+    driver: local
+  plaza:
+    driver: local

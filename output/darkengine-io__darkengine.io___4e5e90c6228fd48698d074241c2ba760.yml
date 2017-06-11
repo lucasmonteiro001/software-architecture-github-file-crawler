@@ -1,0 +1,17 @@
+nginx:
+  build: nginx/
+  links:
+   - php:php
+  expose:
+   - "80"
+  volumes:
+   - data/www:/var/www/html
+   - data/logs:/var/log/nginx
+  restart: always
+php:
+  build: php/
+  expose:
+   - "9000"
+  volumes:
+   - data/www:/var/www/html
+  restart: always 

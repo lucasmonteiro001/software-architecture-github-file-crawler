@@ -1,0 +1,8 @@
+nexus3:
+    restart: always
+    image: nexus3
+    ports:
+      - "5555:8081"
+      - "5556-5561:5000-5005"
+    volumes:
+      - /tmp/nexusdata:/opt/sonatype/nexus/3.0.0-m7/data

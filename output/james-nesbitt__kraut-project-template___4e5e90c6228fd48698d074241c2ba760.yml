@@ -1,0 +1,128 @@
+# WunderTools docker-compose
+#
+# The project docker-compose used as a default.
+#
+# You can override this by using an environment specific 
+# docker-compose.
+#
+# @NOTE the DNSDOCK_ALIAS allows automatic DNS resolution
+#   for local developers, if you are running DNSDOCK
+#
+
+# DC version
+version: "2"
+
+# DC Service definitions
+services:
+
+  ####
+  # Source
+  #
+  # Source image holds any elements that are considered immutable in the system
+  # Runtime volumes are added so that parts of this image can be mounted as
+  # read only in other containers.
+  # Production management relies on the source container to be immutable, and
+  # that the source image versions are maintained in such a way that it is clear
+  # which version should be used in production. The production tools perform no
+  # archiving or management of the contents of the source image/container.
+  #
+  # e.g.:
+  #  - php source code
+  #  - js source code
+  #  - css styling
+  #  - php settings and configuration
+  #  - yml configuration
+  #
+  source:
+    image: "quay.io/wunder/fuzzy-alpine-base"
+    command:
+      - /bin/true
+    volumes:
+      - "./source/web:/app/web"
+      - "./source/vendor:/app/vendor"
+      - "./source/config:/app/config"
+
+  ####
+  # Assets
+  #
+  # In contrast to source, assets holds any mutable files and data that other
+  # container may need access to.  These are not typically built into a
+  # distributable image (although they can be,) but are rather kept in managed
+  # docker volumes.
+  #
+  assets:
+    image: quay.io/wunder/fuzzy-alpine-base
+    command:
+      - /bin/true
+    volumes:
+      - "./assets/public:/app/web/sites/default/files"
+      - "./assets/backup:/app/backup"
+      - "./assets/private:/app/private"
+
+  ####
+  # Servers
+  #
+  # The following nodes are services that support the application.  Typically
+  # the AMP stack is represented, along with any key-value, search and static-caching
+  # servers used.
+  #
+  # It is optimal if the services use generic shared images, that are used across
+  # instances, and across applications.  This makes the overally server impact low
+  # and means that management tools can focus on the source and asset images
+  #
+
+  ####
+  # DB node
+  #
+  db:
+    image: quay.io/wunder/fuzzy-alpine-mariadb
+
+  ####
+  # MemCacheD
+  #
+  memcache:
+    image: quay.io/wunder/fuzzy-alpine-memcached
+
+  ####
+  # FPM node
+  #
+  # @NOTE in production, the source volumes should be source:ro
+  #
+
+  fpm:
+    image: quay.io/wunder/fuzzy-alpine-php-dev
+    volumes_from:
+      - source
+      - assets
+    environment:
+      DNSDOCK_ALIAS: fpm.undertest.docker
+    links:
+      - db:db.app
+      - memcache:memcached.app
+
+  ####
+  # WWW node
+  #
+  # @NOTE in production, the source volumes should be source:ro
+  # @NOTE in production, the assets volumes should be assets:ro
+  #
+  www:
+    image: quay.io/wunder/fuzzy-alpine-nginx-pagespeed-drupal
+    volumes_from:
+      - source
+      - assets
+    environment:
+      DNSDOCK_ALIAS: www.undertest.docker
+    links:
+      - fpm:fpm.app
+
+  ####
+  # Static cache service
+  #
+  varnish:
+    image: quay.io/wunder/fuzzy-alpine-varnish
+    environment:
+      DNSDOCK_ALIAS: wundertest.docker
+      VARNISH_BACKEND_HOST: backend.app
+    links:
+      - www:backend.app

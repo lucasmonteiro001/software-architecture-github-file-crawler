@@ -1,0 +1,84 @@
+version: "2"
+services:
+  code:
+    image: alpine
+    container_name: code
+    volumes:
+      - ..:/var/www/app
+    command: sh
+  client:
+    build: client/
+    ports:
+      - "8080:8080"
+    volumes_from:
+      - code
+    working_dir: /var/www/app/client
+    env_file:
+      - config/web.env
+  server:
+    build: server/
+    links:
+      - db
+      - cache
+    ports:
+      - "8081:8081"
+    volumes_from:
+      - code
+    working_dir: /var/www/app/server
+    env_file:
+      - config/db.env
+      - config/web.env
+  cli:
+    image: askent/php.cli
+    container_name: cli
+    volumes_from:
+      - php.dev
+  php.dev:
+    image: askent/php.dev
+    container_name: php.dev
+    volumes:
+      - php-dev:/usr/lib/php/shared/
+  fpm:
+    image: askent/php.fpm
+    container_name: fpm
+    links:
+      - db
+      - cache
+    ports:
+      - "9001:9001"
+    volumes_from:
+        - code
+        - php.dev
+    env_file:
+      - config/web.env
+      - config/db.env
+  web:
+    image: askent/nginx
+    container_name: web
+    ports:
+      - "80:80"
+    links:
+      - fpm
+    volumes_from:
+      - code
+    env_file:
+      - config/web.env
+  db:
+    image: askent/postgres
+    container_name: db
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/main
+    env_file:
+      - config/db.env
+  cache:
+    image: askent/memcached
+    container_name: cache
+    ports:
+      - "11211:11211"
+volumes:
+  db-data:
+    driver: local
+  php-dev:
+    driver: local

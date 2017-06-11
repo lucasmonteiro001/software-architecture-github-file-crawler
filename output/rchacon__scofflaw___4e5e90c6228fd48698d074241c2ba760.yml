@@ -1,0 +1,13 @@
+version: '2'
+services:
+  api:
+    build: .
+    volumes:
+      - ./:/opt/scofflaw
+    depends_on:
+      - mongo
+    ports:
+      - "5000:5000"
+
+  mongo:
+    image: mongo

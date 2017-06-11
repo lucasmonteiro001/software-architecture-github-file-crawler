@@ -1,0 +1,13 @@
+sgadmin:
+  build: .
+  external_links:
+    - sitegate_db_1:mongo
+    - sitegate_amqp_1:rabbitmq
+  volumes:
+    - .:/src
+  ports:
+    - 3040:3040
+    - 35730:35730
+  environment:
+    NODE_ENV: development
+    DEBUG: bograch

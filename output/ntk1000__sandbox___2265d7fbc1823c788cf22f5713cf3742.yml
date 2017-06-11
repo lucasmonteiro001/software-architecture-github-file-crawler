@@ -1,0 +1,18 @@
+version: '2'
+services:
+    main:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: 'mount1'
+        command: bin/sh -c "while true; do echo hello world; sleep 1; done"
+        volumes:
+            - ./store:/home
+    sub:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: 'mount2'
+        command: bin/sh -c "while true; do echo hello world; sleep 1; done"
+        volumes:
+            - ./store:/home

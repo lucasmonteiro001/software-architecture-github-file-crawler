@@ -1,0 +1,55 @@
+consul:
+    hostname: ${USER}_consul
+    container_name: ${USER}_consul
+    image: qnib/consul
+    environment:
+    - DC_NAME=dc1
+    - RUN_SERVER=true
+    - BOOTSTRAP_CONSUL=true
+    ports:
+    - 8500
+    dns: 127.0.0.1
+
+hadoop1:
+    hostname: ${USER}_hadoop1
+    container_name: ${USER}_hadoop1
+    dns: 127.0.0.1
+    image: qnib/d-hadoop
+    environment:
+    - DC_NAME=dc1
+    - FORWARD_TO_FILE=true
+    - HADOOP_HDFS_NAMENODE=true
+    links:
+    - consul:consul
+    ports:
+    - 8042
+    - 8088
+    privileged: true
+
+hadoop2:
+    hostname: ${USER}_hadoop2
+    container_name: ${USER}_hadoop2
+    dns: 127.0.0.1
+    image: qnib/d-hadoop
+    environment:
+    - DC_NAME=dc1
+    - FORWARD_TO_FILE=true
+    links:
+    - consul:consul
+    ports:
+    - 8042
+    - 8088
+    privileged: true
+
+hue:
+    hostname: ${USER}_hue
+    container_name: ${USER}_hue
+    dns: 127.0.0.1
+    image: qnib/d-hue
+    environment:
+    - DC_NAME=dc1
+    links:
+    - consul:consul
+    ports:
+    - 8000
+

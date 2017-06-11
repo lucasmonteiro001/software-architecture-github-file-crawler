@@ -1,0 +1,40 @@
+version: '2'
+services:
+  apache:
+    build: ./dockerfiles/apache
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - php
+    volumes:
+      - ../public_html:/var/www/html
+  php:
+    build: ./dockerfiles/php
+    volumes:
+      - ../public_html:/var/www/html
+    depends_on:
+      - mysql
+    expose:
+      - "9000"
+    environment:
+      - APP_ENV=development
+  mysql:
+    image: mariadb:latest
+    ports:
+      - "33060:3306"
+    expose:
+      - "3306"
+    volumes:
+      - /var/lib/mysql
+    env_file:
+      - database.env
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    env_file: database.env
+    ports:
+      - "81:80"
+    environment: 
+      - PMA_HOST=mysql
+    depends_on:
+      - "mysql"

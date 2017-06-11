@@ -1,0 +1,14 @@
+version: "2"
+services:
+  pcrhero:
+    image: djtran/badgeapi
+    ports: 
+      - "8080:8080"
+
+    links:
+      - mongod
+
+  mongod:
+    image: mongo:2.4.14
+    
+

@@ -1,0 +1,11 @@
+application:
+    image: ubuntu
+db:
+    image: mysql
+    ports:
+        - 3306:3306
+    environment:
+        MYSQL_ROOT_PASSWORD: root
+        MYSQL_DATABASE: symfony
+        MYSQL_USER: root
+        MYSQL_PASSWORD: root

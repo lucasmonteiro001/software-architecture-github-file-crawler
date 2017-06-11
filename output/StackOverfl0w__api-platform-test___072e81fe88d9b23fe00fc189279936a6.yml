@@ -1,0 +1,67 @@
+version: "2"
+services:
+    nginx:
+        container_name: api-platform-test_nginx
+        build: ./nginx
+        volumes:
+            - ../web:/var/www/html/web
+        environment:
+            - /etc/localtime:/etc/localtime:ro
+            - PHP_CONTAINER_NAME=api-platform-test_php-fpm
+        depends_on:
+            - php-fpm
+        ports:
+            - 80:80
+        command: "/home/run.sh"
+
+    php-fpm:
+        container_name: api-platform-test_php-fpm
+        build: ./php-fpm
+        volumes:
+            - /etc/localtime:/etc/localtime:ro
+            - ../:/var/www/html
+        environment:
+            - SYMFONY_ENV=dev
+        depends_on:
+            - mysql
+            - redis
+            - mailcatcher
+
+    mysql:
+        container_name: api-platform-test_mysql
+        image: mysql:5.7
+        volumes:
+            - /etc/localtime:/etc/localtime:ro
+        environment:
+            - MYSQL_ROOT_PASSWORD=root
+            - MYSQL_DATABASE=api_platform_test
+            - MYSQL_USER=api_platform_test
+            - MYSQL_PASSWORD=api_platform_test
+
+    redis:
+        container_name: api-platform-test_redis
+        image: redis
+        volumes:
+            - /etc/localtime:/etc/localtime:ro
+
+    phpma:
+        container_name: api-platform-test_phpma
+        image: phpmyadmin/phpmyadmin
+        environment:
+            - PMA_HOST=api-platform-test_mysql
+            - PMA_USER=api_platform_test
+            - PMA_PASSWORD=api_platform_test
+        volumes:
+            - /etc/localtime:/etc/localtime:ro
+        depends_on:
+            - mysql
+        ports:
+            - "82:80"
+
+    mailcatcher:
+        container_name: api-platform-test_mailcatcher
+        image: schickling/mailcatcher
+        volumes:
+            - /etc/localtime:/etc/localtime:ro
+        ports:
+            - "83:1080"

@@ -1,0 +1,16 @@
+web:
+  build: .
+  command: bundle exec rails s -p 8080 -b '0.0.0.0'
+  # volumes:
+  #   - .:/var/deploy/current
+  environment:
+    - RAILS_ENV=production
+    - RACK_ENV=production
+    - SECRET_KEY_BASE='secret'
+    - VIRTUAL_HOST=localhost
+proxy:
+  image: jwilder/nginx-proxy:latest
+  ports:
+    - "80:80"
+  volumes:
+    - "/var/run/docker.sock:/tmp/docker.sock"

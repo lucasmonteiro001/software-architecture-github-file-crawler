@@ -1,0 +1,7 @@
+app:
+    build: .
+    links:
+      - database
+
+database:
+    image: mysql:5.7

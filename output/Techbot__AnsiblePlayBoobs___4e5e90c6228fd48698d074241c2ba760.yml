@@ -1,0 +1,36 @@
+version: '2'
+services:
+  db:
+    image: techbot/mysql
+    volumes:
+      - "./.data/db:/var/lib/mysql"
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: wordpress
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpress
+    ports:
+      - "3306:3306"
+
+    volumes:
+            - "./html:/var/www/html"
+            - "./src:/var/www/src"
+            - "./app:/var/www/app"
+            - "./bin:/var/www/bin"
+            - "./var:/var/www/var"
+            - "./vendor:/var/www/vendor"
+            - ./site.conf:/etc/nginx/conf.d/default.conf
+
+  phpmyadmin:
+      image: phpmyadmin/phpmyadmin
+      container_name: myadmin
+      environment:
+       - PMA_ARBITRARY=1
+       - PMA_HOST=mysqlserver phpmyadmin/phpmyadmin
+      restart: always
+      ports:
+       - 8080:80
+
+  web:
+      image: drupal

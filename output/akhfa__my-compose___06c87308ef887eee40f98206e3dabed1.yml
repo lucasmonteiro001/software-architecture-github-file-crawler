@@ -1,0 +1,20 @@
+version: '2'
+services:
+    web:
+        build: nginx/
+        ports:
+        - "80:80"
+        - "443:443"
+        volumes:
+        - /var/log/nginx:/var/log/nginx
+        - /etc/letsencrypt:/etc/letsencrypt:ro
+        container_name: nginx
+        restart: always
+    jenkins:
+        image: "jenkins:2.46.2"
+        ports:
+        - "50000:50000"
+        container_name: jenkins
+        volumes:
+        - /var/lib/jenkins:/var/jenkins_home
+        restart: always

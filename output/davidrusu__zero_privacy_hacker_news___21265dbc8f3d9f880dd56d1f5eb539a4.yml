@@ -1,0 +1,18 @@
+
+db:
+  image: postgres
+  environment:
+    POSTGRES_PASSWORD: docker
+    POSTGRES_USER: docker
+
+web:
+  build: .
+  command: ./env ./start.sh
+  volumes:
+    - .:/zphn
+  ports:
+    - "80:80"
+  links:
+    - db
+  environment:
+    SECRET_KEY_BASE: 36eb31eec9ae30e86c780618a815c1c485ca9d662bb5cb4f28f9b3b2f7e7b5438d4ffa0c149dab1e27960f8b5007b03efae1493ab34f9ff6c42fd3644976b7b1

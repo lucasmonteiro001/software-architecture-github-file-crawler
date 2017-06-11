@@ -1,0 +1,19 @@
+nginx:
+  restart: always
+  build: ./nginx
+  ports:
+    - "80:80"
+  volumes_from:
+    - couchdb
+  links:
+    - couchdb
+
+couchdb:
+  restart: always
+  build: ./couchdb
+  ports:
+    - "5984:5984"
+  volumes:
+    - ./couchdb/var/lib:/usr/local/var/lib/couchdb
+    - ./couchdb/var/log:/usr/local/var/log/couchdb
+    - ./couchdb/var/etc:/usr/local/var/etc/couchdb

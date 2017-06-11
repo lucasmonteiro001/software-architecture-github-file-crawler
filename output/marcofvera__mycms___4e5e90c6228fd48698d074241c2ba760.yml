@@ -1,0 +1,13 @@
+db:
+  image: postgres
+  environment:
+    - POSTGRES_PASSWORD=mypassword
+
+web:
+  build: web/
+  volumes:
+    - ./web/mysite/:/code
+  links:
+    - db
+  ports:
+    - "8001:80"

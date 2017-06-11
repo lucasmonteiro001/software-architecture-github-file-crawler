@@ -1,0 +1,30 @@
+version: '2'
+
+services:
+    db:
+     image: mariadb
+     volumes:
+       - db_data:/var/lib/mysql
+     environment:
+       MYSQL_ROOT_PASSWORD: root
+       MYSQL_DATABASE: root
+       MYSQL_USER: root
+       MYSQL_PASSWORD: root
+
+    wordpress:
+     depends_on:
+       - db
+     build: ./
+     ports:
+       - "8000:80"
+       - "443:443"
+     environment:
+       WORDPRESS_DB_HOST: db:3306
+       WORDPRESS_DB_PASSWORD: root
+     working_dir: /var/www/html
+     volumes:
+       - ./wp-content:/var/www/html/wp-content
+       
+volumes:
+    db_data:
+    wp-content:

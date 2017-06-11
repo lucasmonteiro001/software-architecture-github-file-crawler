@@ -1,0 +1,4 @@
+api:
+  build: "./api"
+  environment:
+    NODE_ENV: "production"

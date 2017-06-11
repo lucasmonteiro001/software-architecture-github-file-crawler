@@ -1,0 +1,57 @@
+consul:
+    hostname: consul
+    image: qnib/alpn-consul
+    environment:
+     - DC_NAME=dc1
+     - BOOTSTRAP_CONSUL=true
+     - RUN_SERVER=true
+    ports:
+     - 8500
+    dns: 127.0.0.1
+
+window:
+    hostname: window
+    image: ${BUILD_IMG_NAME}
+    dns: 127.0.0.1
+    environment:
+     - DC_NAME=dc1
+     - SKIP_PSWATCH=true
+    links:
+     - consul:consul
+    ports:
+     - 80
+     - 443
+
+test:
+    image: qnib/alpn-consul
+    dns: 127.0.0.1
+    container_name: ${TEST_CONTAINER}
+    links:
+     - consul:consul
+
+nginx:
+    hostname: nginx
+    image: qnib/alpn-nginx
+    dns: 127.0.0.1
+    environment:
+     - DC_NAME=dc1
+     - SKIP_PSWATCH=true
+    links:
+     - consul:consul
+    ports:
+     - 80
+     - 443
+
+nginx2:
+    hostname: nginx2
+    image: qnib/alpn-nginx
+    dns: 127.0.0.1
+    environment:
+     - DC_NAME=dc1
+     - SKIP_PSWATCH=true
+    links:
+     - consul:consul
+    ports:
+     - 80
+     - 443
+

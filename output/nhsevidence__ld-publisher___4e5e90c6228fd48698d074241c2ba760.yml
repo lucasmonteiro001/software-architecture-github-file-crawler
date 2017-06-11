@@ -1,0 +1,19 @@
+publisher:
+  image: "${IMAGE_NAME}:${IMAGE_VERSION}"
+  ports:
+    - "8080:8080"
+  volumes_from:
+    - publisherdata
+  environment:
+    - NODE_ENV
+    - CONTENT_URL
+    - BUILD_DSL_URL
+  external_links:
+    - knowledgebase/compiler:compiler
+  labels:
+    io.rancher.sidekicks: publisherdata
+publisherdata:
+  image: busybox:1.24.1
+  command: top
+  volumes:
+    - /git

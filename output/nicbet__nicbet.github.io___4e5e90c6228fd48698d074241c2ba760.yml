@@ -1,0 +1,11 @@
+---
+version: '2'
+services:
+  app:
+    ports:
+      - "4000:4000"
+      - "4001:4001"
+    build: .
+    volumes:
+      - .:/site
+    command: bundle exec jekyll serve -L -R 4001 --host 0.0.0.0

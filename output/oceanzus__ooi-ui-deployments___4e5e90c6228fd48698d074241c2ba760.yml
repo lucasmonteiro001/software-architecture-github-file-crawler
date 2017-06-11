@@ -1,0 +1,167 @@
+# OOI UI Main Docker Launch
+# <https://github.com/oceanzus/ooi-ui-deployments.git>
+# Author: RPS ASA
+# Usage: <https://github.com/asascience-open/ooi-ui/wiki/Automated-Deployment-(Docker)>
+
+# NOTE:  Do not change parameters unless # *** is above the parameter
+
+# Redis Container
+#redis:
+#  restart: always
+#  image: dockerfile/redis
+#  volumes: /root/redis-data:/data
+#  ports:
+#   - "6379:6379"
+#  expose:
+#   - "6379"
+
+# PostgreSQL/PostGIS Container
+ooiuidb:
+  restart: always
+  image: oceanzus/docker_postgis
+  volumes:
+   # *** $HOME/postgres_data will be created automatically unless already exists
+   - $HOME/postgres_data:/var/lib/postgresql
+  environment:
+    USERNAME: ooiui
+    PASS: ooiui
+  ports:
+   - "5432:5432"
+  expose:
+   - "5432"
+
+# muFrame Container: uFrame response cache or pass-through
+muframe:
+  restart: always
+  image: oceanzus/muframe
+  volumes:
+  # *** Ensure the $HOME/muframe_data directory exists before launching
+  # *** /root/muframe_data is the Docker container path, do not change
+   - $HOME/muframe_data:/root/muframe_data
+  ports:
+   - "7090:7090"
+  expose:
+   - "7090"
+  environment:
+    MUFRAME_DATA_ROOT: /root
+    MUFRAME_DATA_FOLDER: muframe_data
+    MUFRAME_UFRAME_URL: http://uframe-test.ooi.rutgers.edu:12575
+    MUFRAME_UFRAME_URL_ROOT: /sensor/inv
+    MUFRAME_UFRAME_TIMEOUT_CONNECT: 5
+    MUFRAME_UFRAME_TIMEOUT_READ: 30
+    MUFRAME_HOST: 0.0.0.0
+    MUFRAME_PORT: 7090
+    MUFRAME_TIMEOUT: 60
+    # *** True = Build cached files, False = Do not contact uFrame, only use cached files
+    MUFRAME_PRELOAD: False
+
+# OOI UI Services Container
+ooiuiservices:
+  restart: always
+  image: oceanzus/ooi-ui-services
+  ports:
+   - "4000:4000"
+  expose:
+   - "4000"
+  environment:
+    DB_HOST: ooiuidb
+    DB_NAME: ooiui
+    DB_PORT: 5432
+    DB_USER: ooiui
+    DB_PASS: ooiui
+    DB_SCHEMA: ooiui
+
+    DEFAULT_ADMIN_USERNAME: admin
+    DEFAULT_ADMIN_PASSWORD: password
+    DB_FIRST_NAME: Default
+    DB_LAST_NAME: Admin
+    DB_EMAIL: defaultadmin@ooi.rutgers.edu
+    DB_ORG_NAME: Rutgers
+
+    DB_INITIALIZE: False # *** Drops and recreates the entire database
+    DB_RESET: False # *** True = wipe entire database, False = use existing
+    DB_SAVE_USERS: True # *** If DB_RESET=True then setting this to True will save all existing users while updating the rest of the database and preload data
+
+    LOGGING: True
+    LOG_FILE_PTAH: '/logs/'
+    LOG_FILE: 'ooiservices.log'
+    SECRET_KEY: 'ccdf5de08ac74855bda3e7e309d871e5'
+    SSL_DISABLE: False
+    SQLALCHEMY_COMMIT_ON_TEARDOWN: True
+    SQLALCHEMY_RECORD_QUERIES: True
+    OOI_SLOW_DB_QUERY_TIME: 0.5
+    HOST: localhost
+    PORT: 4000
+    JSONIFY_PRETTYPRINT_REGULAR: true
+    UFRAME_URL: 'http://uframe.ooi.rutgers.edu:12576' # *** Use for uFrame direct (default)
+    #UFRAME_URL: 'http://muframe:7090/service=' # *** Use for muFrame: cache-only
+    #UFRAME_URL: 'http://muframe:7090/uframe=' # *** Use for muFrame: no-cache
+    UFRAME_ASSETS_URL: 'http://uframe.ooi.rutgers.edu:12573'
+    UFRAME_URL_BASE: '/sensor/inv'
+    UFRAME_TOC: '/sensor/inv/toc'
+    UFRAME_INST_URL: 'http://uframe.ooi.rutgers.edu:12572'
+    UFRAME_INST_BASE: '/instrument/api'
+    UFRAME_PLAT_BASE: '/platform/api'
+    UFRAME_TIMEOUT_CONNECT: 5
+    UFRAME_TIMEOUT_READ: 360000
+    REDMINE_KEY: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    UI_API_KEY: a12261fd433d4d0a8a9c6b7666d984ec
+    REDMINE_URL: 'https://uframe-cm.ooi.rutgers.edu'
+    REDMINE_PROJECT_ID: 'ooi-ui-api-testing'
+    WHOOSH_BASE: 'ooiservices/whoosh_index'
+    REDIS_URL: 'redis://:password@localhost:6379'
+    DEPLOYMENT_SCENARIO: PRODUCTION
+    UFRAME_DATA_REQUEST_LIMIT: 360000 # minutes
+    USE_MOCK_DATA: False # *** Set to True if running a demo
+    GOOGLE_ANALYTICS_URL: 'https://www.google-analytics.com/collect?v=1&tid=UA-50606390-3&cid=1&t=event'
+
+  links:
+   - ooiuidb
+   # *** Enable muFrame
+   #- muframe
+
+# OOI UI Container #1
+ooiui1:
+  restart: always
+  image: oceanzus/ooi-ui
+  expose:
+   - "5000"
+  environment:
+    # *** Change as necessary
+    SECRET_KEY: 'ccdf5de08ac74855bda3e7e309d871e5'
+    # *** Change as necessary
+    UI_API_KEY: a12261fd433d4d0a8a9c6b7666d984ec
+    # *** Change as necessary
+    HOST_NIC: eth0
+  links:
+   - ooiuiservices
+
+# OOI UI Container #2
+ooiui2:
+  restart: always
+  image: oceanzus/ooi-ui
+  expose:
+   - "5000"
+  environment:
+    # *** Change as necessary
+    SECRET_KEY: 'ccdf5de08ac74855bda3e7e309d871e5'
+    # *** Change as necessary
+    UI_API_KEY: a12261fd433d4d0a8a9c6b7666d984ec
+    # *** Change as necessary
+    HOST_NIC: eth0
+  links:
+   - ooiuiservices
+
+# HAProxy Load Balancing Container
+ooiuihaproxy:
+  restart: always
+  image: oceanzus/haproxy
+  environment:
+    PORT: 5000
+    MAXCONN: 500
+  ports:
+   # *** Change IP address to externally-facing domain IP address
+   - "10.181.93.144:80:80"
+  links:
+   - ooiui1
+   - ooiui2

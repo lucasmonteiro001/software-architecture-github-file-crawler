@@ -1,0 +1,38 @@
+#consul-server:
+#    image: gliderlabs/consul-server
+#    net: host 
+#    command: -bootstrap
+
+redis:
+    image: redis
+    ports: 
+      - 6379
+
+registrator:
+    image: gliderlabs/registrator
+    net: host
+    volumes: 
+      - /var/run/docker.sock:/tmp/docker.sock
+    command: consul://172.17.42.1:8500
+
+tatooine:
+    build: .
+    ports: 
+      - 5000 
+    extra_hosts:
+      - "consul:172.17.42.1"
+    environment:
+      SERVICE_5000_NAME: 'tatooine'
+      SERVICE_5000_CHECK_HTTP: '/'
+      SERVICE_5000_CHECK_INTERVAL: '10s'
+      SERVICE_TAGS: 'urlprefix-/tatooine'
+
+lb:
+    image: magiconair/fabio 
+    ports:
+      - 9999:9999
+      - 9998:9998
+    volumes:
+      - ./fabio.properties:/etc/fabio/fabio.properties
+    extra_hosts:
+      - "consul:172.17.42.1"

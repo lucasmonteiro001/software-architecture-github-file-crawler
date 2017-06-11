@@ -1,0 +1,84 @@
+version: '2'
+services:
+  db:
+    image: mariadb:10.1
+    container_name: oauth2_mariadb
+    restart: always
+    volumes:
+      - ./docker/mysql/initdb/:/docker-entrypoint-initdb.d
+      - "mysqldata:/var/lib/mysql"
+    env_file: .env
+    ports:
+      - 3306:3306
+    networks:
+      - backend
+  redis:
+    image: redis:3.2.6-alpine
+    container_name: oauth2_redis
+    restart: always
+    volumes:
+      - "redisdata:/data"
+    expose:
+      - "6379"
+    networks:
+      - backend
+  php:
+    build: ./docker/php
+    container_name: oauth2_php
+    restart: always
+    env_file: .env
+    volumes:
+      - .:/var/www/html
+    expose:
+      - "9000"
+    networks:
+      - backend
+    depends_on:
+      - db
+      - redis
+  frontend:
+    image: nginx:stable-alpine
+    container_name: oauth2_frontend
+    restart: always
+    volumes:
+      - ./docker/nginx/conf/nginx.conf:/etc/nginx/conf/nginx.conf:ro
+      - ./docker/nginx/frontend-conf.d:/etc/nginx/conf.d:ro
+    volumes_from:
+      - php
+    ports:
+      - 9090:80
+    networks:
+      - backend
+      - frontend
+    depends_on:
+      - php
+  backend:
+    image: nginx:stable-alpine
+    container_name: oauth2_backend
+    restart: always
+    volumes:
+      - ./docker/nginx/conf/nginx.conf:/etc/nginx/conf/nginx.conf:ro
+      - ./docker/nginx/backend-conf.d:/etc/nginx/conf.d:ro
+    volumes_from:
+      - php
+    ports:
+      - 9091:80
+    networks:
+      - backend
+      - frontend
+    depends_on:
+      - php
+
+volumes:
+    mysqldata:
+        driver: local
+    redisdata:
+        driver: local
+    elasticdata:
+        driver: local
+
+networks:
+    frontend:
+        driver: bridge
+    backend:
+        driver: bridge

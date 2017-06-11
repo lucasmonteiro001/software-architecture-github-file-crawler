@@ -1,0 +1,15 @@
+nginx:
+  build: nginx/
+  links:
+    - website:website
+  ports:
+    - "80:80"
+website:
+  build: .
+  command: ./target/universal/stage/bin/app
+  links:
+    - elasticsearch
+  ports:
+    - "8080:8080"
+elasticsearch:
+ image: elasticsearch

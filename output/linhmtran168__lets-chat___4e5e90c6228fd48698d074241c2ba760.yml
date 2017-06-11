@@ -1,0 +1,14 @@
+app:
+  image: linhmtran168/lets-chat
+  links:
+    - mongo
+
+mongo:
+  image: mongo:latest
+
+lb:
+  image: rancher/load-balancer-service
+  ports:
+    - 80:8080/tcp
+  links:
+    - app:app

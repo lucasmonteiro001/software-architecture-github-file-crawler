@@ -1,0 +1,9 @@
+version: "2"
+
+services:
+    server:
+        build: .
+        image: tebe/worker
+        command: php /app/vendor/bin/phpunit -c /app/phpunit.xml
+        volumes:
+            - .:/app

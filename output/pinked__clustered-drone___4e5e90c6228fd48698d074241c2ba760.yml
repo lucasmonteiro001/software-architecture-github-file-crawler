@@ -1,0 +1,58 @@
+version: "3"
+services:
+  server:
+    image: drone/drone:0.5
+    networks:
+      - proxy
+      - default
+    deploy:
+      mode: replicated
+      replicas: 1
+      labels:
+        - com.df.notify=true
+        - com.df.distribute=true
+        - com.df.serviceDomain=drone.p.cns.me
+        - com.df.servicePath=/
+        - com.df.port=8000
+        - com.df.xForwardedProto=true
+        - com.df.redirectWhenHttpProto=true
+    volumes:
+      - data:/var/lib/drone/
+    environment:
+      - DRONE_ADMIN=${DRONE_ADMIN}
+      - DRONE_GITHUB=true
+      - DRONE_OPEN=true
+      - DRONE_ORGS=${DRONE_ORGS}
+      - DRONE_GITHUB_CLIENT=${DRONE_GITHUB_CLIENT}
+      - DRONE_GITHUB_SECRET=${DRONE_GITHUB_SECRET}
+      - DRONE_SECRET=${DRONE_SECRET}
+  agent:
+    image: drone/drone:0.5
+    command: agent
+    depends_on: [ drone-server ]
+    deploy:
+      mode: global
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - DRONE_SERVER=ws://server:8000/ws/broker
+      - DRONE_SECRET=${DRONE_SECRET}
+
+  tunnel:
+    image: kaixhin/localtunnel
+    command: 8000 --local-host server --subdomain ${EXTERNAL_DRONE_URL}
+    depends_on: [ drone-server ]
+    deploy:
+      mode: replicated
+      replicas: 1
+
+networks:
+  default:
+    external: false
+  proxy:
+    external: true
+
+volumes:
+  data:
+    driver: glusterfs
+

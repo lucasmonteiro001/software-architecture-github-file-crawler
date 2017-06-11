@@ -1,0 +1,28 @@
+version: '2'
+services:
+  squid:
+    image: sameersbn/squid
+    container_name: squid
+    volumes:
+    - ./squid.conf:/etc/squid3/squid.conf
+    - ./squid.passwords:/etc/squid3/passwords
+
+  logstash:
+    build:
+      context: .
+      dockerfile: Dockerfile_logstash
+    command: >
+      logstash --debug -e '
+        input {
+          cloudhub {
+            username => "${CLOUDHUB_USERNAME}"
+            password => "${CLOUDHUB_PASSWORD}"
+            interval => 10 # optional, default 300
+            proxy_host => "squid" # optional
+            proxy_port => 3128 # optional
+            proxy_username => "user" # optional
+            proxy_password => "secret" # optional
+
+            add_field => { "name" => "value" } # test usage of decorate()
+          }
+        } output { stdout {} }'

@@ -1,0 +1,14 @@
+processor:
+  build: .
+  volumes:
+    - .:/myapp
+  ports:
+    - "3000"
+  external_links:
+    - champaign_db_1
+    - champaign_redis_1
+  environment:
+    PG_USERNAME: postgres
+    PG_HOST: champaign_db_1
+  env_file:
+    - env.yml

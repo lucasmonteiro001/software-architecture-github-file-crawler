@@ -1,0 +1,19 @@
+version: "2"
+services:
+ mongodb:
+  image: mongo-user
+  volumes:
+   - './data:/data/db'
+  expose:
+   - "27017"
+ weaverflock:
+  image: sysunite/weaver-flock:0.0.7 
+  environment:
+   MONGODB_URI: "mongodb:27017/weaverflock"
+   MONGODB_USER: "phoenix"
+   MONGODB_PASSWORD: "phoenix"
+  ports:
+   - "4567:4567"
+  links:
+   - mongodb
+ 

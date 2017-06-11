@@ -1,0 +1,9 @@
+database:
+  image: kyuff/postgres
+  ports:
+    - "5432"
+web:
+  image: kyuff/web
+  links:
+    - database:database
+

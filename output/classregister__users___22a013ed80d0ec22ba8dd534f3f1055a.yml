@@ -1,0 +1,42 @@
+version: '2'
+
+services:
+  postgres:
+      image: postgres
+      container_name: postgresdb
+      ports:
+          - "5432:5432"
+      environment:
+          - POSTGRES_USER=classregister
+          - POSTGRES_PASSWORD=changeit
+      networks:
+      - classregister_network
+
+  users:
+    image: users:0.3.0-SNAPSHOT
+    container_name: classregister_users
+    cap_drop:
+          - ALL
+    read_only: true
+    cpuset: "0"
+    mem_limit: 512M
+    memswap_limit: 512M
+    volumes:
+          - /conf:/config:ro
+          - /certs:/certs:ro
+          - /log
+    tmpfs:
+      - /tmp
+    ports:
+          - "6002:6002"
+    depends_on:
+      - postgres
+    networks:
+    - classregister_network
+
+
+networks:
+  classregister_network:
+
+
+

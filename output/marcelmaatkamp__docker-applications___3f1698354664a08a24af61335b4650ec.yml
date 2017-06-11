@@ -1,0 +1,16 @@
+version: '2'
+
+services:
+ squid:
+  image: poklet/squid
+  restart: always
+  ports:
+   - 3128:3128
+  volumes:
+   - ./volumes/squid/etc/squid.conf:/etc/squid/squid.conf
+   - ./volumes/squid/log:/var/log/squid
+   - squid:/var/spool/squid
+
+volumes:
+ squid:
+  driver: local

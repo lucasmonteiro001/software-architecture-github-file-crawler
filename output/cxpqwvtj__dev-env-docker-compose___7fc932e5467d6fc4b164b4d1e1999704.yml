@@ -1,0 +1,43 @@
+version: '2'
+services:
+  openldap:
+    restart: always
+    image: dinkel/openldap:2.4.40
+    environment:
+      - SLAPD_PASSWORD=mysecretpassword #change-it
+      - SLAPD_DOMAIN=example.com #change-it
+      - SLAPD_ORGANIZATION=Example Inc. #change-it
+      - SLAPD_FORCE_RECONFIGURE=false
+    expose:
+      - 389
+    volumes:
+      - ./data/etc/ldap:/etc/ldap
+      - ./data/var/lib/ldap:/var/lib/ldap
+    networks:
+      - backbone
+
+  pocci-account-center:
+    restart: always
+    image: cxpqwvtj/pocci-account-center:latest
+    depends_on:
+      - openldap
+    links:
+      - openldap:openldap
+    environment:
+      - APP_BASE_URL=
+      - LDAP_URL=ldap://openldap
+      - LDAP_BASE_DN=dc=example,dc=com #change-it
+      - USER_APP_PORT=9898
+    expose:
+      - 9898
+    networks:
+      - reverse_proxy
+      - backbone
+
+networks:
+  reverse_proxy:
+    external:
+      name: reverse_proxy
+  backbone:
+    external:
+      name: backbone

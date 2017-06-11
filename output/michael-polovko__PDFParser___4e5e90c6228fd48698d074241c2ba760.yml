@@ -1,0 +1,21 @@
+#web:
+#  container_name: web
+#  build: .
+##  command: bash -c "cd /usr/src/parser; ./gradlew test"
+##  volumes:
+##   - ./:/usr/src/parser
+#  ports:
+#    - "8080:8080"
+#  links:
+#    - db
+#    - queue
+db:
+  container_name: db
+  image: mongo:3.2
+  ports:
+    - "27017:27017"
+queue:
+  container_name: queue
+  image: rabbitmq:3.6
+  ports:
+    - "5672:5672"

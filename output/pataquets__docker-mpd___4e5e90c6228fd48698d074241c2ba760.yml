@@ -1,0 +1,13 @@
+mpd:
+  image: pataquets/mpd
+#  command: --verbose
+  container_name: mpd
+  restart: unless-stopped
+  devices:
+    - /dev/snd
+  ports:
+    - "127.0.0.1:6600:6600"
+    - "127.0.0.1:8000:8000"
+  volumes:
+    - ~/Music/:/var/lib/mpd/music:ro
+#    - ~/Playlists/:/var/lib/mpd/playlists

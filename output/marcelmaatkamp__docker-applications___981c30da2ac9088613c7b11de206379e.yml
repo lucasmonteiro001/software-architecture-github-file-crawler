@@ -1,0 +1,34 @@
+# https://github.com/ForgeRock/docker/tree/master/openidm-nightly
+# https://hub.docker.com/r/wstrange/openidm-postgres/
+# http://docker:8095/
+openidm:
+  image: forgerock/openidm
+  ports:
+    - "8095:8080"
+
+# http://docker:8090/openam
+# https://wikis.forgerock.org/confluence/display/openam/Deploy+OpenAM
+# https://github.com/ForgeRock/docker/blob/master/openam-nightly/Dockerfile
+# dc=openam,dc=forgerock,dc=org
+openam:
+  # image: wstrange/openam-nightly
+  image: forgerock/openam
+  ports:
+    - 8090:8080
+    - 8091:8081
+    - 8092:8082
+  volumes:
+    - ./volumes/forgerock/openam:/root/openam
+  extra_hosts:
+    - "openam.example.com:192.168.56.11"
+    - "openam:192.168.56.11"
+  links:
+    - opendj
+    - openidm
+
+# https://github.com/ForgeRock/docker/tree/master/openidm-nightly
+# http://docker:8095/
+openidm:
+  image: wstrange/openidm-nightly
+  ports:
+    - "8095:8080"

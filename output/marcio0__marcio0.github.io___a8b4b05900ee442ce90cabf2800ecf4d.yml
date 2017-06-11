@@ -1,0 +1,7 @@
+jekyll:
+    build: .
+    volumes:
+        - ../:/opt/app
+    ports:
+        - "4000:4000"
+    command: jekyll serve --watch --force_polling 

@@ -1,0 +1,15 @@
+compass:
+    image: stevevega/compass:latest
+    command: watch --poll
+    volumes:
+        - ./src/resource/scss:/input
+        - ./src/public/css:/output
+        - ./src/public/img:/images
+nginx:
+    image: nginx:latest
+    ports:
+        - "80:80"
+    volumes:
+        - ./nginx/vhost:/etc/nginx/conf.d:ro
+        - .:/srv
+    working_dir: /srv

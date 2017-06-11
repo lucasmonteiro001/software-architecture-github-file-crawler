@@ -1,0 +1,69 @@
+version: '2'
+
+services:
+    postgres:
+        image: postgres:9.5.5-alpine
+        environment:
+            POSTGRES_USER: zotonic
+        volumes:
+            - postgres-data:/var/lib/postgresql/data
+            - ./data:/data
+        working_dir: /data
+
+    elasticsearch:
+        image: elasticsearch:5.1-alpine
+        ports:
+            - 9200:9200
+        volumes:
+          - elasticsearch-data:/usr/share/elasticsearch/data
+        environment:
+            ES_JAVA_OPTS: "-Xms500m -Xmx500m"
+
+    kibana:
+        image: kibana:5.0
+        links:
+            - elasticsearch
+        ports:
+            - 5601:5601
+
+    zotonic:
+        image: driebit/ginger-dev:0.x
+        privileged: true
+        links:
+            - postgres
+            - elasticsearch
+        volumes:
+            - ./modules:/opt/zotonic/user/modules
+            - ./sites:/opt/zotonic/user/sites
+            - ./skel:/opt/zotonic/priv/skel/ginger
+        ports:
+            - 80:8000
+        environment:
+            MAKE: "true"
+            LOGSTASH_HOST: "localhost"
+            LOGSTASH_PORT: 5514
+        networks:
+            default:
+            selenium:
+
+    node-tests:
+        image: driebit/node
+        command: test
+        links:
+            - selenium
+        environment:
+            SELENIUM_REMOTE_URL: http://selenium:4444/wd/hub
+        networks:
+            - selenium
+
+    selenium:
+        image: selenium/standalone-chrome:3.4.0
+        networks:
+            - selenium
+
+networks:
+    selenium:
+
+volumes:
+    postgres-data: {}
+    elasticsearch-data: {}

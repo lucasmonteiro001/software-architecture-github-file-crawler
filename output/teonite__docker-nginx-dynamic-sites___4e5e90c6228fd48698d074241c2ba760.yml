@@ -1,0 +1,7 @@
+static-sites:
+  image: teonite/nginx-dynamic-sites
+  ports:
+    - "20080:80"
+    - "20443:443"
+  volumes:
+    - /s/sites:/sites

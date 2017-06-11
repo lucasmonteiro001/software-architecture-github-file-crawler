@@ -1,0 +1,31 @@
+selhub:
+  image: selenium/hub
+  ports:
+    - 4444:4444
+  restart: always
+  volumes:
+    - /dev/shm:/dev/shm
+
+nodechrome:
+  image: selenium/node-chrome
+  ports:
+    - 5900
+  links:
+    - selhub:hub
+  environment:
+    - DBUS_SESSION_BUS_ADDRESS=/dev/null
+  restart: always
+  volumes:
+    - /dev/shm:/dev/shm
+
+#nodeff:
+#  image: selenium/node-firefox
+#  ports:
+#    - 5900
+#  links:
+#    - selhub:hub
+#  environment:
+#    - DBUS_SESSION_BUS_ADDRESS=/dev/null
+#  restart: always
+#  volumes:
+#    - /dev/shm:/dev/shm

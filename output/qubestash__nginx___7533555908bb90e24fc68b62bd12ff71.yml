@@ -1,0 +1,19 @@
+#! /bin/bash
+
+cat <<DOCKER_COMPOSE
+nginx:
+  image: qubestash/nginx:$2
+  environment:
+    NGINX_CERTBOT_OPTIONS: --staging
+  volumes:
+    - /tmp/conf.d:/etc/nginx/conf.d
+    - /tmp/letsencrypt:/etc/letsencrypt
+    - /tmp/qubestash:/var/qubestash
+    - /tmp/cert.pem:/etc/nginx/ssl/cert.pem
+    - /tmp/privkey.pem:/etc/nginx/ssl/privkey.pem
+    - /vagrant:/vagrant
+  ports:
+    - "80:80"
+    - "443:443"
+
+DOCKER_COMPOSE

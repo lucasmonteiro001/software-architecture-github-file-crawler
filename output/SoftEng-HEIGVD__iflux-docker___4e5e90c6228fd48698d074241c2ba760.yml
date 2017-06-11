@@ -1,0 +1,218 @@
+ifluxapidoc:
+  image: softengheigvd/iflux-apidoc:latest
+  env_file: ./.env
+  ports:
+    - "4000:4000"
+
+ifluxsrvdata:
+  build: iflux-server-data
+  volumes:
+    - "/iflux/db/mongo:/data/db"
+    - "/iflux/db/postgres:/var/lib/postgresql/data"
+    - "/iflux/kafka:/kafka"
+    - "/iflux/esearch:/usr/share/elasticsearch/data"
+    - "/iflux/slack:/data/slack"
+    - "/iflux/viewbox:/data/viewbox"
+    - "/iflux/metrics:/data/metrics"
+    - "/iflux/publibike:/data/publibike"
+    - "/iflux/citizen:/data/citizen"
+
+ifluxsrv:
+  image: softengheigvd/iflux-server-node:latest
+  env_file: ./.env
+  ports:
+    - 3006:3000
+  links:
+    - postgresql
+    - kafka
+    - zookeeper:zk
+    - elasticsearch:es
+
+ifluxsrvlight:
+  image: softengheigvd/iflux-server-node:latest
+  env_file: ./.env
+  environment:
+    KAFKA_ENABLE: 'false'
+  ports:
+    - 3006:3000
+  links:
+    - postgresql
+    - elasticsearch:es
+
+ifluxapi:
+  image: softengheigvd/iflux-api-gateway-node:latest
+  env_file: ./.env
+  ports:
+    - 3005:3000
+  links:
+    - ifluxsrv
+    - kafka
+    - zookeeper:zk
+
+ifluxfe:
+  image: softengheigvd/iflux-frontend
+  env_file: ./.env
+  ports:
+    - 3007:3000
+
+ifluxslack:
+  image: softengheigvd/iflux-slack-gateway:latest
+  env_file: ./.env
+  ports:
+    - 3001:3000
+  volumes_from:
+    - ifluxsrvdata
+
+ifluxmetrics:
+  image: softengheigvd/iflux-metrics-action-target:latest
+  env_file: ./.env
+  links:
+    - mongo
+  ports:
+    - 3002:3000
+  volumes_from:
+    - ifluxsrvdata
+
+ifluxmapbox:
+  image: softengheigvd/iflux-mapbox-viewer:latest
+  env_file: ./.env
+  ports:
+    - 3004:3000
+  volumes_from:
+    - ifluxsrvdata
+
+ifluxpaleo:
+  image: softengheigvd/iflux-paleo-2015:latest
+  env_file: ./.env
+  links:
+    - mongo
+  ports:
+    - 3008:3000
+  volumes_from:
+    - ifluxsrvdata
+
+ifluxstarter:
+  image: softengheigvd/iflux-server-starter:latest
+  env_file: ./.env
+
+citizen:
+  image: softengheigvd/citizen:latest
+  env_file: ./.env
+  links:
+    - mongo
+  ports:
+    - 3003:3000
+  volumes_from:
+    - ifluxsrvdata
+
+publibike:
+  image: softengheigvd/iflux-publibike-event-source:latest
+  env_file: ./.env
+
+mongo:
+  image: mongo
+  command: mongod --smallfiles
+  ports:
+    - 27017:27017
+  volumes_from:
+    - ifluxsrvdata
+
+postgresql:
+  image: postgres:9.4
+  volumes_from:
+    - ifluxsrvdata
+  volumes:
+    - "./db:/docker-entrypoint-initdb.d"
+  ports:
+    - 5432:5432
+  env_file: ./.env
+
+postgresqlwait:
+  image: n3llyb0y/wait
+  links:
+    - postgresql:db
+  environment:
+    PORTS: 5432
+
+zookeeper:
+  image: wurstmeister/zookeeper:3.4.6
+  ports:
+    - 2181:2181
+
+kafka:
+  image: wurstmeister/kafka:0.9.0.0
+  ports:
+    - 9092:9092
+  links:
+    - zookeeper:zk
+  environment:
+    KAFKA_CREATE_TOPICS: "iflux-events:1:1"
+  env_file: ./.env
+  volumes_from:
+    - ifluxsrvdata
+  volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
+
+elasticsearch:
+  image: elasticsearch:1.5.2
+  volumes_from:
+    - ifluxsrvdata
+  ports:
+    - 9200:9200
+    - 9300:9300
+
+kibana:
+  image: shortishly/kibana
+  links:
+    - elasticsearch
+  ports:
+    - 5601:5601
+
+rp:
+  build: rp
+  links:
+    - kibana
+    - ifluxpaleo:paleo
+    - ifluxmapbox:viewbox
+    - ifluxmetrics:metrics
+    - ifluxslack:slack
+    - ifluxapi:gateway
+    - ifluxsrv:iflux
+    - ifluxfe:fe
+    - ifluxapidoc:doc
+    - citizen
+    - publibike
+  ports:
+    - 3000:80
+
+rpnova:
+  build: rp-nova
+  links:
+    - kibana
+    - ifluxmetrics:metrics
+    - ifluxapi:gateway
+    - ifluxsrv:iflux
+    - ifluxfe:fe
+  ports:
+    - 3000:80
+
+rplight:
+  build: rp-light
+  links:
+    - kibana
+    - ifluxapi:gateway
+    - ifluxsrv:iflux
+    - ifluxfe:fe
+    - ifluxapidoc:doc
+  ports:
+    - 3000:80
+
+dev:
+  build: rp-dev
+  links:
+    - kibana
+    - ifluxsrvlight:iflux
+    - ifluxfe:fe
+    - ifluxapidoc:doc
+  ports:
+    - 3000:80

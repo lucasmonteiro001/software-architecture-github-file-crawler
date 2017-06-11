@@ -1,0 +1,66 @@
+version: "2"
+    
+services:
+
+  builder:
+    extends:
+      file: docker-compose-commons.yml
+      service: base-node
+    command: npm install
+
+  app-mysql:
+    extends:
+      file: docker-compose-commons.yml
+      service: base-node
+    hostname: app
+    ports:
+      - "3000:3000"
+      - '5858:5858' # Node-Debug
+    links:
+      - db-mysql:db-host
+    command: npm run run-mysql
+    restart: always
+
+  app-mongo:
+    extends:
+      file: docker-compose-commons.yml
+      service: base-node
+    hostname: app
+    ports:
+      - "3000:3000"
+      - '5858:5858' # Node-Debug
+    links:
+      - db-mongo:db-host
+    command: npm run run-mongo
+    restart: always
+
+  db-admin:
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - "7701:80"
+    depends_on:
+      - db-mysql
+    links:
+      - db-mysql:db-host
+    environment:
+      - PMA_USER=root
+      - PMA_PASSWORD=root
+      - PMA_ARBITRARY=1
+      - PMA_HOST=db-host
+    restart: unless-stopped
+
+  db-mysql:
+    image: mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=app
+    volumes:
+      - ./.data/db/mysql:/var/lib/mysql
+      - ./db:/docker-entrypoint-initdb.d
+    restart: always
+
+  db-mongo:
+    image: mongo
+    volumes:
+      - ./.data/db/mongo:/data/db
+    restart: always

@@ -1,0 +1,23 @@
+nginx:
+  build: ./nginx
+  links:
+      - send-api:api.send
+      - send-web:web.send
+  ports:
+      - "80:80"
+  volumes:
+   - ./nginx:/etc/nginx/
+
+send-api:
+  build: ../send-api/
+  ports:
+   - "9090:9090"
+  volumes:
+   - ../send-api/lib:/lib
+
+send-web:
+  build: ../send-web/
+  ports:
+   - "8080:8080"
+  volumes:
+   - ../send-web:/app

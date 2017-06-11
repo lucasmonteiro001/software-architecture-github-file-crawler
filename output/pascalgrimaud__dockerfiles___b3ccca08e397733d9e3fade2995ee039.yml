@@ -1,0 +1,5 @@
+tomcat:
+  image: pascalgrimaud/tomcat:8.0.26
+  ports:
+  - "8080:8080"
+

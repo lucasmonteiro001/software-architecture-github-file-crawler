@@ -1,0 +1,22 @@
+mesh:
+  build: .
+  ports:
+   - "80:80"
+   - "9001:9001"
+  restart: always
+  working_dir: /app
+  entrypoint: /app/start.sh
+  user: root
+  volumes:
+   - ../:/app
+  volumes_from:
+    - gems
+  links:
+   - redis
+   - postgres
+redis:
+  image: zarkzork/redis
+postgres:
+  image: postgres
+gems:
+  image: zarkzork/gems

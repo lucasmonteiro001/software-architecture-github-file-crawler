@@ -1,0 +1,33 @@
+version: '2'
+services:
+  db:
+    image: library/mysql:5.6.22
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: opd
+    volumes:
+      - db-data:/var/lib/mysql
+      - ./docker/data:/docker-entrypoint-initdb.d
+  redis:
+    image: redis
+  web:
+    build: .
+    command: bash -c "bin/rake solr:setup_dev && bin/rails server -p 8000 -b '0.0.0.0'"
+    ports:
+      - "8000:8000"
+    links:
+      - db
+      - redis
+    volumes:
+      - .:/opd
+    environment:
+      OPD_DB_HOST: db
+      OPD_DB_USERNAME: root
+      OPD_DB_PASSWORD: password
+      OPD_DB_NAME: opd
+      AWS_ACCESS_KEY_ID: ab123
+      AWS_SECRET_ACCESS_KEY: ab123
+      AWS_REGION: us-west-2
+volumes:
+  db-data:
+    driver: local

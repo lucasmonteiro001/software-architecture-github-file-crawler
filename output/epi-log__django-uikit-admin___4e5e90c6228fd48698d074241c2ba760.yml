@@ -1,0 +1,7 @@
+app_django_uikit_admin:
+  build: ./docker_resources/app
+  command: python manage.py runserver 0.0.0.0:8000
+  volumes:
+    - .:/code
+  ports:
+    - "8000:8000"

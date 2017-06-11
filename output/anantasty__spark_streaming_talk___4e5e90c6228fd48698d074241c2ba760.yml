@@ -1,0 +1,16 @@
+kafka:
+  image: spotify/kafka
+  ports:
+    - "9092:9092"
+    - "2181:2181"
+  environment:
+    ADVERTISED_PORT: 9092
+
+spark:
+  image: anantasty/spark_ipython
+  ports:
+   - "8889:8888"
+  volumes:
+   - ./code:/home/root/code
+  links:
+   - kafka

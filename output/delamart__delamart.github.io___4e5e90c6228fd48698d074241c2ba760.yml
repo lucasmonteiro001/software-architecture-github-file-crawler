@@ -1,0 +1,10 @@
+version: '2'
+services:
+  jekyll:
+    image: jekyll/jekyll:pages
+    environment:
+      POLLING: "true"
+    volumes:
+      - .:/srv/jekyll
+    ports:
+      - "4000:4000"

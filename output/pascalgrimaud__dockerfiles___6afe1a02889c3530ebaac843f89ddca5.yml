@@ -1,0 +1,7 @@
+postgresql:
+  image: pascalgrimaud/postgresql:9.3
+  volumes:
+    - ~/volumes/postgresql93/data:/var/lib/postgresql
+    - ~/volumes/postgresql93/logs:/var/log/postgresql
+  ports:
+  - "5432:5432"

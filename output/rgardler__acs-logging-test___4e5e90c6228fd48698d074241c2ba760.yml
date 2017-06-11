@@ -1,0 +1,30 @@
+producer:
+  build: simulated_logging
+  env_file:
+    - ./env.conf
+
+analyzer:
+  build: analyze_logs
+  ports:
+    - "5555:5000"
+  env_file:
+    - ./env.conf
+
+rest_enqueue:
+  build: rest-enqueue
+  ports:
+    - "5000:5000"
+  env_file:
+    - ./env.conf
+
+web:
+  build: web
+  ports:
+    - "8000:80"
+  env_file:
+    - ./env.conf
+
+microscaling:
+  build: microscaling
+  links:
+    - analyzer

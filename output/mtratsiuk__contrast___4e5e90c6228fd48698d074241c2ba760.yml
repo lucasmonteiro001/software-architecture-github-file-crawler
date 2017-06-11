@@ -1,0 +1,25 @@
+version: '3'
+
+services:
+
+  server:
+    build:
+      context: .
+      dockerfile: ./server/Dockerfile
+      args:
+        - CONTRAST_SERVER_STATIC_PATH
+    ports:
+      - "80:$CONTRAST_SERVER_PORT"
+    env_file:
+      - .env
+
+  couch:
+    build:
+      context: .
+      dockerfile: ./couch/Dockerfile
+      args:
+        - CONTRAST_COUCH_SECRET
+    volumes:
+      - /var/data/couchdb:/usr/local/var/lib/couchdb
+    env_file:
+      - .env

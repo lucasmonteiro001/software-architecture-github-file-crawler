@@ -1,0 +1,37 @@
+web:
+  build: .
+  command: rake run
+  ports:
+    - '3000:3000'
+  links:
+    - 'redis'
+  volumes:
+    - '.:/grounds'
+  environment:
+    - RAILS_ENV
+    - TEST_OPTS
+    - DOCKER_URL
+    - RUNNER_URL
+    - SECRET_KEY_BASE
+    - NEWRELIC_LICENSE_KEY
+    - NEWRELIC_APP_NAME
+    - PIWIK_URL
+    - CODECLIMATE_REPO_TOKEN
+
+redis:
+  image: redis:2.8.9
+  expose:
+    - '6379'
+  volumes:
+    - '/redis:/data'
+
+runner:
+  image: grounds/grounds-exec:0.1.0
+  command: scripts/server.sh
+  ports:
+    - '8080:8080'
+  volumes:
+    - $DOCKER_CERT_PATH:/home/.docker
+  environment:
+    - DOCKER_URL
+    - REPOSITORY

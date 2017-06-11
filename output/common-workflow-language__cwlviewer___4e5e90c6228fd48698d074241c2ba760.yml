@@ -1,0 +1,15 @@
+version: '2'
+services:
+  spring:
+    image: commonworkflowlanguage/cwlviewer
+    #build: .
+    ports:
+     - "8080:8080"
+# TODO:
+#    volumes:
+#     - .:/code
+    links:
+     - mongo
+
+  mongo:
+    image: mongo

@@ -1,0 +1,31 @@
+version: '2'
+services:
+  mariadb:
+    image: 'mariadb:latest'
+    volumes:
+      - 'mariadb_data:/opt/mariadb'
+    environment:
+      - MYSQL_DATABASE=testlink
+      - MYSQL_USER=testlink
+      - MYSQL_PASSWORD=testlinkdatabasepassword
+      - MYSQL_RANDOM_ROOT_PASSWORD=yes
+  nginx:
+    image: 'nginx:latest'
+    ports:
+      - '80:80'
+    volumes:
+      - './testlink-virtualhost.conf:/etc/nginx/conf.d/testlink-virtualhost.conf'
+    depends_on:
+      - testlink
+  testlink:
+    image: 'luisurrutia/testlink:latest'
+    environment:
+      - TESTLINK_DB_HOST=mariadb
+      - TESTLINK_DB_NAME=testlink
+      - TESTLINK_DB_USER=testlink
+      - TESTLINK_DB_PASSWORD=testlinkdatabasepassword
+    depends_on:
+      - mariadb
+volumes:
+  mariadb_data:
+    driver: local

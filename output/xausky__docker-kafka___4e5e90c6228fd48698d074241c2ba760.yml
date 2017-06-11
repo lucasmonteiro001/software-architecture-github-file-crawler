@@ -1,0 +1,14 @@
+version: '2'
+
+services:
+  zookeeper:
+    image: xausky/kafka
+    command: zookeeper
+  broker:
+    image: xausky/kafka
+    command: broker
+
+networks:
+  default:
+    external:
+      name: main

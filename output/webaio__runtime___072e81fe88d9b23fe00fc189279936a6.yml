@@ -1,0 +1,188 @@
+version: '2'
+
+services:
+  weba_postgres:
+      image: postgres:9.6
+      container_name: weba_postgres
+      hostname: weba_postgres
+      ports:
+        - "5432:5432"
+      env_file:
+        - ../env/development.env
+      networks:
+        weba:
+          ipv4_address: 100.0.0.10
+
+  weba_zookeeper:
+      image: wurstmeister/zookeeper:3.4.6
+      container_name: weba_zookeeper
+      ports:
+        - "2181:2181"
+        - "2888:2888"
+        - "3888:3888"
+      networks:
+        weba:
+          ipv4_address: 100.0.0.11
+
+  weba_kafka:
+      image: wurstmeister/kafka:0.9.0.1
+      container_name: weba_kafka
+      ports:
+        - "9092:9092"
+        - "9999:9999"
+      links:
+        - weba_zookeeper
+      env_file:
+        - ../env/development.env
+      volumes:
+        - /var/run/docker.sock:/var/run/docker.sock
+      networks:
+        weba:
+          ipv4_address: 100.0.0.12
+
+  weba_kafka_manager:
+      image: sheepkiller/kafka-manager:1.3.1.6
+      container_name: weba_kafka_manager
+      hostname: weba_kafka_manager
+      links:
+        - weba_zookeeper
+        - weba_kafka
+      ports:
+        - "9000:9000"
+      env_file:
+        - ../env/development.env
+      networks:
+        weba:
+          ipv4_address: 100.0.0.13
+
+  weba_collector:
+      container_name: weba_collector
+      build: collector
+      hostname: weba_collector
+      links:
+         - weba_kafka
+      ports:
+         - 80:80
+      env_file:
+        - ../env/development.env
+      networks:
+        weba:
+          ipv4_address: 100.0.0.14
+
+  weba_elasticsearch:
+      image: elasticsearch:2.2.1
+      container_name: weba_elasticsearch
+      hostname: weba_elasticsearch
+      env_file:
+        - ../env/development.env
+      ports:
+        - 9200:9200
+        - 9300:9300
+      volumes:
+        - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+        - ./elasticsearch/config/logging.yml:/usr/share/elasticsearch/config/logging.yml
+        - ./elasticsearch/data:/usr/share/elasticsearch/data
+        - ./elasticsearch/log:/usr/share/elasticsearch/log
+      networks:
+        weba:
+          ipv4_address: 100.0.0.15
+
+  weba_kibana:
+      image: kibana:4.4.1
+      container_name: weba_kibana
+      hostname: weba_kibana
+      ports:
+        - 5601:5601
+      links:
+        - weba_elasticsearch
+      env_file:
+        - ../env/development.env
+      networks:
+        weba:
+          ipv4_address: 100.0.0.16
+
+  weba_flink_jobmanager:
+      build: flink
+      container_name: weba_flink_jobmanager
+      hostname: weba_flink_jobmanager
+      ports:
+        - 48080:8080
+        - 6123:6123
+      expose:
+        - 22
+      command: /usr/local/flink/bin/config-flink.sh weba_flink_jobmanager
+      links:
+        - weba_kafka
+        - weba_elasticsearch
+        - weba_zookeeper
+        - weba_graphite
+      env_file:
+        - ../env/development.env
+      networks:
+        weba:
+          ipv4_address: 100.0.0.17
+
+  weba_flink_worker:
+      build: flink
+      container_name: weba_flink_worker
+      hostname: weba_flink_worker
+      expose:
+        - 6121
+        - 6122
+      ports:
+        - 6121:6121
+        - 6122:6122
+      links:
+        - weba_flink_jobmanager
+        - weba_kafka
+        - weba_elasticsearch
+        - weba_zookeeper
+        - weba_graphite
+      command: /usr/local/flink/bin/config-flink.sh weba_flink_worker
+      env_file:
+        - ../env/development.env
+      networks:
+        weba:
+          ipv4_address: 100.0.0.18
+
+#  weba_locust:
+#      container_name: weba_locust
+#      build: locust
+#      hostname: weba_locust
+#      links:
+#        - weba_entrypoint
+#      ports:
+#        - 8089:8089
+#      env_file:
+#        - ../env/development.env
+#      networks:
+#        weba:
+#          ipv4_address: 100.0.0.19
+
+  weba_graphite:
+      image: hopsoft/graphite-statsd:v0.9.15-phusion0.9.18
+      container_name: weba_graphite
+      hostname: weba_graphite
+      hostname: weba_graphite
+      ports:
+        - 2080:80
+        - 2003:2003
+        - 2004:2004
+        - 2023:2023
+        - 2024:2024
+        - 8125:8125
+        - 8126:8126
+      env_file:
+        - ../env/development.env
+      networks:
+        weba:
+          ipv4_address: 100.0.0.20
+
+networks:
+  weba:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+      - subnet: 100.0.0.0/24
+        gateway: 100.0.0.1

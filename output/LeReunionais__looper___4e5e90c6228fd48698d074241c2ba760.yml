@@ -1,0 +1,15 @@
+looper:
+  build: .
+  ports: 
+    - "6000:6000"
+    - "6001:6001"
+  restart: always
+  environment:
+    - REGISTRY_HOST
+    - SERVICE_HOST
+test:
+  build: .
+  command: echo "No tests defined"
+coverage:
+  build: .
+  command: echo "No coverage defined"

@@ -1,0 +1,37 @@
+version: '2'
+services:
+  mysql:
+    image: mysql:5.5
+    volumes:
+      - ./share/mysql/data:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=MeetUp
+      - MYSQL_DATABASE=meetupdb
+      - MYSQL_USER=meetup
+      - MYSQL_PASSWORD=DockerTours
+    labels:
+      traefik.enable: "false"
+
+  phpfpm:
+    build: ./phpfpm/ 
+    volumes:
+      - ./share/nginx/html:/usr/share/nginx/html
+    labels:
+      traefik.enable: "false"
+    links:
+      - mysql
+
+  nginx:
+    image: nginx:1.9.15
+    volumes:
+      - ./share/nginx/html:/usr/share/nginx/html
+      - ./share/nginx/conf:/etc/nginx/conf.d
+    labels:
+      - traefik.frontend.rule=Host:meetup.oxalide.com
+      - traefik.backend=meetup
+      - traefik.port=80
+      - traefik.frontend.entryPoints=http
+      - traefik.protocol=http
+    links:
+      - phpfpm
+

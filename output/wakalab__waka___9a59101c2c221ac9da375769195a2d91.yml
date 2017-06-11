@@ -1,0 +1,10 @@
+version: '2'
+services:
+  jenkins:
+    container_name: jenkins-master
+    build: .
+    volumes:
+     - /opt/docker/jenkins:/var/jenkins_home
+    restart: always
+    tty: true
+

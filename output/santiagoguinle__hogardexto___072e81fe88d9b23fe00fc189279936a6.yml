@@ -1,0 +1,36 @@
+web:
+    build: .
+    container_name: hogardexto_web
+    ports:
+        - "81:80"
+    volumes:
+        - ../app:/var/www/app
+        - ../web:/var/www/web
+        - ../uploads:/var/www/uploads
+        #- ../src/config/apache/php.ini:/etc/php5/apache2/php.ini
+        - ../src/config/apache/hogardexto.conf:/etc/apache2/sites-enabled/hogardexto.conf
+        - ../logs:/var/log/apache2
+    links:
+        - mysql:mysql
+        - memcached:memcached
+    #external_links:
+    #    - blabla_mailserver:mailserver.dev.blabla.com.br
+    #extra_hosts:
+    #    - "staging.blabla.com.br:54.191.198.157"
+mysql:
+    image: mysql:latest
+    container_name: hogardexto_mysql
+    ports:
+        - "3307:3306"
+    volumes:
+        - ../db/working:/var/lib/mysql
+        - ../db/structure:/var/db/structure
+        - ../db/initial-data:/var/db/initial-data
+        - ../src/scripts/mysql:/scripts
+    #entrypoint: ~/scripts/create.sh
+    environment:
+        - MYSQL_ROOT_PASSWORD=oiTSj.c5rj
+memcached:
+    image: memcached:latest
+    container_name: hogardexto_memcached
+

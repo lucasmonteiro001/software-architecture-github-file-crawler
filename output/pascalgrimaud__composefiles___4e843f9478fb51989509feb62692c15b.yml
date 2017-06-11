@@ -1,0 +1,23 @@
+version: '2'
+services:
+    machine1:
+        container_name: machine1
+        build: .
+        environment:
+            - AUTHORIZED_KEYS=/home/jhipster/.ssh/authorized_keys
+        ports:
+            - '22001:22'
+    machine2:
+        container_name: machine2
+        build: .
+        environment:
+            - AUTHORIZED_KEYS=/home/jhipster/.ssh/authorized_keys
+        ports:
+            - '22002:22'
+    machine3:
+        container_name: machine3
+        build: .
+        environment:
+            - AUTHORIZED_KEYS=/home/jhipster/.ssh/authorized_keys
+        ports:
+            - '22003:22'

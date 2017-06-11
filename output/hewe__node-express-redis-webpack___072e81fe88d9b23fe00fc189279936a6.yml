@@ -1,0 +1,15 @@
+version: "2"
+services:
+  redis:
+    image: redis
+  app:
+    build:
+      context: "../"
+      dockerfile: "docker/app/Dockerfile"
+    depends_on:
+      - redis
+    environment:
+      - REDIS_HOST=redis
+      - EXPRESS_PORT=3000
+    ports:
+      - "3000:3000"

@@ -1,0 +1,53 @@
+redis:
+  log_driver: ''
+  labels:
+    io.rancher.container.pull_image: always
+  tty: true
+  log_opt: {}
+  image: redis
+  stdin_open: true
+voting-app:
+  log_driver: ''
+  tty: true
+  log_opt: {}
+  image: localhost/voting-app
+  links:
+  - 'voting-app:'
+  stdin_open: true
+External-LB:
+  ports:
+  - 5000:80
+  tty: true
+  image: rancher/load-balancer-service
+  links:
+  - voting-app:voting-app
+  stdin_open: true
+result-app:
+  ports:
+  - 5001:80/tcp
+  log_driver: ''
+  tty: true
+  log_opt: {}
+  image: localhost/result-app
+  links:
+  - Postrges:db
+  stdin_open: true
+worker:
+  log_driver: ''
+  tty: true
+  log_opt: {}
+  image: localhost/worker
+  links:
+  - redis:redis
+  - Postrges:db
+  stdin_open: true
+Postrges:
+  log_driver: ''
+  labels:
+    io.rancher.container.pull_image: always
+  tty: true
+  log_opt: {}
+  image: postgres:9.4
+  volumes:
+  - db-data:/var/lib/postgresql/data
+  stdin_open: true

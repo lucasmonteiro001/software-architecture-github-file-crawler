@@ -1,0 +1,41 @@
+elasticsearch:
+  image: elasticsearch
+  volumes:
+  - esdata:/usr/share/elasticsearch/data
+  ports:
+    - 9200:9200
+
+logstash:
+  image: logstash
+
+  # Path to configuration file and Certificates Files
+  volumes_from:
+    - configuration
+
+  ports:
+    - 5043:5043
+
+  # Link elasticsearch container
+  links:
+  - elasticsearch:elasticsearch
+
+  # Run Logstash
+  command: logstash -f /config-dir/logstash-lumberjack.conf
+
+kibana:
+  image: kibana
+
+  ports:
+  - 5601:5601
+  
+  links:
+  - elasticsearch:elasticsearch
+
+  environment:
+  - ELASTICSEARCH_URL=http://elasticsearch:9200
+
+configuration:
+  image: busybox
+  volumes:
+    - conf:/config-dir
+    - ../certs:/etc/ssl

@@ -1,0 +1,39 @@
+# This docker-compose files launches a single Sponge server.
+# The server is broken up into three containers:
+#  - A container which runs the Sponge server
+#  - A container which hosts the Minecraft worlds, mods, and plugin configurations for the server
+#  - A container which routinely updates shared configuration files across all CloudCraftNetwork servers (like ops.json)
+version: '2'
+services:
+  # The server. Starts a Sponge server when started.
+  sponge:
+    environment:
+      # Agree to the Minecraft End User License Agreement.
+      # By running this compose file, you automatically agree to the Minecraft EULA.
+      MINECRAFT_EULA: 'true'
+    # Use the latest Sponge Vanilla Docker image.
+    image: '419490525630.dkr.ecr.us-east-1.amazonaws.com/spongevanilla'
+    volumes_from:
+      # Import the level and plugin configuration from the map container.
+      - map
+      # Import the shared server content (ops.json, blacklist.json, etc)
+      - sharedservercontent
+    ports:
+      # Expose the Minecraft port.
+      - '25565:25565'
+    # Allocate 1GB to the Minecraft Server (mem_limit is in bytes)
+    mem_limit: 1073741824
+  # A container which simply hosts the Minecraft worlds, mods, and configurations for the server.
+  # This is split out into its own container so map developers can focus on the maps.
+  map:
+    # See https://github.com/CloudCraftNetwork/TestMinecraftWorld
+    image: '419490525630.dkr.ecr.us-east-1.amazonaws.com/testminecraftworld'
+  # The sharedservercontent container routinely updates configuration files.
+  # The files at https://github.com/CloudCraftNetwork/SharedServerContent are downloaded every few minutes.
+  sharedservercontent:
+    # See https://github.com/CloudCraftNetwork/SharedServerContentUpdater
+    image: '419490525630.dkr.ecr.us-east-1.amazonaws.com/sharedservercontentupdater'
+    environment:
+      # This container requires S3 access to the S3 bucket com.cloudcraftnetwork.sharedservercontent
+      AWS_ACCESS_KEY_ID: "${AWS_ACCESS_KEY_ID}"
+      AWS_SECRET_ACCESS_KEY: "${AWS_SECRET_ACCESS_KEY}"

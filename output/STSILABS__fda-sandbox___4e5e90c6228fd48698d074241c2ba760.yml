@@ -1,0 +1,14 @@
+postgres:
+  env_file: /home/vagrant/.env
+  image: postgres:9.4
+  ports:
+    - "2345:5432"
+web:
+  build: .
+  ports:
+    - "8000:80"
+  links:
+    - postgres:postgres
+  env_file: /home/vagrant/.env
+  environment:
+    RAILS_ENV: demo

@@ -1,0 +1,47 @@
+version: '2'
+services:
+  zookeeper:
+    image: zookeeper
+    ports:
+      - 2181
+  master:
+    build:
+      context: .
+      dockerfile: Dockerfile.run-master
+    ports:
+      - 5050
+      - 2181
+    links:
+      - zookeeper
+  slave-1:
+    build:
+      context: .
+      dockerfile: Dockerfile.run-slave
+    links:
+      - master
+    volumes:
+      - /usr/bin/docker:/usr/bin/docker
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - 31000-33000
+  slave-2:
+    build:
+      context: .
+      dockerfile: Dockerfile.run-slave
+    links:
+      - master
+    volumes:
+      # dirty hack for demonstration purpose, never do that!
+      - /usr/bin/docker:/usr/bin/docker
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - 31000-33000
+  marathon:
+    build:
+      context: .
+      dockerfile: Dockerfile.marathon
+    ports:
+      - 8080
+    links:
+      - master
+      - zookeeper

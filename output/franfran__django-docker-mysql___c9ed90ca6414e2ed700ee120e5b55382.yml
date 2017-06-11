@@ -1,0 +1,26 @@
+#  "context:" will set relative path that other config option to follow
+#  ref: https://github.com/docker/compose/issues/1883
+
+version: '2'
+
+services:
+  django:
+    build:
+      context: ../../
+      dockerfile: docker/dev/Dockerfile
+    volumes:
+      - ../../django:/srv/django
+    ports:
+      - "8000:8000"
+    links:
+      - db
+  db:
+    image: mysql:5.7
+    volumes:
+      - ./volumes/db:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=django_dev
+    command: mysqld --character-set-server=utf8 --collation-server=utf8_unicode_ci
+    ports:
+      - "3307:3306"

@@ -1,0 +1,44 @@
+version: "2"
+
+services:
+
+  build:
+    build:
+      context: .
+      dockerfile: Dockerfile.build
+    volumes:
+      - .:/code
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.run
+    volumes:
+      - .:/code
+    ports:
+      - "8080:80"
+
+  web_test:
+    build:
+      context: .
+      dockerfile: Dockerfile.run
+    volumes:
+      - .:/code
+    expose:
+      - "80"
+
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    links:
+      - selenium
+    volumes:
+      - .:/code
+
+  selenium:
+    image: selenium/standalone-chrome:2.53.1
+    links:
+      - web_test
+    expose:
+     - "4444"

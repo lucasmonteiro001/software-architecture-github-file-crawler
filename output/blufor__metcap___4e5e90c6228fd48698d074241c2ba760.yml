@@ -1,0 +1,22 @@
+---
+version: '2'
+services:
+  es:
+    image: elasticsearch
+    ports:
+      - "9200:9200"
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
+  rabbitmq:
+    image: rabbitmq
+    ports:
+      - "5672:5672"
+  engine:
+    build: .
+    ports:
+      - "8001:8001"
+      - "8002:8002"
+    volumes:
+      - "./etc:/etc/metcap"

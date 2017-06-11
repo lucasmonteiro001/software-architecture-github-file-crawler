@@ -1,0 +1,93 @@
+version: '2'
+services:
+  mesosagent:
+    image: k82cn/mesos-slave:0.28.2-2.0.27.ubuntu1404.jdk7
+    privileged: true
+    depends_on:
+      - mesosmaster
+    volumes:
+      - ${PWD}/log/mesos:/var/log/mesos
+      - ${PWD}/hadoop:/opt/hadoop-2.7.2
+    entrypoint:
+      - /bin/bash
+      - -cx
+      - >
+        exec mesos-slave --resources=cpus:8;mem:8192
+    environment:
+      - MESOS_MASTER=mesosmaster:5050
+      - MESOS_PORT=5051
+      - MESOS_LOG_DIR=/var/log/mesos
+      - MESOS_LOGGING_LEVEL=INFO
+      - MESOS_SWITCH_USER=0
+      - MESOS_CONTAINERIZERS=docker,mesos
+      - MESOS_ISOLATION=cgroups/cpu,cgroups/mem
+      - VAR_LIB_DOCKER_SIZE=10
+      - DOCKER_DAEMON_ARGS
+      - GLOG_v=4
+      - LOG=file
+    links:
+      - mesosmaster
+  mesosagent_r:
+    image: k82cn/mesos-slave:0.28.2-2.0.27.ubuntu1404.jdk7
+    privileged: true
+    depends_on:
+      - mesosmaster
+    environment:
+      - MESOS_MASTER=mesosmaster:5050
+      - MESOS_SWITCH_USER=0
+      - MESOS_CONTAINERIZERS=mesos
+      - MESOS_LOG_DIR=/var/log/mesos
+      - MESOS_WORK_DIR=/var/tmp/mesos
+    volumes:
+      - ${PWD}/log/mesos:/var/log/mesos
+      - ${PWD}/hadoop:/opt/hadoop-2.7.2
+    command:
+      - mesos-slave
+      - --resources=cpus(myriad):6;mem(myriad):8192
+    links:
+      - mesosmaster
+  mesosmaster:
+    image: mesosphere/mesos-master:0.28.2-2.0.27.ubuntu1404
+    ports:
+      - "5050:5050"
+    environment:
+      - MESOS_PORT=5050
+      - MESOS_REGISTRY=in_memory
+      - MESOS_LOG_DIR=/var/log/mesos
+    command: ["--authenticate=true", "--credentials=/opt/mesos_cred", "--acls=/opt/mesos_acls", "--authenticate_http=true"]
+#    command: ["--allocation_interval=200ms"]
+    volumes:
+      - ${PWD}/log/mesos:/var/log/mesos
+      - ${PWD}/tmp/mesos:/var/tmp/mesos
+      - ${PWD}/mesos_cred:/opt/mesos_cred
+      - ${PWD}/mesos_acls:/opt/mesos_acls
+  zk:
+    image: k82cn/zk:3.4.9
+    ports:
+      - "2181:2181"
+  dfsmaster:
+    image: k82cn/hadoop:2.7.2
+    command: ["/usr/local/hadoop-2.7.2/start_hdfs_master.sh"]
+  dfsagent:
+    image: k82cn/hadoop:2.7.2
+    command: ["/usr/local/hadoop-2.7.2/start_hdfs_agent.sh"]
+    depends_on:
+      - dfsmaster
+    links:
+      - dfsmaster
+  myriad:
+    image: k82cn/myriad:0.2.0-hadoop272
+    volumes:
+      - ${PWD}/hadoop:/opt/hadoop
+#      - ${PWD}/myriad-config-default.yml:/usr/local/hadoop-2.7.2/etc/hadoop/myriad-config-default.yml
+#      - ${PWD}/myriad-scheduler-0.2.0.jar:/usr/local/hadoop-2.7.2/share/hadoop/yarn/lib/myriad-scheduler-0.2.0.jar
+    ports:
+      - "8192:8192"
+    depends_on:
+      - dfsmaster
+      - mesosmaster
+      - zk
+    links:
+      - dfsmaster
+      - mesosmaster
+      - zk

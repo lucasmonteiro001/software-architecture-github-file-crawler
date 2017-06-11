@@ -1,0 +1,21 @@
+version: '2'
+services:
+  db:
+    image: postgres:9.4-alpine
+    environment:
+      - POSTGRES_PASSWORD=postgres
+  web:
+    build: .
+    environment:
+      - DATABASE_URL=postgresql://db/postgres?user=postgres&password=postgres
+      - RACK_ENV=production
+    # volumes:
+    #   - .:/myapp
+    depends_on:
+      - db
+  nginx:
+    build: ./compose/nginx
+    ports:
+      - "3000:80"
+    depends_on:
+      - web

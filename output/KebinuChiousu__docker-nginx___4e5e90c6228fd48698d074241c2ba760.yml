@@ -1,0 +1,21 @@
+version: '2'
+services:
+  nginx:   
+    image: meredithkm/centos-openresty
+    ports:
+     - "80:80"
+     - "443:443"
+    volumes:
+      - /srv/docker-nginx/nginx/conf:/usr/local/openresty/nginx/conf
+      - /srv/docker-nginx/nginx/html:/usr/local/openresty/nginx/html 
+    links:
+      - php
+    depends_on:
+      - php
+  php:
+    image: meredithkm/debian-php-fpm
+    ports:
+     - "9000"
+    volumes:
+     - /srv/docker-nginx/nginx/html:/var/www/html
+  

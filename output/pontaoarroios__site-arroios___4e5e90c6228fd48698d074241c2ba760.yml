@@ -1,0 +1,12 @@
+sitearroios:
+  image: wordpress
+  links:
+    - arroiosdb:mysql
+  ports:
+    - 10080:80
+  volumes:
+    - /Users/marco/trabalhos/site-arroios/:/var/www/html/wp-content/themes/arroios
+arroiosdb:
+  image: mariadb
+  environment:
+    MYSQL_ROOT_PASSWORD: arroios 

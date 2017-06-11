@@ -1,0 +1,125 @@
+version: '2'
+
+## Build: docker-compose build <service>
+## Run: docker-compose run <service>
+
+## Note: Change volumes and command to match your system.
+
+services:
+
+## libfuzzer base image
+
+  libfuzzer-base:
+      build: ./base/libfuzzer-base
+      image: ouspg/libfuzzer-base
+
+## ImageMagick stub, with automatic crash-repro minimizer
+
+  ImageMagick:
+      build: ./stubs/ImageMagick
+      image: ouspg/libfuzzer-imagemagick
+      #volumes:
+        #- ~/results/:/srv/fuzzer/results/
+        #- ~/samples/:/srv/fuzzer/samples/
+      mem_limit: 4g
+      shm_size: 512M
+      environment:
+        MINIMIZE: "true"
+      entrypoint: '/src/scripts/fuzz.sh'
+      command: [
+        '/src/ImageMagick/ImageMagick-fuzzer',
+      ]
+
+## libxml2 stub
+
+  libxml2:
+      build: ./stubs/libxml2
+      image: ouspg/libfuzzer-libxml2
+      shm_size: 512M
+      mem_limit: 4g
+      #volumes:
+          #- ~/results/:/srv/fuzzer/results/
+          #- ~/samples/:/srv/fuzzer/samples/
+      environment:
+          LD_LIBRARY_PATH: "/src/libxml2/.libs/"
+      command: [
+        '/src/libxml2/libxml2-fuzzer',
+        '-max_len=5000',
+        '-max_total_time=600',
+        '/samples/'
+      ]
+
+## libxslt
+
+  libxslt:
+      build: ./stubs/libxslt
+      image: ouspg/libfuzzer-libxslt
+      shm_size: 512M
+      mem_limit: 4g
+      #volumes:
+          #- ~/results/:/srv/fuzzer/results/
+          #- ~/samples/:/srv/fuzzer/samples/
+      environment:
+          LD_LIBRARY_PATH: "/src/libxslt/libxslt/.libs/"
+      command: [
+        '/src/libxslt/libxslt-fuzzer'
+      ]
+
+## lua stub
+
+  lua:
+      build: ./stubs/lua
+      image: ouspg/libfuzzer-lua
+      #volumes:
+        #- ~/results/:/srv/fuzzer/results/
+        #- ~/samples/:/srv/fuzzer/samples/
+      mem_limit: 4g
+      shm_size: 512M
+      entrypoint: '/src/scripts/fuzz.sh'
+      command: [
+        '/lua-fuzzer',
+        '-timeout=5'
+      ]
+
+## libmad stub
+
+  libmad:
+      build: ./stubs/libmad
+      image: ouspg/libfuzzer-libmad
+      #volumes:
+        #- ~/results/:/srv/fuzzer/results/
+        #- ~/samples/:/srv/fuzzer/samples/
+      mem_limit: 4g
+      shm_size: 512M
+      entrypoint: '/src/scripts/fuzz.sh'
+      command: [
+        '/src/libmad-0.15.1b/libmad-fuzzer',
+        '/samples/'
+      ]
+
+## zlib stub
+
+  zlib:
+      build: ./stubs/zlib
+      image: ouspg/libfuzzer-zlib
+      #volumes:
+        #- ~/results/:/srv/fuzzer/results/
+        #- ~/samples/:/srv/fuzzer/samples/
+      mem_limit: 4g
+      shm_size: 512M
+      entrypoint: '/src/scripts/fuzz.sh'
+      command: [
+        '/src/zlib/zlib-fuzzer',
+      ]
+
+## Haskell base image
+
+  libfuzzer-base-haskell:
+      build: ./base/libfuzzer-base-haskell
+      image: ouspg/libfuzzer-base-haskell
+
+## Haskell stub
+
+  haskell-x509:
+      build: ./stubs/haskell-x509
+      image: ouspg/libfuzzer-haskell-x509

@@ -1,0 +1,12 @@
+packager:
+    build: .
+    command: ./docker-entrypoint.sh
+    net: host
+    working_dir: /app
+    privileged: true
+    volumes:
+     - "./:/app"
+     - "./gradle_cache:/root/.gradle"
+     - "/dev:/dev"
+    devices:
+      - "/dev/tty.usbmodem1422"

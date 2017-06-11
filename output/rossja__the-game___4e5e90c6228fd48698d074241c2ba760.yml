@@ -1,0 +1,11 @@
+version: '2'
+
+services:
+  the-game:
+    build: .
+    image: the-game
+    command: ./node_modules/.bin/nodemon ./bin/www
+    environment:
+      NODE_ENV: development
+    ports:
+      - '9001:9001'

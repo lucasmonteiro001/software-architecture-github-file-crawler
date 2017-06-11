@@ -1,0 +1,13 @@
+version: '2'
+services:
+  httpd:
+    container_name: httpd
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    ports:
+        - "80:80"
+    volumes:
+        - ../webroot/:/var/www/html
+        - ../:/var/www
+    command: /usr/sbin/apache2ctl -D FOREGROUND

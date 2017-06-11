@@ -1,0 +1,19 @@
+version: '2'
+services:
+  fpm:
+    build:
+      context: .
+      dockerfile: fpm.dockerfile
+    restart: always
+    read_only: true
+    user: www-data
+    security_opt:
+      - no-new-privileges
+  web:
+    build:
+      context: .
+      dockerfile: web.dockerfile
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"

@@ -1,0 +1,103 @@
+data:
+  image: busybox
+  volumes:
+   - ./data:/data
+   - ./data/log/:/data/log
+
+data-mysql:
+  image: daocloud.io/koolay/mysql:latest
+  command: echo mysql
+  volumes:
+   - /var/lib/mysql/
+
+memcached:
+    image: daocloud.io/koolay/memcached:latest
+    ports:
+      - "11211:11211"
+
+mysql:
+    image: daocloud.io/koolay/mysql:latest
+    ports:
+     - "3306:3306"
+    environment:
+     - MYSQL_ROOT_PASSWORD=dev
+     - MYSQL_DATABASE=sentry
+    volumes_from:
+     - data-mysql
+
+redis:
+    image: daocloud.io/koolay/alpine-redis:latest
+    ports:
+      - "6379:6379"
+
+
+fpm:
+    image: daocloud.io/koolay/php-fpm:latest
+    expose:
+      - "9000"
+    extra_hosts:
+      - "sentry-dev.myfuwu.cn:172.17.0.1"
+      - "member-dev.myfuwu.cn:172.17.0.1"
+      - "passport-dev.myfuwu.cn:172.17.0.1"
+      - "info-dev.myfuwu.cn:172.17.0.1"
+      - "wx-dev.myfuwu.cn:172.17.0.1"
+    links:
+      - "mysql"
+      - "redis"
+      - "memcached"
+    volumes_from:
+     - data
+    volumes:
+     - ./etc/php/fpm/php.ini:/etc/php5/fpm/php.ini
+     - ./etc/php/fpm/php-fpm.conf:/etc/php5/fpm/php-fpm.conf
+     - ./etc/php/fpm/pool.d/www.conf:/etc/php5/fpm/pool.d/www.conf
+     - ./app/www:/app/www
+
+
+sentry:
+    image: daocloud.io/koolay/sentry:latest
+    expose:
+      - "9898"
+    links:
+     - redis
+     - mysql
+    volumes_from:
+     - data
+    volumes:
+     - ./etc/sentry/sentry.conf.py:/sentry.conf.py
+
+    environment:
+     - C_FORCE_ROOT=true
+     - SENTRY_DOCKER_DO_DB_CHECK=yes
+     - SENTRY_URL_PREFIX=http://dev.myapp.com:9876
+     - SENTRY_ADMIN_USERNAME=admin
+     - SENTRY_ADMIN_PASSWORD=dev
+     - SENTRY_ADMIN_EMAIL=dev@foo.com
+     - DB_HOST=mysql
+     - DB_USERNAME=root
+     - DB_PASSWORD=dev
+     - DB_NAME=sentry
+     - DB_PORT=3306
+     - REDIS_HOST=redis
+     - REDIS_PORT=6379
+
+
+nginx:
+    image: daocloud.io/koolay/alpine-nginx:latest
+    ports:
+      - "80:80"
+      - "8686:8686"
+    extra_hosts:
+      - "sentry-dev.myfuwu.cn:172.17.0.1"
+      - "member-dev.myfuwu.cn:172.17.0.1"
+      - "passport-dev.myfuwu.cn:172.17.0.1"
+      - "info-dev.myfuwu.cn:172.17.0.1"
+      - "wx-dev.myfuwu.cn:172.17.0.1"
+    links:
+     - "fpm"
+     - "sentry"
+    volumes_from:
+     - data
+    volumes:
+      - ./etc/nginx:/etc/nginx
+      - ./app:/app

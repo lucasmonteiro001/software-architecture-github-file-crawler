@@ -1,0 +1,33 @@
+smart-housing-web:  
+  image: luisnascimento/nodejs
+  volumes:
+    - ./web:/var/www/web
+    - ./core:/var/www/core
+  expose:
+    - "80"
+  ports:
+    - "80:80"
+  container_name: smart-housing-web
+  working_dir: /var/www/web
+  entrypoint: ["gulp"]
+smart-housing-api:  
+  image: luisnascimento/nodejs
+  volumes:
+    - ./api:/var/www/api
+    - ./core:/var/www/core
+  expose:
+    - "3000"
+  ports:
+    - "3000:3000"
+  links:
+    - smart-housing-database:smart-housing-database
+  container_name: smart-housing-api
+  working_dir: /var/www/api
+  entrypoint: ["gulp"]
+smart-housing-database:  
+  image: mongo:latest
+  expose:
+    - "27017"
+  ports:
+    - "27017:27017"
+  container_name: smart-housing-database

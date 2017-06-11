@@ -1,0 +1,45 @@
+# Docker Compose testing manifest.
+
+doorman:
+#  image: pataquets/doorman
+  build: .
+  links:
+   - backend
+  ports:
+   - 80:80
+   - 443:443
+  # Host mounts for TLS certificates. Change these if yours are located elsewhere.
+  volumes:
+   - /etc/ssl/certs/ssl-cert-snakeoil.pem:/etc/ssl/certs/ssl-cert-snakeoil.pem:ro
+   - /etc/ssl/private/ssl-cert-snakeoil.key:/etc/ssl/private/ssl-cert-snakeoil.key:ro
+  # Environment variables specified in 'environment' override these values.
+  env_file:
+   - .env.config
+   - .env.secrets
+  environment:
+# Listen options:
+   - DOORMAN_LISTEN_PORT=80
+   - DOORMAN_SECURE_PORT=443
+   - DOORMAN_FORCE_TLS=true
+   - DOORMAN_SSL_KEYFILE=/etc/ssl/private/ssl-cert-snakeoil.key
+   - DOORMAN_SSL_CERTFILE=/etc/ssl/certs/ssl-cert-snakeoil.pem
+   - DOORMAN_SSL_CAFILE
+# Proxy options:
+   - DOORMAN_HOSTNAME=localhost
+   - DOORMAN_PROXY_HOST=backend
+   - DOORMAN_PROXY_PORT=80
+# Session cookie options:
+   - DOORMAN_MAXAGE
+   - DOORMAN_SECRET
+# Authentication modules and module options:
+   - DOORMAN_MODULES=password
+   - DOORMAN_PASSWORD_TOKEN=secretpassword
+   - DOORMAN_GITHUB_APPID
+   - DOORMAN_GITHUB_APPSECRET
+   - DOORMAN_GITHUB_REQUIRED_ORGANIZATION
+   - DOORMAN_GOOGLE_APPID
+   - DOORMAN_GOOGLE_APPSECRET
+   - DOORMAN_GOOGLE_REQUIRED_DOMAIN
+
+backend:
+  image: httpd

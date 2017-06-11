@@ -1,0 +1,7 @@
+jhipster-mongodb:
+  image: mongo
+  volumes:
+  - ~/volumes/jhipster/mongodb/:/data/db/
+  ports:
+  - "27017:27017"
+  - "28017:28017"

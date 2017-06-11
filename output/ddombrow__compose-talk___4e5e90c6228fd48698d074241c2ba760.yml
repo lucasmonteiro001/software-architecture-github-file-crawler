@@ -1,0 +1,24 @@
+version: '2'
+services:
+  time_server:
+    build: ./time_server
+    ports:
+      - "3000:3000"
+    links:
+      - cache
+    environment:
+      - REDIS_HOST=cache
+  weather_server:
+    build: ./weather_server
+    ports:
+      - "3001:3001"
+    links:
+      - cache
+    environment:
+      - REDIS_HOST=cache
+    env_file:
+      - ./weather_server/.env
+  cache:
+    image: ddombrowsky/redis-with-health
+    ports:
+      - "6379:6379"

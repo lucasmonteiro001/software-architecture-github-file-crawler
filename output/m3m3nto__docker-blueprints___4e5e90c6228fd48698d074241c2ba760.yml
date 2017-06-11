@@ -1,0 +1,47 @@
+drupal:
+  image: m3m3nto/php-apache:5.6
+  links:
+    - mysql:mysqlhost
+  expose:
+    - "8080"
+  hostname: drupalhost
+  volumes:
+    - ./src:/var/www/html
+    - ./log:/var/log/apache2
+    - ./vhost:/etc/apache2/sites-available
+    - ./docker/php-apache/etc/php.ini:/usr/local/etc/php/php.ini
+  #container_name: php-drupal
+  #mem_limit: 40m
+  restart: always
+  mem_limit: 1000m
+mysql:
+  image: mysql
+  environment:
+    MYSQL_ROOT_PASSWORD: 'mysqlRootPwd'
+    MYSQL_DATABASE: 'site_dev'
+    MYSQL_USER: 'site'
+    MYSQL_PASSWORD: 'site'
+  ports:
+   - "4406:3306"
+  hostname: mysqlhost
+  volumes:
+    - ./data:/var/lib/mysql
+    - ./scripts:/opt/scripts
+    - ./docker/mysql/etc/my.cnf:/etc/my.cnf
+  command: "/opt/scripts/osx-local-mysqlfix.sh"
+  #container_name: mysql
+  restart: always
+  mem_limit: 700m
+haproxy:
+  image: tutum/haproxy
+  links:
+   - drupal:drupalhost
+  ports:
+   - "80:80"
+   - "1936:1936"
+  environment:
+   - BACKEND_PORT=8080
+   - BALANCE=roundrobin
+  #container_name: haproxy
+  restart: always
+  mem_limit: 400m

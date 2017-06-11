@@ -1,0 +1,78 @@
+version: "2"
+services:
+  nginx:
+    build:
+      context: "./nginx"
+    ports:
+      - "80:80"
+    links:
+      - backend
+      - auth
+      - barcode
+
+  db:
+    image: musitproject/oracle-12c:testdata
+    shm_size: 4G
+    ports:
+      - "1521:1521"
+
+  backend:
+    image: service_backend:0.1-SNAPSHOT
+    ports:
+      - "7072:7070"
+    environment:
+      - MUSIT_ENV
+      - MUSIT_BASE_URL
+      - DOCKER_HOSTNAME
+      - MUSIT_SECURITY_MODULE
+      - DATAPORTEN_CLIENT_ID
+      - DATAPORTEN_CLIENT_SECRET
+      - DATAPORTEN_SESSION_TIMEOUT
+      - APPLICATION_SECRET
+      - EVOLUTION_ENABLED
+      - SLICK_DB_URL
+      - SLICK_DB_USER
+      - SLICK_DB_PASSWORD
+    links:
+      - db
+
+  auth:
+    image: service_auth:0.1-SNAPSHOT
+    ports:
+      - "7074:7070"
+    environment:
+      - MUSIT_ENV
+      - MUSIT_BASE_URL
+      - DOCKER_HOSTNAME
+      - MUSIT_SECURITY_MODULE
+      - CALLBACK_URL
+      - DATAPORTEN_CLIENT_ID
+      - DATAPORTEN_CLIENT_SECRET
+      - DATAPORTEN_SESSION_TIMEOUT
+      - APPLICATION_SECRET
+      - EVOLUTION_ENABLED
+      - SLICK_DB_URL
+      - SLICK_DB_USER
+      - SLICK_DB_PASSWORD
+    links:
+      - db
+
+  barcode:
+    image: service_barcode:0.1-SNAPSHOT
+    ports:
+      - "7076:7070"
+    environment:
+      - MUSIT_ENV
+      - MUSIT_BASE_URL
+      - DOCKER_HOSTNAME
+      - MUSIT_SECURITY_MODULE
+      - DATAPORTEN_CLIENT_ID
+      - DATAPORTEN_CLIENT_SECRET
+      - DATAPORTEN_SESSION_TIMEOUT
+      - APPLICATION_SECRET
+      - EVOLUTION_ENABLED
+      - SLICK_DB_URL
+      - SLICK_DB_USER
+      - SLICK_DB_PASSWORD
+    links:
+      - db

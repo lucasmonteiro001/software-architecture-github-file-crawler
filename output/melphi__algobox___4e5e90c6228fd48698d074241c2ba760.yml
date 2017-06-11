@@ -1,0 +1,90 @@
+version: '3'
+
+services:
+  algobox-mongo:
+    image: mongo:3.4
+    command: --storageEngine wiredTiger
+    volumes:
+      - /data/db:/data/db
+    networks:
+      - algobox
+
+  algobox-api:
+    image: dainco/algobox-api
+    depends_on:
+      - algobox-mongo
+    environment:
+      - APPLICATION_ENABLE_SWAGGER=true
+      - APPLICATION_PORT=8080
+      - APPLICATION_API_URL=https://algobox-gateway
+      - APPLICATION_STRATEGIES_JAR_PATH=/opt/strategies
+      - MARKET_OPEN_TIME_UTC=22:30
+      - MARKET_CLOSE_TIME_UTC=22:00
+      - MONGO_CONNECTION_URL=mongodb://algobox-mongo:27017
+      - MONGO_DATABASE=datamaster
+    volumes:
+      - /opt/strategies:/opt/strategies
+    networks:
+      - algobox
+
+  algobox-datacollector:
+    image: dainco/algobox-datacollector
+    depends_on:
+      - algobox-mongo
+    environment:
+      - APPLICATION_ENABLE_SWAGGER=true
+      - APPLICATION_PORT=8080
+      - APPLICATION_API_URL=https://algobox-gateway/datacollector
+      - MARKET_OPEN_TIME_UTC=22:30
+      - MARKET_CLOSE_TIME_UTC=22:00
+      - MONGO_CONNECTION_URL=mongodb://algobox-mongo:27017
+      - MONGO_DATABASE=datacollector
+    networks:
+      - algobox
+
+  algobox-jupyter:
+    image: dainco/algobox-jupyter
+    # The password is AlgoboxIsCool, generated with python passwd() 'from notebook.auth import passwd'
+    command: start-notebook.sh --NotebookApp.password='sha1:c0be7c1688ba:960b028a43becabd505a0116351c159e1d20f3b0'
+    depends_on:
+      - algobox-api
+      - algobox-datacollector
+    environment:
+      - API_API_URL=http://algobox-api:8080
+      - DATACOLLECTOR_API_URL=http://algobox-datacollector:8080
+    networks:
+      - algobox
+
+  algobox-scheduler:
+    image: dainco/algobox-scheduler
+    depends_on:
+      - algobox-mongo
+    volumes:
+      - /backup:/backup
+    environment:
+      - MONGO_STAGE_HOST=algobox-mongo
+      - MONGO_STAGE_DATABASE=datacollector
+      - MONGO_MASTER_HOST=algobox-mongo
+      - MONGO_MASTER_DATABASE=datamaster
+      - TARGET_FOLDER=/backup
+    networks:
+      - algobox
+
+  algobox-gateway:
+    image: dainco/algobox-gateway
+    depends_on:
+      - algobox-api
+      - algobox-datacollector
+      - algobox-jupyter
+    environment:
+      # The password is AlgoboxIsCool, generated with 'htpasswd -n algobox', escaped with $
+      - HTPASSWD_CONTENT=algobox:$$apr1$$kZvP.YK6$$Laa.JDWAgR4Cl9dE0YWs80
+    ports:
+      - 80:80
+      - 443:443
+      - 8888:8888
+    networks:
+      - algobox
+
+networks:
+  algobox:

@@ -1,0 +1,6 @@
+vertx-inst1:
+  build: ./inst1
+  hostname: vertx
+vertx-inst2:
+  build: ./inst2
+  hostname: vertx

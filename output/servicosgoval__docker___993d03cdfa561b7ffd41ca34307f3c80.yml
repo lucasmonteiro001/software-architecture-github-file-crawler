@@ -1,0 +1,2 @@
+balanceador:
+  image: servicosgovbr/balanceador

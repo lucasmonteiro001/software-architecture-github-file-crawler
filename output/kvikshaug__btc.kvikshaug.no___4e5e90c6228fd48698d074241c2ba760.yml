@@ -1,0 +1,43 @@
+version: '2'
+
+services:
+  web:
+    build: web/
+    image: kvikshaug/btc.kvikshaug.no-web
+    depends_on:
+    - postgres
+    volumes:
+    - ./web:/app
+    ports:
+    - "5000:5000"
+    environment:
+      PYTHONUNBUFFERED: "1"
+      CONFIGURATION: "dev"
+      FLASK_APP: "app/app.py"
+      FLASK_DEBUG: "1"
+      BUY_RATE: "0.99"
+      SELL_RATE: "1.02"
+
+  builder:
+    build: web/app/static/
+    image: kvikshaug/btc.kvikshaug.no-web-builder
+    volumes:
+    - ./web/app/static:/static
+    command: sass --scss --watch scss:css
+
+  priceticker:
+    build: priceticker/
+    image: kvikshaug/btc.kvikshaug.no-priceticker
+    depends_on:
+    - postgres
+    volumes:
+    - ./priceticker:/app
+    environment:
+      PYTHONUNBUFFERED: "1"
+      CONFIGURATION: "dev"
+      SENTRY_DSN: ""
+
+  postgres:
+    image: postgres:latest
+    volumes:
+      - /var/lib/postgresql/data

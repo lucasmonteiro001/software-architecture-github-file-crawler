@@ -1,0 +1,16 @@
+web:
+  build: .
+  volumes:
+   - ./src:/var/www
+  links:
+  - db
+  ports:
+  - "80:80"
+db:
+  image: mysql
+  volumes:
+   - ./data:/var/lib/mysql/pdgcart_db
+  ports:
+  - "3306:3306"
+  environment:
+    MYSQL_ROOT_PASSWORD: kokobongo

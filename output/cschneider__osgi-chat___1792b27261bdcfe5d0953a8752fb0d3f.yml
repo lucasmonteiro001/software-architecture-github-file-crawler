@@ -1,0 +1,16 @@
+version: '2'
+services:
+  irc:
+    build: irc/.
+    tty: true
+    stdin_open: True
+
+  display:
+    build: display/.
+    tty: true
+    stdin_open: True
+
+  zk:
+    image: wurstmeister/zookeeper
+    ports: 
+    - 2181:2181

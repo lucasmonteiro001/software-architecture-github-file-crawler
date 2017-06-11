@@ -1,0 +1,19 @@
+libgen:
+  image: olbat/libgen
+  stdin_open: true
+  entrypoint: libgen
+  volumes:
+  - .:/src
+
+build:
+  build: .
+  command: make
+  volumes:
+  - .:/src
+
+devel:
+  image: olbat/libgen
+  stdin_open: true
+  command: crystal run src/main.cr
+  volumes:
+  - .:/src

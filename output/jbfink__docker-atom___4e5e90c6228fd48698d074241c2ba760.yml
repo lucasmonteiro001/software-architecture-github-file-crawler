@@ -1,0 +1,15 @@
+mysql:
+  build: mysql/.
+
+elasticsearch:
+  build: es/.
+
+nginx:
+  build: nginx/.
+  links:
+   - mysql:db
+   - elasticsearch:es     
+  ports:
+   - "8000:80"  
+  command: supervisord -n
+

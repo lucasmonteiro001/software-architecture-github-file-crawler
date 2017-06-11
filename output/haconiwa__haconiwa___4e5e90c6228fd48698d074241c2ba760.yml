@@ -1,0 +1,11 @@
+deb:
+  dockerfile: packages/dockerfiles/Dockerfile.debian
+  build: .
+  volumes:
+    - .:/out:rw
+
+rpm:
+  dockerfile: packages/dockerfiles/Dockerfile.centos
+  build: .
+  volumes:
+    - .:/out:rw

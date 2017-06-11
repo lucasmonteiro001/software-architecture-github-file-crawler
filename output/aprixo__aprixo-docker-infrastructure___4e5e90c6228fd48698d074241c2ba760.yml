@@ -1,0 +1,73 @@
+apstack-mysql:
+  image: mysql:latest
+  volumes:
+    - /srv/docker/webstack/mysql:/var/lib/mysql
+  environment:
+    - MYSQL_ROOT_PASSWORD=MyMysql2RootPassword
+    - MYSQL_USER=aprixo
+    - MYSQL_PASSWORD=aprixoDBPass2
+    - MYSQL_DATABASE=aprixo
+  restart: "always"
+  expose:
+    - 3307
+    - 3306
+  # disabled as default for public access
+  #ports:
+  #  - "3307:3307"
+  #  - "3306:3306"
+
+apstack-mongo:
+  image: mongo:latest
+  volumes:
+    - /srv/docker/webstack/mongo:/var/lib/mongo
+  restart: "always"
+  expose:
+    - 27017
+    - 27018
+    - 27019
+    - 28017
+
+apstack-elastic:
+    image: elasticsearch:latest
+    volumes:
+      -  /srv/docker/webstack/elasticsearch/data:/usr/share/elasticsearch/data
+    restart: "always"
+    expose:
+      - 9200
+      - 9300
+
+apstack-memcached:
+    image: memcached:latest
+    restart: "always"
+    expose:
+      - 11211
+
+
+apstack-php-fpm:
+  build: phpstack
+  links:
+    - apstack-mysql
+    - apstack-mongo
+    - apstack-elastic
+    - apstack-memcached
+  expose:
+    - 9000
+  restart: "always"
+  volumes:
+#    - /srv/docker/webstack/www:/var/www             # nginx default webroot directory
+    - /home:/home                                    # Used for local development, if code is accessed within home directory
+    - /srv/www/vhost:/srv/www/vhost                  # Default Webhost structure
+    - /srv/docker/webstack/conf/php/:/usr/local/etc/ # PHP Configuration directory
+
+apstack-nginx:
+   image: nginx:latest
+   restart: "always"
+   volumes:
+    - /home:/home                                # this is used, if you want to use a home directory for development
+    - /srv/www/vhost:/srv/www/vhost              # Defult Webhost structure (I prefer this)
+    - /srv/docker/webstack/conf/nginx:/etc/nginx # nginx configuration (default)
+   links:
+     - apstack-php-fpm
+   ports:
+    - "80:80"
+    - "443:443"

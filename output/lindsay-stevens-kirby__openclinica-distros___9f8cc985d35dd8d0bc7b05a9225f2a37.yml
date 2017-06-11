@@ -1,0 +1,49 @@
+# OpenClinica Service
+
+# Postgres
+ocpg:
+  net: "common"
+  build: ./postgres
+  env_file:
+    - ./docker-envs.env
+  volumes_from:
+    - ocpgfiles
+
+# OpenClinica Webapp
+ocweb:
+  net: "common"
+  build: ./tomcat
+  dockerfile: Dockerfile-web
+  env_file:
+    - ./docker-envs.env
+  volumes_from:
+    - ocwebfiles
+
+# OpenClinica Webservice
+ocws:
+  net: "common"
+  build: ./tomcat
+  dockerfile: Dockerfile-ws
+  env_file:
+    - ./docker-envs.env
+  volumes_from:
+    - ocwsfiles
+
+# Data Containers
+ocpgfiles:
+  net: "none"
+  image: busybox
+  volumes:
+    - /var/lib/postgresql/data
+ocwebfiles:
+  net: "none"
+  image: busybox
+  volumes:
+    - /usr/local/tomcat/logs
+    - /usr/local/tomcat/ocdata
+ocwsfiles:
+  net: "none"
+  image: busybox
+  volumes:
+    - /usr/local/tomcat/logs
+    - /usr/local/tomcat/ocdata

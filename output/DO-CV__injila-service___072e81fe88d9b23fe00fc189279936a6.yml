@@ -1,0 +1,13 @@
+injila_db:
+  image: mongo:3.0.2
+  command: mongod --smallfiles
+
+injila_service:
+  build: .
+  command: python -u app.py
+  ports:
+    - "5000:5000"
+  volumes:
+    - .:/home/injila_service
+  links:
+    - injila_db:db

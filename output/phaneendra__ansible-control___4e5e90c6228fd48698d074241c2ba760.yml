@@ -1,0 +1,23 @@
+version: '2'
+services:
+  web1a:
+    build: "./base"
+    container_name: "web1a"
+    hostname: "web1a"
+    ports:
+      - "2222:22"
+    volumes:
+      - ~/.ssh/id_rsa.pub:/home/ansible/.ssh/authorized_keys
+      - ~/.ssh/id_rsa.pub:/home/ansible/.ssh/id_rsa.pub
+      - "./projects:/opt/projects"
+  ansible:
+    build: "./ansible"
+    container_name: "ansible"
+    hostname: "ansible"
+    links:
+      - web1a
+    volumes:
+      - ~/.ssh/id_rsa.pub:/root/.ssh/authorized_keys
+      - ~/.ssh/id_rsa.pub:/root/.ssh/id_rsa.pub
+      - ~/.ssh/id_rsa:/root/.ssh/id_rsa
+      - "./ansible/playbook-app/:/opt/ansible/"

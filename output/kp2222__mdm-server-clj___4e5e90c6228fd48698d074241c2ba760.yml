@@ -1,0 +1,24 @@
+version: '2'
+services:
+  rabbitmq:
+    image: andrewkeig/rabbitmq-mqtt-enabled
+    ports:
+      - "15672:15672"
+      - "1883:1883"
+  db:
+    image: postgres
+  mdm-server:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    depends_on:
+      - rabbitmq
+      - db
+    volumes:
+    - .:/app
+    command: run
+    ports:
+      - "3000:3000"
+    links:
+      - "db:database"
+      - "rabbitmq:rabbitmq"

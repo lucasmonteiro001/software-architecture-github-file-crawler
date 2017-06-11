@@ -1,0 +1,9 @@
+Openfire:
+  image: ajaysingh452/openfire:latest
+  ports:
+    - "9090:9090"
+    - "9091:9091"
+    - "5222:5222"
+    - "7777:7777"
+  volumes:
+    - /srv/docker/openfire/openfire:/var/lib/openfire

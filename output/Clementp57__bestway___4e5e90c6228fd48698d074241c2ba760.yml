@@ -1,0 +1,66 @@
+version: "2"
+services:
+  weba:
+    build: .
+    volumes:
+      - ./:/usr/src/app
+    expose: #expose ports to linked service without publishing them to the host machine
+      - 80
+    links:
+      - mongo
+      - redis
+    depends_on:
+      - mongo
+      - redis
+  webb:
+    build: .
+    volumes:
+      - ./:/usr/src/app
+    expose:
+      - 80
+    links:
+      - mongo
+      - redis
+    depends_on:
+      - mongo
+      - redis
+  webc:
+    build: .
+    volumes:
+      - ./:/usr/src/app
+    expose:
+      - 80
+    links:
+      - mongo
+      - redis
+    depends_on:
+      - mongo
+      - redis
+  scheduler:
+    build: 
+      context: .
+      dockerfile: ./dockerBuilds/scheduler/Dockerfile
+    volumes:
+      - ./:/usr/src/app
+    links:
+      - redis
+    depends_on:
+      - redis
+  mongo:
+    image: mongo
+    expose: 
+      - 27017
+  redis:
+    image: redis
+    expose:
+      - 6379
+  haproxy:
+    image: haproxy:latest
+    build: ./dockerBuilds/haproxy
+    links:
+     - weba
+     - webb
+     - webc
+    ports:
+     - "8001:443" 
+     - "8002:8081"

@@ -1,0 +1,24 @@
+version: '2'
+services:
+  web:
+    build: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    restart: always
+    environment:
+      GIN_MODE: "release"
+  db:
+    build:
+      context: .
+      dockerfile: db.dockerfile
+    ports:
+      - "127.0.0.1:13306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: "lolipos"
+    volumes:
+      - "loliposdb:/var/lib/mysql"
+volumes:
+  loliposdb:
+    driver: local

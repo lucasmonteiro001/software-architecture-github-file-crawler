@@ -1,0 +1,15 @@
+version: '2'
+services:
+  db:
+    image: postgres
+#    environment:
+#      - PGDATA
+  web:
+    build: .
+    command: bash ./start.sh
+#    volumes:
+#      - .:/usr/src/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db

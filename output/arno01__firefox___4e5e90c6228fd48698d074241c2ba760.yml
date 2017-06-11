@@ -1,0 +1,39 @@
+version: '2.1'
+
+volumes:
+  data: {}
+
+services:
+  firefox:
+    # docker build -t andrey01/firefox .
+    image: andrey01/firefox
+    network_mode: bridge
+    devices:
+      - /dev/dri
+      # - /dev/video0
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:ro
+      - $XDG_RUNTIME_DIR/pulse:/run/user/1000/pulse
+      - data:/home/user
+      - $HOME/Downloads:/home/user/Downloads
+      - /var/run/cups:/var/run/cups:ro
+      - /tmp/krb5cc_1000:/tmp/krb5cc_1000:ro
+    environment:
+      - DISPLAY=unix$DISPLAY
+      - PULSE_SERVER=unix:$XDG_RUNTIME_DIR/pulse/native
+      - TZ=Europe/Amsterdam
+    shm_size: 4G
+    mem_limit: 4G
+    # Turns off anonymous page swapping
+    mem_swappiness: 0
+
+# For versions above: '3.0'
+#    deploy:
+#      resources:
+#        limits:
+#          memory: 4G
+#      restart_policy:
+#        condition: none
+#        delay: 5s
+#        max_attempts: 1
+#        window: 120s

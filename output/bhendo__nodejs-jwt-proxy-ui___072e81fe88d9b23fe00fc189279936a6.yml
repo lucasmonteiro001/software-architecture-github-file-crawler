@@ -1,0 +1,14 @@
+ui:
+  build: ../
+  ports:
+    - "3000:3000"
+  links:
+    - api
+  environment:
+    - API_HOST=api
+    - API_PORT=3001
+    - UI_HOST=localhost
+    - UI_PORT=3000
+api:
+  build: .
+  dockerfile: Dockerfile.api

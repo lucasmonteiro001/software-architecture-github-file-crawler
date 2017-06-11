@@ -1,0 +1,33 @@
+version: '2'
+services:
+  main:
+    image: phpsg/main
+    links:
+      - redis
+    ports:
+      - 8000:8000
+
+  redis:
+    image: phpsg/redis
+    ports:
+      - 6379:6379
+
+  log_watcher:
+    image: phpsg/log-watcher
+    links:
+      - redis
+
+  log_worker:
+    image: phpsg/log-worker
+    links:
+      - redis
+
+  foo_watcher:
+    image: phpsg/foo-watcher
+    links:
+      - redis
+
+  foo_worker:
+    image: phpsg/foo-worker
+    links:
+      - redis

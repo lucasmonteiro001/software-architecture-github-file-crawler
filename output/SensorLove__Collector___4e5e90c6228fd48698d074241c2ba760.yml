@@ -1,0 +1,17 @@
+version: '2'
+
+services:
+   app:
+     image: "sensorlove/collector"
+     ports:
+        - "8083:8083"
+     restart: always
+     volumes:
+        - ./:/go/src/app
+     links:
+       - mongodb
+   mongodb:
+     image: "mongo:latest"
+     ports:
+        - "27017:27017"
+     restart: always

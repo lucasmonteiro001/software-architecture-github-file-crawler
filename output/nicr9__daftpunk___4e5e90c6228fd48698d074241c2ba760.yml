@@ -1,0 +1,15 @@
+queue:
+    image: rabbitmq
+worker:
+    build: .
+    links:
+        - db:redis
+        - queue:rabbitmq
+db:
+    image: redis
+web:
+    build: frontend
+    links:
+        - db:redis
+    ports:
+        - 5000:5000

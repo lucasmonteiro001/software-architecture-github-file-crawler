@@ -1,0 +1,31 @@
+web:
+  build: .
+  environment:
+    DRUPAL_PROFILE: standard
+    DRUPAL_SITE_NAME: Drupal
+    DRUPAL_USER: admin
+    DRUPAL_PASS: admin
+    DRUPAL_DBURL: mysql://drupal:drupal@database:3306/drupal
+  ports:
+    - "80"
+  volumes:
+    - .:/var/www/html
+  links:
+    - database:database
+  working_dir: /var/www/html
+  restart: always
+
+# Database Server
+database:
+  image: mysql
+  environment:
+    MYSQL_USER: drupal
+    MYSQL_PASSWORD: drupal
+    MYSQL_DATABASE: drupal
+    MYSQL_ROOT_PASSWORD: ''
+    MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+  volumes:
+    - ./database/mysql:/var/lib/mysql
+  ports:
+    - "3306:3306"
+  restart: always

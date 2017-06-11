@@ -1,0 +1,32 @@
+version: '3'
+
+# As long as the containers are started on the same network,
+# compose does not need you to specify expose.
+# If these were on diferent networks, php-fpm would need
+# port 9000 exposed.
+
+services:
+  mysql:
+    environment:
+      MYSQL_USER: irbtodo
+      MYSQL_PASSWORD: pass
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: rails
+    expose:
+      - "3306"
+    image: mysql/mysql-server
+    volumes:
+      - /Users/mspurlin/git/personal/rubybrigade-docker/data/mysql:/var/lib/mysql
+
+  todo:
+    depends_on:
+      - mysql
+    environment:
+      DB_USER: irbtodo
+      DB_PASS: pass
+      DB_NAME: rails
+    links:
+      - mysql
+    image: irbtodo/phase6
+    ports:
+      - 80:8080

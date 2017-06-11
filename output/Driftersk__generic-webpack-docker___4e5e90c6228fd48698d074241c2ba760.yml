@@ -1,0 +1,34 @@
+version: '2'
+
+services:
+  web:
+    build: .
+    ports:
+      # for production
+      - "80:4000"
+      # for development
+      - "8080:3000"
+    volumes:
+      - .:/usr/src/app/:rw
+    env_file:
+      - ./mode.env
+    command: >
+      sh -c '
+        if test -d node_modules;
+        then 
+          echo node_modules already exists in `pwd`;
+        else 
+          cp -a /tmp/node_modules /usr/src/app/;
+        fi && 
+        npm install &&
+        echo &&
+        if [ $${NODE_ENV} = "production" ] || [ $${NODE_ENV} = "PRODUCTION" ];
+        then
+          echo Compiling webpack for production use;
+          webpack -p --hide-modules;
+          echo Open up http://localhost:80;
+        else
+          echo Open up http://localhost:8080;
+        fi &&
+        /usr/local/bin/node ./index.js
+      '

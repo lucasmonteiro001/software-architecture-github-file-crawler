@@ -1,0 +1,79 @@
+version: "2"
+services:
+  mongo3:
+    container_name: mongo3
+    image: mongo:3.2
+    networks:
+      - mongodb
+    logging:
+      driver: syslog
+      options:
+        syslog-facility: local6
+        tag: mongo3
+    expose:
+      - "27017"
+    ports:
+      - 27018:27017
+      - 28018:28017
+    restart: always
+    command: /usr/bin/mongod --replSet rs --smallfiles --oplogSize 128 --rest
+
+  mongo2:
+    container_name: mongo2
+    image: mongo:3.2
+    networks:
+      - mongodb
+    logging:
+      driver: syslog
+      options:
+        syslog-facility: local6
+        tag: mongo2
+    expose:
+      - "27017"
+    ports:
+      - 27019:27017
+      - 28019:28017
+    restart: always
+    command: /usr/bin/mongod --replSet rs --smallfiles --oplogSize 128 --rest
+
+  mongo1:
+    container_name: mongo1
+    image: mongo:3.2
+    networks:
+      - mongodb
+    logging:
+      driver: syslog
+      options:
+        syslog-facility: local6
+        tag: mongo1
+    expose:
+      - "27017"
+    ports:
+      - 27016:27017
+      - 28016:28017
+    links:
+      - mongo2:mongo2
+      - mongo3:mongo3
+    command: /usr/bin/mongod --replSet rs --smallfiles --oplogSize 128 --rest
+    restart: always
+
+  mongosetup:
+    image: mongo:3.2
+    networks:
+      - mongodb
+    logging:
+      driver: syslog
+      options:
+        syslog-facility: local6
+        tag: mongosetup
+    links:
+      - mongo1:mongo1
+      - mongo2:mongo2
+      - mongo3:mongo3
+    volumes:
+      - ./scripts:/scripts
+    entrypoint: [ "/scripts/setup-replset.sh" ]
+
+networks:
+  mongodb:
+    driver: bridge

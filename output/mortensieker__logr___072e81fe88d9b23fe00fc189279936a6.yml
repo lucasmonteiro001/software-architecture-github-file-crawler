@@ -1,0 +1,21 @@
+mysqldb:
+  container_name: "db"
+  image: mysql:latest
+  environment:
+    MYSQL_DATABASE: datasource
+    MYSQL_USER: mysql
+    MYSQL_PASSWORD: mysql
+    MYSQL_ROOT_PASSWORD: supersecret
+logr:
+  image: sieker/wildfly-mysql
+  container_name: logr
+  volumes:
+    - $PWD/deploy:/opt/jboss/wildfly/standalone/deployments
+  environment:
+    - MYSQL_URI=db:3306
+    - ENABLE_ADMIN=on
+  links:
+    - mysqldb:db
+  ports:
+    - "8080:8080"
+    - "9990:9990"

@@ -1,0 +1,16 @@
+# The maven container should build the stuff
+# maven:
+#   image: maven:latest
+#   command: mvn package
+
+# A DB
+postgresql:
+  image: postgres:latest
+  environment:
+    - POSTGRES_USER=dbuser
+    - POSTGRES_PASSWORD=dbpass
+    - POSTGRES_DB=spring
+  volumes:
+    - ./db/:/var/lib/postgresql
+  ports:
+    - "5432:5432"

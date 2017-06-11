@@ -1,0 +1,5 @@
+jboss:
+  image: pascalgrimaud/jboss-eap:6.1
+  ports:
+  - "8080:8080"
+  - "9990:9990"

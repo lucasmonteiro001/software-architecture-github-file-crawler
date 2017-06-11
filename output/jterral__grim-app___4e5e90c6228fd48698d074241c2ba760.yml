@@ -1,0 +1,25 @@
+#
+# Grim App
+# docker-compose
+#
+
+version: '3'
+services:
+  grim:
+    image: jojo/grim
+    container_name: grim_app
+    build:
+      context: .
+      args:
+        workdir: ${WORKDIR}
+        user: ${DOCKER_USER}
+    restart: on-failure
+    environment:
+      - TZ=Europe/Paris
+    ports:
+      - 9001:9001  # supervisor
+      - 5555:5555  # flower
+      - 80:80
+    volumes:
+      - ${LOCAL_WD}:${WORKDIR}/sites/
+      - ${LOCAL_DB}:${WORKDIR}/db/

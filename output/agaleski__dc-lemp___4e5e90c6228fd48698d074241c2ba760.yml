@@ -1,0 +1,76 @@
+version: "2"
+services:
+  nginx:
+    container_name: nginx
+    image: nginx
+    ports:
+      - "80:80"
+    links:
+      - fpm
+    volumes_from:
+      - appdata
+  fpm:
+    container_name: fpm
+    build:
+      context: ./services
+      dockerfile: fpm/Dockerfile
+    depends_on:
+      - db
+      - search
+      - kvstore
+    links:
+      - composer
+    volumes_from:
+      - appdata
+  db:
+    container_name: db
+    image: mariadb
+    expose:
+      - "3306"
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=app_db
+      - MYSQL_USER=app_user
+      - MYSQL_PASSWORD=app_pw
+  search:
+    container_name: search
+    image: elasticsearch
+    expose:
+      - "9200"
+      - "9300"
+  kvstore:
+    container_name: kvstore
+    image: redis
+    expose:
+      - "6379"
+  composer:
+    container_name: composer
+    build:
+      context: ./services
+      dockerfile: composer/Dockerfile
+    volumes_from:
+      - appdata
+  appdata:
+    container_name: appdata
+    image: php:7.0-fpm
+    volumes:
+      - ./html:/app:rw
+      - ./html:/var/www/html:rw
+      - ./services/nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf:ro
+  #ssh:
+    #container_name: ssh
+    #build:
+      #context: ./services
+      #dockerfile: ssh/Dockerfile
+    #links:
+      #- db
+      #- search
+      #- kvstore
+    #ports:
+      #- "22:22"
+    #volumes:
+      #- ./services/ssh/id_rsa.pub >> /root/.ssh/authorized_keys
+    #volumes_from:
+      #- appdata

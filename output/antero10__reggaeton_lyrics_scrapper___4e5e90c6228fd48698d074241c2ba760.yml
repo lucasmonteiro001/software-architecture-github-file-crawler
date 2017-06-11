@@ -1,0 +1,11 @@
+version: '2'
+services:
+  scrapper:
+    build: .
+    command: python start.py
+    links:
+      - "mongo:mongo"
+  mongo:
+    image: mongo
+    volumes:
+      - "./opt/mongodb:/data/db"

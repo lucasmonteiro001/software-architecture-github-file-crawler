@@ -1,0 +1,13 @@
+web:
+  image: odoo:8
+  volumes:
+   - ./odoo_vps:/mnt/extra-addons/odoo_vps
+  links:
+  - db
+  ports:
+  - "8069:8069"
+db:
+  image: postgres:latest
+  environment:
+    POSTGRES_USER: odoo
+    POSTGRES_PASSWORD: odoo

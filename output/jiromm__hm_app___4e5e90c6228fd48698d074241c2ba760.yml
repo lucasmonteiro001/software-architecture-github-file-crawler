@@ -1,0 +1,25 @@
+zf:
+  build: .
+  dockerfile: Dockerfile
+  ports:
+   - "8080:80"
+  links:
+   - db
+  volumes:
+   - .:/var/www
+db:
+  image: "mysql:5.7"
+  volumes:
+    - ./mysql:/etc/mysql/mysq.conf.d
+  environment:
+    MYSQL_ROOT_PASSWORD: toor
+    MYSQL_DATABASE: hmapp
+phpmyadmin:
+  image: phpmyadmin/phpmyadmin
+  links:
+    - db
+  environment:
+    PMA_HOST: db
+    PMA_PORT: 3306
+  ports:
+    - '8081:80'

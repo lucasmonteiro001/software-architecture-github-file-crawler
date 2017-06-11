@@ -1,0 +1,15 @@
+compile_myownportfolio:
+  container_name: compile_myownportfolio
+  from: macbootglass/myownportfolio:latest
+  command: bash compile.sh
+  volumes:
+    - .:/root/project
+
+start_server_myownportfolio:
+  container_name: start_server_myownportfolio
+  from: macbootglass/myownportfolio:latest
+  ports:
+    - 3000:3000
+  command: bash start_server.sh
+  volumes:
+    - .:/root/project

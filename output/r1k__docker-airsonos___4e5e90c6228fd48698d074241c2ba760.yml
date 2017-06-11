@@ -1,0 +1,12 @@
+version: '2'
+
+services:
+    airsonos:
+        image: r1k/airsonos:v1
+        mem_limit: 384m
+        cpu_shares: 256
+        ports:
+             - "5000-5050:5000-5050"
+        restart: always
+        hostname: airsonos
+        build: .

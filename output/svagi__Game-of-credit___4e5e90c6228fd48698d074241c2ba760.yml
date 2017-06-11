@@ -1,0 +1,14 @@
+version: '2'
+
+services:
+  goc:
+    build: .
+    container_name: goc
+    restart: always
+    network_mode: "host"
+    ports:
+      - "8000:8000"
+    environment:
+      APP_PREFIX: ""
+      APP_SECURE: "true"
+    command: node server.js

@@ -1,0 +1,15 @@
+version: '2'
+services:
+  #
+  # [ server stack ]
+  #
+  # - pandoc
+  # - texlive
+  #
+
+  pandoc:
+    image: benizar/pandoc:16.04
+    container_name: presentation_first_meeting
+    entrypoint: make
+    volumes:
+      - .:/source # Your sources will be in the container's source folder

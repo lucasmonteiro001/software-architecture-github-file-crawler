@@ -1,0 +1,24 @@
+version: '2'
+
+services: 
+  firefox:
+    image: raesene/conf_firefox
+    links:
+     - conf_burp:burp_test
+    volumes:
+     - /tmp/.X11-unix:/tmp/.X11-unix
+     - data:/data
+    environment:
+      DISPLAY: $DISPLAY
+      HTTP_PROXY: http://burp_test:8080
+  conf_burp:
+    image: raesene/conf_burp
+    expose: 
+     - "8080"
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - data:/data
+    environment:
+      DISPLAY: $DISPLAY
+volumes:
+  data: {}

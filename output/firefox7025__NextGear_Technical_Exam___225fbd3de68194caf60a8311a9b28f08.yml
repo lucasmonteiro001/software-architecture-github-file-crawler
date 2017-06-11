@@ -1,0 +1,11 @@
+version: '2'
+services:
+  nsr:
+    build:
+      context: .
+  ng:
+    build:
+      context: nginx
+    links:
+      - nsr
+    ports: [ "80:80" ]

@@ -1,0 +1,13 @@
+version: '2'
+services:
+  app:
+    container_name: drogon-app
+    build: .
+    ports:
+      - "3000:3000"
+    tmpfs:
+      - /usr/app/src/tmp
+    volumes:
+      - ./src:/usr/app/src
+      - ./data/db:/usr/app/db
+      - ./data/log:/usr/app/src/log

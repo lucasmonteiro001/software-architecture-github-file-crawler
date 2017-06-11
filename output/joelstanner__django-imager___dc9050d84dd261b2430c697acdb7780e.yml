@@ -1,0 +1,44 @@
+postgres:
+  restart: always
+  image: postgres:latest
+  environment:
+    - POSTGRESQL_DB=postgres
+    - POSTGRESQL_USER=postgres
+    - POSTGRESQL_PASSWORD=password
+  volumes_from:
+    - data
+  ports:
+    - "5432:5432"
+
+imager:
+  restart: always
+  build: ./imager/
+  expose:
+    - "8000"
+  volumes:
+    - /usr/src/app/static
+  environment:
+    - EMAIL_HOST_PASSWORD=password
+    - DATABASE_HOST=postgres
+  command: /usr/local/bin/gunicorn imager.wsgi:application -w 2 -b :8000
+  links:
+    - postgres:postgres
+
+nginx:
+  restart: always
+  build: ./nginx/
+  ports:
+    - "80:80"
+  volumes:
+    - /www/static
+  volumes_from:
+    - imager
+  links:
+    - imager:imager
+
+data:
+  restart: always
+  image: postgres:latest
+  volumes:
+    - /var/lib/postgresql
+  command: /bin/true

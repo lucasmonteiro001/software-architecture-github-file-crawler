@@ -1,0 +1,38 @@
+api:
+  build: ./api
+  volumes:
+    - "api:/app:ro"
+  links:
+    - db
+  environment:
+    DB: db
+    MODE: dev
+  restart: always
+
+worker:
+  build: ./worker
+  volumes:
+    - "worker:/app:ro"
+  links:
+    - db
+  environment:
+    DB: db
+  restart: always
+
+db:
+  image: rethinkdb
+  ports:
+    - "8080:8080"
+  volumes:
+    - "data:/data"
+  restart: always
+
+web:
+  build: ./web
+  ports:
+    - "80:80"
+  volumes:
+    - "web/build:/usr/share/nginx/html/:ro"
+  links:
+    - api
+  restart: always

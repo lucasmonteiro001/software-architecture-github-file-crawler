@@ -1,0 +1,24 @@
+version: "2"
+
+services:
+
+  app:
+    build: .
+    image: keboola/adwords-extractor
+    tty: true
+    command: bash
+    volumes:
+      - ./:/code
+
+  tests:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: sh -c './tests.sh'
+    environment:
+      - EX_AW_CLIENT_ID
+      - EX_AW_CLIENT_SECRET
+      - EX_AW_DEVELOPER_TOKEN
+      - EX_AW_REFRESH_TOKEN
+      - EX_AW_CUSTOMER_ID
+      - EX_AW_TEST_ACCOUNT_ID

@@ -1,0 +1,36 @@
+fs_db.media:
+  image: tianon/true
+  volumes:
+    - ./mysql-autoload:/docker-entrypoint-initdb.d:ro
+    - ./mysql-datadir:/var/lib/mysql:z
+    - ./mysql-shr:/shr:z
+    - ./mysql-conf.d:/etc/mysql/conf.d:z
+
+fs_as:
+  image: tianon/true
+  volumes:
+    - ./srv/media:/opt/data/media
+    - ./srv/deployments:/opt/jboss/wildfly/standalone/deployments
+    - ./srv/releases:/opt/jboss/wildfly/releases
+    - ./srv/log:/opt/jboss/wildfly/standalone/log
+
+db.media:
+  image: mysql:5.6
+  env_file: .env
+  volumes_from:
+    - fs_db.media
+
+# this configuration gives me correct every-other-time ( post-large-https ) !?
+# this configuration does not reroute an http-request (post-large-http)  to https !? 
+app:
+  build: ./wildfly-custom
+  ports:
+   - "18080:8080"
+   - "19990:9990"
+  environment:
+   - VIRTUAL_HOST=api.nrm.se
+   - VIRTUAL_PORT=8080
+  volumes_from:
+    - fs_as
+  links:
+    - db.media:dbmedia

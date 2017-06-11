@@ -1,0 +1,12 @@
+api:
+    build: ./api
+    volumes:
+        - ./api:/src
+    ports:
+        - "8081:8080"
+front:
+    build: ./front
+    volumes:
+        - ./front:/src
+    ports:
+        - "8080:8080"

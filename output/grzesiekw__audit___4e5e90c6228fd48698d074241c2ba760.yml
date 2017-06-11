@@ -1,0 +1,27 @@
+cassandra-1:
+  image: cassandra:3.2
+  volumes:
+    - /opt/cassandra/data/c1:/var/lib/cassandra
+  ports:
+    - 9042:9042
+
+cassandra-2:
+  image: cassandra:3.2
+  volumes:
+   - /opt/cassandra/data/c2:/var/lib/cassandra
+  ports:
+    - 9043:9042
+  links:
+    - cassandra-1:cassandra
+  environment:
+    - CASSANDRA_SEEDS=cassandra
+
+audit-app:
+  image: audit:1.0
+  ports:
+    - 8081:8081
+  links:
+    - cassandra-1:cassandra
+  environment:
+    - CASSANDRA_HOST=cassandra
+    - AUDIT_HOST=0.0.0.0

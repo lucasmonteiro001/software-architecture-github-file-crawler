@@ -1,0 +1,105 @@
+master:
+  image: gettyimages/spark
+  command: /usr/spark/bin/spark-class org.apache.spark.deploy.master.Master -h master
+  hostname: master
+  environment:
+    SPARK_CONF_DIR: /conf
+  expose:
+    - 7001
+    - 7002
+    - 7003
+    - 7004
+    - 7005
+    - 7006
+    - 7077
+    - 6066
+  ports:
+    - 4040:4040
+    - 6066:6066
+    - 7077:7077
+    - 8080:8080
+  volumes:
+    - ./conf/master:/conf
+    - ./events/:/tmp/spark-events/
+
+worker:
+  image: gettyimages/spark
+  environment:
+    SPARK_CONF_DIR: /conf
+  command: /usr/spark/bin/spark-class org.apache.spark.deploy.worker.Worker spark://master:7077
+  environment:
+    SPARK_CONF_DIR: /conf
+    SPARK_WORKER_CORES: 1
+    SPARK_WORKER_MEMORY: 2g
+  links:
+    - master
+  expose:
+    - 7012
+    - 7013
+    - 7014
+    - 7015
+    - 7016
+    - 8881
+  ports:
+    - 8081
+  volumes:
+    - ./conf/worker:/conf
+    - ./events/:/tmp/spark-events/
+
+task:
+  image: fokkodriesprong/outlierdetection
+  command: /usr/spark/bin/spark-submit /tmp/app/target/scala-2.10/QuintorSparkOutlier-assembly-1.0.jar 500 1 3 OutlierObservations /tmp/results/res.txt
+  links:
+    - master
+    - kafka
+    - zookeeper
+    - history
+  environment:
+    SPARK_CONF_DIR: /conf
+  volumes:
+    - ./conf/submit:/conf
+    - ./results:/tmp/results
+    - ./events/:/tmp/spark-events/
+
+history:
+  image: gettyimages/spark
+  command: /usr/spark/bin/spark-class org.apache.spark.deploy.history.HistoryServer
+  environment:
+    SPARK_CONF_DIR: /conf
+  expose:
+    - 18080
+  ports:
+    - 18080:18080
+  volumes:
+    - ./conf/submit:/conf
+    - ./events/:/tmp/spark-events/
+
+kafka:
+  image: wurstmeister/kafka
+  ports:
+    - 9092
+  expose:
+    - 9092
+  links:
+    - zookeeper
+  environment:
+    KAFKA_ADVERTISED_HOST_NAME: 192.168.0.107
+    KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    KAFKA_DELETE_TOPIC_ENABLE: 'true'
+  volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
+
+generator:
+  image: fokkodriesprong/kafkadatagenerator
+  links:
+    - zookeeper
+    - kafka
+  volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
+
+zookeeper:
+  image: wurstmeister/zookeeper
+  ports: 
+    - 2181:2181
+  expose:
+    - 2181

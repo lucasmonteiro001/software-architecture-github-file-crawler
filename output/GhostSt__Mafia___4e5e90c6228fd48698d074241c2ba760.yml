@@ -1,0 +1,41 @@
+version: '2'
+services:
+  nginx:
+    image: nginx:latest
+    ports:
+      - "8081:80"
+    extra_hosts:
+      - "mafia.yalta:127.0.0.1"
+    volumes:
+      - ./docker/nginx/mafia.yalta.conf:/etc/nginx/conf.d/mafia.conf
+    volumes_from:
+      - php
+    links:
+      - php
+
+  php:
+    build:
+      context: docker/php
+    volumes:
+      - /var/www/mafia/site:/code
+    expose:
+     - 9000
+    links:
+      - mongodb
+      - rabbitmq
+
+  mongodb:
+    build:
+      context: docker/mongodb
+    volumes:
+      - mafia-mongodb:/data/db
+
+  rabbitmq:
+    build:
+      context: docker/rabbitmq
+    expose:
+      - 15672
+
+volumes:
+  mafia-mongodb:
+    external: true

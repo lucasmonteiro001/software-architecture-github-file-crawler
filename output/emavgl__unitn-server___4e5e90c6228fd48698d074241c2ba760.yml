@@ -1,0 +1,19 @@
+version: '2'
+services:
+  flaskapp:
+    build: ./flaskapp
+    ports:
+      - "5001:5000"
+    depends_on:
+      - db 
+  updater:
+    build: ./updater
+  db:
+    environment:
+      - MYSQL_ROOT_PASSWORD=unitn
+      - MYSQL_DATABASE=canteendb
+      - MYSQL_USER=studente
+      - MYSQL_PASSWORD=unitn
+    image: mariadb
+    volumes:
+      - ./db/data/:/var/lib/mysql

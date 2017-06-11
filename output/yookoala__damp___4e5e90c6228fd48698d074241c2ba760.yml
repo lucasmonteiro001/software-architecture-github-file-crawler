@@ -1,0 +1,94 @@
+version: '2'
+
+services:
+
+  httpd:
+    image: httpd:2.4-alpine
+    ports:
+      - 8080:80
+    volumes:
+      - ./etc/httpd:/usr/local/apache2/conf
+      - ./var/logs/httpd:/usr/local/apache2/logs
+      - ./var/www:/var/www
+
+  mysql:
+    image: mariadb:5.5
+    volumes:
+      - ./var/mysql:/var/lib/mysql
+    env_file:
+      - ./etc/common.env
+      - ./etc/mysql.env
+
+  #
+  # different PHP versions
+  #
+
+  php54-fpm:
+    build:
+      context: ./dockers
+      dockerfile: ./php54.dockerfile
+    image: php:5.4-fpm-custom
+    volumes:
+      - ./var/www:/var/www
+      - ./etc/php/conf.d:/usr/local/etc/damp.d
+    env_file:
+      - ./etc/common.env
+    depends_on:
+      - httpd
+      - mysql
+
+  php55-fpm:
+    build:
+      context: ./dockers
+      dockerfile: ./php55.dockerfile
+    image: php:5.5-fpm-custom
+    volumes:
+      - ./var/www:/var/www
+      - ./etc/php/conf.d:/usr/local/etc/damp.d
+    env_file:
+      - ./etc/common.env
+    depends_on:
+      - httpd
+      - mysql
+
+  php56-fpm:
+    build:
+      context: ./dockers
+      dockerfile: ./php56.dockerfile
+    image: php:5.6-fpm-custom
+    volumes:
+      - ./var/www:/var/www
+      - ./etc/php/conf.d:/usr/local/etc/damp.d
+    env_file:
+      - ./etc/common.env
+    depends_on:
+      - httpd
+      - mysql
+
+  php70-fpm:
+    build:
+      context: ./dockers
+      dockerfile: ./php70.dockerfile
+    image: php:7.0-fpm-custom
+    volumes:
+      - ./var/www:/var/www
+      - ./etc/php/conf.d:/usr/local/etc/damp.d
+    env_file:
+      - ./etc/common.env
+    depends_on:
+      - httpd
+      - mysql
+
+  php71-fpm:
+    build:
+      context: ./dockers
+      dockerfile: ./php71.dockerfile
+    image: php:7.1-fpm-custom
+    volumes:
+      - ./var/www:/var/www
+      - ./etc/php/conf.d:/usr/local/etc/damp.d
+    env_file:
+      - ./etc/common.env
+    depends_on:
+      - httpd
+      - mysql

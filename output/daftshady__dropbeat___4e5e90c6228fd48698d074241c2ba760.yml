@@ -1,0 +1,18 @@
+sut:
+  build: .
+  dockerfile: Dockerfile.sut
+  command: bash -c "/sut/runtest.sh"
+  links:
+    - web
+web:
+  build: .
+  dockerfile: Dockerfile.web
+  command: bash -c "python manage.py makemigrations dropbeat && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+  environment:
+    - DBT_MYSQL_USER=root
+    - DBT_MYSQL_PASSWD=
+    - DBT_MYSQL_HOST=mysql
+    - DBT_MYSQL_PORT=3306
+    - DBT_TEST=True
+    - DBT_REDIS_URL='redis://redis:6379/0'
+    - DBT_DJANGO_SECRET=secret

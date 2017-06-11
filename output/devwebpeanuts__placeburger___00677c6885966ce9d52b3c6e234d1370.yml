@@ -1,0 +1,15 @@
+version: '2'
+
+services:
+    placeburger:
+        build: ../images/apache-php7
+        image: placeburger/apache-php7
+        container_name: placeburger
+        volumes:
+            - ./config/apache2/000-default.conf:/etc/apache2/sites-enabled/000-default.conf
+            - ../..:/var/www/placeburger
+        environment:
+            - USER_ID=${USER_ID}
+            - GROUP_ID=${GROUP_ID}
+        ports:
+            - "${WEB_PORT}:80"

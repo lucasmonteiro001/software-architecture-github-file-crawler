@@ -1,0 +1,45 @@
+version: '2'
+
+services:
+  db:
+    image: bryanl/postgres-autoscale
+    ports:
+      - "5432:5432"
+    # volumes:
+    #   - ./db/postgres:/var/lib/postgresql/data
+    networks:
+      - autoscale
+
+  prometheus:
+    image: bryanl/autoscale-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - /var/lib/autoscale/prometheus
+    networks:
+      - autoscale
+  app:
+    build: .
+    image: bryanl/do-autoscale
+    env_file: dev.env
+    ports:
+      - "8888:8888"
+    volumes_from:
+      - prometheus
+    networks:
+      - autoscale
+
+  # caddy:
+  #   image: abiosoft/caddy
+  #   volumes:
+  #     - /etc/autoscale/Caddyfile:/etc/Caddyfile
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #     - "2015:2015"
+  #   networks:
+  #     - autoscale
+
+networks:
+  autoscale:
+    driver: bridge

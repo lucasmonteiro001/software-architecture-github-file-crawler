@@ -1,0 +1,24 @@
+mysql:
+  restart: always
+  image: mysql:latest
+  environment:
+    - MYSQL_USER=mattermost
+    - MYSQL_PASSWORD=password
+    - MYSQL_DATABASE=mattermost
+    - MYSQL_ROOT_PASSWORD=password
+  volumes:
+    - /srv/docker/mattermost/mysql:/var/lib/mysql
+
+mattermost:
+  restart: always
+  image: jasl8r/mattermost:3.4.0-1
+  links:
+    - mysql:mysql
+  ports:
+    - "8080:80"
+  environment:
+    - MATTERMOST_SECRET_KEY=long-and-random-alphanumeric-string
+    - MATTERMOST_LINK_SALT=long-and-random-alphanumeric-string
+    - MATTERMOST_INVITE_SALT=long-and-random-alphanumeric-string
+  volumes:
+    - /srv/docker/mattermost/mattermost:/opt/mattermost/data

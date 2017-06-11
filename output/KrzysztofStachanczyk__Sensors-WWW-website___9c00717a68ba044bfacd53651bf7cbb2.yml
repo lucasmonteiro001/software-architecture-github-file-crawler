@@ -1,0 +1,7 @@
+version: '2'
+services:
+  web:
+    build: .
+    command: python ./website/manage.py runserver 0.0.0.0:8000
+    ports:
+      - "8010:8000"

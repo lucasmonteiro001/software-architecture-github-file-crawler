@@ -1,0 +1,64 @@
+grafana:
+  image: qnib/grafana
+  ports:
+   - "80:80"
+  environment:
+  - DC_NAME=dc1
+  - FORWARD_TO_LOGSTASH=true
+  - COLLECT_METRICS=true
+  - CNT_TYPE=service
+  dns: 127.0.0.1
+  hostname: grafana
+  container_name: grafana
+  external_links:
+   - consul:consul
+   - gapi:gapi
+  privileged: true
+
+kibana3:
+  image: qnib/kibana3
+  ports:
+   - "8080:80"
+  environment:
+  - DC_NAME=dc1
+  - FORWARD_TO_LOGSTASH=true
+  - COLLECT_METRICS=true
+  - CNT_TYPE=service
+  dns: 127.0.0.1
+  hostname: kibana3
+  container_name: kibana3
+  external_links:
+   - consul:consul
+   - elasticsearch:elasticsearch
+  privileged: true
+
+kibana4:
+  image: qnib/kibana4
+  dns: 127.0.0.1
+  hostname: kibana4
+  container_name: kibana4
+  ports:
+   - "5601:5601"
+  environment:
+  - DC_NAME=dc1
+  - FORWARD_TO_LOGSTASH=true
+  - COLLECT_METRICS=true
+  - CNT_TYPE=service
+  external_links:
+   - consul:consul
+   - elasticsearch:elasticsearch
+  privileged: true
+
+kopf: 
+  image: lmenezes/elasticsearch-kopf 
+  hostname: kopf
+  container_name: kopf
+  ports: 
+  - 8088:80 
+  environment: 
+  - SERVICE_8088_NAME=es-kopf
+  - KOPF_SERVER_NAME=dockerhost 
+  - KOPF_ES_SERVERS=172.17.42.1:9200
+  external_links:
+   - consul:consul
+   - elasticsearch:elasticsearch

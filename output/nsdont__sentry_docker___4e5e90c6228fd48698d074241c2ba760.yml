@@ -1,0 +1,27 @@
+web:
+    build: .
+    links:
+        - db
+        - redis
+    volumes:
+        - sentry:/home/user/.sentry
+
+db:
+    image: postgres:9.4
+    environment:
+        POSTGRES_PASSWORD: sentry
+        POSTGRES_USER: sentry
+    volumes:
+        - postgres_data:/var/lib/postgresql/data
+
+redis:
+    image: redis
+
+celery:
+    build: .
+    command: sentry celery worker -B
+    links:
+        - db
+        - redis
+    volumes:
+        - sentry:/home/user/.sentry

@@ -1,0 +1,10 @@
+version: "2"
+services:
+  web:
+    image: slax0r/framework-docker
+    ports:
+      - "8080:80"
+    volumes:
+      - ./:/var/www/
+    environment:
+      - SWF_ENV

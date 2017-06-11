@@ -1,0 +1,14 @@
+version: '2'
+
+services:
+  web:
+    image: jscheel42/rumbl
+    environment:
+      PGUSER:
+      PGPW:
+      PGDB:
+      PGHOST:
+      MIX_ENV:
+      PHSECRET:
+    ports:
+      - "4000:4000"

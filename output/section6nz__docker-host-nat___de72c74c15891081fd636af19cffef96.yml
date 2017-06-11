@@ -1,0 +1,11 @@
+client:
+  image: ubuntu
+  links:
+    - proxy:proxy
+  command: /bin/bash -c 'while true; do sleep 1; done'
+proxy:
+  build: ./proxy
+  environment:
+    PROXY_TARGET: 172.17.42.1
+  cap_add:
+    - NET_ADMIN

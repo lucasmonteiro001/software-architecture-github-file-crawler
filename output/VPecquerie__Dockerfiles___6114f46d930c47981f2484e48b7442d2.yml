@@ -1,0 +1,42 @@
+version: '3'
+
+services:
+  mail:
+    image: tvial/docker-mailserver:latest
+    ports:
+      - "25:25"
+      - "143:143"
+      - "587:587"
+      - "993:993"
+    volumes:
+      - maildata:/var/mail
+      - mailstate:/var/mail-state
+      - config:/tmp/docker-mailserver
+    environment:
+      - ENABLE_SPAMASSASSIN=1
+      - ENABLE_CLAMAV=1
+      - ONE_DIR=1
+      #- ENABLE_FETCHMAIL=1
+      - OVERRIDE_HOSTNAME=mail.vincent-p.ovh
+      - POSTMASTER_ADDRESS=contact@vincent-p.ovh
+      - SSL_TYPE=letsencrypt
+    deploy:
+      replicas: 1
+
+networks:
+  default:
+    driver: overlay
+
+volumes:
+  maildata:
+    driver: local-persist
+    driver_opts:
+      mountpoint: /swarm/volumes/mail/data/
+  mailstate:
+    driver: local-persist
+    driver_opts:
+      mountpoint: /swarm/volumes/mail/state/
+  config:
+    driver: local-persist
+    driver_opts:
+      mountpoint: /swarm/volumes/mail/config/

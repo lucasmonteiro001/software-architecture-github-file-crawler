@@ -1,0 +1,50 @@
+version: "3"
+volumes:
+  db-data:
+services:
+  db:
+    image: postgres:9.4
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+  service:
+    build: ./service
+    ports:
+    - "4000:4000"
+    volumes:
+    - .:/usr/src/app/:rw
+    environment:
+    - NODE_ENV=dev
+    - PG_CONNECTION_STRING=postgres://postgres:postgres@db:5432/postgres
+    command: >
+     sh -c '
+      cd service &&
+      if test -d node_modules;
+      then
+        echo node_modules_exists ;
+      else
+        cp -a /tmp/node_modules /usr/src/app/website;
+      fi &&
+      npm install &&
+      /usr/local/bin/node ./index.js'
+  web:
+    build: ./web
+    ports:
+    - "8080:3000"
+    volumes:
+    - .:/usr/src/app/:rw
+    environment:
+    - NODE_ENV=dev
+    command: >
+      sh -c '
+        cd web &&
+        if test -d node_modules; 
+        then 
+          echo node_modules_exists ; 
+        else 
+          cp -a /tmp/node_modules /usr/src/app/website; 
+        fi &&
+        npm install && 
+        /usr/local/bin/node ./index.js'
+        

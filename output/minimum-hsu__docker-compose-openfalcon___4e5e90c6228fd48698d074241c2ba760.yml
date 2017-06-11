@@ -1,0 +1,149 @@
+graph:
+  container_name: graph
+  image: minimum/openfalcon-graph
+  expose:
+    - "6070"
+    - "6071"
+  volumes:
+    - ./conf/graph.json:/config/cfg.json:ro
+  external_links:
+    - mysql
+
+query:
+  container_name: query
+  image: minimum/openfalcon-query
+  expose:
+    - "9966"
+  volumes:
+    - ./conf/query.json:/config/cfg.json:ro
+  links:
+    - graph
+
+transfer:
+  container_name: transfer
+  image: minimum/openfalcon-transfer
+  expose:
+    - "6060"
+  ports:
+    - "8433:8433"
+  volumes:
+    - ./conf/transfer.json:/config/cfg.json:ro
+  links:
+    - graph
+    - judge
+
+dashboard:
+  container_name: dashboard
+  image: minimum/openfalcon-dashboard
+  ports:
+    - "8081:8081"
+  volumes:
+    - ./conf/dashboard.py:/config/config.py:ro
+  external_links:
+    - mysql
+  links:
+    - query
+
+links:
+  container_name: links
+  image: minimum/openfalcon-links
+  ports:
+    - "5090:5090"
+  volumes:
+    - ./conf/links.py:/config/config.py:ro
+  external_links:
+    - mysql
+
+portal:
+  container_name: portal
+  image: minimum/openfalcon-portal
+  ports:
+    - "5050:5050"
+  volumes:
+    - ./conf/portal.py:/config/config.py:ro
+  external_links:
+    - mysql
+
+hbs:
+  container_name: hbs
+  image: minimum/openfalcon-hbs
+  ports:
+    - "6030:6030"
+    - "6031:6031"
+  volumes:
+    - ./conf/hbs.json:/config/cfg.json:ro
+  external_links:
+    - mysql
+
+alarm:
+  container_name: alarm
+  image: minimum/openfalcon-alarm
+  ports:
+    - "9912:9912"
+  volumes:
+    - ./conf/alarm.json:/config/cfg.json:ro
+  external_links:
+    - redis
+  links:
+    - portal
+    - fe
+    - links
+
+judge:
+  container_name: judge
+  image: minimum/openfalcon-judge
+  expose:
+    - "6080"
+    - "6081"
+  volumes:
+    - ./conf/judge.json:/config/cfg.json:ro
+  external_links:
+    - redis
+  links:
+    - hbs
+
+fe:
+  container_name: fe
+  image: minimum/openfalcon-fe
+  ports:
+    - "1234:1234"
+  volumes:
+    - ./conf/fe.json:/config/cfg.json:ro
+  external_links:
+    - redis
+    - mysql
+
+sender:
+  container_name: sender
+  image: minimum/openfalcon-sender
+  expose:
+    - "6066"
+  volumes:
+    - ./conf/sender.json:/config/cfg.json:ro
+  external_links:
+    - redis
+
+agent:
+  container_name: agent
+  image: minimum/openfalcon-agent
+  ports:
+    - "1988:1988"
+  volumes:
+    - ./conf/agent.json:/config/cfg.json:ro
+  links:
+    - transfer
+    - hbs
+
+task:
+  container_name: task
+  image: minimum/openfalcon-task
+  expose:
+    - "8002"
+  volumes:
+    - ./conf/task.json:/config/cfg.json:ro
+  external_links:
+    - mysql
+  links:
+    - transfer
+    - graph
+    - agent

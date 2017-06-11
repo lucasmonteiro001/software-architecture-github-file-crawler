@@ -1,0 +1,31 @@
+mongo:
+  image: deleurme/mongo
+  hostname: hostname
+  restart: always
+  dns: 172.17.42.1
+  links:
+    - frontend
+  ports:
+    - "9200:9200"
+  volumes:
+    - /var/db/mongo
+    - /etc/timezone:/etc/timezone:ro
+
+frontend:
+  image: deleurme/node
+  hostname: hostname
+  restart: always
+  dns: 172.17.42.1
+  environent: 
+    MONGO_URL= 
+    MAIL_URL= 
+    REDIS_URL= 
+  links:
+    - mongo
+    - redis 
+  ports:
+    - "9200:9200"
+  volumes:
+    - /etc/localtime:/etc/localtime:ro
+    - /etc/timezone:/etc/timezone:ro
+

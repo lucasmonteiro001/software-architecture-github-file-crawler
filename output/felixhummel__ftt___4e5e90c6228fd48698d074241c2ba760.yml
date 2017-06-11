@@ -1,0 +1,26 @@
+version: '2'
+services:
+  app:
+    image: felix/ftt
+    user: ${COMPOSE_UID}:${COMPOSE_GID}
+    build: .
+    command: python manage.py runserver 0.0.0.0:8337
+    working_dir: /opt/project
+    environment:
+      - PYTHONPATH=/opt/project
+      - HOME=/var/tmp/ftt
+      - TERM
+    ports:
+      - 127.0.0.1:8337:8337
+    volumes:
+      - ./:/opt/project
+      - ${COMPOSE_DATA}:/var/tmp/ftt
+    stop_signal: SIGINT
+  postgres:
+    image: postgres:alpine
+    volumes:
+      - ./ftt/migrations/_postgres_init/1_create.sql:/docker-entrypoint-initdb.d/1_create.sql
+      - ${COMPOSE_DATA}/postgres_data/:/var/lib/postgresql/data
+      - ${COMPOSE_DATA}:/var/tmp/ftt
+    ports:
+      - 127.0.0.1:5337:5432

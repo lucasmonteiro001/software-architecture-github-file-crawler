@@ -1,0 +1,21 @@
+#
+# Docker container definition
+#
+version: '2'
+services:
+  #
+  # Container service
+  #
+  service-name:
+    # X-gb * 1024 * 1024 * 1024
+    mem_limit: 268435456
+    image: picoded/ubuntu-base
+    environment:
+      ENV_NAME: ${env_value}
+    stdin_open: true
+    tty: true
+    labels:
+      io.rancher.scheduler.affinity:host_label: ${host_label}=true
+      io.rancher.container.hostname_override: container_name
+      io.rancher.container.pull_image: always
+      io.rancher.scheduler.global: 'true'

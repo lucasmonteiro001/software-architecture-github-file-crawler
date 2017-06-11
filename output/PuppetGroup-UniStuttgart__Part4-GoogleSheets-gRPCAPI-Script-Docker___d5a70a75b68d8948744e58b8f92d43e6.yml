@@ -1,0 +1,13 @@
+
+   localhost:
+      container_name: localhost
+      build: .
+      expose:
+         - "50054"
+
+   script:
+      build: ../script/
+      links:
+         - localhost
+      volumes_from:
+         - localhost

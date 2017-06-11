@@ -1,0 +1,15 @@
+---
+version: '2'
+services:
+    php:
+        build:
+            context: .
+            dockerfile: docker/dockerfiles/php.dockerfile
+        ports:
+            - "${DOCKER_HTTP_PORT}:8080"
+        volumes:
+            - .:/var/www/app
+        depends_on:
+            - selenium
+    selenium:
+        image: selenium/standalone-firefox

@@ -1,0 +1,21 @@
+
+version: '2'
+
+services:
+  mkb:
+    image: mkb:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 5000:80
+    links: 
+      - "mkb-db:db" 
+    depends_on: 
+      - mkb-db
+  mkb-db:
+    image: arangodb:latest
+    environment:  
+      - ARANGO_NO_AUTH=1              
+    ports: 
+      - 5001:8529

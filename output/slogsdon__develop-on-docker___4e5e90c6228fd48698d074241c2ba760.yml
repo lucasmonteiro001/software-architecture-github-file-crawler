@@ -1,0 +1,44 @@
+version: '2'
+
+services:
+  develop-php:
+    extends: develop-base
+    build: ./develop-php
+
+  develop-haskell:
+    extends: develop-base
+    build: ./develop-haskell
+
+  develop-dotnet:
+    extends: develop-base
+    build: ./develop-dotnet
+
+  develop-rust:
+    extends: develop-base
+    build: ./develop-rust
+
+  develop-elixir:
+    extends: develop-base
+    build: ./develop-elixir
+
+  develop-node:
+    extends: develop-base
+    build: ./develop-node
+
+  develop-elm:
+    extends: develop-base
+    build: ./develop-elm
+
+  develop-racket:
+    extends: develop-base
+    build: ./develop-racket
+
+  develop-clojure:
+    extends: develop-base
+    build: ./develop-clojure
+
+  develop-base:
+    build: ./develop-base
+    volumes:
+      - ~/.dotfiles:/home/user/.dotfiles
+      - ~/.ssh:/home/user/.ssh

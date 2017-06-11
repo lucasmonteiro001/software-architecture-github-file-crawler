@@ -1,0 +1,87 @@
+version: '2'
+
+services:
+
+### Nginx Server Container ##################################
+
+    nginx:
+        build: ./nginx
+        volumes_from:
+            - php
+        volumes:
+            - ./logs/nginx/:/var/log/nginx
+        ports:
+            - "80:80"
+        links:
+            - php
+
+### PHP Container ###########################################
+
+    php:
+        build: ./php
+        volumes:
+            - ../:/var/www/arastta
+            - ./logs/php/:/usr/local/var/log
+        expose:
+            - "9000"
+
+### DATA Container ##########################################
+
+    data:
+        build: ./data
+        volumes:
+            - /var/lib/mysql
+            - /var/lib/postgres
+            - /var/lib/mariadb
+            - /var/lib/redis
+            - /var/lib/memcached
+
+### MySQL Container #########################################
+
+    mysql:
+        build: ./mysql
+        volumes_from:
+            - data
+        ports:
+            - "3306:3306"
+        environment:
+            MYSQL_DATABASE: arastta
+            MYSQL_USER: arastta
+            MYSQL_PASSWORD: arastta
+            MYSQL_ROOT_PASSWORD: arastta
+        links:
+            - php
+
+### MariaDB Container #######################################
+
+    mariadb:
+        build: ./mariadb
+        volumes_from:
+            - data
+        ports:
+            - "3306:3306"
+        environment:
+            MYSQL_DATABASE: arastta
+            MYSQL_USER: arastta
+            MYSQL_PASSWORD: arastta
+            MYSQL_ROOT_PASSWORD: arastta
+        links:
+            - php
+
+### Redis Container #########################################
+
+    redis:
+        build: ./redis
+        volumes_from:
+            - data
+        ports:
+            - "6379:6379"
+
+### Memcached Container #########################################
+
+    memcached:
+        build: ./memcached
+        volumes_from:
+            - data
+        ports:
+            - "11211:11211"

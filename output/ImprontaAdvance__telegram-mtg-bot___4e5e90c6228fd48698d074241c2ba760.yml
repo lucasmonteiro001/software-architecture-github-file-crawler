@@ -1,0 +1,25 @@
+version: '2'
+
+services:
+    mkmprovider:
+        build: MKMProvider
+        volumes:
+            - "./MKMProvider:/myapp"
+        ports:
+            - 3002:3002
+        command: node index.js
+        environment:
+            MKM_APP_TOKEN: ${MKM_APP_TOKEN}
+            MKM_APP_SECRET: ${MKM_APP_SECRET}
+            MKM_ACCESS_TOKEN: ${MKM_ACCESS_TOKEN}
+            MKM_ACCESS_SECRET: ${MKM_ACCESS_SECRET}
+
+    mkmbot:
+        build: MKMBot
+        links:
+            - mkmprovider:mkmprovider
+        volumes:
+            - "./MKMBot:/myapp"
+        command: node index.js
+        environment:
+            TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}

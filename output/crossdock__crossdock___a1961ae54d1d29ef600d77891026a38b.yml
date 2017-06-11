@@ -1,0 +1,20 @@
+crossdock:
+    image: crossdock/crossdock
+    links:
+        - client
+        - newclient
+    environment:
+        - CLIENTS=client,newclient
+        - AXIS_BEHAVIOR=dance,run
+        - AXIS_SPEED=fast,slow
+
+client:
+    build: .
+    ports:
+        - 8080
+
+newclient:
+    image: breerly/hello-server
+    environment:
+        - HELLO_PORT=8080
+        - HELLO_MESSAGE=ok

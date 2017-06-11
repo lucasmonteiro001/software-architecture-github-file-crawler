@@ -1,0 +1,43 @@
+sources:
+  image: ubuntu:15.10
+  volumes:
+    - ./:/workspaces
+
+php:
+  build: dockers/php7
+  volumes:
+    - ./:/var/www/default
+  volumes_from:
+   - sources
+  working_dir: /var/www/default
+  links:
+    - database
+  ports:
+    - "9001:9001"
+    - "8080:8080"
+
+database:
+  build: dockers/postgres
+  volumes_from:
+   - sources
+  ports:
+    - "5432:5432"
+  environment:
+    POSTGRES_PASSWORD: local
+    POSTGRES_USER: local
+    POSTGRES_DB: default
+
+nginx:
+  build: dockers/nginx
+  volumes_from:
+    - sources
+    - php
+  command: "/setup_and_run.sh"
+  environment:
+      NGINX_RAVO_FASTCGI_PASS: php:9000
+      NGINX_LISTEN_PORT: 80
+  links:
+    - php
+  ports:
+    - "443:443"
+    - "80:80"

@@ -1,0 +1,54 @@
+##################################################################################
+## 
+## VERSION      :   0.0.2
+## DATE         :   17Feb2016
+##
+## DESCRIPTION  :   "How to use Docker Compose to run complex multi container apps - Node on MongoDB"
+##
+## Ref [1]      :   http://mherman.org/blog/2015/03/06/node-with-docker-continuous-integration-and-delivery/
+## Ref [2]      :   http://blog.hypriot.com/post/docker-compose-nodejs-haproxy/
+## Ref [3]      :   http://www.tothenew.com/blog/mongodb-replica-set-using-docker-networking-and-docker-compose/
+##
+##################################################################################
+
+# Specifying the ports manually	HOST:CONTAINER
+webnode1:
+  build: .
+  container_name: webNode1
+  expose:
+    - 8081
+  volumes:
+    - "/media/sf_dockerRepos:/media/sf_dockerRepos"
+
+webnode2:
+  build: .
+  container_name: webNode2
+  expose:
+    - 8081
+  volumes:
+    - "/media/sf_dockerRepos:/media/sf_dockerRepos"
+
+webnode3:
+  build: .
+  container_name: webNode3
+  expose:
+    - 8081
+  volumes:
+    - "/media/sf_dockerRepos:/media/sf_dockerRepos"
+
+haproxyNode1:
+  image: haproxy
+  container_name: haproxyNode1
+  volumes:
+   - "./haproxy:/usr/local/etc/haproxy"
+  links:
+   - webnode1
+   - webnode2
+   - webnode3
+  ports:
+   - "8081:8081"
+   - "70:70"
+   
+  expose:
+   - "8081"
+   - "70"

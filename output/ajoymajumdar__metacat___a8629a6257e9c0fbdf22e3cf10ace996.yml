@@ -1,0 +1,124 @@
+#
+# Copyright 2016 Netflix, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+#
+
+version: "2"
+
+services:
+    metacat:
+        image: tomcat:8.0-jre8
+        depends_on:
+            - hive-metastore
+            - hive-metastore-db
+            - postgresql
+            - cassandra
+        ports:
+            - '8080'
+            - '8000'
+            - '12001'
+            - '12003'
+        volumes:
+            - ../build/metacat-war-expanded/ROOT:/usr/local/tomcat/webapps/ROOT
+            - ./resources/log4j.properties:/usr/local/tomcat/webapps/ROOT/WEB-INF/classes/log4j.properties
+            - ./resources/logging.properties:/usr/local/tomcat/conf/logging.properties
+            - ../build/logs/metacat:/usr/local/tomcat/logs
+            - ./etc-metacat:/etc/metacat:ro
+        environment:
+            VIRTUAL_HOST: metacat.docker
+            JAVA_OPTS: '-ea
+                -Xmx1G
+                -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8000
+                -noverify
+                -Dnetflix.environment=test
+                -Dnetflix.discovery.registration.enabled=false
+                -Dnetflix.appinfo.validateInstanceId=false
+                -Dnetflix.appinfo.vipAddress=
+                -Dnetflix.appinfo.metadata.route53NamePrefix=
+                -Dnetflix.appinfo.metadata.enableRoute53=false
+                -Dmetacat.plugin.config.location=/etc/metacat/catalog
+                -Dmetacat.elacticsearch.enabled=false
+                -Dspring.profiles.active=mysql-usermetadata
+                -Dmetacat.type.converter=com.netflix.metacat.connector.pig.converters.PigTypeConverter
+                -Dmetacat.usermetadata.config.location=/etc/metacat/usermetadata.properties'
+        labels:
+          - "com.netflix.metacat.oss.test"
+          - "com.netflix.metacat.oss.test.war"
+    cassandra:
+        image: cassandra:3.10
+        volumes:
+          - ./datastores/cassandra/:/init
+        labels:
+          - "com.netflix.metacat.oss.test"
+    hive-metastore-db:
+        image: mysql:5.6
+        volumes:
+            - ./datastores/mysql/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d:ro
+        environment:
+            - MYSQL_ROOT_PASSWORD=root_password
+            - MYSQL_USER=metacat_user
+            - MYSQL_PASSWORD=metacat_user_password
+            - MYSQL_DATABASE=metacat
+        labels:
+          - "com.netflix.metacat.oss.test"
+    postgresql:
+        image: postgres:9.6
+        volumes:
+            - ./datastores/postgres/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d:ro
+        environment:
+            - POSTGRES_USER=metacat_user
+            - POSTGRES_PASSWORD=metacat_user_password
+            - POSTGRES_DB=metacat
+        labels:
+          - "com.netflix.metacat.oss.test"
+    hive-metastore:
+        image: danielbwatson/metacat-test-hive-metastore:1.0.0
+        depends_on:
+            - hive-metastore-db
+        ports:
+            - '9083'
+            - '8005'
+        environment:
+            - HIVE_METASTORE_HADOOP_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8005 -Dhive.metastore.client.socket.timeout=60
+        labels:
+          - "com.netflix.metacat.oss.test"
+          - "com.netflix.metacat.oss.test.hive"
+    storage-barrier:
+        image: martin/wait:latest
+        depends_on:
+            - hive-metastore-db
+            - postgresql
+            - cassandra
+        environment:
+            - TARGETS=postgresql:5432,cassandra:9042,hive-metastore-db:3306
+        labels:
+          - "com.netflix.metacat.oss.test"
+    service-barrier:
+        image: martin/wait:latest
+        depends_on:
+            - hive-metastore
+        environment:
+            - TARGETS=hive-metastore:9083
+        labels:
+          - "com.netflix.metacat.oss.test"
+    metacat-barrier:
+        image: martin/wait:latest
+        depends_on:
+            - metacat
+        environment:
+            - TARGETS=metacat:8080,metacat:12001,metacat:12003
+            - TIMEOUT=240
+        labels:
+          - "com.netflix.metacat.oss.test"

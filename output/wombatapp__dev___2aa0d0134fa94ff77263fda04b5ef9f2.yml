@@ -1,0 +1,9 @@
+---
+version: '2'
+
+services:
+  gem:
+    build: .
+    volumes:
+      - "./wombat.gem:/gem"
+      - "./dev-files:/dev-files"

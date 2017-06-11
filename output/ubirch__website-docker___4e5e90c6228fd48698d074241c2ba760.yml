@@ -1,0 +1,14 @@
+webserver:
+  restart: always
+  image: ubirch/webserver
+  volumes_from:
+   - ubirch-data
+  links:
+   - mysql:mysql
+  ports:
+   - "127.0.0.1:8080:80"
+mysql:
+  restart: always
+  image: mysql
+  volumes_from:
+   - ubirch-data

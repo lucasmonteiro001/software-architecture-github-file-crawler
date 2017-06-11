@@ -1,0 +1,37 @@
+version: '2'
+services:
+  mongodb:
+    image: mongo:3.2
+    container_name: eidb
+    volumes:
+      - /data/eiblog/mgodb:/data/db
+    restart: always
+  elasticsearch:
+    image: elasticsearch:2.4.1
+    container_name: eisearch
+    volumes:
+      - /data/eiblog/conf/es/config:/usr/share/elasticsearch/config
+      - /data/eiblog/conf/es/plugins:/usr/share/elasticsearch/plugins
+      - /data/eiblog/esdata/data:/usr/share/elasticsearch/data
+      - /data/eiblog/esdata/logs:/usr/share/elasticsearch/logs
+    environment:    
+      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+    restart: always
+  eiblog:
+    image: registry.cn-hangzhou.aliyuncs.com/deepzz/eiblog
+    container_name: eiblog
+    extra_hosts:
+      - "disqus.com:23.235.33.134"
+    volumes:
+      - /data/eiblog/logdata:/eiblog/logdata
+      - /data/eiblog/conf:/eiblog/conf
+      - /data/eiblog/static:/eiblog/static
+      - /data/eiblog/views:/eiblog/views
+    links:
+      - elasticsearch
+      - mongodb
+    environment:
+      - GODEBUG=netdns=cgo
+    ports:
+      - "9000:9000"
+    restart: always

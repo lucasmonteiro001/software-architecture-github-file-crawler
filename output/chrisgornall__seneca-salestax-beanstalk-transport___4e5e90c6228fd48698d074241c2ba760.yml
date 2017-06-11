@@ -1,0 +1,46 @@
+
+
+###------------
+### Web server and micro-service over a queue
+###------------
+
+common:
+    build: ./contain/common/
+
+beanstalkd:
+    build: ./contain/beanstalk/
+    #image: de0-beanstalk-0
+    ports:
+      - "11300:11300"
+    net: "host"
+
+appqueue:
+    build: ./contain/app-queue/
+    #image: de0-app-queue-0
+    ports:
+     - "3000:3000"
+    environment:
+     - APP_PORT=3000
+     - SRV_HOST=$SRV_HOST
+    net: "host"
+
+salestaxsplitter:
+    build: ./contain/salestax-splitter/
+    #image: de0-salestax-splitter-0
+    environment:
+     - SRV_HOST=$SRV_HOST
+    net: "host"
+
+salestaxcurrent:
+    build: ./contain/salestax-current/
+    #image: de0-salestax-current-0
+    environment:
+     - SRV_HOST=$SRV_HOST
+    net: "host"
+
+salestaxupdate:
+    build: ./contain/salestax-update/
+    #image: de0-salestax-update-0
+    environment:
+     - SRV_HOST=$SRV_HOST
+    net: "host"

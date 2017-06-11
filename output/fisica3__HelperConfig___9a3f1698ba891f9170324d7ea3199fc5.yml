@@ -1,0 +1,7 @@
+version: '2'
+
+services:
+  webtestconfig2:
+    image: username/webtestconfig2
+    ports:
+      - "5000:5000"

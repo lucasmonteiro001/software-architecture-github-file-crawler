@@ -1,0 +1,44 @@
+www:
+  image: rpawel/lammp:trusty
+  ports:
+    - "8080:80"
+  volumes:
+    - "./data/www/:/var/www"
+    - "./data/persistent-config/www:/root/.persistent-config"
+    - "./data/log-apache2:/var/log/apache2"
+    - "./data/log-php5:/var/log/php5"
+  hostname: www.estateangels.co.uk
+  links:
+    - memcache:memcache
+  environment:
+    CTNR_LOCALE: "en_GB.UTF-8"
+    CTNR_TIMEZONE: "Europe/London"
+    CTNR_DEBUG: 1
+  restart: on-failure
+  tty: true
+  mem_limit: 4096m
+  memswap_limit: 1024m
+ssh:
+  image: rpawel/php-ssh:trusty
+  ports:
+    - "2222:22"
+  volumes:
+    - "./data/www:/var/www"
+    - "./data/persistent-config/ssh:/root/.persistent-config"
+    - "./data/log-apache2:/var/log/apache2"
+    - "./data/log-php5:/var/log/php5"
+  links:
+    - memcache:memcache
+  environment:
+    CTNR_LOCALE: "en_GB.UTF-8"
+    CTNR_TIMEZONE: "Europe/London"
+    CTNR_DEBUG: 1
+  restart: on-failure
+  mem_limit: 512m
+  memswap_limit: 256m
+memcache:
+  image: rpawel/memcache:trusty
+  restart: on-failure
+  environment:
+    CTNR_LOCALE: "en_GB.UTF-8"
+    CTNR_TIMEZONE: "Europe/London"

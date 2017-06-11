@@ -1,0 +1,54 @@
+version: "2"
+services:
+  web:
+    build: "./nginx"
+    environment:
+      NGINX_CONFIG_WEB: "/etc/nginx/nginx.web.prd.conf"
+    links:
+      - "node1:node1"
+      - "node2:node2"
+      - "node3:node3"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "./log/docker:/var/log/docker"
+      - "./log/letsencrypt:/var/log/letsencrypt"
+      - "./log/nginx:/var/log/nginx"
+  node1:
+    build:
+      dockerfile: "docker-prd.dockerfile"
+      context: "./src"
+    image: "pathfinder-node:prd"
+    links:
+      - "db"
+      - "session"
+    ports:
+      - "8080"
+    env_file: "./src/.env"
+  node2:
+    depends_on:
+      - "node1"
+    image: "pathfinder-node:prd"
+    links:
+      - "db"
+      - "session"
+    ports:
+      - "8080"
+    env_file: "./src/.env"
+  node3:
+    depends_on:
+      - "node1"
+    image: "pathfinder-node:prd"
+    links:
+      - "db"
+      - "session"
+    ports:
+      - "8080"
+    env_file: "./src/.env"
+  session:
+    build: "./session"
+  db:
+    build: "./db"
+    volumes:
+      - "./db/backups:/var/backups/mongodb"

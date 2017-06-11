@@ -1,0 +1,98 @@
+version: '2'
+
+networks:
+  prodnetwork:
+    driver: bridge
+
+volumes:
+  ci-training_jenkins:
+    driver: local
+  ci-training_nexus:
+    driver: local
+  ci-training_gitbucket:
+    driver: local
+  ci-training_svnhome:
+    driver: local
+  ci-training_svnconfig:
+    driver: local
+  ci-training_gitlab_config:
+    driver: local
+  ci-training_gitlab_data:
+    driver: local
+  ci-training_gitlab_log:
+    driver: local
+
+services:
+
+# https://github.com/sonatype/docker-nexus3
+# https://hub.docker.com/r/sonatype/nexus3/
+ ci-training_nexus:
+  image: sonatype/nexus3
+  ports:
+    - "30081:8081"
+  environment:
+    - JAVA_MIN_MEM=256m
+    - JAVA_MAX_MEM=1200m
+  volumes:
+    - ci-training_nexus:/nexus-data
+  networks:
+    - prodnetwork
+
+ ci-training_jenkins:
+  build: ./jenkins
+  ports:
+    - "30080:8080"
+  networks:
+    - prodnetwork
+  volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
+    - ci-training_jenkins:/var/lib/jenkins/
+  depends_on:
+    - ci-training_nexus
+    - ci-training_gitbucket
+#    - sonar
+  environment:
+    - NEXUS_PORT=8081
+
+
+# https://github.com/f99aq8ove/docker-gitbucket
+# https://hub.docker.com/r/f99aq8ove/gitbucket/
+ ci-training_gitbucket:
+  image: f99aq8ove/gitbucket:latest
+  restart: always
+  networks:
+    - prodnetwork
+  ports:
+    - "30082:8080"
+    - "30022:30022"
+  volumes:
+    - ci-training_gitbucket:/gitbucket
+
+ ci-training_svn:
+  build: ./subversion
+  restart: always
+  networks:
+    - prodnetwork
+  ports:
+    - "30083:80"
+  volumes:
+    - ci-training_svnhome:/var/lib/svn
+    - ci-training_svnconfig:/etc/apache2/dav_svn
+
+# Standard Gitlab image, config now yet static
+# HTTPS config (also for proxy mode): https://docs.gitlab.com/omnibus/settings/nginx.html#enable-https
+ ci-training_gitlab:
+  image: gitlab/gitlab-ce:latest
+  restart: always
+  networks:
+    - prodnetwork
+  environment:
+    GITLAB_OMNIBUS_CONFIG: |
+      gitlab_rails['gitlab_shell_ssh_port'] = 30222
+  ports:
+    - "30084:80"
+    - "30222:22"
+  volumes:
+    - ci-training_gitlab_config:/etc/gitlab
+    - ci-training_gitlab_data:/var/log/gitlab
+    - ci-training_gitlab_log:/var/opt/gitlab

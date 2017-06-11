@@ -1,0 +1,43 @@
+version: '2'
+services:
+  code:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    volumes:
+      - .:/app
+    depends_on:
+      - datastores
+    links:
+      - mysql
+      - postgres
+      - oracle11
+      - sqlserver2016
+  # This needs to wait for the datastores to have finished coming up and are
+  # actually ready for traffic. q.v. https://github.com/vishnubob/wait-for-it
+  datastores:
+    image: hello-world
+    depends_on:
+      - mysql
+      - postgres
+      - oracle11
+      - sqlserver2016
+  mysql:
+    image: mysql
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: 'password'
+  oracle11:
+    image: wnameless/oracle-xe-11g
+    shm_size: 1G # Necessary for Oracle databases to function. Default is 64M
+    environment:
+      ORACLE_ALLOW_REMOTE: 'true'
+  sqlserver2016:
+    # Requires 3.25+GB of RAM
+    image: microsoft/mssql-server-linux
+    environment:
+      ACCEPT_EULA: 'Y'
+      SA_PASSWORD: 'Passw0rd' # userid:'sa'

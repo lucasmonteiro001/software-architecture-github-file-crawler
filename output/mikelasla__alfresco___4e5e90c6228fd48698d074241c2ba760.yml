@@ -1,0 +1,22 @@
+version: "3"
+services:
+ alfresco:
+    build: .
+    depends_on:
+      - postgres
+      - libreoffice
+    links:
+      - postgres
+      - libreoffice
+    ports:
+      - 8080:8080
+
+ postgres:
+    image: postgres:9.4
+    environment:
+      - POSTGRES_DB=alfresco
+      - POSTGRES_USER=alfresco
+      - POSTGRES_PASSWORD=alfresco
+
+ libreoffice:
+    image: xcgd/libreoffice

@@ -1,0 +1,33 @@
+gitlab:
+  image: gitlab/gitlab-ce 
+  ports:
+    - "80:80"
+    - "443:443"
+
+devbox:
+  build: ./app
+  volumes:
+    - "./app:/src/app:ro"
+  links:
+    - gitlab:gitlab
+  command: ["/src/app/gitpush.sh"]
+
+nexus:
+  image: sonatype/nexus:oss
+  ports:
+    - "8081:8081"
+
+gocd-server:
+  image: gocd/gocd-server 
+  ports:
+    - "8153:8153"
+  links:
+    - gitlab:gitlab
+    - nexus:nexus
+
+gocd-agent:
+  image: gocd/gocd-agent
+  links:
+    - gocd-server:gocd-server
+    - gitlab:gitlab
+    - nexus:nexus

@@ -1,0 +1,29 @@
+version: '3'
+
+services:
+  postgres:
+    image: postgres
+    networks:
+      - studentsearch
+
+  server:
+    image: pclub/student-search
+    ports:
+      - "8080"
+    networks:
+      - studentsearch
+    links:
+      - postgres
+    environment:
+      - STUDENT_SEARCH_PG_HOST=postgres
+
+  frontend:
+    image: pclub/student-search:frontend
+    ports:
+      - "80"
+
+volumes:
+  data:
+
+networks:
+  studentsearch:

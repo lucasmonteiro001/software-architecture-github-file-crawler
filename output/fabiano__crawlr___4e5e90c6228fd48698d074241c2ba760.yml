@@ -1,0 +1,10 @@
+version: "2"
+
+services:
+  postgres:
+    environment:
+      - POSTGRES_USER=crawlr
+      - POSTGRES_PASSWORD=crawlr
+    image: postgres
+    ports:
+     - "5432:5432"

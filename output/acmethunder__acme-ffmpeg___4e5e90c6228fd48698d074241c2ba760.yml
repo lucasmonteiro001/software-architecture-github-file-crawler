@@ -1,0 +1,4 @@
+acmeffmpeg:
+  image: acmethunder/acme-ffmpeg
+  volumes:
+    - ./src/:/src/

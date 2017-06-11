@@ -1,0 +1,15 @@
+wordpress:
+  build: .
+  links:
+   - db
+  environment:
+    DB_NAME: wordpress
+    DB_USER: admin
+    DB_PASS: "**ChangeMe**"
+    VIRTUAL_HOST: "${VIRTUAL_HOST}"
+  volumes:
+    - /app/wp-content
+db:
+  image: tutum/mysql:5.5
+  environment:
+    MYSQL_PASS: "**ChangeMe**"

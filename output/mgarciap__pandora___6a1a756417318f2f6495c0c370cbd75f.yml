@@ -1,0 +1,11 @@
+volt:
+  image: voltframework:link
+  ports:
+    - "3000:3000"
+  links:
+    - mongo
+mongo:
+  volumes:
+    - /home/myuser/docker/volt/db:/data/db
+  image: mongo
+

@@ -1,0 +1,11 @@
+#docker run -d -p 9000:9000 --privileged -v /var/run/docker.sock:/var/run/docker.sock dockerui/dockerui
+dockerui:
+  restart: always
+  image: dockerui/dockerui
+  expose:
+   - "9000"
+  ports:
+   - "10.171.76.246:9000:9000"
+  volumes:
+   - /var/run/docker.sock:/var/run/docker.sock
+  privileged: true

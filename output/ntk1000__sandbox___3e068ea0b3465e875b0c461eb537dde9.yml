@@ -1,0 +1,40 @@
+version: '2'
+services:
+    root:
+        build:
+            context: .
+            dockerfile: DockerfileRoot
+        container_name: 'nginx-root'
+        environment:
+            - GIP=${GIP}
+        ports:
+            - "50080:80"
+        networks:
+            - public
+    leaf1:
+        build:
+            context: .
+            dockerfile: DockerfileLeaf
+        container_name: 'nginx-leaf-1'
+        environment:
+            - WORKER_PROCESSES=2
+            - MESSAGE=hello this is leaf1
+        ports:
+            - "50081:80"
+        networks:
+            - public
+    leaf2:
+        build:
+            context: .
+            dockerfile: DockerfileLeaf
+        container_name: 'nginx-leaf-2'
+        environment:
+            - WORKER_PROCESSES=2
+            - MESSAGE=hello this is leaf2
+        ports:
+            - "50002:80"
+        networks:
+            - public
+
+networks:
+    public:

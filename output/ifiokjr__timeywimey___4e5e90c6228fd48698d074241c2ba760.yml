@@ -1,0 +1,26 @@
+version: '2'
+
+services:
+
+  selenium_app:
+    build: .
+    command: npm run cucumber:docker
+    volumes:
+      - ./:/src/app
+    links:
+      - selenium_hub
+
+  selenium_hub:
+    image: selenium/hub
+    ports:
+      - "4444:4444"
+
+  selenium_chrome_node:
+    image: selenium/node-chrome
+    links:
+      - selenium_hub
+
+  selenium_chrome_firefox:
+    image: selenium/node-firefox
+    links:
+      - selenium_hub

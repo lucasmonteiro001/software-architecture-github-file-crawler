@@ -1,0 +1,18 @@
+version: '2'
+services:
+  core:
+    build: ./shiva-core
+    depends_on:
+      - db
+      - queue
+  db:
+    build: ./shiva-db
+    volumes:
+      - /var/lib/postgresql/data-shiva-core:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  queue:
+    build: ./shiva-queue
+    ports:
+      - "11300:11300"

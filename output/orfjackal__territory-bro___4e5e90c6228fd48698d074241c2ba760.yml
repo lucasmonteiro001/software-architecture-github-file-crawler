@@ -1,0 +1,32 @@
+version: '2'
+services:
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile-web
+    image: luontola/territory-bro-web
+    ports:
+    - "8080:80"
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile-api
+    image: luontola/territory-bro-api
+    environment:
+      DATABASE_URL: jdbc:postgresql://db:5432/territorybro?user=territorybro&password=territorybro
+    ports:
+    - "8081:8080"
+    networks:
+      default:
+        aliases:
+          - territory-bro-api
+
+  db:
+    image: mdillon/postgis:9.6
+    environment:
+      POSTGRES_USER: territorybro
+      POSTGRES_PASSWORD: territorybro
+    ports:
+    - "5432:5432"

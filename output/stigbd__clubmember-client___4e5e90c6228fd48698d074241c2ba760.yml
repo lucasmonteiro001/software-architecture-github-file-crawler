@@ -1,0 +1,6 @@
+clubmember-client:
+  build: .
+  ports:
+   - "8880:8880"
+  volumes:
+   - ./app:/app

@@ -1,0 +1,23 @@
+postgresql:
+  image: sameersbn/postgresql:9.4
+  volumes:
+    - ./data/postgresql:/var/lib/postgresql
+  env_file:
+    - ./env/postgresql.env
+
+redis:
+  image: sameersbn/redis:latest
+  volumes:
+    - ./data/redis:/var/lib/redis
+
+ci:
+  image: sameersbn/gitlab-ci:7.8.4
+  links:
+    - postgresql
+    - redis:redisio
+  volumes:
+    - ./data/gitlab-ci:/home/gitlab_ci/data
+  expose:
+    - "80"
+  env_file:
+    - ./env/ci.env

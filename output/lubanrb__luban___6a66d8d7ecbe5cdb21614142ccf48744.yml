@@ -1,0 +1,17 @@
+version: "3"
+
+services:
+  <%= application %>:
+    build:
+      context: ./context
+      args:
+        luban_uid: $LUBAN_UID
+        luban_user: $LUBAN_USER
+        luban_root_path: $LUBAN_ROOT_PATH
+    image: <%= build[:image_tag] %>
+    environment:
+      TZ: <%= timezone %>
+      <%- env_vars.each_pair do |name, value| -%>
+      <%= name.upcase %>: <%= value %>
+      <%- end -%>
+    command: <%= docker_command %>

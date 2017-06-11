@@ -1,0 +1,22 @@
+version: '2'
+services:
+  db:
+    build:
+      context: .
+      dockerfile: .docker/db/Dockerfile
+    ports:
+      - "5432"
+  web:
+    build:
+      context: .
+      dockerfile: .docker/web/Dockerfile
+    volumes:
+      - .:/tdash
+    ports:
+      - "8080:80"
+  cli:
+    build:
+      context: .
+      dockerfile: .docker/cli/Dockerfile
+    volumes:
+      - .:/tdash

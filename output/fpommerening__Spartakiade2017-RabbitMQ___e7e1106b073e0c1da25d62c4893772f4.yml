@@ -1,0 +1,89 @@
+version: '2'
+services: 
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - 5672:5672
+      - 15672:15672
+  
+  imagedb:
+    image: fpommerening/spartakiade2017-rabbitmq:picflow-database
+    ports:
+      - 5432:5432
+    hostname: imagedb
+  
+  documentdb:
+    image: mongo:3.2
+    ports:
+      - 27017:27017
+    
+  externaldb:
+    image: mongo:3.2
+    
+  extapp:
+    image: fpommerening/spartakiade2017-rabbitmq:picflow-extapp
+    depends_on:
+      - externaldb
+    ports:
+      - 8000:8000
+    environment:
+      - ConnectionStringEntryDB=mongodb://externaldb
+    
+  uploader:
+    image: fpommerening/spartakiade2017-rabbitmq:picflow-uploader
+    depends_on:
+      - rabbitmq
+      - documentdb
+      - extapp
+    hostname: uploader
+    environment:
+      - ConnectionStringRabbitMQ=host=rabbitmq
+      - ConnectionStringDocumentDB=mongodb://documentdb
+      - ExternalAppUrl=http://extapp:8000/api/postimage
+    
+  processor:
+    image: fpommerening/spartakiade2017-rabbitmq:picflow-processor
+    depends_on:
+      - rabbitmq
+      - documentdb
+    environment:
+      - ConnectionStringRabbitMQ=host=rabbitmq
+      - ConnectionStringDocumentDB=mongodb://documentdb
+    
+  authorization:
+    image: fpommerening/spartakiade2017-rabbitmq:picflow-authorization
+    depends_on:
+      - rabbitmq
+      - imagedb
+    environment:
+      - ConnectionStringRabbitMQ=host=rabbitmq
+      - ConnectionStringImageDB=host=imagedb;database=spartakiade;password=sportfrei;username=spartakiade
+    
+  persistor:
+    image: fpommerening/spartakiade2017-rabbitmq:picflow-persistor
+    depends_on:
+      - rabbitmq
+      - imagedb
+      - documentdb
+    environment:
+      - ConnectionStringRabbitMQ=host=rabbitmq
+      - ConnectionStringImageDB=host=imagedb;database=spartakiade;password=sportfrei;username=spartakiade
+      - ConnectionStringDocumentDB=mongodb://documentdb
+
+  webapp:
+    image: fpommerening/spartakiade2017-rabbitmq:picflow-webapp
+    depends_on:
+      - rabbitmq
+      - imagedb
+      - documentdb
+      - persistor
+      - authorization
+      - uploader
+      - processor
+      - extapp
+    ports:
+      - 5000:5000
+    environment:
+      - ConnectionStringRabbitMQ=host=rabbitmq
+      - ConnectionStringImageDB=host=imagedb;database=spartakiade;password=sportfrei;username=spartakiade
+      - ConnectionStringDocumentDB=mongodb://documentdb

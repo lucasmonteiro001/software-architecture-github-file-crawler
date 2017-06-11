@@ -1,0 +1,38 @@
+#Created by Kendrick Coleman of the EMC {code} Team and Licensed under MIT.
+--- 
+ecsnode01: 
+  environment: 
+    - "SS_GENCONFIG=1"
+    - "affinity:container!=*ecsnode02*"
+    - "affinity:container!=*ecsnode03*"
+  image: "emccorp/ecs-software"
+  net: host
+  restart: always
+  volumes: 
+    - "/host:/host"
+    - "/var/log/vipr/emcvipr-object:/opt/storageos/logs"
+    - "/data:/data:rw"
+ecsnode02: 
+  environment: 
+    - "SS_GENCONFIG=1"
+    - "affinity:container!=*ecsnode01*"
+    - "affinity:container!=*ecsnode03*"
+  image: "emccorp/ecs-software"
+  net: host
+  restart: always
+  volumes: 
+    - "/host:/host"
+    - "/var/log/vipr/emcvipr-object:/opt/storageos/logs"
+    - "/data:/data:rw"
+ecsnode03: 
+  environment: 
+    - "SS_GENCONFIG=1"
+    - "affinity:container!=*ecsnode01*"
+    - "affinity:container!=*ecsnode02*"
+  image: "emccorp/ecs-software"
+  net: host
+  restart: always
+  volumes: 
+    - "/host:/host"
+    - "/var/log/vipr/emcvipr-object:/opt/storageos/logs"
+    - "/data:/data:rw"

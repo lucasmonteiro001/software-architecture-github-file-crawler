@@ -1,0 +1,9 @@
+version: "2.1"
+
+services:
+    app:
+        image: nofw/base
+        environment:
+            APP_ENV: dev
+        volumes:
+            - ./:/var/www

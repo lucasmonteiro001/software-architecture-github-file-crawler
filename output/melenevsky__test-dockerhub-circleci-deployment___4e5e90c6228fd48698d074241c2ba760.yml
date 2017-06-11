@@ -1,0 +1,40 @@
+version: '2'
+services:
+  app:
+    image: melenevsky/test-app
+    depends_on:
+      - database
+    environment:
+      - ALLOWED_HOSTS=*
+      - DATABASE_URL=postgresql://postgres@database:5432/eye2eye_api_dev
+      - DEBUG=off
+    volumes:
+      - public_files:/app/static
+    env_file: ./src/settings/.env
+
+  database:
+    image: postgres:9.5
+    environment:
+      - POSTGRES_DB=app
+    volumes:
+      - pg_data:/var/lib/postgresql/data/
+
+  webserver:
+    image: nginx
+    ports:
+      - "80:80"
+    environment:
+     - NGINX_HOST=localhost
+     - NGINX_PORT=80
+    depends_on:
+      - app
+    volumes_from:
+      - app
+    volumes:
+      - ./provisioning/nginx.conf:/etc/nginx/conf.d/mysite.template
+    command: /bin/bash -c "cat /etc/nginx/conf.d/mysite.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"
+
+volumes:
+  pg_data:
+  public_files:
+  nginx:

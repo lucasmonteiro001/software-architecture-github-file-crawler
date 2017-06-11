@@ -1,0 +1,33 @@
+version: '2'
+
+services:
+  mongo:
+    image: mongo:3
+    network_mode: 'bridge'
+
+  node:
+    image: node:6
+    working_dir: /usr/src/app
+    network_mode: 'bridge'
+    ports:
+      - "8080:8080"
+    links:
+      - mongo
+    depends_on:
+      - mongo
+    volumes:
+      - .:/usr/src/app
+    env_file: secrets/dev.env
+    environment:
+      - CHECKIN_MAX_DISTANCE=200
+      - CHECKIN_TIMEOUT=86400
+      - CHOKIDAR_USEPOLLING=true
+      - MONGO_DB=test
+      - NODE_ENV=development
+      - NPM_CONFIG_LOGLEVEL=silent
+      - NPM_CONFIG_PROGRESS=false
+      - NPM_CONFIG_SPIN=false
+      - VIRTUAL_HOST=sjekkut.app.dnt.privat
+      - VIRTUAL_PORT=8080
+      - VIRTUAL_PATH=/api/v2
+    command: npm start

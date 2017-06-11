@@ -1,0 +1,16 @@
+node:
+  build: .
+  command: npm start | ./node_modules/.bin/bunyan
+  environment:
+    NODE_ENV: development
+    APP_PORT: 3000
+  ports:
+    - "14210:3000"
+  volumes:
+    - ./lib:/var/www/lib
+    - ./config:/var/www/config
+    - ./package.json:/var/www/package.json
+    - ./index.js:/var/www/index.js
+    - ./.jscsrc:/var/www/.jscsrc
+    - ./.jshintrc:/var/www/.jshintrc
+    - ./.jshintignore:/var/www/.jshintignore

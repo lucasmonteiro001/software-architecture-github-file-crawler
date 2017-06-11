@@ -1,0 +1,60 @@
+# ezmaster docker-compose.yml dedicated to production
+version: '2'
+
+services:
+
+  # This is the nodejs application in charge of the web server
+  # displaying the IHM and providing REST routes.
+  # It uses the dockerhub autobuild ezmaster images:
+  # https://hub.docker.com/r/inistcnrs/ezmaster/
+  ezmaster:
+    container_name: ezmaster
+    image: inistcnrs/ezmaster:3.6.2
+    links:
+      - ezmaster_db
+    volumes:
+      - ./data/applications:/app/data/applications
+      - ./data/instances:/app/data/instances
+      - ./data/manifests:/app/data/manifests
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      http_proxy:  ${http_proxy}
+      https_proxy: ${https_proxy}
+      no_proxy: ${no_proxy}
+      NODE_ENV: "production"
+      EZMASTER_MONGODB_HOST_PORT: "ezmaster_db:27017"
+      EZMASTER_PUBLIC_IP: ${EZMASTER_PUBLIC_IP}
+      EZMASTER_FREE_PORT_RANGE: ${EZMASTER_FREE_PORT_RANGE}
+      EZMASTER_PUBLIC_DOMAIN: ${EZMASTER_PUBLIC_DOMAIN}
+      EZMASTER_PATH: ${PWD}
+      EZMASTER_FULL_FS_PERCENT: ${EZMASTER_FULL_FS_PERCENT}
+      DEBUG: ${DEBUG}
+    working_dir: /app
+    tty: true         # to have nice debug(...) outputs
+    stdin_open: true  # to be able to use CTRL+C to stop the debug
+    ports:
+      - 35267:35267
+    depends_on:
+      - ezmaster_db
+    # Restarts ezmaster when the host server reboot
+    # or if ezmaster nodejs process crashes. NodeJS crashe
+    # appends at first startup because it needs time for mongodb
+    # to initialize. (this option replaces the usual forever or pm2 stuff)
+    restart: unless-stopped
+    networks:
+      - eznetwork
+
+  # Mongodb used by ezmaster to store parameters, metadata etc...
+  # about ezmaster apps and instances
+  ezmaster_db:
+    container_name: ezmaster_db
+    image: mongo:3.4.1
+    command: --smallfiles
+    # Restarts mongodb if the host server reboot
+    restart: unless-stopped
+    networks:
+      - eznetwork
+
+networks:
+  eznetwork:
+    driver: bridge

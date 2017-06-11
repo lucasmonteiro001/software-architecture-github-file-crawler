@@ -1,0 +1,56 @@
+version: '2'
+
+services:
+  db:
+    build:
+      context: ./deploy/db
+    image: tallyo_db
+    networks:
+      - back-tier
+    env_file: 
+      - static.env
+      - local.env
+    restart: always
+    volumes:
+      - pgdatabase:/var/lib/postgresql/data
+
+  postgrest:
+    build:
+      dockerfile: ./Dockerfile-postgrest
+      context: ./deploy/postgrest
+    image: tallyo_postgrest
+    restart: always
+    networks:
+      - back-tier
+    env_file: 
+      - static.env
+      - local.env
+    depends_on:
+      - db
+
+  tallyo:
+    build:
+      dockerfile: ./deploy/tallyo/Dockerfile
+      context: .
+    image: tallyo
+    env_file:
+      - static.env
+      - local.env
+    environment:
+      DB_RUNMIGRATIONS: 'true'
+    volumes:
+      - ./migrations:/opt/tallyo/migrations
+      - ./public:/opt/tallyo/public
+#      - ./:/opt/tallyo
+#      - /opt/tallyo/node_modules
+    networks:
+      - back-tier
+
+volumes:
+  pgdatabase:
+    driver: local
+
+networks:
+  back-tier:
+    driver: bridge
+

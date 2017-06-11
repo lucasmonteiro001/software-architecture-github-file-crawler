@@ -1,0 +1,158 @@
+version: '2'
+services:
+  genkey:
+    image: k82cn/genkey:ubuntu1404
+    volumes:
+      - ${PWD}:/opt
+  mesosagent:
+    image: k82cn/mesos-slave-dind:0.2.4_mesos-0.28.2_docker-1.11.2_ubuntu-14.04.4
+    privileged: true
+    depends_on:
+      - mesosmaster
+    volumes:
+      - ${PWD}/log/mesos:/var/log/mesos
+      - ${PWD}/hadoop:/opt/hadoop-2.7.2
+    entrypoint:
+      - /bin/bash
+      - -cx
+      - >
+        exec wrapdocker mesos-slave
+    environment:
+      - MESOS_MASTER=mesosmaster:5050
+      - MESOS_PORT=5051
+      - MESOS_LOG_DIR=/var/log/mesos
+      - MESOS_LOGGING_LEVEL=INFO
+      - MESOS_SWITCH_USER=0
+      - MESOS_CONTAINERIZERS=docker,mesos
+      - MESOS_ISOLATION=cgroups/cpu,cgroups/mem
+      - VAR_LIB_DOCKER_SIZE=10
+      - DOCKER_DAEMON_ARGS
+      - GLOG_v=4
+      - LOG=file
+#      - docker_http_proxy=9.21.58.21:3128
+#      - docker_https_proxy=9.21.58.21:3128
+    links:
+      - mesosmaster
+  mesosmaster:
+    image: mesosphere/mesos-master:0.28.2-2.0.27.ubuntu1404
+    ports:
+      - "5050:5050"
+    environment:
+      - MESOS_PORT=5050
+      - MESOS_REGISTRY=in_memory
+      - MESOS_LOG_DIR=/var/log/mesos
+#      - GLOG_v=8
+#    command: ["--authenticate=true", "--credentials=/opt/mesos_cred", "--acls=/opt/mesos_acls", "--authenticate_http=true"]
+    volumes:
+      - ${PWD}/log/mesos:/var/log/mesos
+      - ${PWD}/tmp/mesos:/var/tmp/mesos
+      - ${PWD}/mesos_cred:/opt/mesos_cred
+      - ${PWD}/mesos_acls:/opt/mesos_acls
+  etcd:
+    image: quay.io/coreos/etcd:v3.0.9
+    hostname: etcd
+    ports: [ "4001:4001" ]
+    command:
+      - etcd
+      - --listen-client-urls
+      - http://0.0.0.0:4001
+      - --advertise-client-urls
+      - http://0.0.0.0:4001
+      - --initial-cluster-state
+      - new
+  apiserver:
+    image: k82cn/kubernetes-mesos:0.7
+    hostname: apiserver
+    ports:
+      - "8080:8080"
+    command:
+      - /bin/bash
+      - -xcu
+      - >
+       km apiserver
+       --address=$$(hostname -i)
+       --external-hostname=apiserver
+       --etcd-servers=http://etcd:4001
+       --port=8080
+       --service-cluster-ip-range=10.10.10.0/24
+       --service-node-port-range=30000-32767
+       --cloud-provider=mesos
+       --cloud-config=/opt/mesos-cloud.conf
+       --allow-privileged
+       --admission-control=ServiceAccount,DefaultStorageClass,AlwaysAdmit
+       --client-ca-file=/opt/ca.crt
+       --service-account-key-file=/opt/ca.key
+       --tls-cert-file=/opt/server.crt
+       --tls-private-key-file=/opt/server.key
+       --v=8
+    volumes:
+      - ${PWD}/mesos-cloud.conf:/opt/mesos-cloud.conf
+      - ${PWD}/ca.crt:/opt/ca.crt
+      - ${PWD}/ca.key:/opt/ca.key
+      - ${PWD}/server.crt:/opt/server.crt
+      - ${PWD}/server.key:/opt/server.key
+    depends_on:
+      - etcd
+      - genkey
+      - mesosmaster
+    links:
+      - etcd
+      - mesosmaster
+  controller:
+    image: k82cn/kubernetes-mesos:0.7
+    hostname: controller
+    command:
+      - /bin/bash
+      - -cux
+      - >
+        km
+        controller-manager
+        --address=$$(hostname -i)
+        --master=http://apiserver:8080
+        --cloud-config=/opt/mesos-cloud.conf
+        --service-account-private-key-file=/opt/ca.key
+        --root-ca-file=/opt/ca.crt
+        --v=8
+    volumes:
+      - ${PWD}/mesos-cloud.conf:/opt/mesos-cloud.conf
+      - ${PWD}/ca.crt:/opt/ca.crt
+      - ${PWD}/ca.key:/opt/ca.key
+    depends_on:
+      - apiserver
+      - mesosmaster
+    links:
+      - etcd
+      - apiserver
+      - mesosmaster
+  scheduler:
+    image: k82cn/kubernetes-mesos:0.7
+    command:
+      - /bin/bash
+      - -cux
+      - >
+        km
+        scheduler
+        --address=$$(hostname -i)
+        --hostname-override=scheduler
+        --etcd-servers=http://etcd:4001
+        --mesos-user=root
+        --api-servers=http://apiserver:8080
+        --mesos-master=mesosmaster:5050
+        --allow-privileged
+        --cluster-dns=10.10.10.10
+        --cluster-domain=cluster.local
+        --mesos-executor-cpus=1.0
+        --mesos-framework-roles=*,public
+        --mesos-default-pod-roles=*,public
+        --v=4
+        --executor-logv=4
+        --profiling=true
+    depends_on:
+      - mesosmaster
+      - apiserver
+    links:
+      - etcd
+      - apiserver
+      - mesosmaster
+      - controller
+

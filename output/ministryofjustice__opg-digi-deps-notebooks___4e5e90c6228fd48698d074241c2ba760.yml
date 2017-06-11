@@ -1,0 +1,8 @@
+notebook:
+  image: ipython/scipyserver
+  ports:
+  - 443:8888
+  volumes:
+  - ./notebooks:/notebooks
+  environment:
+  - PASSWORD=admin

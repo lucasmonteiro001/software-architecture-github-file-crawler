@@ -1,0 +1,35 @@
+version: '2'
+services:
+  queue:
+    build:
+      context: .
+      dockerfile: Dockerfile-Rabbit
+    expose:
+      - "5672"
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+  database:
+    image: mongo
+    ports:
+      - "27017:27017"
+  server:
+    image: neitsch/phoenix-server
+    ports:
+      - "8080:8080"
+    links:
+      - queue:queue.host
+      - database
+    environment:
+      - DATABASE=database
+      - QUEUE_HOST=queue.host
+  client:
+    image: neitsch/phoenix-client
+    ports:
+      - "3000:3000"
+    links:
+      - queue:queue.host
+      - server:server
+    environment:
+      - QUEUE_HOST=queue.host
+      - SERVER=server

@@ -1,0 +1,53 @@
+version: '2'
+services:
+  consul:
+    image: qnib/alpn-consul
+    hostname: consul
+    container_name: consul
+    networks:
+     - es-net
+    ports:
+     - 8500:8500
+    environment:
+     - CONSUL_BOOTSTRAP_EXPECT=1
+
+  elasticsearch:
+    image: qnib/alpn-elasticsearch
+    hostname: elasticsearch
+    container_name: elasticsearch
+    networks:
+     - es-net
+    ports:
+     - "9200:9200"
+    environment:
+     - CONSUL_CLUSTER_IPS=consul
+     - FORWARD_TO_ELASTICSEARCH=true
+     - COLLECT_METRICS=false
+
+  kopf:
+    image: qnib/kopf
+    hostname: kopf
+    container_name: kopf
+    environment:
+     - CONSUL_CLUSTER_IPS=consul
+    networks:
+     - es-net
+    ports:
+     - 8088:80
+
+  kibana4:
+    hostname: kibana4
+    container_name: kibana4
+    image: qnib/alpn-kibana4
+    networks:
+     - es-net
+    ports:
+     - "5601:5601"
+    environment:
+     - CONSUL_CLUSTER_IPS=consul
+     - COLLECT_METRICS=false
+     - HTTPPORT=9200
+     - ES_URL=elasticsearch:9200
+
+networks:
+  es-net:

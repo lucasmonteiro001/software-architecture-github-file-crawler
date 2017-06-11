@@ -1,0 +1,38 @@
+www:
+  image: rpawel/lemp:trusty
+  ports:
+    - "49150:80"
+  volumes:
+    - "./data/www/:/var/www"
+    - "./data/log-nginx:/var/log/nginx"
+    - "./data/log-php5:/var/log/php5"
+  hostname: my.hostname.com
+  links:
+    - memcache:memcache
+  environment:
+    CTNR_LOCALE: "en_GB.UTF-8"
+    CTNR_TIMEZONE: "Europe/London"
+    CTNR_DEBUG: 1
+  restart: on-failure
+  tty: true
+ssh:
+  image: rpawel/php-ssh:trusty
+  ports:
+    - "49151:22"
+  volumes:
+    - "./data/www:/var/www"
+    - "./data/log-nginx:/var/log/nginx"
+    - "./data/log-php5:/var/log/php5"
+  links:
+    - memcache:memcache
+  environment:
+    CTNR_LOCALE: "en_GB.UTF-8"
+    CTNR_TIMEZONE: "Europe/London"
+    CTNR_DEBUG: 1
+  restart: on-failure
+memcache:
+  image: rpawel/memcache:trusty
+  restart: on-failure
+  environment:
+    CTNR_LOCALE: "en_GB.UTF-8"
+    CTNR_TIMEZONE: "Europe/London"

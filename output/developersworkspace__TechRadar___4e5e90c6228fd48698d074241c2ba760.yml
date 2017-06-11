@@ -1,0 +1,22 @@
+version: '2'
+services:
+    api:
+        build: api
+        ports:
+        - "3000:3000"
+        links: 
+        - mongo
+        volumes:
+        - /logs:/logs
+    web:
+        build: web
+        ports:
+        - "8080:8080"
+    admin:
+        build: admin
+        ports:
+        - "8181:8181"
+    mongo:
+        image: "mongo"
+        volumes:
+        - /docker/mongodb:/data/db

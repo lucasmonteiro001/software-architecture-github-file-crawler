@@ -1,0 +1,5 @@
+web:
+  image: pdxjohnny/hangouts-call-center
+  command: /app/run http
+  ports:
+    - "8080:8080"

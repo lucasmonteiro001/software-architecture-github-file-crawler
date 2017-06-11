@@ -1,0 +1,16 @@
+version: '2'
+services:
+    web:
+        build: .
+        volumes:
+          - "./app:/app"
+        ports:
+            - "80:80"
+        links:
+            - mongodb:db
+        volumes:
+          - "./letsencrypt:/mnt/www/letsencrypt"
+    mongodb:
+        image: mongo:3.2
+        volumes:
+            - "./db:/data/db"

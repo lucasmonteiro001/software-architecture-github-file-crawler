@@ -1,0 +1,22 @@
+version: '3'
+services:
+    db:
+        restart: unless-stopped
+        build: docker_db
+        volumes:
+            - db_data:/var/lib/mysql
+        env_file: secret.env
+        expose:
+            - 3306
+
+    app:
+        restart: unless-stopped
+        depends_on:
+            - db
+        build: .
+        env_file: secret.env
+        ports:
+            - 7050:7050/tcp
+
+volumes:
+    db_data:

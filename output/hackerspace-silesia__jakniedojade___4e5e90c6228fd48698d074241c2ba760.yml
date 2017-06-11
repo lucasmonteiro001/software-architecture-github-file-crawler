@@ -1,0 +1,28 @@
+db:
+  image: postgres
+  environment:
+    POSTGRES_USER: ania
+    POSTGRES_DB: jakniedojade
+    POSTGRES_PASSWORD: general_ania
+
+webapp:
+  build: .
+  volumes:
+    - ./jakniedojade/:/code/
+    - ./static/:/static/
+    - ./media/:/media/
+    - ./html/:/html/
+  ports:
+    - "8000:8000"
+
+web:
+  extends: webapp
+  command: python manage.py runserver 0.0.0.0:8000
+  links:
+    - db
+
+tests:
+  extends: webapp
+  command: python manage.py test
+  links:
+    - db

@@ -1,0 +1,13 @@
+version: '2'
+services:
+  postgres:
+    image: postgres:9.6.1
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_USER=kitahub
+
+  redis:
+    image: redis:3.2.5
+    ports:
+      - "6379:6379"

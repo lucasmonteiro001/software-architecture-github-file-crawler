@@ -1,0 +1,45 @@
+openolympusweb:
+  build: openolympus-web-docker
+  command: /usr/sbin/startDockerContainer
+  links:
+   - "database"
+   - "jppfserver"
+  ports:
+   - "8080:8080"
+  environment:
+   - dbAddress=database
+   - dbPassword=
+   - serverPort=8080
+   - remoteAddress=localhost
+   - persistentTokenKey=openolympus
+   - enableCaptcha=false
+   - recaptchaPublicKey=
+   - recaptchaPrivateKey=
+   - emailHost=
+   - emailHostPort=25
+   - emailProtocol=smtp
+   - emailLogin=
+   - emailPassword=
+  volumes:
+   - /opt/openolympus/storage:/opt/openolympus/storage
+database:
+  build: openolympus-postgres
+  environment:
+   - POSTGRES_PASSWORD=
+  ports:
+   - "5433:5432"
+jppfserver:
+  build: jppf-server
+  ports:
+   - "11111:11111"
+   - "11198:11198"
+   - "11443:11443"
+jppfclient:
+  build: jppf-client
+  links:
+   - "jppfserver"
+  privileged: true
+  volumes:
+   - /opt/openolympus/storage/tasks:/opt/openolympus/storage/tasks:ro
+   - /opt/openolympus/storage/solutions:/opt/openolympus/storage/solutions:ro
+   - /opt/openolympus/storage/tmp:/opt/openolympus/storage/tmp

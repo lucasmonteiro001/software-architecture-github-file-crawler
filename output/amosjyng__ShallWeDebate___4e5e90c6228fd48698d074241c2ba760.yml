@@ -1,0 +1,14 @@
+database:
+  image: postgres:9.1
+  volumes:
+    - /ShallWeDebate/postgres-entrypoint:/docker-entrypoint-initdb.d:ro
+  env_file:
+    - ./vars.env
+web:
+  build: .
+  env_file:
+    - ./vars.env
+  links:
+    - database
+  ports:
+    - "80:9000"

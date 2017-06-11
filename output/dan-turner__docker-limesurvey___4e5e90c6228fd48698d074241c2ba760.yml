@@ -1,0 +1,15 @@
+db:
+  image: 'mysql:latest'
+  environment:
+    - MYSQL_DATABASE=lime
+    - MYSQL_PASSWORD=654321
+    - MYSQL_ROOT_PASSWORD=123456
+    - MYSQL_USER=lime_user
+  expose:
+    - '3306'
+lime:
+  image: 'danturner/limesurvey:latest'
+  links:
+    - db
+  ports:
+    - '80:80'

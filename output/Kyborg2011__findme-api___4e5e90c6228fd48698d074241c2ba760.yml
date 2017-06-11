@@ -1,0 +1,15 @@
+web:
+  build: .
+  volumes:
+    - "./src:/src/app"
+  environment:
+    - VIRTUAL_HOST=rest.api.com
+  links:
+    - "db:mongo"
+
+db:
+  image: mongo
+  ports:
+    - "27017:27017"
+  volumes:
+    - ./data/db:/data/db

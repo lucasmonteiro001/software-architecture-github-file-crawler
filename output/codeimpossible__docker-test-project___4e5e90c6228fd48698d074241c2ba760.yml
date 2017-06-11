@@ -1,0 +1,23 @@
+version: '2'
+services:
+  frontend:
+    build: ./frontend
+    environment:
+     PORT: 8080
+     BACKEND: "backend"
+    ports:
+     - "8000:8080"
+    links:
+     - backend
+  backend:
+    build: ./backend
+    environment:
+     DATABASE_CONNECTION: "postgresql://postgres:mysecretpassword@db/docker-test-project"
+    links:
+     - db
+  db:
+    image: postgres
+    volumes:
+     - /var/docker/postgresql:/var/lib/postgresql
+    environment:
+     - POSTGRES_PASSWORD=mysecretpassword

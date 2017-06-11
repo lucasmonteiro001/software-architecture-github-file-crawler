@@ -1,0 +1,32 @@
+version: '2'
+services:
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+  database:
+    image: sameersbn/postgresql:9.4-13
+    ports:
+      - "5432:5432"
+    environment:
+      DB_USER: 'root'
+      DB_PASS: '123456'
+      DB_NAME: 'development,test'
+  web:
+    build: .
+    command: ./scripts/start
+    volumes:
+      - .:/app
+    volumes_from:
+      - drive
+    ports:
+      - "3000:3000"
+    depends_on:
+      - database
+      - redis
+      - drive
+
+  drive:
+    image: busybox
+    volumes:
+      - ./bundle:/bundle

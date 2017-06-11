@@ -1,0 +1,63 @@
+version: '2'
+services:
+
+  postgres:
+    image: postgres
+
+  elasticsearch:
+   image: elasticsearch
+
+  rabbitmq:
+     image: rabbitmq
+
+  django:
+    image: geonode/django
+    links:
+      - postgres
+      - elasticsearch
+      - rabbitmq
+    command: django-admin.py runserver 0.0.0.0:8000 --settings=geonode.settings
+    env_file:
+      - django.env
+
+  celery:
+    image: geonode/django
+    links:
+      - rabbitmq
+      - postgres
+      - elasticsearch
+    command: celery worker --app=geonode.celery_app:app -B -l INFO
+    env_file:
+      - django.env
+
+  geoserver:
+    image: geonode/geoserver
+    links:
+      - postgres
+    ports:
+      - "8080"
+    volumes_from:
+      - data_dir_conf
+    environment:
+      - DOCKER_HOST
+      - PUBLIC_PORT=80
+      - DOCKER_HOST_IP
+
+  nginx:
+    image: geonode/nginx:geoserver
+    links:
+      - django
+      - geoserver
+    ports:
+      - "80:80"
+
+  data_dir_conf:
+    image: geonode/geoserver_data
+    container_name: geoserver_data_dir
+    command: /bin/true
+    volumes:
+      - /geoserver_data/data
+
+volumes:
+
+  geoserver_data_dir:

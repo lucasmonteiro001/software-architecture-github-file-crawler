@@ -1,0 +1,6 @@
+app:
+  build: .
+  environment:
+    AWS_BUCKET: "xxx"
+  volumes:
+    - "./backups:/backups"

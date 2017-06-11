@@ -1,0 +1,115 @@
+devbase:
+  build: base-docker-image
+dev:
+  build: .
+devmongo:
+  build: mongo-docker-image
+  expose: 
+    - 27017
+  command: mongod
+devconsole:
+  image: shadowwolf_dev
+  working_dir: /ShadowWolf/server
+  links:
+    - devmongo:mongo
+  volumes:
+    - server:/ShadowWolf/server
+  command: rails console
+prodconsole:
+  image: shadowwolf_dev
+  working_dir: /ShadowWolf/server
+  volumes:
+    - server:/ShadowWolf/server
+    - Helper scripts:/scripts
+  environment:
+    - MONGO_PORT_27017_TCP_ADDR=10.22.140.67
+    - MONGO_PORT_27017_TCP_PORT=27017
+  command: rails console -e production
+devflask:
+  build: beowulf
+  volumes:
+    - beowulf:/ShadowWolf/beowulf
+  command: python3 app/main.py
+  working_dir: /ShadowWolf/beowulf
+  environment:
+    - MSSQL_SERVER
+    - MSSQL_UID
+    - MSSQL_PWD
+    - MSSQL_DB
+    - PORT=9001
+  ports:
+    - 9001:9001
+devoaf:
+  dns:
+    - 10.22.140.50
+    - 10.22.140.51
+  build: oaf
+  links:
+    - devrails:rails
+  environment:
+    -  OPEN_ASSET_USERNAME
+    -  OPEN_ASSET_PASSWORD
+    -  OPEN_ASSET_ENDPOINT
+  volumes:
+    - oaf:/oaf
+  ports:
+    - '4567:4567'
+  working_dir: /oaf
+  command: ./run.sh
+devrails:
+  image: shadowwolf_dev
+  working_dir: /ShadowWolf/server
+  links:
+    - devmongo:mongo
+  ports:
+    - 3000:3000
+  volumes:
+    - server:/ShadowWolf/server
+  command: rails server
+devgrunt:
+  image: shadowwolf_dev
+  working_dir: /ShadowWolf/client
+  links:
+    - devrails:server
+    - devflask:beowulf
+    - devoaf:oaf
+  ports:
+    - "9000:9000"
+    - "35729:35729"
+  volumes:
+    - client:/ShadowWolf/client
+  command: grunt server
+devprotractor:
+  image: shadowwolf_dev
+  working_dir: /ShadowWolf/client
+  ports:
+    - "4444:4444"
+  volumes:
+    - client:/ShadowWolf/client
+  command: protractor Protractor.js
+prodrails:
+  build: server
+  links:
+    - devmongo:mongo
+  working_dir: /home/app/server
+  expose:
+    - 3000
+  command: passenger start
+prodangular:
+  build: client
+  links:
+    - prodrails:server
+  ports:
+    - "0.0.0.0:9000:9000"
+  command: /run.sh
+prodflask:
+  build: beowulf
+  environment:
+    - MSSQL_SERVER
+    - MSSQL_UID
+    - MSSQL_PWD
+    - MSSQL_DB
+    - PORT=9001
+  ports:
+    - $MSSQL_SERVER::1433
+    - 9001:9001

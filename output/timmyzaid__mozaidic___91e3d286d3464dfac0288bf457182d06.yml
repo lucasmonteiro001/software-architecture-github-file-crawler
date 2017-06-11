@@ -1,0 +1,12 @@
+version: '2'
+services:
+    webpack:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        image: webpack
+        ports:
+            - "35729:35729"
+        volumes:
+            - ./src:/frontend/src
+            - ./static:/frontend/static

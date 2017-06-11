@@ -1,0 +1,54 @@
+version: "2"
+
+services:
+  # zookeeper:
+  #   image: zookeeper:latest
+  #   # network_mode: host
+  #   ports:
+  #      - "2181:2181"
+  #      - "2888:2888"
+  #      - "3888:3888"
+  #   environment:
+  #     - ZK_ID= 1
+
+  mesosmaster:
+    image: mesosphere/mesos-master:1.2.0
+    network_mode: host
+    ports:
+       - "5050:5050"
+       - "2181:2181"
+    environment:
+      - MESOS_ZK=zk://127.0.0.1:2181/mesos
+      - MESOS_QUORUM= 1
+      - MESOS_LOG_DIR=/var/log/mesos
+      - MESOS_REGISTRY= in_memory
+      - MESOS_WORK_DIR= /var/lib/mesos
+      - MESOS_LOG_DIR /var/log/mesos
+      - ZK_ID= 1
+    volumes:
+      - /var/log/mesos:/var/log/mesos
+      - /var/lib/mesos:/var/lib/mesos
+      - :/etc/zookeeper/conf/
+
+  marathon:
+    image: mesosphere/marathon:latest
+    network_mode: host
+    environment:
+      MARATHON_MASTER: zk://127.0.0.1:2181/mesos
+    ports:
+       - "8080:8080"
+
+
+sudo docker run -d --net=host -e MESOS_PORT=5050 -e MESOS_ZK=zk://127.0.0.1:2181/mesos -e MESOS_QUORUM=1 -e MESOS_REGISTRY=in_memory -e MESOS_LOG_DIR=/var/log/mesos -e MESOS_WORK_DIR=/var/tmp/mesos -v "$(pwd)/log/mesos:/var/log/mesos" -v "$(pwd)/tmp/mesos:/var/tmp/mesos" -p 2181:2181 mesosphere/mesos-master:1.2.0
+
+
+
+sudo docker run -d --net=host --name=zk -e MYID=1 -e SERVERS=192.168.58.1 mesoscloud/zookeeper:3.4.6-ubuntu-14.04
+
+sudo docker run -d --net=host --name=mm -e MESOS_PORT=5050 -e MESOS_HOSTNAME=192.168.58.1 -e MESOS_IP=192.168.58.1 -e MESOS_ZK=zk://192.168.58.1:2181/mesos -e MESOS_QUORUM=1 -e MESOS_LOG_DIR=/var/log/mesos mesoscloud/mesos-master:0.24.1-ubuntu-14.04
+# sudo docker run -d --net=host --name=mm -e MESOS_PORT=5050 -e MESOS_HOSTNAME=192.168.58.1 -e MESOS_IP=192.168.58.1 -e MESOS_REGISTRY=in_memory -e MESOS_ZK=zk://192.168.58.1:2181/mesos -e MESOS_QUORUM=1 -e MESOS_LOG_DIR=/var/log/mesos mesoscloud/mesos-master:0.24.1-ubuntu-14.04
+
+sudo docker run -d --net=host --privileged -e MESOS_PORT=5051 -e MESOS_MASTER=zk://192.168.58.1:2181/mesos -e MESOS_SWITCH_USER=0 -e MESOS_CONTAINERIZERS=docker,mesos -e MESOS_LOG_DIR=/var/log/mesos -e MESOS_WORK_DIR=/var/tmp/mesos -v "$(pwd)/log/mesos:/var/log/mesos" -v "$(pwd)/tmp/mesos:/var/tmp/mesos" -v /var/run/docker.sock:/var/run/docker.sock -v /cgroup:/cgroup -v /sys:/sys -v /usr/local/bin/docker:/usr/local/bin/docker  mesoscloud/mesos-slave:0.24.1-ubuntu-14.04
+
+sudo docker run -d --net=host --pid=host --privileged=true --name=ms1 -v /usr/bin/docker:/usr/bin/docker -v /dev:/dev -v /usr/lib/x86_64-linux-gnu/libapparmor.so.1:/usr/lib/x86_64-linux-gnu/libapparmor.so.1:ro -v /var/run/docker.sock:/var/run/docker.sock -v /var/log/mesos:/var/log/mesos -v /tmp/mesos:/tmp/mesos -e MESOS_PORT=5051 -e MESOS_MASTER=zk://192.168.58.1:2181/mesos -e MESOS_CONTAINERIZERS=docker,mesos mesoscloud/mesos-slave:0.24.1-ubuntu-14.04
+

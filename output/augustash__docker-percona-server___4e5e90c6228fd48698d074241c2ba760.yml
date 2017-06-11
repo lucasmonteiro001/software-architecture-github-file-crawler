@@ -1,0 +1,26 @@
+version: "2"
+services:
+  db:
+    build:
+      context: .
+    image: augustash/percona-server:5.7
+    labels:
+      - "com.augustash.description=August Ash Database Image"
+      - "com.augustash.development-only"
+    ports:
+      - "3306"
+    depends_on:
+      - db_data
+    volumes_from:
+      - db_data
+    # volumes:
+    #   - ./rootfs/defaults/sample.cnf:/config/mysql/conf.d/mysqld.cnf
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=app
+
+  db_data:
+    image: augustash/storage:1.0.0
+    volumes:
+      - /var/lib/mysql
+      - /var/log/mysql

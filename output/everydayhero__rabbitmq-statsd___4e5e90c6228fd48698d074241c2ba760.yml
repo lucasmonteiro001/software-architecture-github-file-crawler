@@ -1,0 +1,12 @@
+proc:
+  build: .
+  volumes:
+    - .:/usr/local/rabbitmq-stats
+  environment:
+    RABBITMQ_HOST: rabbitmq
+    RABBITMQ_PORT: 15672
+    DEBUG: true
+  links:
+    - rabbitmq
+rabbitmq:
+  image: rabbitmq:management

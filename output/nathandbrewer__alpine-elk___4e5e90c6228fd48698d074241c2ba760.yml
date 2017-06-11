@@ -1,0 +1,65 @@
+version: '2'
+
+services:
+  elasticsearch:
+    build:
+      context: ./alpine-elasticsearch
+      args:
+        ES_VERSION: 5.0.0
+        ES_HOME: /opt/elasticsearch
+        ES_USER: elasticsearch
+        ES_UID: 998
+        ES_PLUGINS:
+        ES_XMX: -Xmx256m
+        ES_XMS: -Xms256m
+    command: elasticsearch
+    ports:
+      - "9200:9200"
+    volumes:
+      - es_data:/opt/elasticsearch/data
+      - es_config:/opt/elasticsearch/config
+  logstash:
+    build:
+      context: ./alpine-logstash
+      args:
+        LS_VERSION: 5.0.0
+        LS_HOME: /opt/logstash
+        LS_USER: logstash
+        LS_UID: 997
+        LS_PLUGINS:
+        LS_XMX: -Xmx256m
+        LS_XMS: -Xms256m
+    command: logstash
+    links:
+      - elasticsearch
+    ports:
+      - "12201:12201"
+    volumes:
+      - ls_confd:/opt/logstash/conf.d
+      - ls_config:/opt/logstash/config
+    environment:
+      LS_SETTINGS_DIR: /opt/logstash/config
+  kibana:
+    build:
+      context: ./alpine-kibana
+      args:
+        KB_VERSION: 5.0.0-linux-x86_64
+        KB_HOME: /opt/kibana
+        KB_USER: kibana
+        KB_UID: 996
+        PLUGINS:
+    command: kibana
+    ports:
+      - 5601:5601
+    links:
+      - elasticsearch
+    volumes:
+      - kb_config:/opt/kibana/config
+    environment:
+      KB_SETTINGS_DIR: /opt/kibana/config
+volumes:
+  es_data: {}
+  es_config: {}
+  kb_config: {}
+  ls_confd: {}
+  ls_config: {}

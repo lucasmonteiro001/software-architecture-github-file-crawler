@@ -1,0 +1,20 @@
+version: '2'
+services:
+  web:
+    build: .
+    volumes:
+      - .:/code/
+    expose:
+      - "5000"
+    command: gunicorn -w 4 -b :8000 app:app
+
+  nginx:
+    build: ./nginx/
+    ports:
+      - "80:80"
+    volumes:
+      - /www/static
+    volumes_from:
+        - web
+    links:
+        - web:web""

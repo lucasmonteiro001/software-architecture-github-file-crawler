@@ -1,0 +1,8 @@
+hugo:
+    build: .
+    ports:
+      - "80:80"
+    command: bin/hugo
+    environment:
+      - DEVELOPMENT
+      - HUGO_BASEURL

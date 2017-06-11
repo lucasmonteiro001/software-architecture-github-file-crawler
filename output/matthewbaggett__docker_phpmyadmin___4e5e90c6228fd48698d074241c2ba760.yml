@@ -1,0 +1,16 @@
+mysql:
+  image: mysql
+  environment:
+    - MYSQL_ROOT_PASSWORD=ExamplePassword
+    - MYSQL_USER=Example
+    - MYSQL_PASSWORD=Example
+    - MYSQL_DATABASE=Example
+  expose:
+    - '3306'
+
+phpmyadmin:
+  build: .
+  links:
+    - mysql:db
+  ports:
+   - '80'

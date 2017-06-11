@@ -1,0 +1,23 @@
+version: '2'
+
+services:
+  kc:
+    image: itbh/kompetenzcheck
+    ports:
+      - 80:80
+    environment:
+      - MONGO_HOST=mongo
+      - SMTP_HOST=smtp.example.com
+      - SMTP_PORT=587
+      - SMTP_EMAIL=mail@example.com
+      - SMTP_PASSWORD=secret
+    links:
+      - mongo
+
+  mongo:
+    image: mongo
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+  mongo-data:

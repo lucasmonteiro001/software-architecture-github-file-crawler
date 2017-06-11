@@ -1,0 +1,33 @@
+jruby_gems:
+  image: 99taxis/jruby
+  volumes:
+    - /usr/local/bundle
+
+web: &default
+  image: 99taxis/jruby
+  volumes:
+    - .:/usr/src/app
+  volumes_from:
+    - jruby_gems
+  working_dir: /usr/src/app
+
+setup:
+  <<: *default
+  command: bundle install
+
+r: &spec
+  <<: *default
+  command: rspec spec
+
+rcov:
+  <<: *spec
+  environment:
+    - CODACY_RUN_LOCAL=true
+    - DEBUG_STDOUT=true
+c:
+  <<: *default
+  command: /bin/bash
+
+b:
+  <<: *default
+  command: gem build logstash-filter-ky.gemspec

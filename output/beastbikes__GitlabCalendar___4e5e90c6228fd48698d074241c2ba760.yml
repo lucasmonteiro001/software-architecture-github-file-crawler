@@ -1,0 +1,10 @@
+version: '2'
+services:
+ web:
+   build: .
+   command: gunicorn -w 4 -b 0.0.0.0:5000 app:app
+   volumes:
+     - .:/code
+   ports:
+     - "5000:5000"
+   env_file: .docker_env

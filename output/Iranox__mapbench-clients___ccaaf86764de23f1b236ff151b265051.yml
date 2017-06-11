@@ -1,0 +1,21 @@
+version: '2'
+services:
+  teiid:
+    image: jboss/teiid:9.1.0.Final
+    ports:
+     - "9990:9990"
+     - "31000:31000"
+    volumes_from:
+      - base_data
+    volumes:
+     -  ./../../../vertical-mysql/ontop/teiid/standalone/configuration:/opt/jboss/wildfly/standalone/configuration
+     - ./../../../vertical-mysql/ontop/teiid/standalone/deployment:/opt/jboss/wildfly/standalone/deployments
+     - ./../../../vertical-mysql/ontop/teiid/modules:/opt/jboss/wildfly/modules
+  ontop:
+    build: ../../../single-server/ontop/ontop
+    links:
+       - teiid
+    ports:
+       - "3008:8080"
+    volumes:
+     - ./../../../single-server/ontop/ontop-mapping:/ontop

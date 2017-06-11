@@ -1,0 +1,30 @@
+# Travis specific docker-compose to handle database and server dependencies
+# Mount the README.md as the test file to serve over /stream/
+omp-express-mongo-api:
+    build: .
+    working_dir: /omp
+    volumes:
+        - ./ecosystem.config.js:/omp/ecosystem.config.js:rw
+        - ./package.json:/omp/package.json:rw
+        - ./server.js:/omp/server.js:rw
+        - ./config.js:/omp/config.js:rw
+        - ./routes/:/omp/routes/:rw
+        - ./dao/:/omp/dao/:rw
+        - ./.travis-omp-config.yml:/omp/omp-config.yml:rw
+        - ./README.md:/omp/README.md:rw
+    environment:
+        - "OMP_API_PORT=8001"
+        - "OMP_CONFIG_PATH=/omp/omp-config.yml"
+        - "OMP_LIBRARY_ROOT=/omp/"
+        - "NODE_ENV=development"
+    ports:
+        - "8001:8001"
+    links:
+        - omp-mongo
+    command: yarn watch
+
+omp-mongo:
+    image: mongo
+    command: --smallfiles
+    expose:
+        - "27017"

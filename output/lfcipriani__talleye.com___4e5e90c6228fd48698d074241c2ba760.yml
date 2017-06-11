@@ -1,0 +1,15 @@
+version: '2'
+services:
+    web:
+        image: talleye:${WEBSITE_VERSION} 
+        restart: always
+    lb:
+        image: haproxylb:0.0.1
+        restart: always
+        links:
+            - web
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        ports:
+            - 80:80
+            - 443:443

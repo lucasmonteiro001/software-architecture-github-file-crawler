@@ -1,0 +1,13 @@
+---
+version: '2'
+services:
+  app:
+    # command: npm test
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    volumes:
+      - ./:/home/code
+    # environment:
+    #   NODE_DEBUG: ans
+    

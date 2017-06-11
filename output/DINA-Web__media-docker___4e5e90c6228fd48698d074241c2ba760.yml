@@ -1,0 +1,30 @@
+fs_db.media:
+  image: tianon/true
+  volumes:
+    - ./mysql-autoload:/docker-entrypoint-initdb.d:ro
+    - ./mysql-datadir:/var/lib/mysql:z
+    - ./mysql-shr:/shr:z
+    - ./mysql-conf.d:/etc/mysql/conf.d:z
+
+fs_as:
+  image: tianon/true
+  volumes:
+    - ./srv/media:/opt/data/media
+    - ./srv/log:/opt/jboss/wildfly/standalone/log
+
+dbmedia:
+  image: mysql:5.6
+  env_file: .env
+  volumes_from:
+    - fs_db.media
+
+app:
+  #build: ./wildfly-custom
+  image: dina/media:v0.4
+  environment:
+   - VIRTUAL_HOST=api.nrm.se
+   - VIRTUAL_PORT=8080
+  volumes_from:
+    - fs_as
+  links:
+    - dbmedia

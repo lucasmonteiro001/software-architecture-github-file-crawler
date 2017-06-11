@@ -1,0 +1,26 @@
+# Docker Registry V2 compose file based on:
+#   - https://docs.docker.com/registry/deploying/#managing-with-compose
+registry:
+  restart: always
+  image: registry:2
+  ports:
+    - 6000:5000
+  environment:
+    REGISTRY_HTTP_TLS_CERTIFICATE: /certs/domain.crt
+    REGISTRY_HTTP_TLS_KEY: /certs/domain.key
+    REGISTRY_AUTH: htpasswd
+    REGISTRY_AUTH_HTPASSWD_PATH: /auth/htpasswd
+    REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
+    # Generated secrets using
+    #   ```
+    #   cat /dev/urandom | tr -dc 'a-zA-Z0-9' | head -c 32
+    #  ```
+    REGISTRY_HTTP_SECRET: BT5d9p780V2KVqZNfmlbMcCnWZFl7OEn%
+  volumes:
+    # Where your images will be persisted.
+    - /tmp/registry-v2-data:/var/lib/registry
+    # Currently using self-signed certificatess
+    - ./certs:/certs
+    # Generated htpasswd file using
+    #   - cat /dev/urandom | tr -dc 'a-zA-Z0-9' | head -c 32    
+    - ./auth:/auth

@@ -1,0 +1,21 @@
+version: '2'
+services:
+  mailer:
+    build: .
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./:/src/
+      - /src/node_modules
+    environment:
+    - SWAG_DOM=localhost:3001
+    - GATEWAY=localhost:6000
+    - NODE_ENV=dev
+    - MONGO=mongodb://10.0.0.2:27017/postcard-mailer
+    - LOB=ADD_YOUR_LOB_TEST_KEY_HERE
+    - WEBHOOK=FOR_DEV_WORK_ADD_WEBHOOK_HERE
+    - FRONT_LOCAL=true
+    - FRONT_PATH=/public/img/fpc_front.pdf
+    - BACK_PATH=/public/templates/back.html
+    - USERAUTH=http://localhost:4000
+    - DOMAIN=http://localhost:4010

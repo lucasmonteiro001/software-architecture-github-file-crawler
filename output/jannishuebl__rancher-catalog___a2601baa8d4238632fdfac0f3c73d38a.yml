@@ -1,0 +1,50 @@
+sentinel:
+    image: jannishuebl/rancher-stolon:0.0.1
+    labels:
+        io.rancher.scheduler.affinity:container_label_ne: io.rancher.stack_service.name=$${stack_name}/$${service_name}
+    environment:
+        - SENTINEL=true
+        - STSENTINEL_DISCOVERY_TYPE=store
+        - STSENTINEL_CLUSTER_NAME=${cluster_name}
+        - STSENTINEL_STORE_BACKEND=etcd
+        - STSENTINEL_STORE_ENDPOINTS=${etcd_entpoint}
+        - STKEEPER_DEBUG=${enable_debug}
+    expose: 
+        - 6431
+keeper:
+    image: jannishuebl/rancher-stolon:0.0.1
+    labels:
+        io.rancher.scheduler.affinity:container_label_ne: io.rancher.stack_service.name=$${stack_name}/$${service_name}
+    environment:
+        - KEEPER=true
+        - STKEEPER_DISCOVERY_TYPE=store
+        - STKEEPER_CLUSTER_NAME=${cluster_name}
+        - STKEEPER_STORE_BACKEND=etcd
+        - STKEEPER_STORE_ENDPOINTS=${etcd_entpoint}
+        - STKEEPER_DEBUG=${enable_debug}
+        - STKEEPER_PG_REPL_USERNAME=repluser
+        - STKEEPER_PG_REPL_PASSWORD=${replpassword}
+        - STKEEPER_PG_SU_USERNAME=${username}
+        - STKEEPER_PG_SU_PASSWORD=${password}
+    volumes:
+        - pg_data:/stolon-data
+    expose: 
+        - 5431
+        - 5432
+proxy:
+    image: jannishuebl/rancher-stolon:0.0.1
+    labels:
+        io.rancher.scheduler.affinity:container_label_ne: io.rancher.stack_service.name=$${stack_name}/$${service_name}
+    environment:
+        - PROXY=true
+        - STPROXY_DISCOVERY_TYPE=store
+        - STPROXY_CLUSTER_NAME=${cluster_name}
+        - STPROXY_STORE_BACKEND=etcd
+        - STPROXY_STORE_ENDPOINTS=${etcd_entpoint}
+        - STKEEPER_DEBUG=${enable_debug}
+    expose: 
+        - 5432
+postgres:
+    image: rancher/dns-service
+    links:
+        - proxy

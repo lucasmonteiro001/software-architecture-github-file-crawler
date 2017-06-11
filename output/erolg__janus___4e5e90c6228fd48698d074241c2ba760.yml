@@ -1,0 +1,29 @@
+version: '2'
+
+services:
+  app:
+    build: .
+    restart: always
+    volumes:
+      - .:/usr/src/app
+    expose:
+      - "80"
+    command: python manage.py runserver 0.0.0.0:8000
+    ports:
+      - "80:8000"
+    links:
+      - db:database
+    depends_on:
+      - db
+  db:
+    image: mysql
+    volumes:
+      - ./db:/var/lib/mysql
+    restart: always  
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: nomoresecret
+      MYSQL_USER: janus
+      MYSQL_PASSWORD: nomoresecret
+      MYSQL_DATABASE: janus

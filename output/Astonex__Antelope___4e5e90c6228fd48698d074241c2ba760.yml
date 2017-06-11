@@ -1,0 +1,47 @@
+django:
+  restart: always
+  build: .
+  expose:
+    - "8000"
+  links:
+    - postgres:postgres
+    - redis:redis
+  volumes:
+    - /usr/src/app
+  environment:
+    - DJANGO_SETTINGS_MODULE=antelope.settings.testing
+  env_file: .env
+  command: /usr/local/bin/gunicorn -c gunicorn/testing.py --chdir antelope antelope.wsgi:application --reload
+
+nginx:
+  restart: always
+  build: ./nginx/
+  ports:
+    - "80:80"
+  volumes:
+    - /www/
+  volumes_from:
+    - django
+  links:
+    - django:django
+
+postgres:
+  restart: always
+  image: postgres:latest
+  volumes_from:
+    - data
+  ports:
+    - "5432:5432"
+
+redis:
+  restart: always
+  image: redis:latest
+  ports:
+    - "6379:6379"
+
+data:
+  restart: always
+  image: postgres:latest
+  volumes:
+    - /var/lib/postgresql
+  command: "true"

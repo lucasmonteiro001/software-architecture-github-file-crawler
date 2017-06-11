@@ -1,0 +1,6 @@
+jenkinsfulljava:
+  image: pascalgrimaud/jenkins-full-java
+  volumes:
+  - ~/volumes/jenkins/jenkins_home:/opt/jenkins/jenkins_home
+  ports:
+  - "8080:8080"

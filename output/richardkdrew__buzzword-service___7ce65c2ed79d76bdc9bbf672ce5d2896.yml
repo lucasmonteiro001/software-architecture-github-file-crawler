@@ -1,0 +1,10 @@
+version: '2'
+
+services:
+  buzzword-service:
+    image: buzzword-service
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"

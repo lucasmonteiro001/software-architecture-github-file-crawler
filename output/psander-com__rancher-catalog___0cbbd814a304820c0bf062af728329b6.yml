@@ -1,0 +1,28 @@
+wordpress:
+  image: wordpress
+  links:
+    - db:mysql
+  ports:
+    - ${public_port}:80
+  environment:
+    WORDPRESS_DB_NAME: "wordpress"
+    WORDPRESS_DB_USER: "wordpress"
+    WORDPRESS_DB_PASSWORD: ${mysql_password}
+  labels:
+    io.rancher.sidekicks: backup
+db:
+  image: mariadb
+  environment:
+    MYSQL_ROOT_PASSWORD: ${mysql_root_password}
+    MYSQL_DATABASE: "wordpress"
+    MYSQL_USER: "wordpress"
+    MYSQL_PASSWORD: ${mysql_user_password}
+
+backup:
+  image: aveltens/wordpress-backup
+  volumes:
+    - ${backup_path}:/backups
+  volumes_from:
+    - wordpress
+  links:
+    - db:mysql

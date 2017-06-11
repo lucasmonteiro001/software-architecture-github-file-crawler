@@ -1,0 +1,29 @@
+mysql:
+  build: docker/mysql
+  ports:
+   - "3306:3306"
+  dns: ["127.0.0.1"]
+  hostname: mysql
+
+memcached:
+  image: memcached
+  ports:
+   - "11211:11211"
+
+web:
+  build: docker/web
+  ports:
+   - "3000:3000"
+  links:
+   - mysql
+   - memcached
+  environment:
+   - TATER_DB_URL=jdbc:mysql://mysql/taters
+   - MEMCACHIER_SERVERS=memcached:11211
+   - CRISPY_SLACK_TOKEN
+   - SENDGRID_USERNAME
+   - SENDGRID_PASSWORD
+   - PERSONA_AUDIENCE
+  volumes:
+   - ./:/app
+   - $HOME/.m2:/root/.m2

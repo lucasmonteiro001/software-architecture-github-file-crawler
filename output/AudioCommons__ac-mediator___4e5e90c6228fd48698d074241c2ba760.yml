@@ -1,0 +1,66 @@
+version: '2'
+volumes:
+  dbvolume:
+services:
+  db:
+    image: postgres:9.6
+    env_file:
+      - .env
+    volumes:
+      - dbvolume:/var/lib/postgresql/data/
+  nginx:
+    image: nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./docker/nginx/ac_mediator.conf:/etc/nginx/conf.d/default.conf
+      - ./docker/nginx/ssl_certificates:/ssl
+    depends_on:
+      - web
+      - flower
+      - redmon
+  redis:
+    image: redis
+  web:
+    build: .
+    env_file:
+      - .env
+    volumes:
+      - .:/code
+      - /static/
+      - ./services/services_conf.cfg:/code/services/services_conf.cfg
+    command: python manage.py runserver 0.0.0.0:8000
+    depends_on:
+      - db
+      - redis
+  celery:
+    build: .
+    env_file:
+      - .env
+    volumes_from:
+      - web
+    command: celery worker -A ac_mediator --concurrency=${CELERY_CONCURRENCY}
+    depends_on:
+      - redis
+  celery_beat:
+    build: .
+    env_file:
+      - .env
+    volumes_from:
+      - web
+    command: celery beat -A ac_mediator
+    depends_on:
+      - redis
+  flower:  #  Django app to monitor Celery status
+    build: ./docker/flower/
+    env_file:
+      - .env
+    command: flower --address=0.0.0.0 --port=5555 --broker=redis://redis --url_prefix=flower
+    depends_on:
+      - celery
+  redmon:  #  Redis monitoring
+    build: ./docker/redmon/
+    command: redmon --port=4567 --redis=redis://redis --base-path=/redmon --secure=${REDMON_BASIC_AUTH}
+    depends_on:
+      - redis

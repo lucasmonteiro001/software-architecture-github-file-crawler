@@ -1,0 +1,61 @@
+version: '2'
+services:
+  pydb:
+    image: sisap/pydb:2
+    command: [/usr/bin/tini, --, jupyter, notebook, --no-browser, --ip=0.0.0.0]
+    volumes:
+      - .:/sisap:ro
+      - tmp:/tmp
+    environment:
+      - PYTHONPATH=/sisap
+      - TMP_FOLDER=/tmp
+      - APP_CHARSET=utf8
+      - AES_KEY=/sisap/.aes
+    ports:
+      - "8888:8888"
+  mariadb:
+    image: mariadb
+    volumes:
+      - tmp:/tmp
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+    restart: always
+    ports:
+      - "3316:3306"
+  persistent:
+    image: mariadb
+    volumes:
+      - /persistent:/var/lib/mysql
+      - tmp:/tmp
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+    restart: always
+    ports:
+      - "3317:3306"
+  redis:
+    image: redis:alpine
+    command: [redis-server, --save]
+    restart: always
+    ports:
+      - "6389:6379"
+  mongodb:
+    image: mongo
+    restart: always
+    ports:
+      - "27027:27017"
+  druid:
+    image: sisap/imply
+    volumes:
+      - /home/sisap/druid:/home/sisap/druid
+    ports:
+      - "8082:8082"
+      - "8090:8090"
+  clickouse:
+    image: yandex/clickhouse-server
+    ports:
+      - "8123:8123"
+      - "9000:9000"
+
+volumes:
+  tmp:
+    external: true

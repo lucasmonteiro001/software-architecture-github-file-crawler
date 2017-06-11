@@ -1,0 +1,117 @@
+
+## Sensu stack
+
+sensu-api:
+  build: 'sensu-api'
+  environment:
+    - API_PASS=
+    - API_USER=
+  links:
+    - rabbitmq
+    - redis
+  restart: always
+
+sensu-client:
+  build: 'sensu-client'
+  #deployment_strategy: every_node
+  links:
+    - rabbitmq
+  privileged: true
+  restart: always
+  volumes:
+    - '/var/run/docker.sock:/var/run/docker.sock'
+
+rabbitmq:
+  image: 'tutum/rabbitmq:latest'
+  environment:
+    - RABBITMQ_PASS=
+    - RABBITMQ_USER=
+  ports:
+    - '5672:5672'
+  restart: always
+
+redis:
+  image: 'tutum/redis:latest'
+  environment:
+    - REDIS_PASS=
+  restart: always
+
+sensu-server:
+  build: 'sensu-server'
+  environment:
+    - SLACK_WEBHOOK_URL=
+    - SLACK_ICON_URL=http://sensuapp.org/img/sensu_logo_large-c92d73db.png
+    - 'SLACK_EMOJI=:screamcat:'
+    - MAILGUN_APIKEY=
+    - MAILGUN_DOMAIN=
+    - MAILGUN_FROM=
+    - MAILGUN_TO=
+  links:
+    - rabbitmq
+    - redis
+    - sensu-api
+    - carbon-relay
+  restart: always
+
+uchiwa:
+  build: 'uchiwa'
+  environment:
+    - HTTP_PASS=
+    - HTTP_USER=
+  links:
+    - sensu-api
+  ports:
+    - '3000:80'
+  restart: always
+
+## elasticsearch + logstash + logspout
+
+elasticsearch:
+  build: 'elasticsearch'
+  ports:
+    - '9200:9200'
+  volumes:
+    - ./elasticsearch/config:/data/config
+    - /data/logs
+    - /data/data
+    - /data/plugins
+
+logstash:
+  image: 'logstash'
+  command: 'logstash -e ''input { syslog { port => 5000 type => "docker" } } output { elasticsearch { hosts => "elasticsearch:9200" } }'''
+  ports:
+    - '5000:5000'
+  links:
+    - elasticsearch
+
+logspout:
+  image: 'gliderlabs/logspout'
+  entrypoint: '/bin/sh'
+  command: '-c "/bin/logspout syslog://logstash:5000"'
+  #deployment_strategy: every_node
+  volumes:
+    - '/var/run/docker.sock:/tmp/docker.sock'
+  links:
+    - logstash
+
+## carbon / graphite 
+
+carbon-cache:
+  image: 'dialonce/carbon-cache:latest'
+  restart: always
+  volumes:
+    - /data/carbon:/opt/graphite/storage
+carbon-relay:
+  image: 'dialonce/carbon-relay:latest'
+  restart: always
+  links:
+    - carbon-cache
+  volumes:
+    - /data/carbon:/opt/graphite/storage
+graphite-web:
+  image: 'dialonce/graphite-web:latest'
+  restart: always
+  ports:
+    - '8000:8000'
+  volumes:
+    - /data/carbon:/opt/graphite/storage

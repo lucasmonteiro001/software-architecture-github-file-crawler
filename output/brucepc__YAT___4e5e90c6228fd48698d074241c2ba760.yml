@@ -1,0 +1,45 @@
+version: '2'
+services:
+  yat:
+#    image: php:7.0-fpm-alpine
+    container_name: yat
+    build: ./docker/php-fpm
+    environment:
+      - SYMFONY_ENV=dev
+    volumes:
+      - .:/opt/yat
+      - ./docker/php-fpm/php-fpm.conf:/usr/local/etc/php-fpm.conf
+      - ./docker/php-fpm/php.ini:/usr/local/etc/php/conf.d/php.ini
+    links:
+      - database
+    depends_on:
+      - database
+#    command: /bin/bash -c "envsubst < /etc/nginx/conf.d/mysite.template > /etc/nginx/conf.d/default.conf && php-fpm
+
+  nginx:
+    container_name: nginx
+    image: nginx:stable
+    volumes:
+#      - ./docker/nginx/YAT.template:/etc/nginx/conf.d/YAT.template
+      - ./docker/nginx/YAT.template:/etc/nginx/conf.d/default.conf
+    ports:
+      - "8090:80"
+    environment:
+      - SERVER_NAME=yat.org
+      - SERVER_ROOT=/opt/yat/web
+      - ERROR_LOG=/var/log/nginx/yat.error.log
+      - ACCESS_LOG=/var/log/nginx/yat.access.log
+      - ENV_SYSTEM=dev
+#    command: /bin/bash -c "envsubst < /etc/nginx/conf.d/YAT.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"
+    links:
+      - yat
+    depends_on:
+      - yat
+
+  database:
+    container_name: database
+    image: postgres
+    environment:
+      - POSTGRES_USER=yat
+      - POSTGRES_PASSWORD=yat#321
+      - POSTGRES_DB=yat

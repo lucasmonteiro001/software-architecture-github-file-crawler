@@ -1,0 +1,29 @@
+gofurl:
+  image: gofore/gofurl
+  links:
+    - gofurlmongo
+  ports:
+    - "8080:8080"
+
+gofurldev:
+  build: .
+  dockerfile: Dockerfile.dev
+  links:
+    - gofurlmongo
+  ports:
+    - "8080:8080"
+  volumes:
+    - .:/gofurl
+    - ~/.m2:/root/.m2
+
+gofurlmongo:
+  image: mongo:3.1
+  ports:
+    - "27017:27017"
+  volumes_from:
+    - gofurldata
+
+gofurldata:
+  image: debian:wheezy
+  volumes:
+    - /data/db

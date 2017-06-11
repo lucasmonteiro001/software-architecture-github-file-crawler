@@ -1,0 +1,9 @@
+# See https://kristofclaes.github.io/2016/06/19/running-jekyll-locally-with-docker/
+
+jekyll:
+    image: jekyll/jekyll:pages
+    command: jekyll serve --watch --incremental
+    ports:
+        - 4000:4000
+    volumes:
+        - .:/srv/jekyll

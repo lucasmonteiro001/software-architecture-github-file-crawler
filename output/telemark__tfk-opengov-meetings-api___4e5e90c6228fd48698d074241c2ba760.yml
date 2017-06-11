@@ -1,0 +1,14 @@
+apiserver:
+  image: telemark/tfk-opengov-meetings-api
+  environment:
+    OPENGOV_MEETINGS_SERVER_PORT: 8000
+    OPENGOV_MEETINGS_DB_CONNECTION: mongodb://dbserver/opengov
+  ports:
+    - "8000:8000"
+  links:
+   - dbserver
+dbserver:
+  image: mongo:3.2.9
+  environment:
+    DB: opengov
+    COLLECTION: meetings

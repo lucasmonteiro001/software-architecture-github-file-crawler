@@ -1,0 +1,54 @@
+version: '3'
+services:
+    application:
+        build: containers/application/
+        working_dir: /usr/src/app
+        volumes:
+            - ./:/usr/src/app
+        ports:
+            - "8000:8000"
+        links:
+            - postgres
+
+    nginx:
+        image: nginx:1.13.0
+        volumes:
+            - ./containers/nginx/nginx.conf:/etc/nginx/conf.d/informer.conf
+            - ./informer/static/:/usr/share/nginx/html
+        ports:
+            - "4000:8080"
+        links:
+            - sample
+
+    sample:
+        build: containers/sample
+        working_dir: /usr/src/app
+        command: gunicorn --bind "0.0.0.0:8000" --workers 4 --worker-class "gevent" --reload sample.wsgi
+        volumes:
+            - ./sample/sample/:/usr/src/app
+            - ./informer/:/usr/src/app/informer
+        links:
+            - postgres
+            - celery
+            - rabbitmq:rabbit
+
+    node:
+        build: containers/node
+        working_dir: /usr/src/app
+        volumes:
+            - ./informer/static/django_informer/:/usr/src/app
+
+    celery:
+        build: containers/sample
+        working_dir: /usr/src/app
+        command: celery -A sample worker -l info
+        volumes:
+            - ./sample/sample/:/usr/src/app
+        links:
+            - rabbitmq:rabbit
+
+    rabbitmq:
+        image: rabbitmq:3.6
+
+    postgres:
+        image: postgres:9.5.1

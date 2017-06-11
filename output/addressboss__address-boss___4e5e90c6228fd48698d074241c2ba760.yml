@@ -1,0 +1,13 @@
+version: '2'
+
+services:
+  edge-service:
+    image: addressboss/edge-service
+    ports:
+      - "443:443"
+    volumes:
+      - /etc/letsencrypt/live:/etc/letsencrypt/live
+  address-service:
+    image: addressboss/address-service
+  address-web:
+    image: addressboss/address-web

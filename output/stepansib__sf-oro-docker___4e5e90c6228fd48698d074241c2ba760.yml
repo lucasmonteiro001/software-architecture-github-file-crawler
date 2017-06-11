@@ -1,0 +1,61 @@
+data:
+  build: ./docker/data
+  volumes:
+    - ./frontend:/var/www/frontend
+    - /var/www/frontend/node_modules
+    - ./backend:/var/www/backend
+    - /var/www/backend/vendor
+    - /var/www/backend/bin
+    - /var/www/backend/app/cache
+    - /var/www/backend/app/logs
+
+nginx:
+  build: ./docker/nginx
+  ports:
+   - "80:80"
+  links:
+   - app
+  volumes_from:
+   - data
+
+app:
+  build: ./docker/php7
+  links:
+   - mysql:mysqldb
+   - rabbitmq
+  volumes_from:
+    - data
+  ports:
+    - "81:8080"
+
+mysql:
+  image: mysql:5.6
+  ports:
+    - "3306:3306"
+  environment:
+    MYSQL_ROOT_PASSWORD: qazwsxedc
+    MYSQL_DATABASE: app
+    MYSQL_USER: app
+    MYSQL_PASSWORD: qazwsxedc
+
+rabbitmq:
+  image: "rabbitmq:management"
+  environment:
+    RABBITMQ_ERLANG_COOKIE: "SWQOKODSQALRPCLNMEQG"
+    RABBITMQ_DEFAULT_USER: "app"
+    RABBITMQ_DEFAULT_PASS: "qazwsxedc"
+    RABBITMQ_DEFAULT_VHOST: "/"
+  ports:
+    - "15672:15672"
+    - "5672:5672"
+
+elk:
+  image: willdurand/elk
+  ports:
+    - "82:80"
+  volumes:
+    - ./docker/logstash:/etc/logstash
+    - ./docker/logstash/patterns:/opt/logstash/patterns
+  volumes_from:
+    - app
+    - nginx

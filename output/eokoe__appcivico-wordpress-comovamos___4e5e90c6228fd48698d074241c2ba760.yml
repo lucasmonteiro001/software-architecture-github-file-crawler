@@ -1,0 +1,10 @@
+wordpress:
+  build: .
+  hostname: ciudatos
+  domainname: .com
+  restart: always
+  volumes:
+    - ../data-mount-wordpress/var-lib-mysql/mysql:/var/lib/mysql/
+    - ../data-mount-wordpress/var-www:/var/www
+  ports:
+    - "4545:80"

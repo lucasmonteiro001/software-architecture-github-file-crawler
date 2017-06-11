@@ -1,0 +1,4 @@
+als:
+  build: .
+  expose:
+    - "8080"

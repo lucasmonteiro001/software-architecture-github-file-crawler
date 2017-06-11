@@ -1,0 +1,19 @@
+svc1:
+  image: arkeys/smplsvc:fail
+  restart: always
+
+svc2:
+  image: arkeys/smplsvc:pass
+  restart: always
+
+haproxy:
+  image: arkeys/haproxysvc
+  ports:
+    - "8082:80"
+    - "9000:9000"
+  links:
+    - svc1
+    - svc2
+  command: haproxy -f /usr/local/etc/haproxy.cfg
+  volumes:
+    - /data/haproxy/haproxy.cfg:/usr/local/etc/haproxy.cfg

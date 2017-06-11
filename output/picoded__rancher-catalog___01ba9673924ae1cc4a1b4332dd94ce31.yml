@@ -1,0 +1,63 @@
+#
+# Docker container definition
+#
+version: '2'
+services:
+  #
+  # elasticsearch 
+  #
+  elasticsearch-proxy:
+    mem_limit: 268435456
+    image: picoded/http-simple-proxy
+    environment:
+      FORWARD_PROT: ${aws_es_prot}
+      FORWARD_PORT: ${aws_es_port}
+      FORWARD_HOST: ${aws_es_host}
+    stdin_open: true
+    tty: true
+    labels:
+      io.rancher.scheduler.affinity:host_label: ${aws_nodelabel}=true
+      io.rancher.container.hostname_override: container_name
+      io.rancher.container.pull_image: always
+      io.rancher.scheduler.global: 'true'
+  #
+  # elasticsearch password access
+  #
+  elasticsearch-auth:
+    mem_limit: 268435456
+    image: picoded/http-simple-auth
+    environment:
+      FORWARD_PORT: '80'
+      HTPASSWD: ${user}:{PLAIN}${pass}
+    stdin_open: true
+    tty: true
+    links:
+    - elasticsearch-proxy:webhost
+    labels:
+      io.rancher.scheduler.affinity:host_label: ${aws_nodelabel}=true
+      io.rancher.container.hostname_override: container_name
+      io.rancher.container.pull_image: always
+      io.rancher.scheduler.global: 'true'
+  #
+  # filebeat log collection, YES!
+  #
+  # Excludes servers with no-(essential/logrotate/filebeat) labels
+  #
+  docker-filebeat:
+    mem_limit: 268435456
+    image: picoded/docker-filebeat
+    environment:
+      ES_PORT: '80'
+      ES_INDEX: ${filebeat_es_index}
+    stdin_open: true
+    volumes:
+    - /var/lib/docker/containers/:/var/lib/docker/containers/:rw
+    - /var/lib/filebeat/:/var/lib/filebeat/:rw
+    tty: true
+    links:
+    - elasticsearch-proxy:elasticsearch
+    labels:
+      io.rancher.scheduler.affinity:host_label_ne: no-logrotate=true,no-essential=true,no-filebeat=true
+      io.rancher.container.hostname_override: container_name
+      io.rancher.container.pull_image: always
+      io.rancher.scheduler.global: 'true'

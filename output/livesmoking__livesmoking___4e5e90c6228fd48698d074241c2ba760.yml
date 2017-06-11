@@ -1,0 +1,22 @@
+turn-server:
+  image: bprodoehl/turnserver
+  restart: always
+  net: host
+  restart: on-failure:10
+  ports:
+    - "3478:3478"
+    - "3478:3478/udp"
+  # environment:
+    # SKIP_AUTO_IP: "true"
+
+signal-server:
+  build: signal-server
+  environment:
+    DEBUG: "*"
+
+site:
+  build: site
+  ports:
+    - 80:8080
+  links:
+    - signal-server

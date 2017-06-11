@@ -1,0 +1,25 @@
+db:
+  environment:
+    - MYSQL_ROOT_PASSWORD=test
+  image: 'mariadb:latest'
+  restart: always
+  volumes:
+    - /var/lib/mysql
+ira:
+  build: .
+  environment:
+    - MYSQL_ROOT_PASSWORD=test
+  links:
+    - db
+  ports:
+    - '8080:8080'
+  restart: always
+phpmyadmin:
+  image: 'phpmyadmin/phpmyadmin:latest'
+  links:
+    - db
+  ports:
+    - '8081:80'
+  restart: always
+  volumes:
+    - /sessions

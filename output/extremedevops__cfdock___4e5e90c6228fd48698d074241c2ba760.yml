@@ -1,0 +1,48 @@
+---
+nats:
+  image: apcera/gnatsd:0.6.8
+
+
+# db:
+#   image: postgres:9.4
+#   environment:
+#     - "POSTGRES_PASSWORD=cue9ohxueChong9ou8wie1eich8ood"
+#     - "POSTGRES_USER=vcap"
+#     - "PGDATA=/var/lib/postgresql/data/pgdata"
+#   volumes:
+#     - "./db/data:/var/lib/postgresql/data"
+
+etcd:
+  image: quay.io/coreos/etcd:v2.2.2
+  volumes:
+    - "./etcd/data:/data"
+  command: -data-dir /data -name etcd0 -advertise-client-urls http://0.0.0.0:2379,http://0.0.0.0:4001 -listen-client-urls http://0.0.0.0:2379,http://0.0.0.0:4001 -initial-advertise-peer-urls http://0.0.0.0:2380 -listen-peer-urls http://0.0.0.0:2380 -initial-cluster-token etcd-cluster-1 -initial-cluster etcd0=http://0.0.0.0:2380 -initial-cluster-state new
+
+consul:
+  image: voxxit/consul:latest
+  volumes:
+    - "./consul/data:/data"
+  command: agent -server -bootstrap-expect 1 -data-dir /data
+
+gorouter:
+  image: extremedevops/cfdock:gorouter
+  links:
+    - nats
+  volumes:
+    - "./gorouter/config.yml:/gorouter/config.yml"
+  ports:
+    - 8081
+
+uaadb:
+  image: postgres:9.4
+  environment:
+    - "POSTGRES_PASSWORD=uyeequ4pheiloocahghahNaiXaish0"
+    - "POSTGRES_USER=uaa"
+    - "PGDATA=/var/lib/postgresql/data/pgdata"
+  volumes:
+    - "./uaa/data:/var/lib/postgresql/data"
+
+uaa:
+  image: extremedevops/cfdock:uaa
+  links:
+    - uaadb

@@ -1,0 +1,19 @@
+phantomdc:
+  build: .
+  links:
+    - db
+  environment:
+    RACK_ENV: production
+    LOAD_CONGRESS: true
+  ports:
+    - "3001:3001"
+  volumes_from:
+    - db
+
+db:
+  build: ./docker/db
+  environment:
+    MYSQL_ROOT_PASSWORD: 'changeme'
+    MYSQL_APP_PASSWORD: 'changeme'
+  volumes:
+    - /var/lib/mysql

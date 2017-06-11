@@ -1,0 +1,15 @@
+version: '2'
+services:
+     jhipster-gateway:
+        container_name: jhipster-gateway
+        image: jhipster/jhipster-sample-app-gateway
+        environment:
+            - SPRING_OUTPUT_ANSI_ENABLED=ALWAYS
+            - SPRING_PROFILES_ACTIVE=dev,swagger
+            - SPRING_CLOUD_CONFIG_URI=http://admin:admin@registry:8761/config
+            - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://admin:admin@registry:8761/eureka
+        external_links:
+            - jhipster-registry:registry
+        ports:
+            - 8088:8080
+        network_mode: 'bridge'

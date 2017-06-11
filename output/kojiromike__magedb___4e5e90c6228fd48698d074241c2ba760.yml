@@ -1,0 +1,9 @@
+db:
+    image: kojiromike/magedb:basis
+build:
+    image: kojiromike/magento_tools
+    links:
+        - db
+    volumes:
+        - .:/build
+    command: /build/build

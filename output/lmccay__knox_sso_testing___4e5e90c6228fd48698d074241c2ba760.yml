@@ -1,0 +1,18 @@
+version: '2'
+services:
+  ldap:
+    image: lmccay/knox_sso_testing:knox
+    command: /ldap.sh
+
+  knox:
+    image: lmccay/knox_sso_testing:knox
+    ports:
+    - "8443:8443"
+    command: /gateway.sh
+    volumes:
+     - ./topologies:/knox/conf/topologies
+     - ./logs:/knox/logs
+     - ./applications:/knox/data/applications
+     - ./keystores:/knox/data/security/keystores
+    depends_on:
+    - ldap

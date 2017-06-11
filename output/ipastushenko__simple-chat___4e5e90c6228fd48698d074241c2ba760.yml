@@ -1,0 +1,9 @@
+version: '2'
+services:
+  server:
+    build:
+      context: .
+      dockerfile: ./docker/golang/Dockerfile
+    volumes:
+      - ./server:/go/src/github.com/ipastushenko/simple-chat/
+    env_file: .go.env

@@ -1,0 +1,18 @@
+version: '2'
+
+services:
+  install:
+    image: node:7.3.0
+    command: npm install
+    volumes:
+      - $PWD:/app
+    working_dir: /app
+  
+  dev:
+    image: node:7.3.0
+    command: npm start
+    ports:
+      - "4000:4000"
+    volumes:
+      - $PWD:/app
+    working_dir: /app

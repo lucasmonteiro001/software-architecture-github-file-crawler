@@ -1,0 +1,8 @@
+test:
+ image: ubuntu:16.04
+ volume_driver:  rancher-nfs
+ tty: true
+ volumes:
+ - test_volume:/data
+ command:
+ - bash

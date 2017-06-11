@@ -1,0 +1,16 @@
+# Run with `docker-compose up -d`
+# XXX We should activate MongoDB oplog for better performance.
+wekan:
+  image: mquandalle/wekan
+  links:
+    - wekandb
+  environment:
+    - MONGO_URL=mongodb://fourtify-agile-dev:fourtify-agile-dev333@ds055505.mongolab.com:55505/fourtify-agile-dev
+    - ROOT_URL=http://localhost:80
+  ports:
+    - 80:80
+
+wekandb:
+   image: mongo
+   ports:
+     - 27017

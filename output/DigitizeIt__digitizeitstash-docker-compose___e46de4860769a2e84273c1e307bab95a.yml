@@ -1,0 +1,17 @@
+nginx:
+  image: "nginx:1.9"
+  restart: always
+  ports:
+    - "80:80"
+  links:
+    - dockerui:dockerui
+  volumes:
+    - /var/docker/stacks/acme-mockup/docker-compose/auth/:/etc/nginx/conf.d
+    - /var/docker/stacks/acme-mockup/docker-compose/data/html:/usr/share/nginx/html
+
+dockerui:
+  image: dockerui/dockerui
+  restart: always
+  privileged: true
+  volumes:
+    - /var/run/docker.sock:/var/run/docker.sock

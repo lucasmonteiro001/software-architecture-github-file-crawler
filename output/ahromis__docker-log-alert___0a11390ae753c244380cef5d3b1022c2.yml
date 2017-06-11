@@ -1,0 +1,43 @@
+version: '2'
+services:
+    consul:
+      build:
+          context: ./consul
+      network_mode: "host"
+      command: "agent -dev -ui -bind 127.0.0.1 -client 0.0.0.0"
+    registrator:
+      image: gliderlabs/registrator:latest
+      network_mode: "host"
+      command: "-internal consul://localhost:8500"
+      volumes:
+        - "/var/run/docker.sock:/tmp/docker.sock"
+      depends_on:
+        - "consul"
+    consul-alerts:
+      image: acaleph/consul-alerts:latest
+      network_mode: "host"
+      command: start --consul-addr=localhost:8500 --consul-dc=dc1 --watch-checks
+      depends_on:
+        - "registrator"
+        - "consul"
+    app:
+      image: nginx:latest
+      environment:
+        - "SERVICE_80_NAME=nginx-demo"
+        - "SERVICE_80_CHECK_SCRIPT=curl --silent http://$$SERVICE_IP/status | grep OK"
+        - "SERVICE_80_CHECK_INTERVAL=10s"
+      volumes:
+        - "./nginx:/usr/share/nginx/html"
+      logging:
+        driver: syslog
+        options:
+          syslog-address: "tcp+tls://localhost:1514"
+          syslog-tls-ca-cert: "${CERT_PATH}/tls/syslog/ca.pem"
+          syslog-tls-cert: "${CERT_PATH}/tls/syslog/cert.pem"
+          syslog-tls-key: "${CERT_PATH}/tls/syslog/key.pem"
+          syslog-tls-skip-verify: "false"
+          tag: "{{.ImageName}}/{{.Name}}/{{.ID}}"
+      ports:
+        - 80
+      depends_on:
+        - "registrator"

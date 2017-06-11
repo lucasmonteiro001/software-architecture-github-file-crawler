@@ -1,0 +1,28 @@
+# Elastic Search
+elasticsearch:
+  image: brandfolder/elasticsearch:latest
+  ports:
+    - "9200:9200"
+
+# Postgres Database
+postgres:
+  image: postgres:latest
+  ports:
+    - "5432:5432"
+  volumes:
+    - /var/lib/postgresql/data
+
+# Redis Database
+redis:
+  image: redis:latest
+  ports:
+    - "6379:6379"
+
+# Services Runner for Development
+services:
+  image: ubuntu
+  command: sh -c "echo 'Services running...' && sleep 0.1"
+  links:
+    - postgres
+    - redis
+    - elasticsearch

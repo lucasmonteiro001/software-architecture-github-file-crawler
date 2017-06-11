@@ -1,0 +1,39 @@
+bootstrap:
+  image: 'fevenor/geth-with-intelligence:latest'
+  command: '--nodekeyhex 908da61e14b8ae648c4ca540b38e526ae101fb8ed2bd1a4e8bb52e6d17c2f923 --ipcapi "admin,db,eth,debug,miner,net,shh,txpool,personal,web3" --rpcapi "db,personal,eth,net,web3" --rpccorsdomain "*" --networkid 22333 --rpc --rpcaddr "0.0.0.0" init /root/genesis.json'
+  environment:
+    - INSTANCE_NAME=bootstrap
+  links:
+    - statsmon
+  ports:
+    - '8545:8545'
+    - '30303:30303'
+    - '30303:30303/udp'
+  volumes:
+    - '/etc/localtime:/etc/localtime:ro'
+geth1:
+  image: 'fevenor/geth-with-intelligence:latest'
+  command: '--rpccorsdomain "*" --networkid 22333 --rpc  init /root/genesis.json --bootnodes "enode://eee2e854557309484ac40b6625d95877859cc660159f1a3f311afe4ed930c3783ec73f785ad2bbb167d2cee17774bebc3ed0c679c7d114c967a89fe7b5852264@bootstrap:30303"'
+  environment:
+    - INSTANCE_NAME=node1
+  links:
+    - bootstrap
+    - statsmon
+  volumes:
+    - '/etc/localtime:/etc/localtime:ro'
+geth2:
+  image: 'fevenor/geth-with-intelligence:latest'
+  command: '--rpccorsdomain "*" --networkid 22333 --rpc  init /root/genesis.json --bootnodes "enode://eee2e854557309484ac40b6625d95877859cc660159f1a3f311afe4ed930c3783ec73f785ad2bbb167d2cee17774bebc3ed0c679c7d114c967a89fe7b5852264@bootstrap:30303"'
+  environment:
+    - INSTANCE_NAME=node2
+  links:
+    - bootstrap
+    - statsmon
+  volumes:
+    - '/etc/localtime:/etc/localtime:ro'
+statsmon:
+  image: 'fevenor/eth-netstats:latest'
+  environment:
+    - WS_SECRET=eth-net-stats-secret
+  ports:
+    - '3000:3000'

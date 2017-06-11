@@ -1,0 +1,25 @@
+master:
+  image: trcook/rdockerhpc_master
+  # swap comments on image and build to get docker-compose to build instead of download
+  # build: ./docker/master
+  links: 
+    - redis
+  volumes: 
+    - ./data:/data
+
+redis:
+    image: redis
+    container_name: redis
+    ports: 
+      - "6379:6379"
+      
+
+
+worker:
+  image: trcook/rdockerhpc_worker
+  # swap comments on image and build to get docker-compose to build instead of download
+  # build: ./docker/worker
+  links:
+    - redis
+  environment:
+     - "affinity:container!=redis"

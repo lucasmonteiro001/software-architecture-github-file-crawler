@@ -1,0 +1,69 @@
+version: '2'
+
+services:
+  etl:
+    restart: always
+    build: ./etl
+    environment:
+      - GGPP_DB_HOST
+      - GGPP_DB_NAME
+      - GGPP_DB_USER
+      - GGPP_DB_PASSWORD
+      - CIVI_CIVIDB_HOST
+      - CIVI_DRUPALDB_NAME
+      - GGPP_ETL_USER
+      - GGPP_ETL_PASSWORD
+      - CIVI_CIVIDB_NAME
+      - CIVI_CUSTAB_GENVASC_DATA
+      - CIVI_CUSTAB_CONTACT
+      - CIVI_CUSTAB_SURGERY
+      - CIVI_CUSCOL_GENVASC_ID
+      - CIVI_CUSCOL_NHS_NUMBER
+      - CIVI_CUSCOL_PRACTICE_CODE
+      - CIVI_CUSID_CASE_STATUS_GROUP
+      - CIVI_CUSID_RECRUITER_RELATIONSHIP_TYPE
+      - CIVI_CUSID_PRACTICE_RELATIONSHIP_TYPE
+      - CIVI_CUSID_GENVASC_CASE_TYPE
+      - RCINT_DB_HOST
+      - RCINT_DB_NAME
+      - CIVI_CUSID_SUBMITTED_FOR_REIMBURSEMENT_ACTIVITY_TYPE
+      - CIVI_CUSID_ACTIVITY_STATUS_GROUP
+  web:
+    restart: always
+    build: ./web
+    expose:
+      - "8000"
+    environment:
+      - GGPP_FLASK_SECRET_KEY
+      - GGPP_FLASK_DEBUG
+      - GGPP_DB_HOST
+      - GGPP_DB_NAME
+      - GGPP_DB_USER
+      - GGPP_DB_PASSWORD
+      - GGPP_SQLALCHEMY_TRACK_MODIFICATIONS
+      - GGPP_SQLALCHEMY_ECHO
+      - GGPP_SECURITY_PASSWORD_HASH
+      - GGPP_SECURITY_PASSWORD_SALT
+      - GGPP_SECURITY_TRACKABLE
+      - LCBRUIT_EMAIL_ADDRESS
+      - ADMIN_EMAIL_ADDRESS
+      - MAIL_SERVER
+    volumes:
+      - /usr/src/app/portal/static
+      - ./web/portal:/usr/src/app/portal
+    command: /usr/local/bin/gunicorn --config gunicorn.conf -w 2 -b :8000 app:app
+
+  nginx:
+    restart: always
+    build:
+      context: ./nginx/
+      args:
+        deployment_environment: development
+    depends_on:
+      - web
+    ports:
+      - "80:80"
+    volumes_from:
+      - web:ro
+    links:
+      - web:web

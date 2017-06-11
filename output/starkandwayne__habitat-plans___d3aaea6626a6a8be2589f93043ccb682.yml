@@ -1,0 +1,40 @@
+version: '2'
+
+services:
+  standalone:
+    image: starkandwayne/postgresql:edge
+    command: "start starkandwayne/postgresql"
+    environment:
+      HAB_POSTGRESQL: |
+        [wal-e]
+        enable=true
+        [wal-e.aws]
+        bucket='${AWS_BUCKET}'
+        access_key_id='${AWS_ACCESS_KEY}'
+        secret_access_key='${AWS_SECRET_KEY}'
+        region='${AWS_REGION}'
+
+  pg1:
+    image: starkandwayne/postgresql:edge
+    command: "start starkandwayne/postgresql --group cluster --peer standalone --topology leader"
+    links:
+    - standalone
+  pg2:
+    image: starkandwayne/postgresql:edge
+    command: "start starkandwayne/postgresql --group cluster --peer standalone --topology leader"
+    links:
+    - standalone
+  pg3:
+    image: starkandwayne/postgresql:edge
+    command: "start starkandwayne/postgresql --group cluster --peer standalone --topology leader"
+    links:
+    - standalone
+  tests:
+    image: starkandwayne-postgresql-tests
+    build: ./
+    environment:
+      PGUSER: admin
+      PGPASSWORD: admin
+      PGDATABASE: postgres
+    links:
+    - standalone

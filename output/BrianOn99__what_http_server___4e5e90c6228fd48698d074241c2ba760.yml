@@ -1,0 +1,22 @@
+my_django:
+  build: ./django
+  tty: true
+  ports:
+   - "12345:12345"
+  links:
+    - redis
+    - postgres
+  volumes:
+    - ./django/mysite:/usr/src/app/mysite
+  env_file: .env
+  command: ["/bin/bash", "start_django.sh"]
+# command: ["python", "mysite/manage.py", "runserver", "0.0.0.0:12345"]
+
+redis:
+  image: redis:3.0
+
+postgres:
+  restart: always
+  image: postgres:9.6
+  ports:
+    - "5432:5432"

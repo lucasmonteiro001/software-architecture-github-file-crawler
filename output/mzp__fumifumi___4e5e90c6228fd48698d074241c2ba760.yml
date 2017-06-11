@@ -1,0 +1,67 @@
+version: "2"
+services:
+  web:
+    build:
+      context: ./config/docker
+      dockerfile: Dockerfile.web
+    command: "h2o -c /etc/h2o/h2o.conf"
+    ports:
+      - "80:80"
+      - "443:443"
+    links:
+      - app
+  app: &app
+    build:
+      context: ./config/docker
+      dockerfile: Dockerfile.app.dev
+    ports:
+      - "3000:3000"
+    command: bash -i -c 'rm -f tmp/pids/server.pid; ./bin/rails s -b 0.0.0.0 -p 3000'
+    volumes:
+      - .:/fumifumi
+      - bundle-data:/usr/local/bundle/
+      - storage-data:/storage
+    links:
+      - db
+      - redis
+      - elasticsearch
+    environment:
+      FUMIFUMI_STORAGE_ROOT: /storage
+  job:
+    <<: *app
+    command: bash -i -c 'bundle exec sidekiq'
+    ports: []
+  js:
+    build:
+      context: ./config/docker
+      dockerfile: Dockerfile.js
+    volumes:
+      - .:/fumifumi
+    command: yarn start
+  db:
+    build:
+      context: ./config/docker
+      dockerfile: Dockerfile.db
+    volumes:
+      - mysql-data:/var/lib/mysql
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+  redis:
+    image: redis:3-alpine
+  elasticsearch:
+    build:
+      context: ./config/docker
+      dockerfile: Dockerfile.elasticsearch
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+volumes:
+  storage-data:
+    driver: local
+  bundle-data:
+    driver: local
+  mysql-data:
+    driver: local
+  elasticsearch-data:
+    driver: local

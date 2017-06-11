@@ -1,0 +1,10 @@
+version: '2'
+
+services:
+  monsitewebvs2017sousdocker:
+    image: monsitewebvs2017sousdocker
+    build:
+      context: ./MonSiteWebVS2017SousDocker
+      dockerfile: Dockerfile
+    labels:
+      com.microsoft.acs.dcos.marathon.vhost: myacsagents.westeurope.cloudapp.azure.com

@@ -1,0 +1,19 @@
+version: '2'
+services:
+    courthouse:
+        image: code-court
+        restart: unless-stopped
+        volumes:
+            - ./courthouse_data:/tmp
+        expose:
+            - 9191
+
+    nginx:
+        image: nginx
+        restart: unless-stopped
+        volumes:
+            - ./nginx_data/conf.d:/etc/nginx/conf.d
+            - /etc/letsencrypt:/etc/letsencrypt
+        ports:
+            - 80:80
+            - 443:443

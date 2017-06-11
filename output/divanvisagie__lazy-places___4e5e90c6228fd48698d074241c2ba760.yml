@@ -1,0 +1,18 @@
+version: '2'
+services:
+    lazy-places:
+        build: target/docker/stage
+        ports:
+            - "9999:9999"
+            - "9990:9990"
+        links:
+            - rabbit:localhost
+        depends_on:
+            - rabbit
+
+    rabbit:
+        image: rabbitmq:3-management
+        ports:
+            - "5672:5672"
+            - "15672:15672"
+            - "8080:8080"

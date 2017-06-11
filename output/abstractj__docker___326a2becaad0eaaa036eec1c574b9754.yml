@@ -1,0 +1,39 @@
+version: '2'
+services:
+  ipa:
+    image: adelton/freeipa-server
+    volumes:
+      - /var/lib/ipa-data:/data:Z
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    hostname: ipa
+    domainname: test.local
+    ports:
+      - "88"
+    entrypoint:
+      - /usr/sbin/init-data
+      - --realm=TEST.LOCAL
+      - --setup-dns
+      - --no-forwarders
+      - --ds-password=${IPA_PASSWORD}
+      - --admin-password=${IPA_PASSWORD}
+      - -U
+    stop_signal: RTMIN+3
+  sssd-integration-tests:
+    container_name: "keycloak-sssd-test-container"
+    build: .
+    privileged: true
+    domainname: test.local
+    environment:
+      - PASSWORD=${IPA_PASSWORD}
+    entrypoint:
+      - /opt/jboss/scripts/entrypoint.sh
+    volumes:
+      - ${KEYCLOAK_REPO}:/opt/jboss/keycloak-repo
+      - ${M2_PATH}:/root/.m2
+    links:
+      - ipa:ipa.test.local
+    stdin_open: true
+    tty: true
+    stop_signal: RTMIN+3
+
+

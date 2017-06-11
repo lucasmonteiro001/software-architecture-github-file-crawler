@@ -1,0 +1,11 @@
+version: '2'
+
+services:
+
+    nginx:
+        image: nginx:stable-alpine
+        ports: 
+            - '80'
+        volumes:
+            - ./app:/usr/share/nginx/html:Z
+

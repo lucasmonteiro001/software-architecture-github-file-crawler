@@ -1,0 +1,6 @@
+gizix:
+  build: ./
+  volumes:
+    - ./:/go/src/development/showwin/Gizix
+  ports:
+    - "443:443"

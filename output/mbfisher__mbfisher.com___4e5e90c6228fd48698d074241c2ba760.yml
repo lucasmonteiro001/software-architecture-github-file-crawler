@@ -1,0 +1,15 @@
+web:
+  build: .
+  working_dir: /app/user
+  volumes:
+    - .:/app/user
+  environment:
+    PORT: 8080
+  ports:
+    - '3000:3000'
+  environment:
+    DATABASE_URL: postgres://postgres@db
+  links:
+    - db
+db:
+  image: postgres

@@ -1,0 +1,8 @@
+version: '2'
+
+services:
+  axistructsweb:
+    image: axistructsweb
+    build:
+      context: ./AxistructsWeb
+      dockerfile: Dockerfile

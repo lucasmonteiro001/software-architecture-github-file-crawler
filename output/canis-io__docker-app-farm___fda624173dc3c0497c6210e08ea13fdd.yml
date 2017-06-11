@@ -1,0 +1,97 @@
+# The nginx server for serving static files directly, cached contents via the memcached server and php files via the php-fpm server
+proxy:
+  image: jwilder/nginx-proxy
+  restart: always
+  ports:
+    - "80:80"
+    - "443:443"
+  volumes:
+    - "/var/run/docker.sock:/tmp/docker.sock:ro"
+    - "/etc/nginx/vhost.d"
+    - "/usr/share/nginx/html"
+    - "./scripts/my_proxy.conf:/etc/nginx/conf.d/my_proxy.conf:ro"
+  volumes_from:
+    - certs
+  privileged: true
+  log_driver: "json-file"
+  log_opt:
+    max-file: "3"
+    max-size: "400m"
+  environment:
+    TZ: "America/Los_Angeles"
+letsencrypt:
+  image: jrcs/letsencrypt-nginx-proxy-companion
+  restart: always
+  volumes_from:
+    - certs
+    - proxy
+  volumes:
+    - "/var/run/docker.sock:/var/run/docker.sock:ro"
+web:
+  image: jacobom/lemp:web
+  restart: always
+  volumes:
+    - ./:/var/www
+    - /volumes:/volumes
+    - "/var/run/docker.sock:/tmp/docker.sock:ro"
+  ports:
+    - "80"
+  expose:
+    - "80"
+  links:
+    - db
+    - cache
+  volumes_from:
+    - transfer
+    - certs
+  privileged: true
+  cpu_shares: 512
+  environment:
+    LETSENCRYPT_EMAIL: "$EMAIL"
+    LETSENCRYPT_HOST: "$VIRTUAL_HOSt"
+    VIRTUAL_HOST: "$VIRTUAL_HOST"
+    TZ: "America/Los_Angeles"
+    NGINX_ERROR_LOG_LEVEL: "notice"
+    DB_NAME: "appFarm"
+    GITHUB_API_TOKEN: "$GITHUB_AUTH_KEY"
+  log_driver: "json-file"
+  log_opt:
+    max-file: "3"
+    max-size: "400m"
+db:
+  restart: always
+  image: jacobom/lemp:mysql
+  ports:
+    - "3360"
+  expose:
+    - "3360"
+  volumes_from:
+    - dbStorage
+  environment:
+    TZ: "America/Los_Angeles"
+    DB_NAME: "appFarm"
+  log_driver: "json-file"
+  log_opt:
+    max-file: "3"
+    max-size: "400m"
+dbStorage:
+  image: busybox
+  volumes:
+    - "/var/lib/mysql"
+transfer:
+  image: busybox
+  volumes:
+    - "/var/transfer"
+certs:
+  image: busybox
+  volumes:
+    - "/etc/nginx/certs"
+cache:
+  restart: always
+  image: jacobom/lemp:redis
+  environment:
+    TZ: "America/Los_Angeles"
+  ports:
+    - "6379"
+  expose:
+    - "6379"

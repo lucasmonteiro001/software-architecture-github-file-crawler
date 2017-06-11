@@ -1,0 +1,63 @@
+version: '2'
+services:
+  zookeeper:
+    image: wurstmeister/zookeeper:3.4.6
+    ports:
+      - '2181:2181'
+    volumes:
+      - './data/zookeeper:/opt/zookeeper-3.4.6/data'
+
+  kafka:
+    image: wurstmeister/kafka:0.10.1.1
+    environment:
+      KAFKA_ADVERTISED_PORT: 9092
+      KAFKA_ADVERTISED_HOST_NAME: localhost
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    ports:
+      - '9092:9092'
+    links:
+      - zookeeper
+    volumes:
+      - './data/kafka:/kafka'
+
+  nginx:
+    image: jwilder/nginx-proxy
+    ports:
+      - '80:80'
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+
+  mosquitto:
+    image: boundlessgeo/mosquitto
+    ports:
+      - '1883:1883'
+      - '8883:8883'
+      - '8884:8884'
+
+  postgis:
+    image: mdillon/postgis
+    ports:
+      - '5432:5432'
+
+  spatialconnect-server:
+    build: .
+    command: 'java -jar /opt/server/target/spacon-server.jar'
+    depends_on:
+      - mosquitto
+      - postgis
+    ports:
+      - '8085:8085'
+    environment:
+      - DB_HOST=postgis
+      - MQTT_BROKER_URL=ssl://mosquitto:8884
+      - VIRTUAL_HOST=spatialconnect-server
+      - TRUST_STORE=/opt/server/tls/test-cacerts.jks
+      - KEY_STORE=/opt/server/tls/test-keystore.p12
+
+  geoserver:
+    image: kartoza/geoserver:latest
+    environment:
+      - VIRTUAL_HOST=geoserver
+      - JAVA_OPTS=-Xmx1536M -XX:MaxPermSize=756M
+    ports:
+      - '8080:8080'

@@ -1,0 +1,49 @@
+version: '2'
+services:
+  auth:
+    build: ../bod-authorization-server
+    image: auth-server
+    environment:
+      JDBC_URL: jdbc:postgresql://auth-db/bod-auth
+    ports:
+      - 8080:8080
+    links:
+      - auth-db
+
+  auth-db:
+    image: postgres:9.1
+    environment:
+      POSTGRES_USER: bod_user
+      POSTGRES_DB: bod-auth
+
+  sos:
+    build: ../sos-server
+    image: sos-server
+    environment:
+      PORT: 8081
+    ports:
+      - 8081:8081
+
+  database:
+    image: postgres:9.1
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: bod_user
+      POSTGRES_DB: bod
+
+  integration-database:
+    image: postgres:9.1
+    ports:
+      - 5433:5432
+    environment:
+      POSTGRES_USER: bod_user
+      POSTGRES_DB: bod-integration
+
+  selenium-database:
+    image: postgres:9.1
+    ports:
+      - 5434:5432
+    environment:
+      POSTGRES_USER: bod_user
+      POSTGRES_DB: bod-selenium

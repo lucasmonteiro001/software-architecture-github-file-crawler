@@ -1,0 +1,8 @@
+mongo:
+  container_name: bank-account-db
+  image: mongo:3.1.8
+  command: mongod
+  volumes:
+    - ~/mongo:/data/dir
+  ports:
+    - "27017:27017"

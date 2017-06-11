@@ -1,0 +1,55 @@
+networks:
+  default:
+    driver: bridge
+
+services:
+
+  mysqldb:
+    image: mysql:latest
+    container_name: mysqldb
+    networks: 
+      - default
+    env_file: .env 
+    expose: 
+      - '3306'
+    volumes: 
+      - /var/lib/mysql
+
+  adminer:
+    image: clue/adminer
+    container_name: adminer
+    networks: 
+      - default
+    ports:
+      - 9000:80
+    links: 
+      - "mysqldb:mysqldb"
+    volumes:
+      - /var/www
+
+  swagger:
+    image: swaggerapi/swagger-editor
+    container_name: swagger
+    networks: 
+      - default
+    ports: 
+      - 8888:8080
+
+  sqlite:
+    image: nesrait/adminer-sqlite
+    container_name: sqlite
+    networks: 
+      - default
+    environment:
+      - DB_PATH=db.sqlite
+      - DB_USER=admin
+      - DB_PASS=password
+    ports:
+      - 9100:80
+    volumes:
+      - /usr/src/myapp
+      - C:/Users/Alexander_Tymchuk/Documents/DEV/d3-stoloto/data/db.sqlite:/usr/src/myapp/db.sqlite
+
+version: "2.0"
+
+volumes: {}

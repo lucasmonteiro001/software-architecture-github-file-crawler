@@ -1,0 +1,6 @@
+version: '2'
+
+services:
+    firehose:
+        build: .
+        env_file: envs

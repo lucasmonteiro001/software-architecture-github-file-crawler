@@ -1,0 +1,20 @@
+version: "2"
+
+services:
+  website:
+    build: ./docker/website/.
+    volumes:
+     - ./src:/var/www/html
+    ports:
+      - "8080:80"
+    links:
+      - db
+  db:
+    image: mysql:5.6
+    env_file: ./docker/db/db.env
+    volumes:
+      - "db-data:/var/lib/mysql"
+      - "./docker/db/dumps:/docker-entrypoint-initdb.d"
+
+volumes:
+  db-data:

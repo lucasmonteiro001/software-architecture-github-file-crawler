@@ -1,0 +1,26 @@
+
+wordpress:
+  image: pcfreak30/wpstack
+  environment:
+    WORDPRESS_DB_PASSWORD: wpstack
+    MYSQL_PORT_3306_TCP: 1
+    HOST_UID: 1000
+    HOST_GID: 1000
+  links:
+    - db:mysql
+  ports:
+    - 8080:80
+  volumes:
+    - ./web/:/var/www/html
+db:
+  image: mariadb:10.0
+  environment:
+    MYSQL_ROOT_PASSWORD: wpstack
+  expose:
+    - 3306
+phpmyadmin:
+  image: nazarpc/phpmyadmin
+  links:
+    - db:mysql
+  ports:
+    - 8081:80

@@ -1,0 +1,44 @@
+
+nginx:
+  image: nginx:1.9.2
+  ports:
+    - "80:80"
+  volumes:
+    - "./data/files:/files"
+    - "./config/nginx:/etc/nginx/conf.d"
+  links:
+    - "web"
+
+web:
+  image: trenpixster/elixir:1.0.5
+  command: "mix do deps.get, compile, phoenix.server"
+  working_dir: "/web"
+  env_file: .env
+  expose:
+    - "8001"
+  volumes:
+    - "./web:/web"
+    - "./data/files:/files"
+  links:
+    - "db"
+
+db:
+  image: postgres:9.4
+  env_file: .env
+  working_dir: "/db"
+  expose:
+    - "5432"
+  volumes:
+    - "./db:/db"
+    - "./data/db:/var/lib/postgresql/data"
+
+
+# utility containers
+
+imagemagick:
+  image: "jujhars13/docker-imagemagick"
+  command: "true"
+  working_dir: "/files"
+  volumes:
+    - "./data/files:/files"
+

@@ -1,0 +1,77 @@
+mongodb:
+    image: mongo
+    expose:
+     - 27017
+    volumes:
+     - /var/mongo/db:/data/db
+    restart: always
+katalog:
+    image: joakimbeng/katalog
+    expose:
+     - 5005
+    privileged: true
+    volumes:
+     - /var/run/docker.sock:/var/run/docker.sock
+     - /var/katalog/data:/app/data
+     - /var/katalog/nginx:/app/nginx
+#     - /var/katalog/tpl:/app/tpl
+    restart: always
+sitewatcher:
+    build: github.com/jonaseck2/nginx-fake-watcher.git
+    ports:
+     - 80:80
+    volumes:
+     - /var/katalog/nginx:/etc/nginx/sites-enabled
+    restart: always
+api:
+    build: github.com/Softhouse/laughing-batman.git
+    links:
+     - mongodb
+     - katalog
+    env_file: github_secret.env
+    environment:
+     - KATALOG_VHOSTS=default/api
+     - MONGO_HOST=mongodb
+builder:
+    build: github.com/Softhouse/flaming-computing-machine.git
+    links:
+     - mongodb
+     - sitewatcher:xyz
+    volumes:
+     - /var/run/docker.sock:/var/run/docker.sock
+     - /usr/bin/docker:/usr/bin/docker
+    env_file: github_secret.env
+    environment:
+     - MONGO_HOST=mongodb
+     - SITEWATCHER_HOST=xyz
+    restart: always
+cvui:
+    build: https://github.com/Softhouse/xyz-cv-ui.git
+    links:
+     - mongodb
+     - sitewatcher:xyz
+     - katalog
+    env_file: github_secret.env
+    environment:
+     - KATALOG_VHOSTS=default/cv
+     - MONGO_HOST=mongodb
+cvmodel:
+    build: https://github.com/Softhouse/xyz-cv-model.git
+    links:
+     - mongodb
+     - sitewatcher:xyz
+     - katalog
+    env_file: github_secret.env
+    environment:
+     - KATALOG_VHOSTS=default/cv-model
+     - MONGO_HOST=mongodb
+cvapi:
+    build: https://github.com/Softhouse/xyz-cv-api.git
+    links:
+     - mongodb
+     - sitewatcher:xyz
+     - katalog
+    env_file: github_secret.env
+    environment:
+     - KATALOG_VHOSTS=default/cv-api
+     - MONGO_HOST=mongodb

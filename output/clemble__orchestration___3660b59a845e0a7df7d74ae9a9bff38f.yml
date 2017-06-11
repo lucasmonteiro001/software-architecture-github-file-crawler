@@ -1,0 +1,118 @@
+rabbit:
+  image: rabbitmq:3.5.4
+
+mongo:
+  image: mongo:3.0.5
+
+redis:
+  image: redis:3.0.4
+
+elasicsearch:
+  image: elasticsearch:1.7.2
+  links:
+    - rabbit
+    - mongo
+    - redis
+
+alert-email:
+ image: clemble/alert-email
+ links:
+   - rabbit
+   - mongo
+
+
+#alert-notification:
+#  image: clemble/alert-notification
+#  links:
+#    - rabbit
+#    - mongo
+#
+#alert-phone:
+#  image: clemble/alert-phone
+#  links:
+#    - rabbit
+#    - mongo
+#
+#goal:
+#  image: clemble/goal
+#  links:
+#    - rabbit
+#    - mongo
+#
+#goal-configuration:
+#  image: clemble/goal-configuration
+#  links:
+#    - rabbit
+#    - mongo
+#
+#goal-construction:
+#  image: clemble/goal-construction
+#  links:
+#    - rabbit
+#    - mongo
+#
+#log:
+#  image: clemble/log
+#  links:
+#    - rabbit
+#    - mongo
+#
+#payment-bonus:
+#  image: clemble/payment-bonus
+#  links:
+#    - rabbit
+#    - mongo
+#
+#payment-transaction:
+#  image: clemble/payment-transaction
+#  links:
+#    - rabbit
+#    - mongo
+#
+#player-connection:
+#  image: clemble/player-connection
+#  links:
+#    - rabbit
+#    - mongo
+#
+#player-feed:
+#  image: clemble/player-feed
+#  links:
+#    - rabbit
+#    - mongo
+#
+#player-profile:
+#  image: clemble/player-profile
+#  links:
+#    - rabbit
+#    - mongo
+#
+#player-registration:
+#  image: clemble/player-registration
+#  links:
+#    - rabbit
+#    - mongo
+#
+#player-social:
+#  image: clemble/player-social
+#  links:
+#    - rabbit
+#    - mongo
+#
+#schedule:
+#  image: clemble/schedule
+#  links:
+#    - rabbit
+#    - mongo
+#
+#search:
+#  image: clemble/search
+#  links:
+#    - rabbit
+#    - mongo
+#
+#tag:
+#  image: clemble/tag
+#  links:
+#    - rabbit
+#    - mongo

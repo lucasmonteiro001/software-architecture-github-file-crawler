@@ -1,0 +1,9 @@
+version: '2'
+services:
+  dev:
+    image: eleidan/rust:1.16.0-jessie
+    environment:
+      - CARGO_HOME=/home/phantom/app/.cargo
+    volumes:
+      - .:/home/phantom/app
+      - .docker/.bash_history:/home/phantom/.bash_history

@@ -1,0 +1,85 @@
+version: '2'
+services:
+    rabbitmq:
+        image: rabbitmq:3-management
+        ports:
+            - "15672:15672"
+        environment:
+          - RABBITMQ_DEFAULT_USER=user
+          - RABBITMQ_DEFAULT_PASS=password
+        restart: "always"
+    base:
+        build:
+            context: .
+            dockerfile: docker/base/Dockerfile
+        image: ibuildingsnl/rabbitmq_workshop_base
+        restart: "no"
+    conference_web:
+        build:
+            context: .
+            dockerfile: docker/conference_web/Dockerfile
+        image: ibuildingsnl/rabbitmq_workshop_conference_web
+        ports:
+            - "80:80"
+        volumes:
+            - .:/code
+        links:
+            - conference_management
+            - rabbitmq
+        environment:
+            XDEBUG_CONFIG: "remote_host=${DOCKER_HOST_IP}"
+            PHP_IDE_CONFIG: "serverName=conference_web"
+            SERVICE_NAME: conference_web
+        restart: "on-failure:5"
+    conference_management:
+        build:
+            context: .
+            dockerfile: docker/conference_management/Dockerfile
+        image: ibuildingsnl/rabbitmq_workshop_conference_management
+        volumes:
+            - .:/code
+        environment:
+            XDEBUG_CONFIG: "remote_host=${DOCKER_HOST_IP}"
+            PHP_IDE_CONFIG: "serverName=conference_management"
+            SERVICE_NAME: conference_management
+        restart: "on-failure:5"
+    orders_and_registrations:
+        build:
+            context: .
+            dockerfile: docker/orders_and_registrations/Dockerfile
+        image: ibuildingsnl/rabbitmq_workshop_orders_and_registrations
+        volumes:
+            - .:/code
+        links:
+            - rabbitmq
+        environment:
+            XDEBUG_CONFIG: "remote_host=${DOCKER_HOST_IP}"
+            PHP_IDE_CONFIG: "serverName=conference_management"
+            SERVICE_NAME: orders_and_registrations
+        restart: "on-failure:5"
+    orders_and_registrations_web:
+        build:
+            context: .
+            dockerfile: docker/orders_and_registrations_web/Dockerfile
+        image: ibuildingsnl/rabbitmq_workshop_orders_and_registrations_web
+        volumes:
+            - .:/code
+        links:
+            - rabbitmq
+        environment:
+            XDEBUG_CONFIG: "remote_host=${DOCKER_HOST_IP}"
+            PHP_IDE_CONFIG: "serverName=orders_and_registrations_web"
+            SERVICE_NAME: orders_and_registrations
+        restart: "on-failure:5"
+    devtools:
+        image: ibuildingsnl/rabbitmq_workshop_devtools
+        build:
+            context: .
+            dockerfile: docker/devtools/Dockerfile
+        user: $HOST_UID:$HOST_GID
+        environment:
+            COMPOSER_HOME: "/home/.composer"
+        volumes:
+            - $PWD:/code
+            - "$COMPOSER_HOME:/home/.composer"
+        restart: "no"

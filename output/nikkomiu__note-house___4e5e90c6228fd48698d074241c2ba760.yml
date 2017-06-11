@@ -1,0 +1,42 @@
+version: '2'
+services:
+  app:
+    build: .
+    ports:
+      - "80"
+    links:
+      - db
+      - kvs
+    expose:
+      - "80"
+    environment:
+      - DB_HOSTNAME=db
+      - DB_USERNAME=note_house_svc
+      - DB_PASSWORD=mypassword
+      - DB_DATABASE=note_house_prd
+      - REDIS_URL=redis://kvs:6379/
+    networks:
+      - frontend
+      - backend
+
+  db:
+    image: mariadb
+    environment:
+      - MYSQL_DATABASE=note_house_prd
+      - MYSQL_USER=note_house_svc
+      - MYSQL_PASSWORD=mypassword
+      - MYSQL_ROOT_PASSWORD=rootpassword
+    networks:
+      - backend
+
+  kvs:
+    image: redis
+    networks:
+      - backend
+
+networks:
+  frontend:
+    driver: bridge
+
+  backend:
+    driver: bridge

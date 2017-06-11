@@ -1,0 +1,24 @@
+web:
+  build: .
+  volumes:
+    - "./src:/server/src"
+    - "./gulpfile.js:/server/gulpfile.js"
+    - "./webpack.config.js:/server/webpack.config.js"
+    - "./.eslintrc:/server/.eslintrc"
+  ports:
+    - "3000:3000"
+  env_file:
+    - "./scripts/environment.env"
+  links:
+    - db
+    - db_test
+db:
+  image: postgres:9.4
+  environment:
+    POSTGRES_PASSWORD: passwd
+    POSTGRES_USER: dbuser
+db_test:
+  image: postgres:9.4
+  environment:
+    POSTGRES_PASSWORD: passwd
+    POSTGRES_USER: dbuser

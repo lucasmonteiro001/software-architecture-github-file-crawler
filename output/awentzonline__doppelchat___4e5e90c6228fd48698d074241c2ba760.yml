@@ -1,0 +1,11 @@
+peerserver:
+  build: .
+  restart: always
+  dockerfile: Dockerfile
+  ports:
+    - "80:80"
+  environment:
+    PEER_KEY: doppelchat
+    PEER_PORT: 80
+    PEER_PATH: /
+    PEER_DISCOVERY: on

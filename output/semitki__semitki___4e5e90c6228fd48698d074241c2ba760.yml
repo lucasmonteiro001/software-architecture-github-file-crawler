@@ -1,0 +1,39 @@
+version: '2'
+services:
+  db:
+    image: postgres
+# broker:
+#   image: rabbitmq:3
+#   container_name: rabbit
+  app:
+    image: semitki/api
+    command: /semitki/run_api.sh
+    volumes:
+      - ./api:/semitki/api
+      - ./storage:/semitki/storage
+      - ./config:/semitki/config
+    ports:
+      - "8000:8000"
+      - "3031:3031"
+      - "9191:9191"
+    depends_on:
+      - db
+        #- broker
+    links:
+      - db
+        #      - broker
+    env_file:
+      - variables.env
+  web:
+    image: semitki/web
+    build: ./front
+    ports:
+      - "80:80"
+    volumes:
+      - ./config/conf.d:/etc/nginx/conf.d
+      - ./front/dist:/usr/share/nginx/html
+      - ./storage:/usr/share/nginx/html/storage
+    depends_on:
+      - app
+    links:
+      - app

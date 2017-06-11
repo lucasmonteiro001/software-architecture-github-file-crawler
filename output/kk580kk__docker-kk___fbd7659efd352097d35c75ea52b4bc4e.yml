@@ -1,0 +1,11 @@
+version: '2'
+services:
+  myjenkins:
+    ports:
+    - "8080:8080"
+    - "50000:50000"
+    image: kk580kk/jenkins
+    volumes:
+      - /var/jenkins/jenkins_home:/var/jenkins_home
+    environment:
+    - JAVA_OPTS=-Duser.timezone=Asia/Shanghai

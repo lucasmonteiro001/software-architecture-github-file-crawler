@@ -1,0 +1,7 @@
+ldclient:
+  container_name: ldclient
+  image: aur0r/ldclient:v0.0.1_docker_compose
+  env_file:
+     - ldclient.env
+  ports:
+     - 87:80

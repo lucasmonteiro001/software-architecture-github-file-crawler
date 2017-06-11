@@ -1,0 +1,46 @@
+version: '2'
+services: 
+  RabbitMQ:
+    image: fpommerening/rpi-rabbitmq
+    ports:
+      - 5672:7672
+      - 15672:15672
+
+  weblogger1:
+    image: fpommerening/rpi-devopenspace2016:logging-web
+    depends_on:
+      - RabbitMQ
+    hostname: logger1
+    
+  weblogger2:
+    image: fpommerening/rpi-devopenspace2016:logging-web
+    depends_on:
+      - RabbitMQ
+    hostname: logger2
+
+  weblogger3:
+    image: fpommerening/rpi-devopenspace2016:logging-web
+    depends_on:
+      - RabbitMQ
+    hostname: logger3
+
+  loadbalancer:
+    image: fpommerening/rpi-devopenspace2016:logging-loadbalancer
+    depends_on:
+      - weblogger1
+      - weblogger2
+      - weblogger3
+    ports:
+      - 80
+      
+# logconsole:
+#   image: fpommerening/rpi-devopenspace2016:logging-console
+#   depends_on: 
+#     - RabbitMQ
+#   hostname: logconsole
+
+  loggingcaller:
+    image: fpommerening/rpi-devopenspace2016:logging-caller
+    depends_on: 
+      - loadbalancer
+    hostname: loggingcaller

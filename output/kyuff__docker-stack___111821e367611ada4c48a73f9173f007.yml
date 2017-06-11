@@ -1,0 +1,23 @@
+database:
+  image: kyuff/postgres
+node1:
+  image: kyuff/app
+  links:
+    - database:database
+node2:
+  image: kyuff/app
+  links:
+    - database:database
+node3:
+  image: kyuff/app
+  links:
+    - database:database
+loadbalancer:
+  image: kyuff/nginx
+  links:
+    - node1:node1
+    - node2:node2
+    - node3:node3
+  ports:
+    - "80:80"
+

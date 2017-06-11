@@ -1,0 +1,12 @@
+redis:
+  image: redis
+  ports:
+   - 6379:6379
+unhangout:
+  image: dalareo/unhangout-docker
+  links:
+   - redis
+  ports:
+   - 7777:7777
+  volumes:
+   - ./conf.json:/opt/unhangout/conf.json

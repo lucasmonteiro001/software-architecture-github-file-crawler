@@ -1,0 +1,233 @@
+#additionalservice:
+# extends:
+# file:ymlFileOfService
+# service:servicesForStarting
+mysqldata:
+    container_name: mysql-data
+    image: gordinlearninglayers/mysql-data
+    env_file:
+        - common.env
+        - mysql/mysql.env
+    volumes:
+        - ./mysql-data/backup/:/backup
+mysql:
+   container_name: mysql
+   image: learninglayers/mysql
+    env_file:
+        - common.env
+        - mysql/mysql.env
+    volumes_from:
+        - mysqldata
+    # volumes:
+    #     - ./mysql/:/var/lib/mysql/
+    ports:
+        - "127.0.0.1:3307:3306"
+mysqlcreate:
+    image: gordinlearninglayers/mysql-create
+    links:
+        - mysql
+    env_file:
+        - common.env
+        - mysql/mysql.env
+        - secret.env
+    volumes:
+        - ./mysql-create/sqlfile/:/sqlfile/
+adapterdata:
+   container_name: adapter-data
+   image: gordinlearninglayers/adapter-data
+    env_file:
+        - common.env
+adapterservices:
+#   container_name: adapter-services
+   image: gordinlearninglayers/adapter-externals
+    volumes_from:
+        - surveysnginx
+        - qvsnginx
+        - oidcnginx
+        - tethysuserstoragenginx
+        - openldapaccountnginx
+        # - swiftnginx
+adapter:
+   container_name: adapter
+   image: learninglayers/adapter
+    volumes_from:
+        - adapterdata
+        - qvsfrontend
+        - surveysfrontend
+        - adapterservices
+    volumes:
+        - ./ssl/:/usr/local/openresty/conf/ssl/
+    env_file:
+        - common.env
+    ports:
+        - "80:80"
+        - "443:443"
+    links:
+        - qvs
+        - surveys
+        - oidc
+        - openldapaccount
+        # - tethysuserstorage
+        # - swift
+qvsdata:
+    container_name: mobsos-qvs-data 
+    image: gordinlearninglayers/mobsos-qvs-data
+    env_file:
+        - common.env
+        - mobsos-query-visualization/QVS.env
+qvsfrontend:
+    container_name: mobsos-qvs-frontend 
+    image: gordinlearninglayers/mobsos-qvs-frontend
+    # build: mobsos-query-visualization-frontend
+    env_file:
+        - common.env
+        - mobsos-query-visualization/QVS.env
+qvs:
+    container_name: mobsos-qvs 
+    image: gordinlearninglayers/mobsos-qvs
+    env_file:
+        - common.env
+        - mobsos-query-visualization/QVS.env
+    volumes_from:
+        - qvsdata
+    volumes:
+        - /dev/urandom:/dev/random
+    links:
+        - mysql
+qvsnginx:
+    image: gordinlearninglayers/mobsos-qvs-nginx
+openldapdata:
+    container_name: openldap-data 
+    image: gordinlearninglayers/openldap-data
+    env_file:
+        - openldap/LDAP.env
+    volumes:
+        - ./openldap-data/backup/:/backup
+openldap:
+    container_name: openldap 
+    image: gordinlearninglayers/openldap
+    env_file:
+        - openldap/LDAP.env
+    ports:
+        - "127.0.0.1:389:389"
+    volumes_from:
+        - openldapdata
+    volumes:
+        - /dev/urandom:/dev/random
+openldapaccountdata:
+    container_name: openldapaccount 
+    image: gordinlearninglayers/openldapaccount-data
+openldapaccount:
+    container_name: openldapaccount   
+    image: gordinlearninglayers/openldapaccount
+    volumes_from:
+        - openldapaccountdata
+    ports:
+        - "127.0.0.1:8083:8080"
+    links:
+        - openldap
+        - tethysuserstorage
+    environment:
+        - TETHYS_IP=tethysuserstorage
+        - PWM_LDAP_ADMINS=<value>koren</value><value>nicolaescu</value>
+    env_file:
+        - common.env
+        - openldap/LDAP.env
+    links:
+        - openldap
+    volumes:
+        - /dev/urandom:/dev/random
+openldapaccountnginx:
+    image: gordinlearninglayers/openldapaccount-nginx
+oidcdata:
+    container_name: oidc-data
+    image: gordinlearninglayers/openidconnect-data
+    env_file:
+        - common.env
+        - openidconnect/OIDC.env
+        - openldap/LDAP.env
+oidc:
+    container_name: adapter   image: learninglayers/openidconnect
+    env_file:
+        - common.env
+        - openidconnect/OIDC.env
+        - openldap/LDAP.env
+    volumes_from:
+        - oidcdata
+    links:
+        - mysql
+        - openldap
+    ports:
+        - "127.0.0.1:8080:8080"
+    volumes:
+        - /dev/urandom:/dev/random
+oidcnginx:
+    image: gordinlearninglayers/openidconnect-nginx
+surveysdata:
+    container_name: mobsos-surveys-data
+    image: gordinlearninglayers/mobsos-surveys-data
+    env_file:
+        - common.env
+        - mobsos-surveys/SURVEYS.env
+surveys:
+    container_name: mobsos-surveys
+    image: gordinlearninglayers/mobsos-surveys
+    env_file:
+        - common.env
+        - mobsos-surveys/SURVEYS.env
+    links:
+        - mysql
+    volumes_from:
+        - surveysdata
+    volumes:
+        - /dev/urandom:/dev/random
+surveysfrontend:
+    container_name: mobsos-surveys-frontend 
+    image: gordinlearninglayers/mobsos-surveys-frontend
+    env_file:
+        - common.env
+        - mobsos-surveys/SURVEYS.env
+surveysnginx:
+    image: gordinlearninglayers/mobsos-surveys-nginx
+swift:
+    container_name: swift 
+    image: learninglayers/swift
+    ports:
+        - "127.0.0.1:8082:8080"
+    env_file:
+        - common.env
+        - swift/SWIFT.env
+swiftnginx:
+    image: gordinlearninglayers/swift-nginx
+tethysuserstorage:
+    container_name: tethys-user-storage   
+    image: gordinlearninglayers/tethys-userstorage
+    ports:
+        - "127.0.0.1:8081:8080"
+    env_file:
+        - common.env
+        - swift/SWIFT.env
+        - tethys-userstorage/TETHYS.env
+    volumes:
+        - /dev/urandom:/dev/random
+tethysuserstoragenginx:
+    image: gordinlearninglayers/tethys-userstorage-nginx
+mobsosmonitordata:
+    container_name: mobsos-monitor
+    image: gordinlearninglayers/mobsos-monitor-data
+    env_file:
+        - common.env
+        - mobsos-monitor/MM.env
+        - openidconnect/OIDC.env
+mobsosmonitor:
+    container_name: mobsos-monitor
+    image: gordinlearninglayers/mobsos-monitor
+    env_file:
+        - common.env
+        - mobsos-monitor/MM.env
+        - mysql/mysql.env
+    links:
+        - mysql
+    volumes_from:
+        - mobsosmonitordata
+        - adapterdata

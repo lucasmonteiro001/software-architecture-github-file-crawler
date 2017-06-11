@@ -1,0 +1,13 @@
+marketing:
+  image: trimjack/wp-cli-multi-url:4.4.2-apache
+  external_links:
+    - wpdb_mysql_db_1:mysql
+  ports:
+    - "80:80"
+  volumes:
+    - /data1/www-data/client1wp:/var/www/html
+  environment:
+    - WORDPRESS_DB_NAME=mydatabase
+    - WORDPRESS_DB_USER=myuser
+    - WORDPRESS_DB_PASSWORD=mypassword
+

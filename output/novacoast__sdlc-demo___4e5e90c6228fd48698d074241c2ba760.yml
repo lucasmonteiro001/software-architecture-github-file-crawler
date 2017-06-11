@@ -1,0 +1,47 @@
+postgresql:
+  image: sameersbn/postgresql:9.4
+  environment:
+    - DB_USER=gitlab
+    - DB_PASS=secretpassword
+    - DB_NAME=gitlabhq_production
+  volumes:
+    - /opt/sdlc-demo/postgresql/data:/var/lib/postgresql
+gitlab:
+  image: sameersbn/gitlab:7.8.1
+  links:
+   - redis:redisio
+   - postgresql:postgresql
+  ports:
+   - "10080:80"
+   - "10022:22"
+  environment:
+   - GITLAB_HOST=gitlab
+  volumes:
+   - /opt/sdlc-demo/gitlab/data:/home/git/data
+redis:
+  image: sameersbn/redis:latest
+registry:
+  image: registry:latest
+  ports:
+   - "5000:5000"
+  volumes: /opt/sdlc-demo/registry:/registry
+  environment:
+    - STORAGE_PATH=/registry
+jenkins:
+  build: jenkinsmaster/.
+  links:
+    - registry:registry
+    - gitlab:gitlab
+  ports:
+   - "8080:8080"
+  volumes:
+   - /opt/sdlc-demo/jenkins:/jenkins
+jenkinsslave:
+  image: spiddy/dind-jenkins-slave:latest
+  links:
+    - jenkins:master
+    - gitlab:gitlab
+    - registry:registry
+  privileged: true
+  volumes:
+    - /var/run/docker.sock:/var/run/docker.sock

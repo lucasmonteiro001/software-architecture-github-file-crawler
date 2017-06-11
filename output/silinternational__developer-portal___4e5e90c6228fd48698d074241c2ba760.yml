@@ -1,0 +1,129 @@
+version: '2'
+services:
+    data:
+        image: silintl/data-volume:latest
+        volumes:
+            - ./application:/data
+
+    db:
+        image: silintl/mariadb:latest
+        ports:
+            - "3306"
+        environment:
+            MYSQL_ROOT_PASSWORD: soemthing
+            MYSQL_DATABASE: developer_portal
+            MYSQL_USER: developer_portal
+            MYSQL_PASSWORD: developer_portal
+
+    testdb:
+        image: silintl/mariadb:latest
+        ports:
+            - "3306"
+        environment:
+            MYSQL_ROOT_PASSWORD: soemthing
+            MYSQL_DATABASE: test
+            MYSQL_USER: developer_portal
+            MYSQL_PASSWORD: developer_portal
+
+    web:
+        build: .
+        volumes_from:
+            - data
+        ports:
+            - "80:80"
+        links:
+            - db
+            - proxy:apiaxle.api.proxy
+            - proxy:test.api.proxy
+        env_file:
+            - ./common.env
+            - ./local.env
+
+    composer:
+        image: silintl/php-cli:latest
+        volumes_from:
+            - data
+        working_dir: /data
+        command: composer install --no-plugins --no-scripts --prefer-dist
+
+    composerupdate:
+        image: silintl/php-cli:latest
+        volumes_from:
+            - data
+        working_dir: /data
+        command: composer update --no-plugins --no-scripts --prefer-dist
+
+    yiimigrate:
+        image: silintl/php-cli:latest
+        volumes_from:
+            - data
+        links:
+            - db
+        env_file:
+            - ./common.env
+            - ./local.env
+        working_dir: /data/protected
+        command: bash -c "whenavail db 3306 100 ./yiic migrate --interactive=0"
+
+    yiimigratetestdb:
+        image: silintl/php-cli:latest
+        volumes_from:
+            - data
+        links:
+            - testdb
+        env_file:
+            - ./common.env
+            - ./local.env
+        working_dir: /data/protected
+        command: whenavail testdb 3306 100 ./yiic migrate --interactive=0
+        environment:
+          MYSQL_HOST: testdb
+          MYSQL_DATABASE: test
+
+    phpunit:
+        image: silintl/php-cli:latest
+        volumes_from:
+            - data
+        links:
+            - testdb
+            - proxy:apiaxle.api.proxy
+            - proxy:test.api.proxy
+        env_file:
+            - ./common.env
+            - ./local.env
+        working_dir: /data/protected/tests
+        command: whenavail testdb 3306 100 ../../vendor/bin/phpunit --testsuite DeveloperPortal
+        environment:
+          MYSQL_HOST: testdb
+          MYSQL_DATABASE: test
+          SAML_ADMIN_PASSWORD: dummy-for-tests-q6.eYWtfLF-BTQXf-OktD5lVFCOFyC4B
+          SAML_SECRET_SALT: dummy-for-tests-Ac4MTgO9UJ6_wpXXKc6EGU_.gWNNkdMe
+          SAML_IDP: NONE
+
+    redis:
+        image: redis:latest
+
+    api:
+        image: apiaxle/apiaxle:1.15.0
+        links:
+            - redis
+        ports:
+            - "80"
+        command: api 80
+
+    proxy:
+        image: apiaxle/apiaxle:1.15.0
+        links:
+            - api
+            - redis
+        ports:
+            - "80"
+        command: proxy 80 -q
+
+    axlesetup:
+        image: silintl/php-cli:latest
+        links:
+            - api
+        volumes:
+            - ./build/setup-apiaxle.sh:/usr/local/bin/setup-apiaxle.sh
+        command: whenavail api 80 10 setup-apiaxle.sh

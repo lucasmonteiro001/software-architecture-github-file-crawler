@@ -1,0 +1,28 @@
+version: '2'
+services:
+  atlassian-postgres:
+    volumes:
+    - /var/atlassian/postgresql/data:/var/lib/postgresql/data
+    image: postgres
+    environment: 
+    - POSTGRES_PASSWORD:"q1w2e3r4"
+    restart: always
+  atlassian-jira:
+    volumes:
+    - /var/atlassian/application-data/jira:/var/atlassian/application-data/jira
+    image: tommylau/jira
+    restart: always
+    ports:
+    - "8080:8080"
+    links: 
+    - atlassian-postgres:postgres
+  atlassian-confluence:
+    volumes:
+    - /var/atlassian/application-data/confluence:/var/atlassian/application-data/confluence
+    image: tommylau/confluence
+    restart: always
+    ports:
+    - "8090:8090"
+    links: 
+    - atlassian-postgres:postgres
+    - atlassian-jira:jira

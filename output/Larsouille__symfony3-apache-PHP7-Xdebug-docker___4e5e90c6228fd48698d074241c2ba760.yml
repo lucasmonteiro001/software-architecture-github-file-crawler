@@ -1,0 +1,6 @@
+site:
+  image: symfony-php7-apache
+  ports:
+    - "80:80"
+  volumes:
+    - .:/var/www/project

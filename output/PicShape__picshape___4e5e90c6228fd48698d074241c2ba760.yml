@@ -1,0 +1,27 @@
+version: '2'
+
+services:
+    front:
+        image: picshape/picshape-front:latest
+        ports:
+            - "80:3000"
+        links:
+            - engine:engine
+
+        environment:
+            # We cannot use "engine" here because React is executed client-side, and cannot resolve these dns aliases.
+            - REACT_APP_BACKEND_URI=http://192.168.99.100:8080
+
+    engine:
+        image: picshape/picshape-engine:latest
+        ports:
+            - "8080:8080"
+        links:
+            - database:database
+        environment:
+            - MONGODB=mongodb://database:27017/picshape
+
+    database:
+        image: mongo:latest
+        ports:
+            - "27017:27017"

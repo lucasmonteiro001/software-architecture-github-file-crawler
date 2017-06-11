@@ -1,0 +1,81 @@
+version: '3'
+services:
+    transmission:
+        image: linuxserver/transmission
+        volumes:
+            - ./etc/transmission:/config
+            - ./torrents:/downloads
+            - ./watch:/watch
+        environment:
+            - PGID=1001
+            - PUID=1001
+            - TZ=Europe
+        ports:
+            - 9000:9091
+            - 51413:51413
+            - 51413:51413/udp
+
+    sonarr:
+        image: linuxserver/sonarr
+        volumes:
+            - /dev/rtc:/dev/rtc:ro
+            - ./etc/sonarr:/config
+            - ./torrents/series:/tv
+            - ./torrents:/downloads
+        environment:
+            - PUID=1001
+            - PGID=1001
+        ports:
+            - 9001:8989
+
+    headphones:
+        image: linuxserver/headphones
+        volumes:
+            - ./etc/headphones:/config
+            - ./torrents:/downloads
+            - ./torrents/music:/music
+        environment:
+            - PGID=1001
+            - PUID=1001
+            - TZ=Europe
+        ports:
+            - 9002:8181
+
+    couchpotato:
+        image: linuxserver/couchpotato
+        volumes:
+            - ./etc/couchpotato:/config
+            - ./torrents:/downloads
+            - ./torrents/movies:/movies
+            - ./watch:/watch
+        environment:
+            - PGID=1001
+            - PUID=1001
+            - TZ=Europe
+        ports:
+            - 9003:5050
+
+    sickbeard:
+        image: linuxserver/sickbeard
+        volumes:
+            - ./etc/sickbeard:/config
+            - ./torrents:/downloads
+            - ./torrents/tv:/tv
+        environment:
+            - PGID=1001
+            - PUID=1001
+            - TZ=Europe
+        ports:
+            - 9004:8181
+
+    jackett:
+        image: linuxserver/jackett
+        volumes:
+            - ./etc/jackett:/config
+            - ./torrents:/downloads
+        environment:
+            - PGID=1001
+            - PUID=1001
+            - TZ=Europe
+        ports:
+            - 9005:8181

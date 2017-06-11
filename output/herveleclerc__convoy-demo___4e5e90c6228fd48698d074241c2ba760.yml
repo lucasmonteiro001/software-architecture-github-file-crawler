@@ -1,0 +1,15 @@
+wordpress:
+  build: .
+  links:
+    - db:mysql
+  ports:
+    - 8888:80
+
+db:
+  image: mariadb
+  environment:
+    MYSQL_ROOT_PASSWORD: p@ssw0rd
+  volumes:
+    - 'db_volume_1:/var/lib/mysql'
+  volume_driver: convoy
+

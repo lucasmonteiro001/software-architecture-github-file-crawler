@@ -1,0 +1,10 @@
+cqut-chat:
+  image: daocloud.io/mrcode/cqut-char-server
+  links:
+  - mongo
+  ports:
+  - 8888:8888
+  restart: always
+mongo:
+  image: mongo
+  restart: always

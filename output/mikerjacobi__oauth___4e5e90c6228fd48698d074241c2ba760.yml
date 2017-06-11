@@ -1,0 +1,15 @@
+app:
+    build: .
+    ports:
+        - "8002:80"
+    volumes:
+        - /etc/ssl:/etc/ssl
+        - oauth:/oauth
+        - config.json:/config.json
+    links:
+        - redis
+        - oauthdata
+redis:
+    image: redis
+oauthdata:
+    image: oauthdata

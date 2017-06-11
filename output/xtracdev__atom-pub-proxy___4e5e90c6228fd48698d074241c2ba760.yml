@@ -1,0 +1,21 @@
+version: '2'
+
+services:
+  atomfeedpub:
+    image: xtracdev/atompubpg
+    environment:
+      - LINKHOST=${LINKHOST}
+      - LISTENADDR=${LISTENADDR}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_NAME=${DB_NAME}
+      - KEY_ALIAS=${KEY_ALIAS}
+
+  nginxproxy:
+    image: xtracdev/nginxproxy
+    ports:
+      - "5000:5000"
+    depends_on:
+      - "atomfeedpub"

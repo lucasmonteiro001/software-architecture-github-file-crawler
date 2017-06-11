@@ -1,0 +1,17 @@
+version: '2'
+
+volumes:
+  maps:
+
+services:
+  calc:
+    image: robcurrie/dtmp
+    volumes:
+      - maps:/maps
+    entrypoint: python dtmp/calc.py -i 1
+  hub:
+    image: robcurrie/dtmp
+    ports:
+      - "5000:5000"
+    volumes:
+      - maps:/maps

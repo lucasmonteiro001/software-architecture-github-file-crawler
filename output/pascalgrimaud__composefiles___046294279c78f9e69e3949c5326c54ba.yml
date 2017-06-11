@@ -1,0 +1,10 @@
+version: '2'
+services:
+    eclipse-mars:
+        image: eclipse:mars
+        container_name: eclipse-mars
+        environment:
+            - DISPLAY=:0
+        volumes:
+            - /tmp/.X11-unix:/tmp/.X11-unix
+            - ~/volumes/eclipse/workspace:/home/developer/workspace

@@ -1,0 +1,18 @@
+zabbix-server:
+  image: dockerizedrupal/zabbix-server:0.1.9
+  hostname: zabbix-server
+  ports:
+    - "10051:10051"
+  links:
+    - mysql
+mysql:
+  image: dockerizedrupal/mysql:1.1.0
+  hostname: mysql
+  volumes_from:
+    - mysql-data
+mysql-data:
+  image: dockerizedrupal/mysql:1.1.0
+  hostname: mysql-data
+  entrypoint: ["/bin/echo", "Data-only container for MySQL."]
+  volumes:
+    - /mysql

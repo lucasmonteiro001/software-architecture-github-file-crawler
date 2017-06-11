@@ -1,0 +1,12 @@
+version: '2'
+services:
+  firefox:
+    build: .
+    image: gerardorf/firefox
+    container_name: firefox
+    environment:
+      - DISPLAY=$DISPLAY
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+volumes:
+  X11-unix:

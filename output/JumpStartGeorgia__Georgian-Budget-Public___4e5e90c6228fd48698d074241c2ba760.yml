@@ -1,0 +1,28 @@
+version: '2'
+services:
+  packages:
+    image: georgianbudget_app
+    volumes:
+      - /myapp/node_modules
+    command: echo "Loading node modules for public site!"
+
+  build:
+    image: georgianbudget_app
+    command: /bin/sh -c 'yarn run watch:dev'
+    volumes:
+      - .:/myapp
+      - /myapp/public/bundles/
+    volumes_from:
+      - packages
+
+  app:
+    build: .
+    image: georgianbudget_app
+    volumes:
+      - .:/myapp
+    volumes_from:
+      - build
+      - packages
+    command: /bin/sh -c 'npm run start:dev'
+    ports:
+      - "8080:8080"

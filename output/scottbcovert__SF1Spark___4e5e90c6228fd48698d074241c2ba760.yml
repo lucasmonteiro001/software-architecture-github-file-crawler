@@ -1,0 +1,18 @@
+web:
+  build: .
+  links:
+   - db
+  ports:
+   - "3000:3000"
+   - "35729:35729"
+  volumes:
+   - "~/.ssh/id_rsa:/home/spark/.ssh/id_rsa"
+   - "./public:/home/spark/mean/public"
+   - "./app:/home/spark/mean/app"
+  environment: 
+   NODE_ENV: development
+  env_file: config/env/local.js
+db:
+  image: mongo
+  ports: 
+   - "27017:27017"

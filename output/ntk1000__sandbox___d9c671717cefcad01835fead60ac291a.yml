@@ -1,0 +1,29 @@
+version: '2'
+services:
+    mackerel:
+        build:
+            context: $GOPATH/src/github.com/ntk1000/sandbox/mw/mackerel
+            dockerfile: Dockerfile
+        container_name: 'mackerel'
+        environment:
+            - apikey=${Mackerel_API}
+            - auto_retirement=true
+            - enable_docker_plugin=true
+            - opts=-v
+            - include=/etc/mackerel-agent/conf.d/*.conf
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+              #- /var/lib/mackerel-agent:/var/lib/mackerel-agent
+            - /proc/mounts:/host/proc/mounts:ro
+            - /sys/fs/cgroup:/host/sys/fs/cgroup:ro
+    app:
+        build:
+            context: .
+            dockerfile: DockerfileAlpine
+        container_name: 'hello'
+        ports:
+            - "8000:8000"
+        networks:
+            - app
+networks:
+    app:

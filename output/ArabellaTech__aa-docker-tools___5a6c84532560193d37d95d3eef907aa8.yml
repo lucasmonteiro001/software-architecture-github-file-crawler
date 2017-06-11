@@ -1,0 +1,63 @@
+# default docker compose file for python projects
+# you can easily uncomment elasticsearch to make it available
+# this file is supposed to be copied to main directory of your project for editing/fine tuning.
+version: '3'
+services:
+    redis:
+        image: redis:3.0.7
+    # elasticsearch:
+    #     image: elasticsearch:2.4.3
+    #     restart: always
+    rabbitmq: 
+        image: rabbitmq:3.6.6
+        hostname: "rabbitmq"
+        environment:
+            - RABBITMQ_ERLANG_COOKIE=SWQOKODSQALRPCLNMEQG
+            - RABBITMQ_DEFAULT_USER=rabbitmq
+            - RABBITMQ_DEFAULT_PASS=rabbitmq
+            - RABBITMQ_DEFAULT_VHOST=/
+    db:
+        image: mysql:5.7.17
+        environment:
+            - MYSQL_ROOT_PASSWORD=root
+            - MYSQL_DATABASE=DB
+            - MYSQL_ROOT_HOST=%
+        command: --collation-server=utf8mb4_unicode_ci --character-set-server=utf8mb4 
+        ports:
+            - "3307:3306"  # this makes mysql accessible on 127.0.0.1:3307
+    web:
+        build: .
+        # wait for it waits for 3306 port to be open, other commands run migrations before start the django app.
+        command: ./aa-docker-tools/scripts/wait-for-it.sh db:3306 --timeout=120 -- ./docker-entrypoint.sh
+        volumes:
+            - .:/www
+            - ~/.ssh:/root/.ssh  # works on mac, probably doesnt work on linux
+        environment:
+            - DOCKER_DEVEL=1
+            - SSH_AUTH_SOCK="/ssh-agent"  # this should work on linux
+        ports:
+           - "8000:8000"  # localost: dockermachine
+        depends_on:
+            # - elasticsearch
+            - db
+        links: 
+            # - elasticsearch
+            - redis
+            - rabbitmq
+            - db
+
+    # Celery worker
+    worker:
+        build: .
+        environment:
+            - C_FORCE_ROOT="true"
+            - DOCKER_DEVEL=1
+        command: ./aa-docker-tools/scripts/wait-for-it.sh web:8000 --timeout=1200 -- ./docker-celery-entrypoint.sh
+        volumes:
+            - .:/www
+        links:
+            - db
+            - rabbitmq
+            - redis
+        depends_on:
+            - rabbitmq

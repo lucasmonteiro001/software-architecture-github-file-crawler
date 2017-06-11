@@ -1,0 +1,28 @@
+version: '2'
+
+services:
+    activemq:
+        build:
+            context: ./activemq
+            dockerfile: Dockerfile
+        container_name: activemq_1
+        image: activemq
+        ports:
+            - "5672:5672"
+            - "61616:61616"
+            - "8161:8161"
+        volumes:
+            - activemq-vol:/mnt/nfs-share/activemq
+
+    rabbitmq:
+        build:
+            context: ./rabbitmq
+            dockerfile: Dockerfile-rabbitmq
+        container_name: rabbitmq_1
+        ports:
+            - "5672:5672"
+            - "8080:15672"
+
+volumes:
+    activemq-vol:
+        driver: local

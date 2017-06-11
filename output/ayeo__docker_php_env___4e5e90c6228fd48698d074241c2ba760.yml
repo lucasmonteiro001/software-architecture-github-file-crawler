@@ -1,0 +1,41 @@
+application:
+    build: images/code
+    volumes:
+      - ./www:/var/www
+    tty: true
+nginx:
+  build: images/nginx
+  ports:
+    - "8080:80"
+  volumes_from:
+    - application    
+  volumes:    
+    - ./rewrite.conf:/etc/nginx/sites-enabled/ayeo.conf
+    - ./log/nginx:/var/log/nginx
+  links:
+    - php56
+    - php70
+php56:
+  build: images/php56
+  volumes_from:
+    - application  
+  volumes:
+    - ./images/php56/php-fpm.conf:/etc/php5/fpm/php-fpm.conf  
+  links:
+    - db
+php70:
+  build: images/php70
+  volumes_from:      
+    - application
+  volumes:
+    - ./images/php70/php-fpm.conf:/etc/php7/fpm/php-fpm.conf    
+  links:
+    - db
+db:
+  image: sameersbn/mysql
+  volumes:
+   - /var/lib/mysql
+  environment:
+   - DB_NAME=ayeo_docker
+   - DB_USER=root
+   - DB_PASS=root

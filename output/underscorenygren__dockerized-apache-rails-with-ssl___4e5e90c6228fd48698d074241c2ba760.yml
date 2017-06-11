@@ -1,0 +1,9 @@
+apache:
+  build: .
+  ports:
+    - "443:443"
+    - "80:80"
+  volumes:
+    - ./server.crt:/usr/local/apache2/conf/server.crt
+    - ./server.key:/usr/local/apache2/conf/server.key
+    - ./httpd.conf:/usr/local/apache2/conf/httpd.conf

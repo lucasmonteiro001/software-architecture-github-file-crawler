@@ -1,0 +1,75 @@
+postgres_data:
+    image: busybox
+    volumes:
+        - /var/lib/postgres
+    command: /bin/sh
+
+postgres:
+    image: postgres:9.4
+    volumes_from:
+        - postgres_data
+    env_file: .env
+    expose:
+        - "5432"
+
+uwsgi:
+    build: .
+    restart: always
+    volumes:
+        - .:/app 
+        - /var/www/static
+    links:
+        - postgres
+        - redis
+    env_file: .env
+    command: /app/uwsgi.sh
+    expose:
+        - "4000"
+    working_dir: /app
+
+nginx:
+    build: .
+    dockerfile: Dockerfile_nginx
+    volumes_from:
+        - uwsgi
+    volumes:
+        - ./nginx.conf:/etc/nginx/nginx.conf:ro
+        - ./uwsgi_params.par:/etc/nginx/uwsgi_params.par:ro
+        - .ssl/nginx.crt:/etc/nginx/nginx.crt
+        - .ssl/nginx.key:/etc/nginx/nginx.key
+        - /var/www/.well-known/acme-challenge/
+        - .ssl/:/etc/letsencrypt/openfmri.org/
+    links:
+        - uwsgi
+    ports:
+        - "0.0.0.0:80:80"
+        - "0.0.0.0:443:443"
+
+redis:
+    restart: always
+    image: redis
+    links:
+        - postgres
+
+worker:
+    build: .
+    command: celery worker -B -A open_fmri -Q default -n default@%h --loglevel=debug
+    env_file: .env
+    volumes:
+        - .:/app
+    volumes_from:
+        - uwsgi
+    links:
+        - postgres
+        - redis
+    working_dir: /app
+
+
+opensmtpd:
+    build: ./opensmtpd/
+    volumes:
+        - ./opensmtpd/smtpd.conf:/etc/smtpd.conf
+        - ./opensmtpd/forward:/etc/.forward
+        - ./opensmtpd/credentials:/etc/.credentials
+    ports:
+        - "0.0.0.0:25:25"

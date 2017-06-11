@@ -1,0 +1,29 @@
+elasticsearch:
+  restart: on-failure:10
+  image: dockerfile/elasticsearch
+  expose:
+    - "9200"
+db:
+  restart: on-failure:10
+  image: postgres:9.3
+  expose:
+    - "5432"
+  volumes:
+    - pg_data/:/var/lib/postgresql/data
+web:
+  restart: on-failure:10
+  build: .
+  ports:
+    - "80:80"
+    # - "443:443"
+  links:
+    - db
+    - elasticsearch
+  # environment:
+  #   - BRANCH=...         # Optional branch of git to deploy with, i.e. kingman
+  #   - ENABLE_SSL=yes     # Uncomment port 443 and this line to enable https
+                           # on your site (and redirect http to https)
+  volumes:
+    - settings/local_settings.py:/opt/apps/farnsworth/farnsworth/local_settings.py
+    - settings/house_settings.py:/opt/apps/farnsworth/farnsworth/house_settings.py
+    - keys/:/opt/apps/keys

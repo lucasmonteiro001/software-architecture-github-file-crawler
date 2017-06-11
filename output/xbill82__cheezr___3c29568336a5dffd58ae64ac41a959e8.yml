@@ -1,0 +1,33 @@
+proxy:
+  image: kuzzleio/proxy:alpine
+  ports:
+    - "7511:7511"
+    - "7512:7512"
+
+bo:
+  image: kuzzleio/bo:1.0.0-RC4
+  ports:
+    - "3000:3000"
+  links:
+    - proxy:kuzzle
+  environment:
+    - KUZZLE_URL
+
+kuzzle:
+  image: kuzzleio/kuzzle:1.0.0-RC4
+  links:
+    - elasticsearch
+    - redis
+    - proxy:api
+  volumes:
+    - "./fixtures.json:/fixtures.json"
+  environment:
+    - fixtures=/fixtures.json
+
+redis:
+  image: redis:3.0-alpine
+
+elasticsearch:
+  image: kuzzleio/elasticsearch:2.2
+  volumes:
+    - "./db-data/:/opt/elasticsearch/data/"

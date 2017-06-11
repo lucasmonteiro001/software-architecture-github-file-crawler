@@ -1,0 +1,19 @@
+version: '2'
+services:
+  web:
+    build: .
+    ports:
+      - '4567:4567'
+    links:
+      - arangodb
+    environment:
+      - DBHOST=arangodb
+      - BLOG_ENV=production
+  arangodb:
+    image: arangodb:2.8.9
+    environment:
+      - ARANGO_NO_AUTH=1
+    expose:
+      - '8529'
+    ports:
+      - '8529:8529'

@@ -1,0 +1,247 @@
+version: '2'
+
+volumes:
+    logvolume:
+    artifactvolume:
+    configdbvolume:
+    dbvolume:
+    rmqvolume:
+    rmqlogsvolume:
+    gerritvolume:
+services:
+    nodebase:
+        build:
+            context: ../containers/NodeBase
+        image: codefarm/nodebase:0.0.0
+        command: echo "Not supposed to run..."
+    appnodebase:
+        build:
+            context: ../containers/AppNodeBase
+        image: codefarm/appnodebase:0.0.0
+        depends_on:
+            - nodebase
+        command: echo "Not supposed to run..."
+    mongo:
+        build:
+            context: ../containers/mongo
+        image: codefarm/mongo:0.0.0
+        volumes:
+            - configdbvolume:/data/configdb
+            - dbvolume:/data/db
+        ports:
+            - "27017:27017"
+    rabbitmq:
+        build:
+            context: ../containers/rabbitmq
+        image: codefarm/rabbitmq:0.0.0
+        volumes:
+            - rmqvolume:/data/mnesia
+            - rmqlogsvolume:/data/logs
+        ports:
+            - "8082:15672"
+            - "5671:5671"
+            - "5672:5672"
+    gerrit:
+        build:
+            context: ../containers/gerrit
+        image: codefarm/gerrit:0.0.0
+        volumes:
+            - gerritvolume:/var/gerrit/review_site
+        environment:
+            - AUTH_TYPE=DEVELOPMENT_BECOME_ANY_ACCOUNT
+        ports:
+            - "8083:8080"
+            - "29418:29418"
+    artifactory:
+        build:
+            context: ../containers/artifactory
+        image: codefarm/artifactory:0.0.0
+        network_mode: "host"
+    execslave:
+        build:
+            context: ../containers/ExecSlave
+        image: codefarm/execslave:0.0.0
+        volumes:
+            - ../../:/home/farmer/codefarm:ro
+        depends_on:
+            - nodebase
+    mgmt:
+        build:
+            context: ../app/Mgmt
+        image: codefarm/mgmt:0.0.0
+        depends_on:
+            - appnodebase
+            - rabbitmq
+        volumes:
+            - ./jwtKeys:/home/farmer/.ssh:ro
+        ports:
+            - "19595:19595"
+        links:
+            - "mongo"
+            - "rabbitmq"
+    userrepo:
+        build:
+            context: ../app/UserRepo
+        image: codefarm/userrepo:0.0.0
+        depends_on:
+            - appnodebase
+            - mongo
+            - rabbitmq
+        links:
+            - "mongo"
+            - "rabbitmq"
+        ports:
+            - "19292:19292"
+    artifactrepo:
+        build:
+            context: ../app/ArtifactRepo
+        image: codefarm/artifactrepo:0.0.0
+        depends_on:
+            - appnodebase
+            - mongo
+            - rabbitmq
+        volumes:
+            - artifactvolume:/home/farmer/data
+        links:
+            - "mongo"
+            - "rabbitmq"
+        ports:
+            - "19999:19999"
+    coderepo:
+        build:
+            context: ../app/CodeRepo
+        image: codefarm/coderepo:0.0.0
+        depends_on:
+            - appnodebase
+            - mongo
+            - rabbitmq
+        volumes:
+            - ./codeKeys:/home/farmer/codeKeys:ro
+        links:
+            - "mongo"
+            - "rabbitmq"
+        ports:
+            - "19393:19393"
+            - "9000:9000"
+    logrepo:
+        build:
+            context: ../app/LogRepo
+        image: codefarm/logrepo:0.0.0
+        depends_on:
+            - appnodebase
+            - mongo
+            - rabbitmq
+        volumes:
+            - logvolume:/home/farmer/data
+        links:
+            - "mongo"
+            - "rabbitmq"
+        ports:
+            - "19696:19696"
+    baselinerepo:
+        build:
+            context: ../app/BaselineRepo
+        image: codefarm/baselinerepo:0.0.0
+        depends_on:
+            - appnodebase
+            - mongo
+            - rabbitmq
+        links:
+            - "mongo"
+            - "rabbitmq"
+        ports:
+            - "18686:18686"
+    exec:
+        build:
+            context: ../app/Exec
+        image: codefarm/exec:0.0.0
+        depends_on:
+            - appnodebase
+            - mongo
+            - rabbitmq
+        volumes:
+            - ./execKeys:/home/farmer/execKeys:ro
+        links:
+            - "mongo"
+            - "rabbitmq"
+            - "execslave"
+        ports:
+            - "19494:19494"
+    baselinegen:
+        build:
+            context: ../app/BaselineGen
+        image: codefarm/baselinegen:0.0.0
+        depends_on:
+            - appnodebase
+            - mongo
+            - rabbitmq
+        links:
+            - "mongo"
+            - "rabbitmq"
+        ports:
+            - "19797:19797"
+    flowctrl:
+        build:
+            context: ../app/FlowCtrl
+        image: codefarm/flowctrl:0.0.0
+        depends_on:
+            - appnodebase
+            - mongo
+            - rabbitmq
+        links:
+            - "mongo"
+            - "rabbitmq"
+        ports:
+            - "19191:19191"
+    ui:
+        build:
+            context: ../app/UI
+        image: codefarm/ui:0.0.0
+        depends_on:
+            - appnodebase
+            - mongo
+            - rabbitmq
+        links:
+            - "mongo"
+            - "rabbitmq"
+        ports:
+            - "19898:19898"
+    dataresolve:
+        build:
+            context: ../app/DataResolve
+        image: codefarm/dataresolve:0.0.0
+        depends_on:
+            - appnodebase
+            - mongo
+            - rabbitmq
+        links:
+            - "mongo"
+            - "rabbitmq"
+        ports:
+            - "18989:18989"
+    metadata:
+        build:
+            context: ../app/MetaData
+        image: codefarm/metadata:0.0.0
+        depends_on:
+            - appnodebase
+            - mongo
+            - rabbitmq
+        links:
+            - "mongo"
+            - "rabbitmq"
+        ports:
+            - "18888:18888"
+    stat:
+        build:
+            context: ../app/Stat
+        image: codefarm/stat:0.0.0
+        depends_on:
+            - appnodebase
+            - mongo
+            - rabbitmq
+        links:
+            - "mongo"
+            - "rabbitmq"
+        ports:
+            - "18787:18787"

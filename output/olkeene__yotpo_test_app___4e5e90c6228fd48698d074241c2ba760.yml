@@ -1,0 +1,18 @@
+version: '2'
+services:
+  app:
+    build: .
+    command: ./bin/startup.sh
+    volumes:
+      - .:/app
+    ports:
+      - '4567:4567'
+      - '3000:3000'
+
+  box:
+    image: busybox
+    volumes:
+      - box:/box
+
+volumes:
+  box:

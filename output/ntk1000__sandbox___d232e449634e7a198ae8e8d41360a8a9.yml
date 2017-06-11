@@ -1,0 +1,95 @@
+version: '2'
+services:
+    mackerel:
+        build:
+            context: $GOPATH/src/github.com/ntk1000/sandbox/mw/mackerel
+            dockerfile: Dockerfile
+        container_name: 'mackerel'
+        environment:
+            - apikey=${Mackerel_API}
+            - auto_retirement=true
+            - enable_docker_plugin=true
+            - opts=-v
+            - include=/etc/mackerel-agent/conf.d/*.conf
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+              #- /var/lib/mackerel-agent:/var/lib/mackerel-agent
+            - /proc/mounts:/host/proc/mounts:ro
+            - /sys/fs/cgroup:/host/sys/fs/cgroup:ro
+
+    sentry-redis:
+        image: redis:3.2-alpine
+        container_name: 'sentry-redis'
+        networks:
+            - sentry
+
+    sentry-memcached:
+        image: memcached:1.4
+        container_name: 'sentry-memcached'
+        networks:
+            - sentry
+
+    sentry-postgres:
+        image: postgres:9.5
+        container_name: 'sentry-postgres'
+        environment:
+            - POSTGRES_PASSWORD=secret
+            - POSTGRES_USER=sentry
+        networks:
+            - sentry
+
+    sentry-smtp:
+        image: tianon/exim4
+        container_name: 'sentry-smtp'
+        networks:
+            - sentry
+
+    sentry-base:
+        image: sentry:8.9-onbuild
+        container_name: 'sentry-base'
+        environment:
+            - SENTRY_SECRET_KEY=${SENTRY_SECRET_KEY}
+            - SENTRY_MEMCACHED_HOST=sentry-memcached
+            - SENTRY_REDIS_HOST=sentry-redis
+            - SENTRY_POSTGRES_HOST=sentry-postgres
+            - SENTRY_EMAIL_HOST=sentry-smtp
+            - SENTRY_DB_USER=sentry
+            - SENTRY_DB_PASSWORD=secret
+        ports:
+            - "9000:9000"
+        networks:
+            - sentry
+
+        #    sentry-web:
+        #        extends: sentry-base
+        #        container_name: 'sentry-web'
+        #        links:
+        #            - sentry-redis
+        #            - sentry-postgres
+        #            - sentry-memcached
+        #            - sentry-smtp
+        #        ports:
+        #            - "9000:9000"
+        #
+        #    sentry-cron:
+        #        extends: sentry-base
+        #        container_name: 'sentry-cron'
+        #        command: run cron
+        #        links:
+        #            - sentry-redis
+        #            - sentry-postgres
+        #            - sentry-memcached
+        #            - sentry-smtp
+        #
+        #    sentry-worker:
+        #        extends: sentry-base
+        #        container_name: 'sentry-worker'
+        #        command: run worker
+        #        links:
+        #            - sentry-redis
+        #            - sentry-postgres
+        #            - sentry-memcached
+        #            - sentry-smtp
+
+networks:
+    sentry:

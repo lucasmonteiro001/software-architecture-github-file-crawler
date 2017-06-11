@@ -1,0 +1,55 @@
+version: '2'
+services:
+  db:
+    container_name: blog_db
+    image: postgres
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+        - db_vol:/etc/postgresql
+        - db_vol:/var/log/postgresql
+        - db_vol:/var/lib/postgresql/data
+    networks:
+      - blog_net
+  session:
+    container_name: blog_session
+    image: redis
+    ports:
+      - "127.0.0.1:6379:6379"
+    command: bash -c "redis-server --appendonly yes --protected-mode no"
+    volumes:
+      - session_vol:/data
+    networks:
+      - blog_net
+  geoip:
+    container_name: blog_geoip
+    image: fiorix/freegeoip
+    ports:
+        - "127.0.0.1:8080:8080"
+    networks:
+      - blog_net
+  web:
+    container_name: blog_app
+    build: .
+    command: bash -c "sleep 5 && bundle exec rake db:exists && bundle exec rake db:migrate || bundle exec rake db:setup && rake assets:precompile && rake db:seed && rake sitemap:generate && SECRET_KEY_BASE=`rake secret` bundle exec unicorn -c config/unicorn.rb"
+    volumes:
+      - .:/blog
+      - uploads:/blog/public/uploads
+    ports:
+      - "127.0.0.1:3000:3000"
+    env_file:
+      - config/deploy/production.env
+    depends_on:
+      - db
+      - session
+      - geoip
+    networks:
+      - blog_net
+
+volumes:
+  session_vol:
+  db_vol:
+  uploads:
+
+networks:
+  blog_net:

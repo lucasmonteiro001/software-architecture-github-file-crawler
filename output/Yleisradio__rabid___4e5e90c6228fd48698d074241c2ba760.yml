@@ -1,0 +1,7 @@
+rabbitmq:
+  image: "yleisradio/rabbitmq-dev:latest"
+  container_name: "rabid-mq"
+  ports:
+    - "5172:5672"
+    - "15172:15672"
+  hostname: "rabbitmq.docker-container.local"

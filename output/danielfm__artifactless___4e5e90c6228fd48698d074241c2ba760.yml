@@ -1,0 +1,21 @@
+artifactless:
+  build: .
+  volumes:
+    - .:/go/src/artifactless
+  env_file: .env
+  links:
+    - stats
+    - redis
+
+redis:
+  image: redis:alpine
+  ports:
+    - 6379
+
+stats:
+  image: kamon/grafana_graphite
+  ports:
+    - 80
+    - 81
+    - 8125/udp
+    - 8126

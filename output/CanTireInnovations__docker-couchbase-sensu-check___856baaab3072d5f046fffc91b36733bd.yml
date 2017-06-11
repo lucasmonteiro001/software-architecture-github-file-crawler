@@ -1,0 +1,66 @@
+sensu:
+  image: cantireinnovations/sensu:0.20.3_da1db3c8cc9e7b14f6e976416fee3f86d1a8bd2a
+  restart: always
+  volumes:
+    - "./etc/sensu:/etc/sensu"
+  ports:
+    - "3000:3000"
+    - "4567:4567"
+  links:
+    - rabbitmq
+    - redis
+
+rabbitmq:
+  hostname: rabbitmq
+  image: rabbitmq:3.5.6-management
+  restart: always
+  volumes:
+    - "./etc/rabbitmq:/etc/rabbitmq"
+    - "./local/rabbit:/data"
+  ports:
+    - "5672:5672"
+    - "5671:5671"
+    - "15672:15672"
+    - "15671:15671"
+
+redis:
+  image: redis:2.8.19
+  restart: always
+  ports:
+    - "6379:6379"
+
+couchbase:
+  image: couchbase/server:latest
+  ports:
+    - "8091:8091"
+    - "8092:8092"
+    - "11210:11210"
+  restart: always
+
+couchbaseInit:
+  image: cantireinnovations/couchbase-dev-cluster-init:latest
+  links:
+    - couchbase
+  environment:
+    CLUSTER: couchbase:8091
+
+couchbaseCheck:
+  image: cantireinnovations/couchbase-sensu-check
+  links:
+    - couchbase
+    - rabbitmq
+  environment:
+    CLIENT_NAME: couchbase-check
+    COUCHBASE_URL: http://couchbase:8091
+    COUCHBASE_USERNAME: administrator
+    COUCHBASE_PASSWORD: password
+    WARNING_THRESHOLD: 50
+    CRITICAL_THRESHOLD: 60
+    RABBITMQ_HOST: rabbitmq
+    RABBITMQ_PORT: 5671
+    RABBITMQ_VHOST: /
+    RABBITMQ_USER: guest
+    RABBITMQ_PASS: guest
+  volumes:
+    - "./etc/sensu/ssl:/etc/sensu/ssl"
+

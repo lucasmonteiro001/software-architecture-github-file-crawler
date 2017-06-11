@@ -1,0 +1,26 @@
+version: '2'
+
+services:
+  identity.api:
+    image: erpadmin/identity.api
+    build:
+      context: ./src/Services/Identity/Identity.API
+      dockerfile: Dockerfile
+    depends_on:
+      - sql.data
+
+  contractors.api:
+    image: erpadmin/contractors.api
+    build:
+      context: ./src/Services/Contractors/Contractors.API
+      dockerfile: Dockerfile
+    depends_on:
+      - sql.data
+
+  sql.data:
+    image: microsoft/mssql-server-linux
+
+  rabbitmq:
+    image: rabbitmq
+    ports:
+      - "5672:5672"

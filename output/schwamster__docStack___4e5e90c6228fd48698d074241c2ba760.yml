@@ -1,0 +1,96 @@
+# version: '2'
+# services:
+doc-identity:
+    container_name: doc-identity
+    image: schwamster/doc-identity
+    ports:
+        - "3004:3004"
+    environment:
+        - ASPNETCORE_URLS=http://+:3004 
+        - Identity:DocStackAppHost=http://localhost:4200
+        - Identity:DocStackAppApiHost=http://localhost:3002
+        - Identity:AdminPassword=${DocStackAdminPassword}
+
+doc-stack-app:
+    container_name: doc-stack-app
+    image: schwamster/doc-stack-app
+    ports:
+        - "4200:80"
+    links:
+        - doc-stack-app-api
+        - doc-identity:localhost
+    environment:
+        - IdentityAuthority=http://localhost:3004
+
+doc-store:
+    image: schwamster/doc-store
+    ports:
+        - "3003:80"
+    links:
+        - rethinkdb
+        - doc-identity:localhost
+    environment:
+        - RethinkDb:Host=rethinkdb
+        - IdentityAuthority=http://localhost:3004
+
+doc-stack-app-api:
+    container_name: doc-stack-app-api
+    image: schwamster/doc-stack-app-api
+    environment:
+        - TextExtractQueue=documents:process:0
+        - DocStackApp=http://localhost:4200
+        - IdentityServerUrl=http://localhost:3004
+    ports:
+        - "3002:80"
+    links:
+        - redis
+        - doc-store
+        - doc-identity:localhost
+redis:
+    image: redis:alpine
+    ports: ["6379:6379"]
+
+rethinkdb:
+    image: rethinkdb:2.3.5
+    command: rethinkdb --bind all
+    volumes:
+        - ./rethinkdb-data:/data
+    ports: ["28015:28015", "29015:29015", "6001:8080"]
+
+text-worker:
+    image: schwamster/text-worker
+    environment:
+        - Queue=documents:process:0
+        - OcrServiceHost=ocr_service:5000
+        - RedisHost=redis
+        - DocStoreHost=doc-store
+    links:
+        - redis
+        - ocr_service
+
+pdf_to_text:
+    image: schwamster/pdf_to_text
+    command: nodemon -L --debug=5858
+    ports:
+        - "3000:3000"
+        - "5858:5858"
+    links:
+        - ocr_service
+
+luis_adapter_service:
+    image: schwamster/luis_adapter_service
+    command: nodemon -L --debug=5858
+    ports:
+        - "3001:3000"
+        - "5859:5858"
+    environment:
+        - LuisAppId=5e5610fe-0f83-4058-882a-08977872d91e
+        - LuisSubscriptionKey=${LuisSubscriptionKey}
+
+ocr_service:
+    image: schwamster/ocr_service
+    ports:
+        - "5001:5000"
+    command: host
+    environment:
+        - ComputerVisionKey=${ComputerVisionKey}

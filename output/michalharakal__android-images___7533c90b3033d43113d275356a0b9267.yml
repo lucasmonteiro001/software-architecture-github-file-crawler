@@ -1,0 +1,25 @@
+version: "2"
+services:
+  cordova:
+    build: ./cordova
+    image: android/cordova
+    depends_on:
+    - node
+  node:
+    build: ./node
+    image: android/node
+    depends_on:
+    - sdk
+  sdk:
+    build: ./sdk
+    image: android/sdk
+    depends_on:
+    - gradle
+  gradle:
+    build: ./gradle
+    image: android/gradle
+    depends_on:
+    - java-8-jdk
+  java-8-jdk:
+    build: ./8-jdk
+    image: android/java-8-jdk

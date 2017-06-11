@@ -1,0 +1,69 @@
+version: '2'
+
+services:
+    php:
+        container_name: php_site
+        build: docker/php
+        volumes:
+            - .:/var/www
+        ports:
+            - "80:80"
+        extra_hosts:
+            - "localhost site.local:127.0.0.1"
+        networks:
+            - back
+
+    mysql:
+        container_name: mysql_site
+        image: mysql:latest
+        environment:
+            - MYSQL_ROOT_PASSWORD=root
+            - MYSQL_USER=user
+            - MYSQL_PASSWORD=user
+            - MYSQL_DATABASE=site
+        expose:
+            - 3306
+        ports:
+            - 3310:3306
+        networks:
+            back:
+                aliases:
+                    - mysql
+        volumes:
+            - mysql-data:/var/lib/mysq
+
+    mysql-synapse:
+        container_name: mysql_synapse
+        image: mysql:latest
+        environment:
+            - MYSQL_ROOT_PASSWORD=root
+            - MYSQL_USER=user
+            - MYSQL_PASSWORD=user
+            - MYSQL_DATABASE=synapse
+        expose:
+            - 3306
+        ports:
+            - 3311:3306
+        networks:
+            back:
+                aliases:
+                    - mysql-synapse
+        volumes:
+            - mysql-synapse-data:/var/lib/mysq
+
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin
+        container_name: synapse_phpmyadmin
+        ports:
+            - 8080:80
+        networks:
+            back:
+        environment:
+            - PMA_HOST=mysql-synapse
+
+volumes:
+    mysql-data:
+    mysql-synapse-data:
+
+networks:
+    back:

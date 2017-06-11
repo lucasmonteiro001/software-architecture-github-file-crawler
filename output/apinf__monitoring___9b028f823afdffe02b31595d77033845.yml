@@ -1,0 +1,14 @@
+version: '2'
+services:
+    node-exporter:
+        restart: always
+        image: prom/node-exporter:0.12.0rc1
+    nginx:
+        restart: always
+        image: keisato/nginx-basic-auth-proxy
+        env_file:
+            - 'env.nginx'
+        ports:
+            - "9100:80"
+        depends_on:
+            - node-exporter

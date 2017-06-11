@@ -1,0 +1,39 @@
+redis:
+  image: redis
+
+couch:
+  build: ./docker/couchdb
+  ports:
+    - "49162:5984"
+
+hookio:
+  build: .
+  command: node /src/bin/server
+  ports:
+    - "80:9999"
+  links:
+    - "redis:redis"
+    - "couch:couch"
+    - "worker0:worker0"
+
+worker0:
+  build: .
+  command: node /src/bin/worker
+  privileged: true
+  ports:
+    - "49161:10000"
+  links:
+    - "redis:redis"
+    - "couch:couch"
+
+setup:
+  build: .
+  command: /src/config/couchdb/create_admin.sh
+  links:
+    - "couch:couch"
+
+install_default_hooks:
+  build: .
+  command: node /src/scripts/install/add-default-hooks.js
+  links:
+    - "couch:couch"

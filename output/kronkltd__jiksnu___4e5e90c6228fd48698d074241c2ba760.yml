@@ -1,0 +1,18 @@
+version: '2'
+services:
+  mongo:
+    image: mongo
+
+  web:
+    build: .
+    image: kronkltd/jiksnu
+    depends_on:
+      - mongo
+    environment:
+      JIKSNU_DB_NAME: "jiksnu_docker"
+      VIRTUAL_HOST: "jiksnu.docker"
+      DOMAIN: jiksnu.docker
+
+volumes:
+  mongo-data:
+    driver: local

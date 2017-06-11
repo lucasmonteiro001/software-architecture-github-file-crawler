@@ -1,0 +1,16 @@
+version: '2'
+services:
+  sensordb:
+    image: postgres
+  api:
+    build: .
+    command: sensor-api
+    ports:
+      - "5000:5000"
+    depends_on:
+      - sensordb
+  subscriber:
+    build: .
+    command: sensor-subscribe
+    depends_on:
+      - sensordb

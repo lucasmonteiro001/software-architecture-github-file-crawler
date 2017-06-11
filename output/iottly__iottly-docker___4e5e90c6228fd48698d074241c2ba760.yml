@@ -1,0 +1,116 @@
+# 
+# Copyright 2015 Stefano Terna
+# 
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+# 
+#     http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# 
+
+version: '2'
+
+services:
+
+  db:
+    image: mongo
+
+  xmppbroker:
+    build: ../iottly-xmpp-broker/.
+    ports:
+     - "5222:5222"
+     - "7777:7777"
+    # volumes:
+    #   - ../iottly-xmpp-broker/dev_openfire_data:/var/lib/openfire
+
+
+  iottlyagentinstallers:
+    build:
+      context: ../iottly-device-agent-py
+      dockerfile: Dockerfile-installers
+    command: /bin/true
+    volumes: 
+     - /iottly-device-agent-py-installers
+
+  iottlyconsole:
+    build:
+      context: ../iottly-console
+      dockerfile: Dockerfile-staticvolume
+    volumes: 
+     - /iottly_console
+    command: /bin/true
+
+  iottlyfwsnippettpl:
+    build:
+      context: ../iottly-core
+      dockerfile: Dockerfile-fwsnippettpls
+    command: /bin/true
+    volumes:
+    - /fw-snippet-tpl
+
+  iottlycore:
+    build: ../iottly-core/.
+    volumes_from: 
+     - iottlyconsole
+     - iottlyagentinstallers
+     - iottlyfwsnippettpl
+    environment:
+      - PUBLIC_HOST=${API_HOSTNAME}
+      - PUBLIC_XMPP_HOST=${BROKER_HOSTNAME}
+      - PUBLIC_HOST_PORT_PATTERN={}
+      - XMPP_MGMT_REST_SECRET=${XMPP_MGMT_REST_SECRET}
+      - XMPP_PASSWORD=${XMPP_PASSWORD}
+      - PUBLIC_URL_PATTERN=https://{}/{}
+      - IOTTLY_REGISTRATION_PROTOCOL=https
+      - XMPP_DOMAIN=${XMPP_DOMAIN}
+      - XMPP_USER=${XMPP_USER}
+    volumes:
+      - fw:/var/iottly-core/uploads/fw/
+      - coderepo:/var/iottly-core/coderepo/
+
+
+  iottlyclientui:
+    build: ../iottly-client-UI/.
+    volumes: 
+     - /iottly_client_UI
+    command: /bin/true
+
+
+  iottlyclientcore:
+    build: ../iottly-client-core/.
+    ports:
+     - "8521:8521"
+    volumes_from: 
+     - iottlyclientui
+
+  certificates:
+    image: ubuntu
+    volumes:
+      - ../iottly-http-load-balancer/iottly-letsencrypt/letsencrypt/etc/letsencrypt:/etc/letsencrypt
+    command: /bin/true
+
+  iottlyhttploadbalancer:
+    build: ../iottly-http-load-balancer/.
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes: 
+     - /usr/share/nginx/html/
+    volumes_from: 
+      - iottlyconsole
+      - certificates
+    depends_on:
+      - iottlycore
+      - xmppbroker
+
+volumes:
+  fw:
+    external: false
+  coderepo:
+    external: false

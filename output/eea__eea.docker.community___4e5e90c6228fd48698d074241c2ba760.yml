@@ -1,0 +1,98 @@
+apache:
+  restart: always
+  image: eeacms/apache:2.4s
+  links:
+  - haproxy
+  ports:
+  - "7070:80"
+  env_file:
+  - apache.env
+  volumes:
+  - /etc/localtime:/etc/localtime:ro
+
+#  log_driver: "gelf"
+#  log_opt:
+#    address: "udp://swarm01-eeasites.eea.europa.eu:12201"
+
+haproxy:
+  restart: always
+  image: eeacms/haproxy:1.6
+  links:
+  - www1
+  - www2
+  volumes:
+  - /etc/localtime:/etc/localtime:ro
+  environment:
+  - BACKENDS=www1 www2
+  - BACKENDS_PORT=8080
+
+#  log_driver: "gelf"
+#  log_opt:
+#    address: "udp://swarm01-eeasites.eea.europa.eu:12201"
+
+postfix:
+  restart: always
+  image: eeacms/postfix:eionet
+  volumes:
+  - /etc/localtime:/etc/localtime:ro
+  env_file:
+  - .postfix.secret
+  volumes:
+  - /etc/localtime:/etc/localtime:ro
+
+#  log_driver: "gelf"
+#  log_opt:
+#    address: "udp://swarm01-eeasites.eea.europa.eu:12201"
+
+www1:
+  restart: always
+  image: eeacms/cynin
+  links:
+  - zeo
+  - postfix
+  volumes:
+  - /etc/localtime:/etc/localtime:ro
+  environment:
+  - SERVICES=zope
+
+#  log_driver: "gelf"
+#  log_opt:
+#    address: "udp://swarm01-eeasites.eea.europa.eu:12201"
+
+
+www2:
+  restart: always
+  image: eeacms/cynin
+  links:
+  - zeo
+  - postfix
+  volumes:
+  - /etc/localtime:/etc/localtime:ro
+  environment:
+  - SERVICES=zope
+
+#  log_driver: "gelf"
+#  log_opt:
+#    address: "udp://swarm01-eeasites.eea.europa.eu:12201"
+
+
+zeo:
+  restart: always
+  image: eeacms/cynin
+  volumes_from:
+  - data
+  volumes:
+  - /etc/localtime:/etc/localtime:ro
+  environment:
+  - SERVICES=zeo
+
+#  log_driver: "gelf"
+#  log_opt:
+#    address: "udp://swarm01-eeasites.eea.europa.eu:12201"
+
+data:
+  image: busybox
+  volumes:
+  - /var/local/community.eea.europa.eu/var/filestorage
+  - /var/local/community.eea.europa.eu/var/blobstorage
+  command: ["chown", "-v", "-R", "500:500", "/var/local/community.eea.europa.eu"]

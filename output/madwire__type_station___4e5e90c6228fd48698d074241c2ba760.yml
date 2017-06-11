@@ -1,0 +1,16 @@
+db:
+  image: mongo
+  command: mongod --smallfiles
+  ports:
+    - "27017"
+    - "28017"
+web:
+  build: .
+  command: bash run.sh
+  env_file: .env
+  volumes:
+    - .:/workspace
+  ports:
+    - "3000:3000"
+  links:
+    - db

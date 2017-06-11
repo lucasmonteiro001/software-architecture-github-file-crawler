@@ -1,0 +1,13 @@
+app:
+  build: .
+  dockerfile: Dockerfile.run
+  ports:
+    - "9999:9999"
+  ulimits:
+    nofile:
+      soft: 1048576
+      hard: 1048576
+  environment:
+    TCPDAM_REMOTE_ADDRESS: "httpbin.com:80"
+    TCPDAM_DEBUG: "1"
+    TCPDAM_MAX_FLUSHING: "1"

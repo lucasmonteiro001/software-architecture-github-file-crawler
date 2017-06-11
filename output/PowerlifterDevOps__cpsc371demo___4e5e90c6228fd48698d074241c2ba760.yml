@@ -1,0 +1,11 @@
+version: '2'
+services:
+ foo:
+  image: powerlifter/cpsc371demo
+  entrypoint:
+   - /doit
+   - foo
+   - bar
+   - duff
+   - fudd
+

@@ -1,0 +1,28 @@
+version: '2'
+services:
+  ds:
+    build: ./dsDockerfiles/ds
+    volumes:
+      - .:/usr/src/app
+    ports:
+      - "8001:8000"
+    depends_on:
+      - elastic
+      - celery
+  elastic:
+    build: ./dsDockerfiles/es
+    volumes:
+      - ./es/data:/usr/share/elasticsearch/data
+      - ./es/logs:/usr/share/elasticsearch/logs
+    ports:
+      - "19200:9200"
+  redis:
+    image: redis
+  celery:
+    build: ./dsDockerfiles/celery
+    volumes:
+      - .:/home/user
+    command: celery  -A DocumentSearch worker
+    depends_on:
+      - redis
+      - elastic

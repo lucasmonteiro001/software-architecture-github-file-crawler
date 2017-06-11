@@ -1,0 +1,39 @@
+# the database is expected to already exist, use
+# a command like this to prime a new one:
+# docker run -name abdata tacodata/abroute-docker-postgres abinit
+# it must exist, not be running, and be named abdata
+# this isn't the way to do it, but, I can't figure out
+# any other ways to compose it.
+# you could:
+# docker-compose -f abinit.yml up
+# then mount the volume, probably a better way, but it requires more than one 'compose' step
+abdata:
+  image: tacodata/abroute-docker-db
+  # expose only maps the port to a linked container.
+  # ports will do expose, + the port is mapped to the host
+  expose:
+    - "8000"
+  # this image has an ENTRYPOINT, we can
+  # pass a command which ends up being an argument
+  # this argument indicates what port to monitor
+  command: "8000"
+pg:
+  image: tacodata/abroute-docker-postgres
+  links:
+    - abdata
+  volumes_from:
+    - abdata
+  command: absql
+router:
+  image: tacodata/abroute-docker-autobahn
+  ports:
+    - "8080:8080"
+  links:
+    - pg
+rpc:
+  image: tacodata/abroute-docker-rpc
+  links:
+    - router
+
+# here is a sample command:
+# docker run -it --link abroutedocker_router_1:router tacodata/abroute-docker-adm -u sys -s 123test user list

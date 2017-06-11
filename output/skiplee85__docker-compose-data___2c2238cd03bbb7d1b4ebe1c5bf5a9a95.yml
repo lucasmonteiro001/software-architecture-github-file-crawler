@@ -1,0 +1,31 @@
+version: '2'
+
+services:
+  php-fpm:
+    image: myphp:7.0
+    # image: myphp5.6
+    volumes:
+      - /www:/www
+      - /root/.ssh:/root/.ssh
+      - ./conf/php-fpm.conf:/usr/local/etc/php-fpm.conf
+      # - ./conf/php.ini-development:/usr/local/etc/php/php.ini
+      - ./conf/php.ini-production:/usr/local/etc/php/php.ini
+    expose:
+      - 9000
+  openresty:
+    image: openresty
+    volumes:
+      - ./conf/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf
+      - ./conf/vhost:/usr/local/openresty/nginx/conf/vhost
+      - /srv/docker/openresty/logs:/usr/local/openresty/nginx/logs
+    volumes_from:
+      - php-fpm
+    links:
+      - php-fpm
+    ports:
+      - 80-89:80-89
+
+networks:
+  default:
+    external:
+      name: network_default

@@ -1,0 +1,14 @@
+web:
+  restart: always
+  build: .
+  ports:
+    - "3000:3000"
+  volumes:
+    - ~/.stats/upload:/usr/src/app/upload
+  links:
+    - mongo
+mongo:
+  restart: always
+  image: mongo
+  volumes:
+    - mongodata:/data/db

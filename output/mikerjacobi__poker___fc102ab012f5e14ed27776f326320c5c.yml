@@ -1,0 +1,45 @@
+echo:
+    build: .
+    ports:
+        - "8004:80"
+    volumes:
+        - /etc/ssl:/etc/ssl
+        - /home/jacobi/.gvm/pkgsets/go1.5/global:/gopath
+    environment:
+        GOPATH: /gopath
+    working_dir: /gopath/src/github.com/mikerjacobi/poker/server
+    links:
+        - mongo
+mongo:
+    image: mongo
+    volumes:
+      - ./fixtures:/fixtures
+
+hub:
+  image: selenium/hub
+  ports:
+    - "4444:4444"
+  environment:
+    TIMEOUT: 0
+    GRID_TIMEOUT: 0
+    GRID_BROWSER_TIMEOUT: 0
+
+chrome:
+  image: selenium/node-chrome
+  links:
+    - hub:hub
+  extra_hosts:
+    dev: 192.168.8.88
+  volumes:
+    - ./selnode-config.json:/opt/selenium/config.json
+
+pdiff:
+  image: pdiff
+  ports:
+    - "9000:9000"
+
+#dpxdt:
+#    image: dpxdt
+#    ports:
+#        - "8015:5000"
+#

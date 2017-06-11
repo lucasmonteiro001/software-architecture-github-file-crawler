@@ -1,0 +1,26 @@
+version: '2'
+services:
+  chatbot:
+    build: ./chatbot
+    external_links:
+     - flask:flask
+    volumes:
+      - ./chatbot/app:/usr/src/app/app
+    working_dir: /usr/src/app
+    environment:
+      - token=${token}
+    entrypoint:
+      - node
+      - app/server.js
+  flask:
+    build: ./flask
+    ports:
+     - "5000:5000"
+    external_links:
+     - some-postgres:postgres
+  some-postgres:
+    image: postgres:alpine
+    environment:
+      - POSTGRES_PASSWORD=mysecretpassword
+
+

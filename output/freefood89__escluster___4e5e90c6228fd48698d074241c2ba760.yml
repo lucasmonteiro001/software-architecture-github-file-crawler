@@ -1,0 +1,12 @@
+es1:
+  image: elasticsearch
+  net: "host"
+es2:
+  image: elasticsearch
+  net: "host"
+es3:
+  image: elasticsearch
+  net: "host"
+kibana:
+  image: kibana
+  net: "host"

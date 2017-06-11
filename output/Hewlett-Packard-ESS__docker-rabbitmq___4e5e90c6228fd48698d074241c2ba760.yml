@@ -1,0 +1,36 @@
+rabbit1:
+  image: hpess/rabbitmq:master
+  restart: always
+  hostname: rabbit1
+  environment:
+    - erlang_cookie=myerlangcookie
+  ports:
+    - "5672:5672"
+    - "15672:15672"
+
+rabbit2:
+  image: hpess/rabbitmq:master
+  restart: always
+  hostname: rabbit2
+  links:
+    - rabbit1
+  environment: 
+   - clustered_with=rabbit1
+   - ram_node=true
+   - erlang_cookie=myerlangcookie
+  ports:
+    - "5673:5672"
+    - "15673:15672"
+
+rabbit3:
+  image: hpess/rabbitmq:master
+  restart: always
+  hostname: rabbit3
+  links:
+    - rabbit1
+    - rabbit2
+  environment: 
+   - clustered_with=rabbit1   
+   - erlang_cookie=myerlangcookie
+  ports:
+    - "5674:5672"

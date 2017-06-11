@@ -1,0 +1,9 @@
+pogobot:
+    build: .
+    privileged: true
+    env_file: 
+     - ./pogobot.env.default
+    ports:
+     - 8001:8001
+    volumes:
+     - /etc/localtime:/etc/localtime:ro

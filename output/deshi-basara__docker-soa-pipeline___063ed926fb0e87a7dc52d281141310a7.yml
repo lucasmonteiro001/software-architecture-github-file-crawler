@@ -1,0 +1,46 @@
+rabbitmq:
+  image: rabbitmq:3-management
+  ports:
+    - 5672
+    - 15672
+  environment:
+    RABBITMQ_DEFAULT_USER: &amqp_user "user"
+    RABBITMQ_DEFAULT_PASS: &amqp_pass "dummy"
+
+redis:
+  image: redis:3-alpine
+  ports:
+    - 6379
+
+fake-s3:
+  image: lphoward/fake-s3
+  ports:
+    - 4569
+
+image-service:
+  image: image-service-image
+  links:
+    - "rabbitmq:amqp"
+    - "fake-s3:s3"
+    - "redis:redis"
+  environment:
+    AMQP_USER: *amqp_user
+    AMQP_PASSWORD: *amqp_pass
+    REDIS_PASSWORD: ""
+    REDIS_DATABASE: 0
+    REDIS_PREFIX: soa
+    S3_ACCESS_KEY_ID: uTML2cGACYmWTUzVzD3DCCJ87reTlHN5
+    S3_SECRET_ACCESS_KEY: vlGb0Q2E2ovux1yyVYVSWWLv3HqvhVMLwQuonOIUBBbvSucSjeIwO4L7CTeso8EH
+    S3_REGION: eu-central-1
+    S3_FAILOVER_BUCKET: failover-bucket-development
+    THUMBNAIL_HEIGHT: 250
+
+dispatch-service:
+  image: dispatcher-service-image
+  links:
+    - "rabbitmq:amqp"
+  ports:
+    - 8000
+  environment:
+    AMQP_USER: *amqp_user
+    AMQP_PASSWORD: *amqp_pass

@@ -1,0 +1,4 @@
+application:
+  build: docker/application
+  volumes:
+    - ./code:/var/www

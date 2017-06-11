@@ -1,0 +1,22 @@
+version: "2"
+
+networks:
+  net:
+
+services:
+  db:
+    build: ./db
+    networks:
+      - net
+  backend:
+    build: ./backend
+    ports:
+      - "8080:8080"
+    networks:
+      - net
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    networks:
+      - net

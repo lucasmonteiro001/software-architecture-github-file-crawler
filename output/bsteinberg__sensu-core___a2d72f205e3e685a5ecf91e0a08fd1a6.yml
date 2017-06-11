@@ -1,0 +1,15 @@
+sensu:
+    image: bsteinberg/sensu-core:latest
+    ports:
+        - "4567:4567"
+    links:
+        - redis
+        - rabbitmq
+rabbitmq:
+    image: rabbitmq:3.5
+    environment:
+        - RABBITMQ_DEFAULT_VHOST=/
+        - RABBITMQ_DEFAULT_USER=guest
+        - RABBITMQ_DEFAULT_PASS=guest
+redis:
+    image: redis:3.0

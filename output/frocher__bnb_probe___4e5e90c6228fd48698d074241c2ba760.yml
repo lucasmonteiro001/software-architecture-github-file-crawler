@@ -1,0 +1,11 @@
+probe:
+  build: .
+  container_name: botnbot_probe
+  command: bundle exec rails s -p 3000 -b '0.0.0.0'
+  volumes:
+    - .:/bnb_probe
+  ports:
+    - "3333:3000"
+  environment:
+    - RAILS_ENV=production
+    - PROBE_BROWSER=firefox

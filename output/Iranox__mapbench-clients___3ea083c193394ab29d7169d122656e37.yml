@@ -1,0 +1,20 @@
+version: '2'
+services:
+  ontopeins:
+    build: ../../../single-server/ontop/ontop
+    ports:
+      - "3007:8080"
+    volumes:
+      - ./../../../mysql-horziontal/semagrow/ontop-mapping:/ontop
+  ontopzwei:
+    build: ../../../single-server/ontop/ontop
+    ports:
+      - "3008:8080"
+    volumes:
+      - ./../../../mysql-horziontal/semagrow/ontop-mapping_zwei:/ontop
+  semagrow-server:
+    image: semagrow/semagrow
+    ports:
+      - "8090:8080"
+    volumes:
+      - ./../../../mysql-horziontal/semagrow/semagrow:/etc/default/semagrow

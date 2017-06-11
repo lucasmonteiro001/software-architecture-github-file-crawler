@@ -1,0 +1,38 @@
+php:
+  build: magento-php-5.5-apache
+  links:
+    - "mysql:mysql"
+    - "mailcatcher:my_smtp"
+  ports:
+    - "80:80"
+    - "443:443"
+  volumes:
+    - ./sources:/var/www
+  environment:
+    DOMAIN_NAME: "magento.local"
+php-tools:
+  build: magento-php-5.5-tools
+  links:
+    - "mysql:mysql"
+    - "mailcatcher:my_smtp"
+  volumes:
+    - ./sources:/var/www
+    - ~/.ssh:/root/.ssh
+    - ~/.composer:/root/.composer
+    - ~/.gitconfig:/root/.gitconfig
+    - $SSH_AUTH_SOCK:/tmp/agent.sock
+  environment:
+    SSH_AUTH_SOCK: "/tmp/agent.sock"
+mysql:
+  image: mysql:5.5
+  ports:
+    - "3306:3306"
+  environment:
+    MYSQL_ROOT_PASSWORD: rootPwd
+    MYSQL_DATABASE: magento
+    MYSQL_USER: magento
+    MYSQL_PASSWORD: magentoDbPwd123
+mailcatcher:
+  image: jderusse/mailcatcher
+  ports:
+    - "1080:80"

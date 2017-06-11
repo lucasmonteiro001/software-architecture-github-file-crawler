@@ -1,0 +1,6 @@
+helloworld-app:
+  ports:
+  - 8080/tcp
+  tty: true
+  image: adejonge/helloworld
+  stdin_open: true

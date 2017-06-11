@@ -1,0 +1,41 @@
+data:
+    build: ./app/config/docker/
+    volumes:
+        - .:/srv
+
+nginx:
+    image: roukmoute/sf-bootstrap-nginx
+    volumes_from:
+        - data
+    volumes:
+        - ./app/config/docker/nginx_vhost.conf:/etc/nginx/sites-enabled/my_app.conf
+    links:
+        - php5
+    env_file:
+        - ./app/config/docker/docker-compose.env
+    environment:
+        - DNSDOCK_IMAGE=web
+        - SSH_AUTH_SOCK=/tmp/agent.sock
+
+php5:
+    build: roukmoute/sf-bootstrap-php5
+    links:
+        - pgsql
+        - elasticsearch
+    volumes_from:
+        - data
+    env_file:
+        - ./app/config/docker/docker-compose.env
+
+pgsql:
+    image: postgres:9.4
+    env_file:
+        - ./app/config/docker/docker-compose.env
+    ports:
+        - "5432:5432"
+
+elasticsearch:
+  image: roukmoute/sf-bootstrap-elasticsearch1
+  ports:
+    - "9200:9200"
+    - "9300:9300"

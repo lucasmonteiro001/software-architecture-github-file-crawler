@@ -1,0 +1,130 @@
+version: '2'
+
+networks:
+
+    frontend:
+
+volumes:
+
+    influxdb_data:
+    plex_config:
+
+services:
+
+    traefik-public:
+        image: traefik
+        restart: always
+        command: --web --file --logLevel=DEBUG
+        depends_on:
+            - homeassistant
+        networks:
+            - frontend
+        ports:
+            - "20080:80"
+            - "20443:443"
+            - "20081:8080"
+        volumes:
+            - "/var/run/docker.sock:/var/run/docker.sock"
+            - "$PWD/traefik-public.toml:/traefik.toml:ro"
+            - "/mnt/volumes/_certs:/certs:ro"
+            - "/mnt/volumes/traefik/acme:/etc/traefik/acme"
+
+    traefik-private:
+        image: traefik
+        restart: always
+        command: --web --file --logLevel=DEBUG
+        depends_on:
+            - homeassistant
+            - rundeck
+        networks:
+            - "frontend"
+        ports:
+            - "80:80"
+            - "443:443"
+            - "8081:8080"
+        volumes:
+            - "/var/run/docker.sock:/var/run/docker.sock"
+            - "$PWD/traefik-private.toml:/traefik.toml:ro"
+            - "/mnt/volumes/_certs:/certs:ro"
+
+    grafana:
+        image: grafana/grafana
+        restart: always
+        depends_on:
+            - influxdb
+        networks:
+            - "frontend"
+        expose:
+            - "3000"
+        environment:
+            - "GF_SERVER_ROOT_URL=https://grafana.apps.home"
+        env_file: ./secrets.env
+
+    homeassistant:
+        image: homeassistant/home-assistant
+        restart: always
+        depends_on:
+            - influxdb
+        network_mode: host
+        ports:
+            - "8123:8123"
+        volumes:
+            - "/mnt/volumes/homeassistant/config:/config"
+            - "/etc/localtime:/etc/localtime:ro"
+        devices:
+            - "/dev/ttyACM0:/dev/ttyACM0"
+        env_file: ./secrets.env
+
+    influxdb:
+        image: influxdb:alpine
+        restart: always
+        network_mode: host
+        ports:
+            - "8083:8083"
+            - "8086:8086"
+        volumes:
+            - "influxdb_data:/var/lib/influxdb"
+
+    #ozwcp:
+    #    image: n5qm/ozwcp
+    #    restart: never
+    #    networks:
+    #        - "frontend"
+    #    expose:
+    #        - "8090"
+    #    ports:
+    #        - "8090:8090"
+    #    devices:
+    #        - "/dev/ttyACM0:/dev/ttyACM0"
+
+    plex:
+        image: timhaak/plex 
+        restart: always
+        network_mode: host
+        env_file: ./secrets.env
+        ports:
+            - "32400:32400"
+            - "33400:33400"
+        volumes:
+            - "plex_config:/config"
+            - "/mnt/media:/data"
+
+    rundeck:
+        image: jinglemansweep/rundeck
+        restart: always
+        network_mode: host
+        ports:
+            - "4440:4440"
+        volumes:
+            - "$PWD/ansible:/etc/ansible"
+            - "/mnt/volumes/rundeck/etc:/etc/rundeck"
+            - "/mnt/volumes/rundeck/ssh:/var/lib/rundeck/.ssh"
+            - "/mnt/volumes/rundeck/mysql:/var/lib/mysql"
+            - "/mnt/volumes/rundeck/logs:/var/log/rundeck"
+            - "/mnt/volumes/rundeck/plugins:/opt/rundeck-plugins"
+            - "/mnt/volumes/rundeck/projects:/var/rundeck/projects"
+            - "/mnt/volumes/rundeck/storage:/var/lib/rundeck/var/storage"
+        environment:
+            - "SERVER_URL=https://rundeck.apps.home"
+        env_file: ./secrets.env
+

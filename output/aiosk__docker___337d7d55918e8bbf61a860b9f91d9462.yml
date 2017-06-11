@@ -1,0 +1,14 @@
+---
+services:
+  serviio:
+    build: .
+    network_mode: "host"
+    volumes:
+      - /mnt/data:/mnt/media
+      - ./serviio-1.8:/root/serviio-1.8:rw
+      - ./library:/root/serviio-1.8/library:rw
+      - ./log:/root/serviio-1.8/log:rw
+    restart: unless-stopped
+    entrypoint: sh
+    command: -c "/root/serviio-1.8/bin/serviio.sh & /root/serviio-1.8/bin/serviio-console.sh & tail -f /dev/null"
+version: "2"

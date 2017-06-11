@@ -1,0 +1,42 @@
+web:
+    image: nginx
+    volumes:
+        - ./config/nginx/sites-enabled:/etc/nginx/conf.d
+        - ../src:/srv
+        - ./utils:/utils
+    ports:
+        - 80:80
+    links:
+        - php
+
+php:
+    build: images/php
+    ports:
+        - 9000:9000
+    volumes:
+        - ../src:/srv
+        - ./utils:/utils
+    links:
+        - db
+        - maildev
+
+data:
+    build: images/data
+
+db:
+    image: mysql
+    ports:
+        - 3306:3306
+    volumes_from:
+        - data
+    environment:
+        - MYSQL_ROOT_PASSWORD=root
+        - MYSQL_DATABASE=database
+        - MYSQL_USER=database-user
+        - MYSQL_PASSWORD=password
+
+maildev:
+    image: djfarrelly/maildev
+    ports:
+        - 1080:80
+        - 1025:25

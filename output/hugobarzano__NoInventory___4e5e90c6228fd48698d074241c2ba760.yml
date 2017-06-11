@@ -1,0 +1,37 @@
+db:
+  image: hugobarzano/noinventory:mongo
+  volumes:
+    - db:/data/db
+
+  command: sh -c "ifconfig && sudo service mongodb restart && echo entrando sleppe && sleep 600 && echo saliendo sleep"
+
+  #command: sh -c "rm /var/lib/mongodb"
+  #command: sh -c "cd /var/lib/ && ls -la"
+  #command: sh -c "sudo service mongodb restart"
+  ports:
+    - "27017:27017"
+
+  #command: sh -c "cd /etc/ && ls -la"
+  #command: sh -c "iptables -A INPUT -p tcp --dport 27017 -j ACCEPT"
+
+  #command: sh -c "ls -la ~/"
+  #command: sh -c "sed -i 's/^bind_ip = 127.0.0.1/bind_ip = 0.0.0.0/g' /etc/mongod.conf"
+  #command: sh -c "sudo -i echo bind_ip = 0.0.0.0 >> /etc/mongod.conf.orig"
+  #command: sh -c "sed 's/bind_ip = 127.0.0.1/#bind_ip = 127.0.0.1/g'  /etc/mongod.conf.orig"
+  #command: sh -c "cd /etc/ && cat mongod.conf.orig"
+
+
+web:
+  image: hugobarzano/noinventory:app
+  command: sh -c "cd /NoInventory && python manage.py makemigrations --noinput"
+  command: sh -c "cd /NoInventory && python manage.py migrate --noinput"
+  command: sh -c "cd /NoInventory && python manage.py syncdb --noinput"
+  command: sh -c "ifconfig && sleep 20 && cd /NoInventory && sudo python manage.py runserver 0.0.0.0:80"
+
+  ports:
+    - "80:80"
+    - "11923:11923"
+  links:
+    - db
+  environment:
+    - COMPOSE=true

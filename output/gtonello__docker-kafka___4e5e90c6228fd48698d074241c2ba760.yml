@@ -1,0 +1,11 @@
+zookeeper:
+  image: gtonello/zookeeper
+  ports:
+    - "2181"
+kafka:
+  build: .
+  ports:
+    - "9092"
+  links:
+    - zookeeper:latest
+

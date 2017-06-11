@@ -1,0 +1,22 @@
+version: '2'
+services:
+    db:
+        image: ilios/mysql:v3.32.0
+        environment:
+            - MYSQL_USER=ilios
+            - MYSQL_PASSWORD=ilios
+            - MYSQL_DATABASE=ilios
+            - MYSQL_RANDOM_ROOT_PASSWORD=false
+            - MYSQL_ROOT_PASSWORD=1234root5678
+        ports:
+            - "17103:3306"
+    php:
+        image: ilios/php:v3.32.0
+        expose:
+            - "9000"
+    web:
+        image: ilios/nginx:v3.32.0
+        ports:
+            - "8000:80"
+        volumes:
+            - ./logs:/var/www/ilios/var/logs:rw

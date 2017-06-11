@@ -1,0 +1,12 @@
+version: '2'
+
+services:
+
+  squid:
+    image: sameersbn/squid
+    ports:
+      - "80:80"
+    volumes:
+      - "./etc/squid3/squid.conf:/etc/squid3/squid.conf"
+      - "./var/spool/squid3:/var/spool/squid3"
+    restart: always

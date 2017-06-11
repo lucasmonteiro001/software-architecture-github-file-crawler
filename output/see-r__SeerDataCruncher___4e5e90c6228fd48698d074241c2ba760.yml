@@ -1,0 +1,24 @@
+version: '2'
+services:
+  web:
+    image: altimario/seerdatacruncher
+    ports:
+     - 80:8080
+    volumes:
+     - ./data/logs:/opt/tomcat/logs
+    links:
+     - mysql
+     - mongo
+
+  mysql:
+    image: mysql
+    volumes:
+       - ./data/mysql:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: temporary
+      MYSQL_DATABASE: datacruncher
+
+  mongo:
+    image: mongo
+    volumes:
+     - ./data/mongo:/data/db

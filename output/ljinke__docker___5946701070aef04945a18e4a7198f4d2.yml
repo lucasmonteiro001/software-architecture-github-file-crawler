@@ -1,0 +1,17 @@
+web:
+  build: ../../images/cassie/
+  ports:
+   - "3000:3000"
+  volumes:
+   - .:/code
+  links:
+   - mysql
+mysql:
+  image: mysql
+  ports:
+   - "3306:3306"
+report:
+  build: ../../images/gemini/
+  port:
+document:
+  build: 

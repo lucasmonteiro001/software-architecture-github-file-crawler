@@ -1,0 +1,64 @@
+version: "3"
+
+services:
+  loadbalancer:
+    image: dockercloud/haproxy
+    ports:
+      - 5000:80
+    links:
+      - vote
+    networks:
+      - front-tier
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+  
+  vote:
+    build: ./vote
+    command: python app.py
+    volumes:
+      - ./vote:/app
+    ports:
+      - 80
+    networks:
+      - front-tier
+      - back-tier
+
+  result:
+    build: ./result
+    command: nodemon --debug server.js
+    volumes:
+      - ./result:/app
+    ports:
+      - "5001:80"
+      - "5858:5858"
+    networks:
+      - front-tier
+      - back-tier
+
+  worker:
+    build:
+      context: ./worker
+    networks:
+      - back-tier
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    ports: ["6379"]
+    networks:
+      - back-tier
+
+  db:
+    image: postgres:9.4
+    container_name: db
+    volumes:
+      - "db-data:/var/lib/postgresql/data"
+    networks:
+      - back-tier
+
+volumes:
+  db-data:
+
+networks:
+  front-tier:
+  back-tier:

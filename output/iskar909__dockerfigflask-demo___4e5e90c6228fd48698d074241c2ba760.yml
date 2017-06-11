@@ -1,0 +1,26 @@
+web1:
+  build: app/
+  ports:
+  - "5001:5000"
+  links:
+  - "redis"
+web2:
+  build: app/
+  ports:
+  - "5002:5000"
+  links:
+  - "redis"
+web3:
+  build: app/
+  ports:
+  - "5003:5000"
+  links:
+  - "redis"
+web4:
+  build: app/
+  ports:
+  - "5004:5000"
+  links:
+  - "redis"
+redis:
+  image: orchardup/redis

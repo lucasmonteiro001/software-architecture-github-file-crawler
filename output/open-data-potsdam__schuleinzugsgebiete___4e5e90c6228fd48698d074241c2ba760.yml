@@ -1,0 +1,42 @@
+version: '2'
+services:
+  app:
+    build:
+      context: .
+
+  dev:
+    extends:
+      service: app
+    ports:
+      - '3000:3000'
+    environment:
+      - PORT=3000
+      - NODE_ENV=development
+    volumes:
+      - ./package.json:/schuleinzugsgebiete/package.json
+      - ./lib:/schuleinzugsgebiete/lib
+      - ./templates:/schuleinzugsgebiete/templates
+      - ./data:/schuleinzugsgebiete/data
+      - ./public/css:/schuleinzugsgebiete/public/css
+      - ./public/js:/schuleinzugsgebiete/public/js
+    command: npm run-script dev
+
+  watch-css:
+    extends:
+      service: app
+    volumes:
+      - ./package.json:/schuleinzugsgebiete/package.json
+      - ./less:/schuleinzugsgebiete/less
+      - ./public/css:/schuleinzugsgebiete/public/css
+    user: root
+    command: npm run-script watch-css
+
+  watch-js:
+    extends:
+      service: app
+    volumes:
+      - ./package.json:/schuleinzugsgebiete/package.json
+      - ./js:/schuleinzugsgebiete/js
+      - ./public/js:/schuleinzugsgebiete/public/js
+    user: root
+    command: npm run-script watch-js

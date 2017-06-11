@@ -1,0 +1,41 @@
+version: "2"
+
+services:
+  db:
+    image: mytoolbox/postgres
+    environment:
+      - POSTGRES_USER=afpauser
+      - POSTGRES_PASSWORD=password
+    expose:
+      - 5432
+
+  wiki:
+    image: mytoolbox/wiki
+    links:
+      - db
+    environment:
+      - PLAY_CRYPTO_SECRET="6CTf:G3gf:90Latabg@5241AB/R5W:1uDFN];Ik@nQCY?tAnfk?aZ?iwrNwnxIlR"
+    ports:
+      - 9010:9000
+
+  ipbase:
+    image: mytoolbox/ipbase
+    links:
+      - db
+    environment:
+      - PLAY_CRYPTO_SECRET="QCY?tAnfk?aZ?iwrNwnxIlR6CTf:G3gf:90Latabg@5241AB/R5W:1uDFN];Ik@n"
+    ports:
+      - 9011:9000
+
+  ui:
+    image: mytoolbox/ui
+    links:
+      - wiki
+      - ipbase
+    environment:
+      - WIKI_URL=wiki:9000
+      - IPBASE_URL=ipbase:9000
+    expose:
+      - 80
+    ports:
+      - 80:80

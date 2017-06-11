@@ -1,0 +1,27 @@
+version: '2'
+services:
+  db:
+    image: postgres:9.5.4
+    ports:
+      - "5555:5432"
+    volumes:
+      - ~/docker/volumes/postgres95:/var/lib/postgresql/data
+
+  web:
+    build: .
+    command: ./script/docker/start
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/little-brother
+    volumes_from:
+      - bundle
+    links:
+      - db
+    depends_on:
+      - bundle
+
+  bundle:
+    image: busybox
+    volumes:
+      - /bundle_cache

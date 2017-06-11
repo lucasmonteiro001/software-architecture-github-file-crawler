@@ -1,0 +1,37 @@
+version: '2'
+services:
+
+  # Database (MySQL)
+  db:
+    image: mysql
+    environment:
+      MYSQL_ROOT_USER: root
+      MYSQL_ROOT_PASSWORD: ${TQ_DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: tq_website
+    ports:
+      - "${TQ_DB_PORT}:3306"
+    restart: always
+
+  # Cache
+  memcached:
+    image: memcached:1.4
+    restart: always
+
+  # Django (serving with gunicorn)
+  django:
+    build:
+      context: .
+      dockerfile: configurations/dockerfile-new
+    image: tq_website_django # give this built image a name to use it below
+    env_file:
+      - .env
+    user: root
+    volumes:
+      - .:/webapps/tq_website:Z
+    command: python3 manage.py runserver 0.0.0.0:8000
+    ports:
+      - "${TQ_DJANGO_PORT}:8000"
+    links:
+      - db
+      - memcached
+    restart: always

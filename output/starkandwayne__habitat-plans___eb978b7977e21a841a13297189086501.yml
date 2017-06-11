@@ -1,0 +1,13 @@
+version: '2'
+
+services:
+  standalone:
+    image: starkandwayne/varnish:edge
+    command: "start starkandwayne/varnish"
+  tests:
+    image: starkandwayne-varnish-tests
+    build: ./
+    environment:
+      STANDALONE_HOST: standalone
+      CLUSTER_HOST: varnish1
+      VARNISH_PORT: "8080"

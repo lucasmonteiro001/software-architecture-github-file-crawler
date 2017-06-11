@@ -1,0 +1,42 @@
+ce-ui:
+  build: ce-ui
+  volumes:
+    - ./ce-ui:/ce-ui
+  command: bash -c "cd ce-ui && npm install && bower install && gulp"
+  ports:
+    - '9000:9000'
+
+db:
+  image: postgres:9.3
+  expose:
+    - '5432'
+  ports:
+    - '5432:5432'
+  environment:
+    POSTGRES_PASSWORD: ce-pass
+    POSTGRES_USER: ce-user
+    POSTGRES_DB: ceDB
+
+ce-crud:
+  build: ce-crud
+  volumes:
+    - ./ce-crud:/ce-crud
+  command: bash -c "cd ce-crud && mvn spring-boot:run -Dspring.profiles.active='docker'"
+  links:
+    - db
+  environment:
+    POSTGRES_URI: 192.168.99.100:5432
+  ports:
+    - '8080:8080'
+
+ce-core:
+  build: ce-core
+  volumes: 
+    - ./ce-core:/ce-core
+  command: bash -c "cd ce-core && mvn spring-boot:run"
+  environment:
+    CE_CRUD_URL: http://192.168.99.100:8080/
+  links:
+    - ce-crud
+  ports:
+    - '8081:8081'

@@ -1,0 +1,53 @@
+version: "3"
+services:
+  cli:
+    build: ./
+    image: extensible
+    volumes:
+      - ./:/opt/app/:rw
+  coverage:
+    build: ./
+    command: ["bundle", "exec", "rake", "coverage:server"]
+    image: extensible
+    ports:
+      - 3000:3000
+    volumes:
+      - coverage:/opt/app/coverage/:ro
+  document:
+    build: ./
+    command: ["bundle", "exec", "rake", "rdoc:server"]
+    image: extensible
+    ports:
+      - 3001:3000
+    volumes:
+      - document:/opt/app/doc/:ro
+  guard:
+    build: ./
+    command: ["bundle", "exec", "guard", "-i"]
+    image: extensible
+    volumes:
+      - ./:/opt/app/:ro
+  rdoc:
+    build: ./
+    command: ["bundle", "exec", "rake", "rdoc"]
+    image: extensible
+    volumes:
+      - ./:/opt/app/:ro
+      - document:/opt/app/doc/:rw
+  release:
+    build: ./
+    command: ["bundle", "exec", "rake", "release:safe"]
+    image: extensible
+    volumes:
+      - ./:/opt/app/:rw
+      - ~/.ssh/:/root/.ssh/:ro
+  test:
+    build: ./
+    command: ["bundle", "exec", "rake", "coverage"]
+    image: extensible
+    volumes:
+      - ./:/opt/app/:ro
+      - coverage:/opt/app/coverage/:rw
+volumes:
+  coverage:
+  document:

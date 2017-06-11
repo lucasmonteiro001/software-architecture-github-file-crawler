@@ -1,0 +1,23 @@
+web:
+   build: .docker/web
+   ports:
+      - "80:80"
+   volumes:
+      - ./docroot:/var/www
+   links:
+      - db
+db:
+   build: .docker/db
+   ports:
+      - 3306:3306
+   environment:
+      - MYSQL_DB=drupal8
+      - MYSQL_USER=drupal
+      - MYSQL_PASS=thisisawesome
+cli:
+   build: .docker/cli
+   volumes:
+      - ./docroot:/var/www
+   links:
+      - db
+      - web

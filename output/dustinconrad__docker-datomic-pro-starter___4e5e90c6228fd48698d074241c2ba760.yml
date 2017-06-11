@@ -1,0 +1,17 @@
+datomicdb:
+  build: datomic-pro
+  hostname: datomic-db
+  ports:
+   - "4334:4334"
+   - "4335:4335"
+   - "4336:4336"
+  volumes:
+   - "datomic-pro/conf:/opt/datomic/conf:ro"
+   - "datomic-db-data:/opt/datomic-pro-0.9.5173/data"
+
+datomicconsole:
+  build: datomic-console
+  ports:
+   - "8989:8989"
+  links: 
+   - datomicdb

@@ -1,0 +1,13 @@
+web:
+  image: rxacevedo/clojure-todo-bootstrap
+  ports:
+    - 3000:3000
+  links:
+    - db
+  environment:
+    POSTGRES_PASSWORD: mysecretpassword
+  command: lein run 3000
+db:
+  image: postgres
+  environment:
+    POSTGRES_PASSWORD: mysecretpassword

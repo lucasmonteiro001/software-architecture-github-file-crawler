@@ -1,0 +1,8 @@
+version: "2"
+services:
+  web:
+    image: sqroot/sqroot.eu
+    build: .
+    ports:
+      - 8080:8080
+    user: "1400"

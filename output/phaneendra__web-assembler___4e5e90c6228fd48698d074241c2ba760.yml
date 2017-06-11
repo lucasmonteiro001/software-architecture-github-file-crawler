@@ -1,0 +1,36 @@
+version: '2'
+services:
+  webserver-nginx:
+    build: "./tools/nginx"
+    container_name: "webserver-nginx"
+    volumes:
+      - "./site/static:/var/www/:ro"
+  docker-gen:
+    image: jwilder/docker-gen
+    container_name: docker_gen
+    volumes:
+      - "/var/run/docker.sock:/tmp/docker.sock:ro"
+      - "./tools/nginx/etc/docker-gen/templates:/etc/docker-gen/templates:ro"
+    volumes_from:
+      - webserver-nginx
+    entrypoint: /usr/local/bin/docker-gen -notify-sighup webserver-nginx -watch -only-exposed -wait 5s:30s /etc/docker-gen/templates/nginx.tmpl /etc/nginx/conf.d/default.conf
+  nodejs:
+    build: ./tools/node-runtime
+    links:
+      - mariadb
+    ports:
+      - 3000:3000
+    volumes:
+      - ./site:/app/site # project root directory
+      - ./.bootstraprc:/app/.bootstraprc # TODO remove once PR for bootstrap loader is merged to npm.
+    environment:
+      - "NGINX_UPSTREAM=nodejs"
+      - "VIRTUAL_PORT=3000"
+  mongodb :
+    image: mvertes/alpine-mongo
+    ports:
+      - 27017:27017
+    volumes:
+      - data:/data/db
+volumes:
+  data: {}

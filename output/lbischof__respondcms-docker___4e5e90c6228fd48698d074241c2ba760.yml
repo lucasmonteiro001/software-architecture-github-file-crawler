@@ -1,0 +1,18 @@
+web:
+    build: .
+    ports:
+        - "8080:80"
+    links:
+        - db
+db:
+    image: mariadb
+    environment:
+        MYSQL_ROOT_PASSWORD: pass
+        MYSQL_DATABASE: respond
+proxy:
+    image: jwilder/nginx-proxy
+    volumes:
+        - /var/run/docker.sock:/tmp/docker.sock:ro
+    ports:
+        - "80:80"
+        - "443:443"

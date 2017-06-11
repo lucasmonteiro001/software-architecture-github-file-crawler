@@ -1,0 +1,13 @@
+version: '2'
+services:
+  <%= service_name %>:
+    build: .
+    image: <%= docker_user %>/<%= service_name %>
+    ports:
+      - "3000:3000"
+    environment:
+      - DEBUG=<%= service_name %>:*
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: [nodemon, ./bin/www]

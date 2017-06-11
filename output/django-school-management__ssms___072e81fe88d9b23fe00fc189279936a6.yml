@@ -1,0 +1,34 @@
+version: "3"
+services:
+  postgres:
+    container_name: ssms-db
+    image: "postgres:9"
+    environment:
+      - POSTGRES_USER=ssms_user
+      - POSTGRES_PASSWORD=ssms_pass
+      - POSTGRES_DB=ssms_db
+      - PGDATA=/var/lib/postgresql/data/ssms
+    volumes:
+      - ../pgdata:/var/lib/postgresql/data/ssms
+    ports:
+      - "5432:5432"
+  web:
+    container_name: ssms-web
+    build:
+      context: .
+    environment:
+      - PIP_DEFAULT_TIMEOUT=60
+      - SSMS_DATABASE_NAME=ssms
+      - SSMS_DATABASE_USER=ssms_user
+      - SSMS_DATABASE_PASS=ssms_pass
+      - SSMS_DATABASE_HOST=postgres
+      - SSMS_DATABASE_PORT=5432
+      - DJANGO_SETTINGS_MODULE=ssms.settings.local
+    volumes:
+      - ../ssms:/ssms
+    ports:
+      - "8000:8000"
+    links:
+      - postgres:postgres
+    working_dir: /ssms
+    entrypoint: make all && make run

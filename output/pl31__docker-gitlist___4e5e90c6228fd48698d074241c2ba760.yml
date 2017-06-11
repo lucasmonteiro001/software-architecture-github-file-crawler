@@ -1,0 +1,6 @@
+gitlist:
+  image: pl31/gitlist
+  volumes:
+  - <local_repositories>:/home/git/repositories
+  ports:
+  - "127.0.0.1:8080:80"

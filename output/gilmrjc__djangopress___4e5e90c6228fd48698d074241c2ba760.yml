@@ -1,0 +1,14 @@
+version: '2'
+
+services:
+  app:
+    restart: always
+    build: .
+
+  nginx:
+    restart: always
+    build: nginx
+    links:
+      - app:app
+    ports:
+      - "80:80"

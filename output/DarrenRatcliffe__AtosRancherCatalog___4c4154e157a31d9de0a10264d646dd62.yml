@@ -1,0 +1,4 @@
+fiware-iot-broker:
+  image: fiware/iotbroker
+  ports:
+    - ${public_port}:8060

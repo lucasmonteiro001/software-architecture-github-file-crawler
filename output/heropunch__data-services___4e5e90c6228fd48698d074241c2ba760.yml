@@ -1,0 +1,30 @@
+app:
+    build: .
+    restart: always
+    links:
+        - couchdb:couchdb
+        - redis:redis
+    command: app
+    volumes:
+        - ./src:/srv:ro
+    environment:
+        DEBUG: "1"
+    expose:
+        - 80
+celery_worker:
+    build: .
+    restart: always
+    links:
+        - couchdb:couchdb
+        - redis:redis
+    command: celery worker
+    volumes:
+        - ./src:/srv:ro
+    environment:
+        DEBUG: "1"
+redis:
+    image: heropunch/redis-server
+    restart: always
+couchdb:
+    image: klaemo/couchdb
+    restart: always

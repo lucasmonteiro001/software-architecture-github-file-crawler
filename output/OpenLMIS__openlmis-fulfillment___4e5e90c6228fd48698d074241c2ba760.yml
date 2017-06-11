@@ -1,0 +1,36 @@
+version: "2"
+services:
+
+  fulfillment:
+    image: openlmis/fulfillment
+    links:
+      - db
+      - log
+      - ftp
+    env_file: .env
+    volumes:
+      - '/tmp/openlmis/fulfillment/orders:/var/lib/openlmis/fulfillment/orders'
+
+  db:
+    image: openlmis/postgres:9.6
+    logging:
+      driver: syslog
+      options:
+        syslog-address: "tcp://localhost:514"
+        syslog-facility: "local1"
+    depends_on: [log]
+    env_file: .env
+
+  ftp:
+    image: hauptmedia/proftpd
+    ports:
+      - "21:21"
+      - "20:20"
+    env_file: .env
+
+  log:
+    image: openlmis/rsyslog:1
+    ports:
+      - "514:514"
+    volumes:
+      - '../logs/fulfillment:/var/log'

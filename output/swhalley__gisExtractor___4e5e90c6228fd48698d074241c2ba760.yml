@@ -1,0 +1,21 @@
+version: '2'
+services: 
+    postgis :
+        image: mdillon/postgis
+        container_name: gis_loader
+        environment: 
+            - POSTGRES_PASSWORD=password
+            - POSTGRES_USER=peidevs
+        ports: 
+            - "5432:5432"
+    frontend : 
+        build: .
+        container_name: gis_frontend
+        volumes: 
+            - /home/workspace/web/node_modules
+            - ./client:/home/workspace/web
+            - ./data:/home/workspace/data
+        ports : 
+            - "8080:5938"
+        depends_on: 
+            - postgis

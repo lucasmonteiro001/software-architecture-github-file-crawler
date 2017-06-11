@@ -1,0 +1,17 @@
+version: '2'
+
+services:
+
+  kata_books_phpfpm71:
+      build:
+          context: ./docker/phpfpm71
+      expose:
+          - 9000
+      volumes:
+          - ./:/var/www/kata_books
+          - ./docker/phpfpm71/php.timezone.ini:/usr/local/etc/php/conf.d/timezone.ini
+      working_dir: /var/www/kata_books
+
+  kata_books_composer:
+      build:
+          context: ./docker/composer71

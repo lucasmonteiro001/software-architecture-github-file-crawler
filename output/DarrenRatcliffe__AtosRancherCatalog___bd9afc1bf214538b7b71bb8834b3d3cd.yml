@@ -1,0 +1,5 @@
+fwidm:
+  image: fiware/idm
+  ports:
+    - ${horizon_port}:8000
+    - ${keystone_port}:5000

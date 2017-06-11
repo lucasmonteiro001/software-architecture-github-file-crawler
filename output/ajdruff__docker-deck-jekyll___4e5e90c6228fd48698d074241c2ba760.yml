@@ -1,0 +1,20 @@
+version: '2.1'
+#http://github.com/ajdruff/docker-deck-jekyll
+#docker-compose up
+
+    
+services:
+   jekyll:
+     build: 
+      context: docker/_build
+     image: jekyll/jekyll:pages_deck 
+     command: /usr/local/bin/deck-start.sh
+     volumes:
+       - ${JEKYLL_SOURCE:-jekyll_source}:/srv/jekyll
+       - ${JEKYLL_SITE:-jekyll_site}:/srv/jekyll/_site 
+     ports:
+      - ${JEKYLL_PORT:-80}:4000
+     restart: on-failure:2
+volumes:
+    jekyll_source:
+    jekyll_site:        

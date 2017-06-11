@@ -1,0 +1,81 @@
+database:
+  image: postgres:9.5
+  ports:
+    - 5432
+  environment:
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: password
+
+redis:
+  image: redis
+  ports:
+    - 6379
+
+platform:
+  build: .
+  command: ./script/app.sh
+  volumes:
+    - ./:/app
+    - /var/run/docker.sock:/var/run/docker.sock
+  labels:
+      - convox.port.443.protocol=tls
+      - convox.port.443.proxy=true
+  ports:
+      - 5000:5000
+      - 80:4000
+      - 443:4001
+  links:
+    - database
+    - redis
+  environment:
+    - RACK_ENV
+    - STRIPE_SECRET_KEY
+    - STRIPE_PUBLISHABLE_KEY
+    - SMTP_HOST
+    - SMTP_USERNAME
+    - SMTP_PASSWORD
+    - SMTP_DOMAIN
+    - APP_URL
+    - GITHUB_TOKEN
+    - STRIPE_WEBHOOK_PASSWORD
+    - GITHUB_CLIENT_ID
+    - GITHUB_CLIENT_SECRET
+    - GITHUB_BOT_LOGIN
+    - AES_KEY
+    - HMAC_KEY
+    - WARDEN_GITHUB_VERIFIER_SECRET
+    - SESSION_SECRET
+    - BASIC_AUTH_SECRET
+    - REDIS_URL
+    - DEPLOY_KEYS_PASSWORD
+
+workers:
+  build: .
+  command: ./script/workers.sh
+  volumes:
+    - ./:/app
+    - /var/run/docker.sock:/var/run/docker.sock
+  links:
+    - database
+    - redis
+  environment:
+    - RACK_ENV
+    - STRIPE_SECRET_KEY
+    - STRIPE_PUBLISHABLE_KEY
+    - SMTP_HOST
+    - SMTP_USERNAME
+    - SMTP_PASSWORD
+    - SMTP_DOMAIN
+    - APP_URL
+    - GITHUB_TOKEN
+    - STRIPE_WEBHOOK_PASSWORD
+    - GITHUB_CLIENT_ID
+    - GITHUB_CLIENT_SECRET
+    - GITHUB_BOT_LOGIN
+    - AES_KEY
+    - HMAC_KEY
+    - WARDEN_GITHUB_VERIFIER_SECRET
+    - SESSION_SECRET
+    - BASIC_AUTH_SECRET
+    - REDIS_URL
+    - DEPLOY_KEYS_PASSWORD

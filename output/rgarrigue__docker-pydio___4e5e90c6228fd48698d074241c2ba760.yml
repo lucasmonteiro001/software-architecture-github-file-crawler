@@ -1,0 +1,38 @@
+version: "2"
+services: 
+    db:
+        image: mariadb
+        container_name: db
+        restart: unless-stopped
+        volumes:
+        - /etc/localtime:/etc/localtime:ro
+        - /srv/mariadb:/var/lib/mysql
+        environment:
+        - MYSQL_ROOT_PASSWORD=MariaDBDefaultPa$$w0rd!
+        - MYSQL_DATABASE=pydio
+        - MYSQL_USER=pydio
+        - MYSQL_PASSWORD=MariaDBDefaultPa$$w0rd!
+    
+    php:
+        build: ./php-fpm
+        container_name: php
+        restart: unless-stopped
+        volumes:
+        - /etc/localtime:/etc/localtime:ro
+    
+    pydio:
+        depends_on:
+        - db
+        - php
+        build: ./pydio
+        container_name: pydio
+        restart: unless-stopped
+        links:
+        - db
+        - php
+        volumes:
+        - /etc/localtime:/etc/localtime:ro
+        environment:
+        - VIRTUAL_HOST=fichiers.${DOMAIN}
+        - LETSENCRYPT_HOST=fichiers.${DOMAIN}
+        - LETSENCRYPT_EMAIL=admin@${DOMAIN}

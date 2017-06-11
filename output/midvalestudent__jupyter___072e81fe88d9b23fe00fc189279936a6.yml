@@ -1,0 +1,72 @@
+version: '2.1'
+services:
+  base:
+    image: midvalestudent/jupyter/base:latest
+    build: ./base
+    command: start-notebook.sh --port=$NOTEBOOK_PORT
+    environment:
+      - NOTEBOOK_UID=$NOTEBOOK_UID
+      - NOTEBOOK_GID=$NOTEBOOK_GID
+    ports:
+      - "$NOTEBOOK_PORT:$NOTEBOOK_PORT"
+    working_dir: $NOTEBOOK_DIR
+    volumes:
+      - $NOTEBOOK_DIR:$NOTEBOOK_DIR
+      - $DATA_DIR:$DATA_DIR
+
+  scipy:
+    image: midvalestudent/jupyter/scipy:latest
+    build: ./scipy
+    command: start-notebook.sh --port=$NOTEBOOK_PORT
+    environment:
+      - NOTEBOOK_UID=$NOTEBOOK_UID
+      - NOTEBOOK_GID=$NOTEBOOK_GID
+    ports:
+      - "$NOTEBOOK_PORT:$NOTEBOOK_PORT"
+    working_dir: $NOTEBOOK_DIR
+    volumes:
+      - $NOTEBOOK_DIR:$NOTEBOOK_DIR
+      - $DATA_DIR:$DATA_DIR
+
+  opencv:
+    image: midvalestudent/jupyter/opencv:latest
+    build: ./opencv
+    command: start-notebook.sh --port=$NOTEBOOK_PORT
+    environment:
+      - NOTEBOOK_UID=$NOTEBOOK_UID
+      - NOTEBOOK_GID=$NOTEBOOK_GID
+    ports:
+      - "$NOTEBOOK_PORT:$NOTEBOOK_PORT"
+    working_dir: $NOTEBOOK_DIR
+    volumes:
+      - $NOTEBOOK_DIR:$NOTEBOOK_DIR
+      - $DATA_DIR:$DATA_DIR
+
+
+  image:
+    image: midvalestudent/jupyter/image:latest
+    build: ./image
+    command: start-notebook.sh --port=$NOTEBOOK_PORT
+    environment:
+      - NOTEBOOK_UID=$NOTEBOOK_UID
+      - NOTEBOOK_GID=$NOTEBOOK_GID
+    ports:
+      - "$NOTEBOOK_PORT:$NOTEBOOK_PORT"
+    working_dir: $NOTEBOOK_DIR
+    volumes:
+      - $NOTEBOOK_DIR:$NOTEBOOK_DIR
+      - $DATA_DIR:$DATA_DIR
+
+  caffe:
+    image: midvalestudent/jupyter/caffe:latest
+    build: ./caffe
+    command: start-notebook.sh --port=$NOTEBOOK_PORT
+    environment:
+      - NOTEBOOK_UID=$NOTEBOOK_UID
+      - NOTEBOOK_GID=$NOTEBOOK_GID
+    ports:
+      - "$NOTEBOOK_PORT:$NOTEBOOK_PORT"
+    working_dir: $NOTEBOOK_DIR
+    volumes:
+      - $NOTEBOOK_DIR:$NOTEBOOK_DIR
+      - $DATA_DIR:$DATA_DIR

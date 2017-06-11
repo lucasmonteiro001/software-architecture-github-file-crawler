@@ -1,0 +1,36 @@
+---
+version: '2'
+services:
+  app:
+    build: .
+    depends_on:
+      - rabbitmq
+      - datomic
+    environment:
+      RABBITMQ_PORT_5672_TCP_ADDR: rabbitmq
+      RABBITMQ_PORT_5672_TCP_PORT: 5672
+      USER_WORKS_DATOMIC_URI: datomic:dev://datomic:4334/user-works
+      USER_WORKS_AWS_ACCESS_KEY: "change me"
+      USER_WORKS_AWS_SECRET_KEY: "change me"
+      USER_WORKS_AWS_S3_BUCKET: "turbovote-admin"
+      INITIALIZE_DATOMIC: "true"
+      NEW_RELIC_LICENSE_KEY:
+      DATOMIC_OBJ_CACHE_MAX:
+      JVM_OPTS:
+
+  datomic:
+    image: quay.io/democracyworks/datomic-tx:0.9.5544
+    ports:
+      - "4334:4334"
+      - "4335:4335"
+      - "4336:4336"
+    environment:
+      ALT_HOST: localhost
+    hostname: datomic
+  
+  rabbitmq:
+    image: rabbitmq:3.6.5-management
+    ports:
+      - "45672:5672"
+      - "55672:15672"
+    hostname: rabbitmq

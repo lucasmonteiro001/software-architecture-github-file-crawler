@@ -1,0 +1,54 @@
+db:
+    image: mongo:3.2
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./store/mongodb/db:/data/db
+    ports:
+      - "27017:27017"
+    restart: always
+
+lolo:
+    build: ./asterisk/
+    net: host
+    restart: always
+    volumes: 
+      - /etc/localtime:/etc/localtime:ro
+      - "./logs/asterisk/:/var/log/asterisk"
+      - "./store/etc/asterisk/:/etc/asterisk/"
+      - "./store/var/share/sounds:/var/share/sounds"      
+      - "./store/records:/tmp/records"
+
+configurator:
+    build: ./configurator/
+    net: host
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - "./store/etc/asterisk:/var/config/asterisk"
+      - "./store/etc/configurator:/etc/configurator"
+      - "./store/records:/var/records"
+      - "./store/etc/asterisk:/etc/asterisk"
+      - "./store/var/share/sounds:/var/share/sounds"
+    command: node /tmp/viola-configurator/app.js
+    restart: always
+    environment:
+      VIOLACONFIGURATOR_CONFIG: /etc/configurator/config
+
+cdr:
+    build: ./cdr/
+    net: host
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - "./store/var/lib/mysql:/var/lib/mysql"
+      - "./store/etc/mysql:/etc/mysql"
+    restart: always
+
+cdrviewer:
+    image: antirek/ryocdr
+    net: host
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - "./store/etc/ryocdr:/etc/ryocdr/"
+      - "./store/records:/var/records"
+    restart: always
+    environment:
+      RYOCDR_CONFIG: /etc/ryocdr/config

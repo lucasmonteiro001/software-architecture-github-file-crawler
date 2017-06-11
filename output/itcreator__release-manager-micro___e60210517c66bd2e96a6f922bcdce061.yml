@@ -1,0 +1,27 @@
+version: "2"
+
+services:
+#### Service Discovery
+    consul:
+        build: ../../consul #base path is "devops/docker/compose/env"
+        depends_on:
+            - service.api
+        environment:
+            - CONSUL_AGENTS
+        expose:
+          - "8500"
+        ports:
+          - "8500:8500"
+
+
+#### API layer
+    service.api:
+        build: ../../go #base path is "devops/docker/compose/env"
+        working_dir: /go/src/api
+        command: sh -c "consul agent -node=agent-api -data-dir /tmp/consul"
+
+        volumes:
+           - ../../../../src/api:/go/src/api:Z
+           - ../../../../apiDoc:/apiDoc:Z
+        expose:
+           - "80"

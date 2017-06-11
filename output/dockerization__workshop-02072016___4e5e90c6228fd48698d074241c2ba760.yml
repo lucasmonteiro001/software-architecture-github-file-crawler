@@ -1,0 +1,34 @@
+version: '2'
+services:
+  logic:
+    image: registry.dockerization.xyz/dc/logic:latest
+    depends_on:
+       - filler
+       - charger
+    networks:
+      - web
+      - backend
+      
+  filler:
+    image: registry.dockerization.xyz/dc/filler:latest
+    networks:
+      - backend
+
+  charger:
+    image: registry.dockerization.xyz/dc/charger:latest
+    networks:
+      - backend
+
+  interface:
+    image: registry.dockerization.xyz/dc/interface:latest
+    depends_on:
+      - logic
+    ports:
+      - "8080:8080"
+    networks:
+      - web
+networks:
+  backend:
+    driver: bridge
+  web:
+    driver: bridge

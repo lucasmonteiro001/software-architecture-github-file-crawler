@@ -1,0 +1,60 @@
+# apache httdp + tomcat
+web:
+  build: web
+  ports:
+    - "80:80"
+    - "8080:8080"
+  volumes:
+    - ./webapps:/tomcat/webapps
+    - ./www:/var/www
+    - ./data/aduna:/root/.aduna/openrdf-sesame
+  restart: always
+
+worker:
+  build: worker
+  links:
+      - web
+      - redis
+  volumes:
+    - ./d1lod:/d1lod
+    - ./glharvest:/glharvest
+    - ./www:/www
+  environment:
+    - PYTHONPATH=$PYTHONPATH:/glharvest:/d1lod/:/usr/lib/python2.7/dist-packages
+  restart: always
+
+scheduler:
+  build: scheduler
+  links:
+    - web
+    - redis
+  volumes:
+    - ./d1lod:/d1lod
+    - ./glharvest:/glharvest
+    - ./www:/www
+  environment:
+    - PYTHONPATH=$PYTHONPATH:/glharvest:/d1lod/:/usr/lib/python2.7/dist-packages
+  restart: always
+
+redis:
+  build: redis
+  volumes:
+    - ./data/redis:/data
+  restart: always
+
+cadvisor:
+  image: google/cadvisor:latest
+  volumes:
+    - /:/rootfs:ro
+    - /var/run:/var/run:rw
+    - /sys:/sys:ro
+    - /var/lib/docker/:/var/lib/docker:ro
+  ports:
+    - "8888:8080"
+
+rqdashboard:
+  build: rqdashboard
+  links:
+    - redis
+  ports:
+    - "9181:9181"

@@ -1,0 +1,10 @@
+app:
+  container_name: app_dev
+  #image: tmueller/docker-webserver
+  build: .
+  ports:
+    - "8080:80"
+    - "2300:20"
+  volumes:
+    - .:/var/www/
+    - ./logs:/var/log/apache2

@@ -1,0 +1,70 @@
+version: '3'
+
+volumes:
+  logstash_config:
+  elasticsearch_data:
+
+networks:
+  log:
+    driver: overlay
+
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:5.2.1
+    deploy:
+      placement:
+        constraints:
+          - node.role == worker
+    environment:
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - log
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:5.2.1
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+    environment:
+      TZ: Europe/Paris
+      LOGSPOUT: ignore
+    ports:
+      - "5000:5000/udp"
+      - "12201:12201"
+      - "12201:12201/udp"
+    volumes:
+      - logstash_config:/conf
+    command: logstash -f /conf/gelf.conf
+    networks:
+      - log
+    depends_on:
+      - elasticsearch
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:5.2.1
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+    ports:
+      - "5601:5601"
+    networks:
+      - log
+    depends_on:
+      - elasticsearch
+
+  logspout:
+    image: bekt/logspout-logstash
+    deploy:
+      mode: global
+    environment:
+      ROUTE_URIS: logstash://logstash:5000
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - log
+    depends_on:
+      - logstash

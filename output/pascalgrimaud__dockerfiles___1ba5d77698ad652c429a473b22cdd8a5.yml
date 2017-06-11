@@ -1,0 +1,4 @@
+sonarqube:
+  image: pascalgrimaud/sonarqube:5.1.2
+  ports:
+  - "9000:9000"

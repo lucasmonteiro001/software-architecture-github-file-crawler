@@ -1,0 +1,20 @@
+version: '3.0'
+services:
+  prometheus:
+    image: airhacks/prometheus-firehose
+    ports:
+    - "9090:9090"
+    links:
+    - firehose
+  firehose:
+    image: airhacks/firehose
+    env_file: metrics.env
+    ports:
+    - "8080:8080"
+    links:
+    - sample-service
+  sample-service:
+    image: airhacks/sample-service
+    ports:
+    - "8282:8080"
+

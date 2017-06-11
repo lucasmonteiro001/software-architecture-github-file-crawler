@@ -1,0 +1,58 @@
+version: '2.1'
+services:
+  gradient1:
+    build: ..
+    entrypoint: "/srv/gradient/config/waitforit.sh --host=${ESHOST:-elasticsearch} --port=9200 -- dumb-init -c gradient --config ${CONFIG_PATH:-/srv/gradient/config/gradient.yml}"
+    ports:
+    - "56200:56200"
+    volumes:
+    - ./config:/srv/gradient/config:ro
+    links:
+    - postgres
+    - elasticsearch
+    - nats
+    depends_on:
+    - postgres
+    - elasticsearch
+    - nats
+    extra_hosts:
+    - "dockerhost:${DOCKERHOST:-127.0.0.1}"
+    environment:
+    - GRADIENT_ELASTICSEARCH_TRACE=yes
+    - GRADIENT_LOG_LEVEL=INFO
+
+  gradient2:
+    build: ..
+    entrypoint: "/srv/gradient/config/waitforit.sh --host=gradient1 --port=56200 -- dumb-init -c gradient --config ${CONFIG_PATH:-/srv/gradient/config/gradient.yml}"
+    ports:
+    - "57200:56200"
+    volumes:
+    - ./config:/srv/gradient/config:ro
+    links:
+    - gradient1
+    - postgres
+    - elasticsearch
+    - nats
+    depends_on:
+    - gradient1
+    - postgres
+    - elasticsearch
+    - nats
+    extra_hosts:
+    - "dockerhost:${DOCKERHOST:-127.0.0.1}"
+    environment:
+    - GRADIENT_ELASTICSEARCH_TRACE=yes
+    - GRADIENT_LOG_LEVEL=INFO
+    - TIMEOUT=28
+
+  postgres:
+    image: postgres:9.5
+    environment:
+    - POSTGRES_USER=gradient
+    - POSTGRES_PASSWORD=gradient
+
+  elasticsearch:
+    image: elasticsearch:5.0
+
+  nats:
+    image: nats:0.9.4

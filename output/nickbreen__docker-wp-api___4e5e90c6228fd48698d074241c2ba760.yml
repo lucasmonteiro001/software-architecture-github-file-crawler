@@ -1,0 +1,50 @@
+db:
+  image: mysql:5.5
+  environment:
+    MYSQL_ROOT_PASSWORD: example
+    MYSQL_DATABASE: wordpress
+    MYSQL_USER: wordpress
+    MYSQL_PASSWWORD: wordpress
+
+wp:
+  image: nickbreen/wp-cli
+  command: server --host=0.0.0.0 --docroot=/var/www/html
+  links:
+    - db:mysql
+  ports:
+    - 8080:8080
+  volumes_from:
+    - wp-setup
+
+wp-api:
+  build: .
+  links:
+    - wp
+  volumes_from:
+    - wp-setup
+  command: -l -c 'wpapi oauth1 connect $$URL --path=/var/www/html --key=$$KEY --secret=$$SECRET; wpapi post list'
+  environment:
+    URL: http://wp:8080
+    KEY: DF3ey8vxX9rr
+    SECRET: 3UhvegqHdznRN0bNGH1kKaSWwPb1K3MiG274ysm60fKqh00h
+
+
+wp-setup:
+  image: nickbreen/wp-setup
+  links:
+    - db:mysql
+  environment:
+    WP_LOCALE: en_US
+    WP_URL: http://wp:8080
+    WP_ADMIN_USER: admin
+    WP_ADMIN_PASSWORD: admin
+    WP_ADMIN_EMAIL: admin@wp.dev
+    WP_PLUGINS: |-
+      rest-api
+    GH_PLUGINS: |-
+      WP-API/OAuth1
+      WP-API/Basic-Auth
+    WP_COMMANDS: |-
+      oauth1 add
+      rewrite structure /%postname%
+      rewrite flush

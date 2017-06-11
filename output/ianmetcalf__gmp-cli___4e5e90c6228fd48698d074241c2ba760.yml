@@ -1,0 +1,24 @@
+app:
+  build: .
+  volumes:
+    - .:code
+  links:
+    - database:rethink
+  environment:
+    - DATABASE_HOST=rethink
+    - DATABASE_PORT=28015
+    - DATABASE_DB=house
+  command: gmp-cli poll --config secret.json
+
+database:
+  image: rethinkdb
+  volumes_from:
+    - data
+  ports:
+    - "8080:8080"
+
+data:
+  image: busybox
+  volumes:
+    - /data
+  command: echo Data Volume for db

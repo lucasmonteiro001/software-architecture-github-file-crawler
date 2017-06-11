@@ -1,0 +1,41 @@
+nginx:
+    build: ./docker/nginx
+    ports:
+        - "80:80"
+        - "443:443"
+    volumes:
+        - ./log/nginx:/var/log/nginx
+        - ./conf/letsencrypt:/etc/letsencrypt
+    links:
+       - php-fpm
+    volumes_from:
+       - owncloud-static
+php-fpm:
+    build: ./docker/php-fpm
+    volumes:
+        - ./log/php-fpm:/var/log
+    links:
+        - postgresql
+    volumes_from:
+       - owncloud-static
+owncloud-static:
+    build: ./docker/owncloud-static
+    volumes:
+        - /root/usbdisk/owncloud-data:/usr/share/webapps/owncloud/data
+        - ./conf/owncloud:/usr/share/webapps/owncloud/config
+postgresql:
+    build: ./docker/postgresql
+    environment:
+        POSTGRES_USER: owncloud
+        POSTGRES_PASSWORD: owncloud
+        POSTGRES_DB: owncloud
+        PGDATA: /var/lib/postgresql/data
+    volumes:
+        - /root/usbdisk/pgdata:/var/lib/postgresql/data
+letsencrypt-renew:
+    build: ./docker/letsencrypt
+    volumes:
+        - ./conf/letsencrypt:/etc/letsencrypt
+    volumes_from:
+       - owncloud-static
+        

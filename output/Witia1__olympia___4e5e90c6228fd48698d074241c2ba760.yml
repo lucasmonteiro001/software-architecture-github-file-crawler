@@ -1,0 +1,65 @@
+worker: &worker
+  image: addons/olympia
+  command: supervisord -n -c /code/docker/supervisor-celery.conf
+  entrypoint: ./scripts/start-docker.sh
+  volumes:
+    - .:/code
+  links:
+    - memcached
+    - mysqld
+    - elasticsearch
+    - redis
+    - rabbitmq
+  environment:
+    - BROKER_URL=amqp://olympia:olympia@rabbitmq/olympia
+    - DATABASE_URL=mysql://root:@mysqld/olympia
+    - ELASTICSEARCH_LOCATION=elasticsearch:9200
+    - MEMCACHE_LOCATION=memcached:11211
+    - MYSQL_DATABASE='olympia'
+    - MYSQL_ROOT_PASSWORD='docker'
+    - OLYMPIA_SITE_URL
+    - PYTHONDONTWRITEBYTECODE=1
+    - PYTHONUNBUFFERED=1
+    - REDIS_LOCATION=redis:6379
+    - TERM=xterm-256color
+
+web:
+  <<: *worker
+  command: supervisord -n -c /code/docker/supervisor.conf
+  ports:
+    - "8000:8000"
+
+nginx:
+  image: addons/addons-nginx
+  ports:
+    - "80:80"
+  volumes:
+    - ./static:/srv/static
+  links:
+    - web:web
+
+memcached:
+  image: memcached
+
+mysqld:
+  image: mysql:5.6
+  environment:
+    - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+    - MYSQL_DATABASE='olympia'
+
+elasticsearch:
+  image: elasticsearch:1.3
+
+redis:
+  image: redis
+
+rabbitmq:
+  image: rabbitmq
+  hostname: olympia
+  name: olympia
+  expose:
+    - "5672:5672"
+  environment:
+    - RABBITMQ_DEFAULT_USER=olympia
+    - RABBITMQ_DEFAULT_PASS=olympia
+    - RABBITMQ_DEFAULT_VHOST=olympia

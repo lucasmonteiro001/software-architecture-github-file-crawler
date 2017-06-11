@@ -1,0 +1,23 @@
+---
+web:
+  image: wordpress:latest
+  links:
+    - db:mysql
+  ports:
+    - "3000:80"
+  volumes_from:
+    - busybox
+db:
+  image: mariadb:latest
+  environment:
+    MYSQL_ROOT_PASSWORD: example
+  volumes_from:
+    - busybox
+busybox:
+  image: busybox:latest
+  command: "sh"
+  volumes:
+    - ./plugins/:/var/www/html/wp-content/plugins
+    - ./themes/:/var/www/html/wp-content/themes
+    - ./uploads/:/var/www/html/wp-content/uploads
+    - /var/lib/mysql

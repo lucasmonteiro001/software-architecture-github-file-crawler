@@ -1,0 +1,123 @@
+version: '2'
+services:
+  # Maybe serve a nice CV here?
+  webserver:
+    image: nginx:1.11-alpine
+    restart: always
+    environment:
+      VIRTUAL_HOST: www.${DOMAINNAME},${DOMAINNAME}
+      LETSENCRYPT_HOST: www.${DOMAINNAME},${DOMAINNAME}
+      LETSENCRYPT_EMAIL: ${EMAIL}
+
+  # Jenkins Build Server Master Instance
+  jenkins-master:
+    image: jenkins:2.32.3
+    restart: always
+    volumes:
+      - ./volumes/jenkins:/var/jenkins_home:rw
+    environment:
+      VIRTUAL_HOST: jenkins.${DOMAINNAME}
+      VIRTUAL_PORT: 8080
+      LETSENCRYPT_HOST: jenkins.${DOMAINNAME}
+      LETSENCRYPT_EMAIL: ${EMAIL}
+
+  jenkins-slave-docker:
+    image: jelloween/dind-slave-java8:latest
+    restart: always
+    privileged: true 
+
+  # Docker Registry and Registry Authentication
+  registry:
+    image: registry:2
+    restart: always
+    volumes:
+      - ./volumes/registry/data:/var/lib/registry
+      - ./config/registry/certs:/certs
+    environment:
+      VIRTUAL_HOST: registry.${DOMAINNAME}
+      LETSENCRYPT_HOST: registry.${DOMAINNAME}
+      LETSENCRYPT_EMAIL: ${EMAIL}
+      REGISTRY_STORAGE_DELETE_ENABLED: "true"
+      REGISTRY_AUTH_TOKEN_REALM: https://portus.${DOMAINNAME}/v2/token
+      REGISTRY_AUTH_TOKEN_SERVICE: registry.${DOMAINNAME}
+      REGISTRY_AUTH_TOKEN_ISSUER: portus.${DOMAINNAME}
+      REGISTRY_AUTH_TOKEN_ROOTCERTBUNDLE: /certs/registry.crt
+      REGISTRY_HTTP_SECRET: ${REGISTRY_SECRET}
+      REGISTRY_NOTIFICATIONS_ENDPOINTS: >
+        - name: portus
+          url: https://portus.${DOMAINNAME}/v2/webhooks/events
+          timeout: 5000ms
+          threshold: 2
+          backoff: 20s
+
+  portus-db:
+    image: library/mariadb:10.0.23
+    volumes:
+      - ./volumes/portus-db:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${PORTUS_DB_PASS}
+
+  portus:
+    image: eugenmayer/portus:2.4-rc11
+    volumes:
+      - ./config/registry/certs:/certs
+    links:
+      - portus-db
+    environment:
+      VIRTUAL_HOST: portus.${DOMAINNAME}
+      LETSENCRYPT_HOST: portus.${DOMAINNAME}
+      LETSENCRYPT_EMAIL: ${EMAIL}
+      PORTUS_MACHINE_FQDN: portus.${DOMAINNAME}
+      RAILS_ENV: production
+      PORTUS_PRODUCTION_HOST: portus-db
+      PORTUS_PRODUCTION_DATABASE: portus
+      PORTUS_PRODUCTION_USERNAME: root
+      PORTUS_PRODUCTION_PASSWORD: ${PORTUS_DB_PASS}
+      PORTUS_GRAVATAR_ENABLED: 'true'
+      PORTUS_KEY_PATH: /certs/registry.key
+      PORTUS_USERNAME: portus
+      PORTUS_PASSWORD: ${PORTUS_SECRET}
+      PORTUS_SECRET_KEY_BASE: ${PORTUS_SECRET}
+      PORTUS_CHECK_SSL_USAGE_ENABLED: 'true'
+      PORTUS_PORT: 443
+
+  # Portainer - Docker container management
+  portainer:
+    image: portainer/portainer:1.11.4
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./volumes/portainer:/data
+    environment:
+      VIRTUAL_HOST: portainer.${DOMAINNAME}
+      LETSENCRYPT_HOST: portainer.${DOMAINNAME}
+      LETSENCRYPT_EMAIL: ${EMAIL}
+
+  # Reverse proxy and SSL config
+  nginxproxy:
+    image: jwilder/nginx-proxy:0.4.0
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - ./volumes/nginx-proxy/certs:/etc/nginx/certs
+      - ./config/nginx-proxy/portainer.${DOMAINNAME}_location:/etc/nginx/vhost.d/portainer.${DOMAINNAME}_location
+      - ./config/nginx-proxy/registry-proxy.conf:/etc/nginx/conf.d/registry-proxy.conf
+      - /etc/nginx/vhost.d
+      - /usr/share/nginx/html
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DEFAULT_HOST: ${DOMAINNAME}
+
+  # LetsEncrypt config
+  letsencrypt:
+    image: jrcs/letsencrypt-nginx-proxy-companion:v1.4
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    volumes_from:
+      - nginxproxy
+    environment:
+      LETSENCRYPT_TEST: 'true'
+

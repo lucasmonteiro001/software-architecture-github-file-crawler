@@ -1,0 +1,25 @@
+nginx:
+  image: spotscore/nginx-proxy
+  ports:
+    - "8080:80"
+  volumes:
+    - /var/run/docker.sock:/tmp/docker.sock:ro
+  links:
+    - spotscore
+spotscore:
+  image: spotscore/spotscore
+  ports:
+    - "3000:3000"
+  volumes:
+    - /code
+  links:
+    - postgis
+postgis:
+  image: spotscore/postgis
+  environment:
+    - POSTGRES_USER=spotscore
+    - POSTGRES_PASS=notsecret
+  ports:
+    - "5432:5432"
+  volumes:
+    - /var/lib/postgresql

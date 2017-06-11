@@ -1,0 +1,13 @@
+version: '2'
+services:
+    backend:
+        image: nenadalm/warehouse
+        network_mode: host
+        volumes:
+            - .:/tmp/src
+        security_opt:
+            - label:disable
+        command: sh -c 'lein deps && lein ring server-headless'
+        ports:
+            - "3000:3000"
+

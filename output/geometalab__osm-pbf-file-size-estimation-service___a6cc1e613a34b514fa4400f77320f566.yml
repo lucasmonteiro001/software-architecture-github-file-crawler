@@ -1,0 +1,9 @@
+version: '2'
+services:
+  update-csv:
+    build:
+      dockerfile: Dockerfile
+      context: .
+    volumes:
+      - ./:/home/py
+    command: ./update_size_csv.sh

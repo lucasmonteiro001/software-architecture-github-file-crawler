@@ -1,0 +1,27 @@
+version: '2.1'
+services:
+  db:
+    extends:
+      file: docker-compose.common.yml
+      service: db
+  web:
+    extends:
+      file: docker-compose.common.yml
+      service: web
+    build:
+      args:
+        NPM_REGISTRY: http://sinopia.view.build
+        PACKAGE_INSTALLER: yarn
+    command: gunicorn backend.wsgi:application -b 0.0.0.0:9898 -k gevent -w 3
+    links:
+      - db
+    ports:
+      - 8000
+    environment:
+      NODE_ENV: 'production'
+      VIRTUAL_HOST: ${VIRTUAL_HOST}
+      LETSENCRYPT_HOST: ${VIRTUAL_HOST}
+      LETSENCRYPT_EMAIL: sam@madeinhaus.com
+    env_file:
+      - ./.docker/common.env
+      - ./.env

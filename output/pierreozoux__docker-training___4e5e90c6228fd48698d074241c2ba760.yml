@@ -1,0 +1,17 @@
+version: '2'
+services:
+  web:
+    image: web
+    ports:
+    - "80:80"
+    links:
+    - app
+    networks:
+    - front
+  app:
+    image: grunt
+    networks:
+    - front
+networks:
+  front:
+    driver: bridge

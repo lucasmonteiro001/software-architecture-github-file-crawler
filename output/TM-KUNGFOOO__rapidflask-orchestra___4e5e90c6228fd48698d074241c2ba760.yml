@@ -1,0 +1,44 @@
+rapidflask:
+  restart: always
+  build: ./rapidflask
+  expose:
+    - "8000"
+  #ports:
+  #  - "127.0.0.1:8000:8000"
+  links:
+    - redis
+    - postgres
+  volumes:
+    - ./rapidflask:/srv/rapidflask:rw
+    - ./dockervolumes/static:/srv/rapidflask/app/static:rw
+  #env_file: .env
+  working_dir: /srv/rapidflask/
+  command: /usr/src/rapidflask/rAPPenv/bin/gunicorn --access-logfile gunicorn.access.log  --error-logfile gunicorn.error.log  -w 2 -b :8000 manage:app
+
+nginx:
+  restart: always
+  build: ./nginx/
+  ports:
+    - "80:80"
+  volumes:
+    - ./dockervolumes/static:/www/static:ro
+  #volumes_from:
+  #  - rapidflask
+  links:
+    - rapidflask:rapidflask
+
+postgres:
+  restart: always
+  image: tonimichel/rapiddb
+  environment:
+    LC_ALL: C.UTF-8
+
+
+redis:
+  image: redis:latest
+  ports:
+    - 6379:6379
+  volumes:
+    - ./dockervolumes/redis/data:/var/lib/redis/data
+  environment:
+    LC_ALL: C.UTF-8

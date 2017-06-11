@@ -1,0 +1,20 @@
+# Only for development and testing!!!!
+version: '2'
+services:
+  database:
+    image: postgres:9.3
+    ports:
+      - "5432"
+    environment:
+      - PGDATA=/postgresql
+    volumes:
+      - ./data/postgresql:/postgresql
+  web:
+    build: .
+    command: foreman start -f Procfile.dev
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/basket
+    links:
+      - database:database
