@@ -1,0 +1,7 @@
+db:
+  build: .
+  privileged: true
+#  volumes:
+#    - .:/code
+  ports:
+    - "7475:7474"

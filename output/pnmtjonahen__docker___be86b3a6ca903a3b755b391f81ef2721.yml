@@ -1,0 +1,18 @@
+gogs:
+  image: gogs/gogs:0.9.13
+  ports:
+  - 10080:3000
+  links:
+  - dbgogs
+  volumes:
+  - ./data:/data
+
+
+dbgogs:
+  image: postgres:9.1
+  volumes:
+    - ./postgresql:/var/lib/postgresql
+  environment:
+   - POSTGRES_USER=gogs
+   - POSTGRES_PASSWORD=gogs
+

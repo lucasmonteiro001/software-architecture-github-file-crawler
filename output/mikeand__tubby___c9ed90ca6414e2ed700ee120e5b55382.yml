@@ -1,0 +1,50 @@
+test:
+  build: ../../
+  dockerfile: docker/dev/Dockerfile
+  volumes_from:
+    - cache
+  links:
+    - db
+  environment:
+    DJANGO_SETTINGS_MODULE: config.settings.test
+    DATABASE_URL: postgres://michael:superpassword@db:5432/tubby
+    TEST_OUTPUT_DIR: /reports
+
+db:
+  image: postgres
+  hostname: db
+  expose:
+    - "5432"
+  environment:
+    POSTGRES_PASSWORD: superpassword
+    POSTGRES_USER: michael
+
+builder:
+    build: ../../
+    dockerfile: docker/dev/Dockerfile
+    volumes:
+      - ../../target:/wheelhouse
+    volumes_from:
+      - cache
+    entrypoint: "entrypoint.sh"
+    command: ["pip", "wheel", "--no-index", "-f /build", "."]
+
+
+agent:
+  image: mikeand/ansible
+  volumes:
+    - ../ansible/playbook/probe.yml:/ansible/site.yml
+  links:
+    - db
+  environment:
+    PROBE_HOST: "db"
+    PROBE_PORT: "5432"
+
+cache:
+  build: ../../
+  dockerfile: docker/dev/Dockerfile
+  volumes:
+    - /tmp/cache:/cache
+    - /build
+  entrypoint: "true"
+

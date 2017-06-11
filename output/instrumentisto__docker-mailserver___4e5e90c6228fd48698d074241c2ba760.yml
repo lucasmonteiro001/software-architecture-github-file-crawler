@@ -1,0 +1,153 @@
+version: '2'
+
+services:
+  postfix:
+    container_name: mailserver-postfix
+    image: quay.io/instrumentisto/postfix
+    # build: ./images/postfix/
+    hostname: mail
+    domainname: domain.com
+    depends_on:
+      - dovecot
+      - amavis
+      - opendkim
+      - opendmarc
+      - smf-spf
+    ports:
+      - "25:25"    # smtp
+      - "587:587"  # smtp-auth
+    expose:
+      - "10025"    # smtp-for-amavis
+    volumes:
+      - ./conf/accounts:/etc/mailserver:ro
+      - ./conf/postfix/main.cf:/etc/postfix/main.cf:ro
+      - ./conf/postfix/master.cf:/etc/postfix/master.cf:ro
+      - ./conf/postfix/aliases:/etc/postfix/aliases:ro
+      - ./conf/postfix/cont-init.d/01-apply-accounts.sh:/etc/cont-init.d/01-apply-accounts
+      - ./ssl/mail.domain.com.crt:/etc/ssl/postfix/server.crt:ro
+      - ./ssl/mail.domain.com.key:/etc/ssl/postfix/server.key:ro
+      - ./ssl/ca.crt:/etc/ssl/postfix/ca.crt:ro
+      #- ./test/mail:/tmp/test-mail:ro
+  dovecot:
+    container_name: mailserver-dovecot
+    image: quay.io/instrumentisto/dovecot
+    # build: ./images/dovecot/
+    hostname: mail
+    domainname: domain.com
+    ports:
+      - "143:143"     # imap
+      - "993:993"     # imap-secure
+      - "110:110"     # pop3
+      - "995:995"     # pop3-secure
+      - "4190:4190"   # sieve
+    expose:
+      - "24"       # lmtp
+      - "12345"    # sasl
+    volumes:
+      - maildata:/var/mail
+      - ./conf/accounts:/etc/mailserver:ro
+      - ./conf/dovecot/conf.d/10-auth.conf:/etc/dovecot/conf.d/10-auth.conf:ro
+      - ./conf/dovecot/conf.d/10-mail.conf:/etc/dovecot/conf.d/10-mail.conf:ro
+      - ./conf/dovecot/conf.d/10-master.conf:/etc/dovecot/conf.d/10-master.conf:ro
+      - ./conf/dovecot/conf.d/10-ssl.conf:/etc/dovecot/conf.d/10-ssl.conf:ro
+      - ./conf/dovecot/conf.d/15-mailboxes.conf:/etc/dovecot/conf.d/15-mailboxes.conf:ro
+      - ./conf/dovecot/conf.d/20-lmtp.conf:/etc/dovecot/conf.d/20-lmtp.conf:ro
+      - ./conf/dovecot/conf.d/20-managesieve.conf:/etc/dovecot/conf.d/20-managesieve.conf:ro
+      - ./conf/dovecot/conf.d/auth-passwdfile.conf.ext:/etc/dovecot/conf.d/auth-passwdfile.conf.ext:ro
+      - ./conf/dovecot/cont-init.d/01-apply-accounts.sh:/etc/cont-init.d/01-apply-accounts
+      - ./ssl/mail.domain.com.crt:/etc/ssl/dovecot/server.crt:ro
+      - ./ssl/mail.domain.com.key:/etc/ssl/dovecot/server.key:ro
+  amavis:
+    container_name: mailserver-amavis
+    image: quay.io/instrumentisto/amavis
+    # build: ./images/amavis/
+    hostname: mail
+    domainname: domain.com
+    depends_on:
+      - clamav
+    expose:
+      - "10024"    # smtp-amavis
+    links:
+      - clamav:clamav.mailserver_local  # just to have dotted alias for AMaViS conf
+    environment:
+      - SA_UPDATES_LOG_LEVEL_FLAG="-v"
+      - RAZOR_LOG_LEVEL=3
+      - PYZOR_LOG_LEVEL_FLAG=""
+    volumes:
+      - amavis-tmpbase:/var/amavis/tmp
+      - ./conf/accounts:/etc/mailserver:ro
+      - ./conf/amavis/spamassassin-rules.cf:/etc/mail/spamassassin/spamassassin-rules.cf:ro
+      - ./conf/amavis/conf.d/30-user.conf:/etc/amavis/conf.d/30-user.conf:ro
+      - ./conf/amavis/cont-init.d/01-parse-domains.sh:/etc/cont-init.d/01-parse-domains
+  clamav:
+    container_name: mailserver-clamav
+    image: quay.io/instrumentisto/clamav
+    # build: ./images/clamav/
+    expose:
+      - "3310"     # clamd
+    volumes:
+      - amavis-tmpbase:/var/amavis/tmp:ro
+      - ./conf/clamav/clamd.conf:/etc/clamav/clamd.conf:ro
+  opendkim:
+    container_name: mailserver-opendkim
+    image: quay.io/instrumentisto/opendkim
+    # build: ./images/opendkim/
+    expose:
+      - "8891"    # opendkim milter
+    volumes:
+      - ./dkim-config:/etc/dkim-config:ro
+      - ./conf/opendkim/opendkim.conf:/etc/opendkim/conf.d/custom.conf:ro
+      - ./conf/opendkim/cont-init.d/30-opendkim-data.sh:/etc/cont-init.d/30-opendkim-data.sh
+  opendmarc:
+    container_name: mailserver-opendmarc
+    image: quay.io/instrumentisto/opendmarc
+    # build: ./images/opendmarc/
+    hostname: mail
+    domainname: domain.com
+    expose:
+      - "8893"    # opendmarc milter
+    volumes:
+      - ./conf/opendmarc/opendmarc.conf:/etc/opendmarc/conf.d/custom.conf:ro
+      - ./conf/opendmarc/ignore.hosts:/etc/opendmarc/ignore.hosts:ro
+  smf-spf:
+    container_name: mailserver-smf-spf
+    image: quay.io/instrumentisto/smf-spf
+    # build: ./images/smf-spf/
+    expose:
+      - "8890"    # smf-spf milter
+    volumes:
+      - ./conf/smf-spf/smf-spf.conf:/etc/smf-spf/smf-spf.conf:ro
+  roundcube:
+    container_name: mailserver-roundcube
+    image: quay.io/instrumentisto/roundcube
+    # build: ./images/roundcube/
+    depends_on:
+      - postfix
+      - dovecot
+    expose:
+      - "9000"    # php-fpm
+    volumes:
+      - /var/www
+      - ./conf/roundcube/config.inc.php:/var/www/config/config.inc.php:ro
+  nginx:
+    container_name: mailserver-nginx
+    image: nginx:stable-alpine
+    hostname: mail
+    domainname: domain.com
+    command: /bin/sh -c "sed -i -r 's/^user .*$$/user nobody;/g'
+                             /etc/nginx/nginx.conf
+                         && nginx -g 'daemon off;'"
+    depends_on:
+      - roundcube
+    ports:
+      - "80:80"   # http
+    volumes:
+      - ./conf/roundcube/nginx.vh.conf:/etc/nginx/conf.d/default.conf:ro
+    volumes_from:
+      - roundcube:ro
+
+volumes:
+  maildata:
+    driver: local
+  amavis-tmpbase:
+    driver: local

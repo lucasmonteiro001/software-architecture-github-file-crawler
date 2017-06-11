@@ -1,0 +1,17 @@
+mariadb:
+  image: vger/mariadb:latest
+  stdin_open: true
+  restart: always
+  volumes_from:
+    - mariadb-data
+  labels:
+    io.rancher.sidekicks: mariadb-data
+    io.rancher.container.pull_image: always
+
+mariadb-data:
+  image: vger/debian:jessie
+  volumes:
+    - ${VOLUME}:/var/lib/mysql
+  labels:
+    io.rancher.container.start_once: true
+  volume_driver: ${VOLUME_DRIVER}

@@ -1,0 +1,48 @@
+###############################################################
+### Default configuration for development environment.      ###
+###############################################################
+version: '2'
+services:
+  rsyslog-server:
+    restart: always
+    build: ./rsyslog
+    ports:
+      - "514:514/udp"
+      - "514:514/tcp"
+    volumes:
+      - ./rsyslog-server/conf:/etc/rsyslog.d
+  rsyslog-agent:
+    restart: always
+    build: ./rsyslog
+    links:
+      - rsyslog-server
+    depends_on:
+      - "rsyslog-server"
+    volumes:
+      - ./rsyslog-agent/conf:/etc/rsyslog.d
+  nginx:
+    restart: always
+    build: ./nginx
+    ports:
+      - "9080:80"
+    depends_on:
+      - "rsyslog-agent"
+    volumes_from:
+      - rsyslog-agent
+  logstash-server:
+    restart: always
+    command: -f /logstash.conf
+    build: ./logstash-server
+    ports:
+      - "5044:5044"
+  elastic-filebeat:
+    restart: always
+    build: ./elastic-filebeat
+    links:
+      - logstash-server
+    depends_on:
+      - "logstash-server"
+      - "rsyslog-agent"
+    volumes_from:
+      # it should be done using a isolated volume, but it is enought for demo purposes
+      - rsyslog-agent

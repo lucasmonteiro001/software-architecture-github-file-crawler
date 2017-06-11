@@ -1,0 +1,29 @@
+elasticsearch:
+  build: elasticsearch/
+  command: elasticsearch -Des.network.host=_non_loopback_
+  ports:
+    - "9200:9200"
+    - "9300:9300"
+  # restart: always
+
+kibana:
+  image: kibana
+  ports:
+    - "5601:5601"
+  links:
+    - elasticsearch:eshost
+  environment:
+    ELASTICSEARCH_URL: http://eshost:9200
+  # restart: always
+
+logstash:
+  image: logstash
+  command: logstash -f /etc/logstash/conf.d/logstash.conf
+  ports:
+    - "5140:5140"
+    - "5140:5140/udp"
+  links:
+    - elasticsearch:eshost
+  volumes:
+    - ./logstash/conf:/etc/logstash/conf.d
+  # restart: always

@@ -1,0 +1,44 @@
+mysql:
+  image: mysql:5.6
+  env_file: parameters.env
+  volumes:
+    - "./data/mysql:/var/lib/mysql"
+
+rabbitmq:
+  image: rabbitmq:latest
+  volumes:
+    - "./data/rabbitmq:/var/lib/rabbitmq"
+
+redis:
+  image: redis:latest
+  volumes:
+    - "./data/redis:/var/lib/redis"
+
+
+dispatcher:
+  image: simpleci/dispatcher
+  links:
+    - mysql:mysql
+    - rabbitmq:rabbitmq
+    - redis:redis
+  env_file: parameters.env
+
+worker:
+  image: simpleci/worker
+  links:
+    - rabbitmq:rabbitmq
+  volumes:
+    - "/var/run/docker.sock:/var/run/docker.sock"
+  env_file: parameters.env
+
+frontend:
+  image: simpleci/frontend
+  links:
+    - mysql:mysql
+    - rabbitmq:rabbitmq
+    - redis:redis
+  ports:
+   - "8080:80"
+  volumes:
+    - "./log/frontend:/var/log/simpleci"
+  env_file: parameters.env

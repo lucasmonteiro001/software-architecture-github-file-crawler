@@ -1,0 +1,15 @@
+node:
+  build: .
+  environment:
+    APPLICATION_ENV: development
+    APP_PORT: 3000
+  ports:
+    - "14290:3000"
+  volumes:
+    - ./lib:/var/www/lib
+    - ./config:/var/www/config
+    - ./package.json:/var/www/package.json
+    - ./.jscsrc:/var/www/.jscsrc
+    - ./.jshintrc:/var/www/.jshintrc
+    - ./.jshintignore:/var/www/.jshintignore
+

@@ -1,0 +1,27 @@
+version: "3"
+
+services:
+
+  cpu:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 8888:8888
+      - 6006:6006
+    volumes:
+      - /notebooks:/notebooks
+    environment:
+      - PASSWORD=flaviostutz
+
+  gpu:
+    build:
+      context: .
+      dockerfile: Dockerfile-gpu
+    ports:
+      - 8888:8888
+      - 6006:6006
+    volumes:
+      - /notebooks:/notebooks
+    environment:
+      - PASSWORD=flaviostutz

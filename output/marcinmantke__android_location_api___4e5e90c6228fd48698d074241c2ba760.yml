@@ -1,0 +1,30 @@
+version: '2'
+
+services:
+  db:
+    image: postgres:latest
+    volumes:
+      - /var/lib/postgresql/data
+
+  web:
+    build: .
+    ports:
+      - 3001:3000
+    volumes:
+      - .:/app
+    links:
+      - db
+    command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails s -b 0.0.0.0"
+    environment:
+      - DATABASE_URL=postgres://postgres@db:5432
+      - VIRTUAL_HOST=android.mantke.pl
+    depends_on:
+      - bundle
+    volumes_from:
+      - bundle
+
+  bundle:
+    image: busybox
+    command: echo "I'm volume for bundler"
+    volumes:
+      - /bundle

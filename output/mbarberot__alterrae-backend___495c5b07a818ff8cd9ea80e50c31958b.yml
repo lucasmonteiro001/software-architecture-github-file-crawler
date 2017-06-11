@@ -1,0 +1,15 @@
+backendtest:
+    image: alterrae/backend
+    ports:
+        - "443:8080"
+        - "8787:8787"
+    links:
+        - databasetest:database
+
+databasetest:
+    image: mongo
+
+databaseimport:
+    image: alterrae/import-data
+    links:
+        - databasetest:mongo

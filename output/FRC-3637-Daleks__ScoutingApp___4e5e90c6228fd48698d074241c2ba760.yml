@@ -1,0 +1,33 @@
+version: '2'
+
+services:
+  web:
+    image: team3637/scoutingapp
+    ports:
+      - "8081:8081"
+    networks:
+      - scouting
+    depends_on:
+      - db
+    command: /tomcat8/bin/catalina.sh run
+  db:
+    image: mysql
+    networks:
+      scouting:
+        aliases:
+          - scoutingsql
+    volumes:
+      - /opt/scoutingdata:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: turing
+      MYSQL_DATABASE: scoutingtags
+      MYSQL_USER: team3637
+      MYSQL_PASSWORD: turing
+
+networks:
+  scouting:
+    driver: bridge
+
+volumes:
+  data:
+    external: false

@@ -1,0 +1,10 @@
+ruby-mine:
+    build: .
+    container_name: "rubymine"
+    net: "host"
+    volumes:
+        - /tmp/.X11-unix:/tmp/.X11-unix
+        - ~:/home/developer
+    environment:
+        DISPLAY: unix:0.0
+    user: 1000:1000

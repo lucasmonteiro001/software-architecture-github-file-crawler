@@ -1,0 +1,10 @@
+version: '2'
+services:
+  kafka:
+    image: sthyselfreight/kafka
+    ports:
+      - "2181:2181"
+      - "9092:9092"
+    environment:
+      ADVERTISED_HOST: ${KAFKA_HOST}
+      ADVERTISED_PORT: 9092

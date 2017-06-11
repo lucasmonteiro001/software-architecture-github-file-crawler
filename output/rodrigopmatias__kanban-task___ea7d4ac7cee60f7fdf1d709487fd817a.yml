@@ -1,0 +1,25 @@
+app:
+  stop_signal: SIGSTOP
+  image: matias/nodejs
+  command: run start
+  ports:
+    - 3000:3000
+  links:
+    - transpiler
+    - cache
+    - db
+  volumes:
+    - ../:/app
+transpiler:
+  stop_signal: SIGSTOP
+  image: matias/nodejs
+  command: run tsc:w
+  volumes:
+    - ../:/app
+cache:
+  image: memcached:1.4
+  command: memcached -m 8
+db:
+  image: mongo
+  volumes:
+    - ./store/db:/data/db

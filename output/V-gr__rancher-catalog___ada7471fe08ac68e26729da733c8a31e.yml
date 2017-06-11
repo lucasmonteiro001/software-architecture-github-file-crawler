@@ -1,0 +1,20 @@
+version: '2'
+services:
+  gogs:
+    image: vger/gogs:latest
+    stdin_open: true
+    restart: always
+    volumes_from:
+      - gogs-data
+    labels:
+      io.rancher.container.pull_image: always
+      io.rancher.sidekicks: gogs-data
+      lb: true
+
+  gogs-data:
+    image: vger/debian:jessie
+    volumes:
+      - ${VOLUME}:/gogs/data
+    labels:
+      io.rancher.container.start_once: true
+    volume_driver: ${VOLUME_DRIVER}

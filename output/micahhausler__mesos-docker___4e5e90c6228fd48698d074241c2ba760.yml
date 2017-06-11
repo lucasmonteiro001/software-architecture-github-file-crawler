@@ -1,0 +1,67 @@
+version: "2"
+services:
+  zookeeper:
+    image: "micahhausler/docker-zk-exhibitor"
+    network_mode: host
+    ports:
+      - 2181  # Client port
+      - 2888  # cluster port
+      - 3888  # cluster port
+      - 8181:8181  # Exhibitor port
+    volumes:
+      - "./data/:/opt/zookeeper/local_configs/"
+  mesos:
+    build: "./mesos"
+    command: |
+        /usr/bin/mesos master \
+            --advertise_ip=192.168.99.100 \
+            --log_dir=/var/log/mesos \
+            --work_dir=/var/mesos/work \
+            --zk=zk://127.0.0.1:2181/mesos \
+            --quorum=1 \
+            --cluster=MesosInDocker
+    network_mode: host
+    ports:
+      - "5050:5050"  # Mesos
+  mesos_dns:
+    image: "mesosphere/mesos-dns:0.5.2"
+    command: "/usr/bin/mesos-dns -v=2 -config=/config.json"
+    network_mode: host
+    volumes:
+      - "./mesos-dns/config.json:/config.json"
+      - "/tmp"
+  mesos_slave:
+    build: "./mesos"
+    command: |
+        mesos slave \
+            --advertise_ip=192.168.99.100 \
+            --log_dir=/var/log/mesos \
+            --containerizers=docker,mesos \
+            --executor_registration_timeout=5mins \
+            --work_dir=/var/mesos/work \
+            --docker=/usr/bin/docker \
+            --docker_mesos_image=mesosdocker_mesos_slave \
+            --docker_socket=/var/run/docker.sock \
+            --master=zk://127.0.0.1:2181/mesos \
+            --resources='ports:[80-80,443-443,9090-9091,10000-10100,31000-32000]' \
+            --no-systemd_enable_support
+    privileged: true
+    pid: host
+    environment:
+      MESOS_ISOLATOR: "cgroups/cpu,cgroups/mem"
+      MESOS_CONTAINERIZERS: "docker,mesos"
+    network_mode: host
+    ports:
+      - "5051:5051"  # Mesos-slave
+    volumes:
+      - "/sys:/sys"
+      - "/var/lib/docker/aufs:/var/lib/docker/aufs"
+      - "/usr/local/lib/libdevmapper.so.1.02:/lib/libdevmapper.so.1.02:ro"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "/usr/local/bin/docker:/usr/local/bin/docker"
+  marathon:
+    build: "./marathon"
+    command: "java -jar /marathon-runnable.jar  --zk zk://127.0.0.1:2181/marathon  --master zk://127.0.0.1:2181/mesos --enable_features=task_killing"
+    network_mode: host
+    ports:
+      - "8080:8080"  # Marathon

@@ -1,0 +1,6 @@
+version: '2'
+services:
+  exampleApi:
+    image: nexmill/mock-go-api
+    ports:
+      - 8082:8000

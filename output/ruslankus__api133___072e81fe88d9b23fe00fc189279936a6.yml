@@ -1,0 +1,29 @@
+version: '2'
+services:
+  mysql-api:
+      image: mysql/mysql-server:5.6
+      network_mode: "bridge"
+      ports:
+          - "3306:3306"
+      volumes:
+          - "./.data/db:/var/lib/mysql"
+      restart: always
+      environment:
+          MYSQL_USERNAME: root
+          MYSQL_ROOT_PASSWORD: mysql
+
+  api-old:
+      build: .
+      image: api-old
+      environment:
+          XDEBUG_CONFIG: remote_host=192.168.1.174
+      network_mode: "bridge"
+      depends_on:
+        - mysql-api
+      ports:
+          - "80:80"
+      links:
+          - mysql-api:mysql-api
+      volumes:
+          - "../:/var/www/site"
+      restart: always

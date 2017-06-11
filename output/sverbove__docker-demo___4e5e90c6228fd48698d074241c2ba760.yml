@@ -1,0 +1,68 @@
+version: '2'
+services:
+
+  ##
+  ## Automatically takes the exposed ports and loadbalances between them
+  ##
+  lb:
+    image: 'dockercloud/haproxy:latest'
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    links:
+      - wso2esb
+    ports:
+      # Exposed LB port
+      - '80:80'
+      # Stats port (user/pwd -> stats/stats)
+      - '1936:1936'
+  ##
+  ## WSO2 ESB with an Echo service doing some (sys)logging
+  ##
+  wso2esb:
+    build: wso2/
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      # Services port, map to random
+      - "8280"
+    links:
+      - logstash
+    environment:
+      - "TZ=Europe/Brussels"      
+      - EXCLUDE_PORTS=9443,9763,8243
+    
+  ##
+  ## ELK Stack
+  ##
+  elasticsearch:
+    build: elasticsearch/
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - "TZ=Europe/Brussels"
+
+  logstash:
+    build: logstash/
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - "5000:5000"
+      - "4712:4712"
+    links:
+      - elasticsearch
+    environment:
+      - "TZ=Europe/Brussels"
+
+  kibana:
+    build: kibana/
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - "5601:5601"
+    links:
+      - elasticsearch
+    environment:
+      - "TZ=Europe/Brussels"

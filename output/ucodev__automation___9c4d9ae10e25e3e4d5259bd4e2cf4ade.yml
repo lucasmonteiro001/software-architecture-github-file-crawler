@@ -1,0 +1,35 @@
+version: '2'
+
+services:
+  ansiblecm:
+    build: ./build/ansiblecm
+    image: ucodev/ansiblecm:latest
+    volumes:
+      - acm_opt:/opt/ansiblecm/
+    stdin_open: true
+    tty: true
+    command: /bin/bash
+    depends_on:
+      - base
+    restart: always
+    networks:
+      acmnet:
+        ipv4_address: 192.168.120.2
+
+  base:
+    build: ./build/base
+    image: ucodev/base:latest
+
+volumes:
+  acm_opt:
+    driver: local
+
+networks:
+  acmnet:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+      - subnet: 192.168.120.0/24
+        gateway: 192.168.120.1
+

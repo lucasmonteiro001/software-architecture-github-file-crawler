@@ -1,0 +1,66 @@
+version: '2.1'
+
+services:
+  db:
+    build: db
+    image: desec/dedyn-dbslave:latest
+    volumes:
+    - db_mysql:/var/lib/mysql
+    environment:
+    - DESECSLAVE_DB_PASSWORD_pdns
+    - DESECSLAVE_ID
+    - DESECSTACK_DBMASTER
+    - DESECSTACK_DBMASTER_USERNAME_replication
+    - DESECSTACK_DBMASTER_PASSWORD_replication
+    - DESECSTACK_DBMASTER_SUBJECT_replication
+    volumes:
+    - ${DESECSLAVE_CERT_FOLDER}:/etc/ssl/private
+    - db_mysql:/var/lib/mysql
+    networks:
+      rear:
+    logging:
+      driver: "syslog"
+      options:
+        tag: "desec-slave/db"
+    restart: unless-stopped
+
+  ns:
+    build: ns
+    image: desec/dedyn-nsslave:latest
+    environment:
+    - DESECSLAVE_CARBONSERVER
+    - DESECSLAVE_CARBONOURNAME
+    - DESECSLAVE_DB_PASSWORD_pdns
+    - DESECSLAVE_LOGDNSQUERIES
+    depends_on:
+    - db
+    ports:
+    - "53:53"
+    - "53:53/udp"
+    networks:
+      front:
+        ipv4_address: 172.16.0.2
+        ipv6_address: ${DESECSLAVE_IPV6_ADDRESS}
+      rear:
+    logging:
+      driver: "syslog"
+      options:
+        tag: "desec-slave/ns"
+    restart: unless-stopped
+
+volumes:
+  db_mysql:
+
+networks:
+  # Note that it is required that the front network ranks lower (in lexical order by
+  # name) than the other networks. See https://github.com/docker/docker/issues/27101
+  front:
+    enable_ipv6: true
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+      - subnet: 172.16.0.0/24
+        gateway: 172.16.0.1
+      - subnet: ${DESECSLAVE_IPV6_SUBNET}
+  rear:

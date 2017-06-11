@@ -1,0 +1,19 @@
+version: '2'
+
+volumes:
+  squid_cache:
+
+services:
+  squid-proxy:
+    image: intraway/squid-proxy
+    hostname: squid-proxy
+    container_name: squid-proxy
+    network_mode: host
+    privileged: true
+    volumes:
+      - squid_cache:/var/cache/squid
+      - /etc/localtime:/etc/localtime
+    environment:
+      - SQUID_LISTEN_PORT=3128
+      - SQUID_MAX_CACHE_SIZE=5000
+      - SQUID_MAX_CACHE_OBJECT=1024

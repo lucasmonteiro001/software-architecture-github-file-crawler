@@ -1,0 +1,13 @@
+mongo:
+  container_name: haar-engine_mongo
+  image: mongo
+app:
+  container_name: haar-engine_app
+  build: .
+  ports:
+    - "3000:3000"
+  volumes:
+    - .:/src
+    - /src/node_modules # http://stackoverflow.com/questions/30043872/docker-compose-node-modules-not-present-in-a-volume-after-npm-install-succeeds
+  links:
+    - mongo

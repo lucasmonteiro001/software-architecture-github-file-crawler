@@ -1,0 +1,78 @@
+version: '2'
+services:
+  dbserver:
+    image: $PREFIXIMAGE/dbserver:$ODMVERSION
+    build: 
+        context: ../
+        dockerfile: ./${ODMDOCKERDIR}/derby-server-db/Dockerfile
+        args:
+        - ODMDOCKERDIR=$ODMDOCKERDIR
+    ports:
+    - 1527:1527
+    environment:
+    - SAMPLE=true
+   # Uncomment this line to persist your data. Note that on OSX you need to share this
+   # current directory in the Perference menu -> File Sharing menu.
+   #    volumes:
+   #    - ./:/opt/db-derby-10.12.1.1-bin
+
+  decisionserverconsole:
+    image: $PREFIXIMAGE/decisionserverconsole:$ODMVERSION
+    build: 
+      context: ../
+      dockerfile: ./${ODMDOCKERDIR}/decisionserverconsole/Dockerfile
+      args:
+        - ODMDOCKERDIR=$ODMDOCKERDIR
+    links:
+    - dbserver
+    depends_on:
+    - dbserver
+    ports:
+    - 9080:9080
+    - 1883:1883
+
+  decisionrunner:
+    image: $PREFIXIMAGE/decisionrunner:$ODMVERSION
+    build: 
+      context: ../
+      dockerfile: ./${ODMDOCKERDIR}/decisionrunner/Dockerfile
+      args:
+        - ODMDOCKERDIR=$ODMDOCKERDIR
+    links:
+    - dbserver
+    depends_on:
+    - dbserver
+    - decisionserverconsole
+    ports:
+    - 9070:9080
+
+  decisioncenter:
+    image: $PREFIXIMAGE/decisioncenter:$ODMVERSION
+    build: 
+      context: ../
+      dockerfile: ./${ODMDOCKERDIR}/decisioncenter/Dockerfile
+      args:
+        - ODMDOCKERDIR=$ODMDOCKERDIR
+    links:
+    - dbserver
+    depends_on:
+    - dbserver
+    ports:
+    - 9060:9060
+    
+  decisionserverruntime:
+    image: $PREFIXIMAGE/decisionserverruntime:$ODMVERSION
+    build:
+      context: ../
+      dockerfile: ./${ODMDOCKERDIR}/decisionserverruntime/Dockerfile
+      args:
+        - ODMDOCKERDIR=$ODMDOCKERDIR
+    links:
+    - dbserver
+    - decisionserverconsole
+    depends_on:
+    - dbserver
+    - decisionserverconsole
+    ports:
+    - 9090:9080
+    - 9443

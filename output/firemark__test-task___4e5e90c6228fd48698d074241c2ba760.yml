@@ -1,0 +1,28 @@
+db_A:
+    image: mariadb
+    environment:
+        MYSQL_USER: cc
+        MYSQL_DATABASE: cc
+        MYSQL_PASSWORD: cc
+        MYSQL_ROOT_PASSWORD: cc
+    volumes:
+        - ./test_db-master/:/sqls/
+    working_dir: /sqls/
+db_B:
+    image: mariadb
+    environment:
+        MYSQL_USER: cc
+        MYSQL_DATABASE: cc
+        MYSQL_PASSWORD: cc
+        MYSQL_ROOT_PASSWORD: cc
+    volumes:
+        - ./test_db-master/:/sqls/
+    working_dir: /sqls/
+base:
+    build: .
+    command: python2 script.py config.ini
+    volumes:
+        - ./scripts/:/code/
+    links:
+        - db_A
+        - db_B

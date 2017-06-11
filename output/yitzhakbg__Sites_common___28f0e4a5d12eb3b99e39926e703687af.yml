@@ -1,0 +1,40 @@
+version: 2
+services:
+  caddy:
+    container_name: caddy4hugo
+    build:
+      context: "docker-caddy"
+      dockerfile: HostedDockerfile
+    volumes:
+      - "./caddylog:/var/log"
+      - "~/.caddy:/root/.caddy:rw"
+      - "./HostedCaddyfile:/etc/caddy/Caddyfile"
+      - ".:/var/www/src"
+
+#
+# For local operation, map sources directly.
+# (see docker-caddy/Dockerfile)
+#      - "../levpoem:/var/www/src/levpoem"
+#      - "../heartbt:/var/www/src/heartbt"
+# On the server, comment out the two above lines and pull the sources in with git.
+# (see docker-caddy/Dockerfile)
+#
+      - "./utils:/usr/local/bin:rw"
+    environment:
+      - "HOME=/root"
+      - "HUGO_SITE1=levpoem"
+      - "HUGO_SITE2=heartbt"
+      - "HUGO_THEME=redlounge"
+      - "HUGO_WATCH=1"
+      - "HUGO_REFRESH_TIME=5"
+      - "SLEEP=15"
+      - "lang1=h" # First non-default language is Hebrew. Default language is English
+      #
+    ports:
+      - "80:80"
+      - "443:443"
+  # syncthing:
+  #   build: "docker-syncthing"
+  #   volumes_from:
+  #     - "levpoem"
+  #     - "heartbt"

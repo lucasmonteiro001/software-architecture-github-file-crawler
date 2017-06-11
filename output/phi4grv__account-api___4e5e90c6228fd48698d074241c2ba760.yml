@@ -1,0 +1,109 @@
+version: '2'
+services:
+  account-api:
+    environment:
+      - DOCKERIZE_WAIT_URLS=tcp://datomic-db:4334
+      - _JAVA_OPTIONS=-Dclojure.server.repl='{:accept phi4grv.server.remote-sut/repl :address "0.0.0.0" :port ${ACCOUNT_API_SOCKET_PORT}}'
+    extends:
+      service: common
+    image: phi4grv/account-api:${ACCOUNT_API_IMAGE_TAG}
+    links:
+      - datomic-db:${ACCOUNT_DATOMIC_HOST}
+    ports:
+      - ${ACCOUNT_API_PORT}:${ACCOUNT_API_PORT}
+      - ${ACCOUNT_API_SOCKET_PORT}:${ACCOUNT_API_SOCKET_PORT}
+  common:
+    environment:
+      - ACCOUNT_API_PORT
+      - ACCOUNT_DB
+      - ACCOUNT_DATOMIC_HOST
+      - ACCOUNT_DATOMIC_PORT
+      - ACCOUNT_DATOMIC_PROTOCOL
+      - LOG_LEVEL
+      - LOG_NS_BLACKLIST
+    image: ${CLOJURE_LEIN_IMAGE}
+  cucumber:
+    entrypoint: lein with-profile dev cucumber
+    extends:
+      service: lein
+    links:
+      - datomic-db:${ACCOUNT_DATOMIC_HOST}
+  datomic-console:
+    command: /datomic/run-console.bash -p ${DATOMIC_CONSOLE_PORT} account datomic:${ACCOUNT_DATOMIC_PROTOCOL}://${ACCOUNT_DATOMIC_HOST}:4334
+    environment:
+      - DOCKERIZE_WAIT_URLS=tcp://${ACCOUNT_DATOMIC_HOST}:4334
+    image: ${DATOMIC_IMAGE}
+    links:
+      - datomic-db:${ACCOUNT_DATOMIC_HOST}
+    ports:
+      - ${DATOMIC_CONSOLE_PORT}:${DATOMIC_CONSOLE_PORT}
+    working_dir: /datomic
+  datomic-db:
+    command: /datomic/run-transactor.bash /datomic/config/transactor.properties
+    environment:
+      - DATOMIC_ALT_HOST=${ACCOUNT_DATOMIC_HOST}
+      - DATOMIC_LICENSE_KEY_BASE64
+    image: ${DATOMIC_IMAGE}
+    volumes:
+      - ${PWD}/dev-transactor.properties:/datomic/config/transactor.properties
+    working_dir: /datomic
+  e2e-cucumber:
+    entrypoint: lein with-profile dev cucumber
+    environment:
+      - ACCOUNT_API_HOST=account-api
+      - REMOTE_SUT=1
+    extends:
+      service: lein
+    links:
+      - account-api
+      - datomic-db:${ACCOUNT_DATOMIC_HOST}
+  e2e-repl:
+    command: repl :start :host 0.0.0.0 :port ${REPL_PORT}
+    environment:
+      - ACCOUNT_API_HOST=account-api
+      - REMOTE_SUT=1
+    extends:
+      service: lein
+    links:
+      - account-api
+      - datomic-db:${ACCOUNT_DATOMIC_HOST}
+    ports:
+      - ${REPL_PORT}:${REPL_PORT}
+  e2e-test:
+    entrypoint: lein test :e2e
+    environment:
+      - ACCOUNT_API_HOST=account-api
+    extends:
+      service: lein
+    links:
+      - account-api
+  lein:
+    entrypoint: lein
+    environment:
+      - DATOMIC_USER
+      - DATOMIC_DOWNLOAD_KEY
+      - HOME
+      - _JAVA_OPTIONS=-Duser.home=${HOME}
+    extends:
+      service: common
+    volumes:
+      - ${HOME}/.m2:${HOME}/.m2
+      - ${PWD}:${PWD}
+    working_dir: ${PWD}
+  repl:
+    command: repl :start :host 0.0.0.0 :port ${REPL_PORT}
+    extends:
+      service: lein
+    links:
+      - datomic-db:${ACCOUNT_DATOMIC_HOST}
+    ports:
+      - ${REPL_PORT}:${REPL_PORT}
+      - ${ACCOUNT_API_PORT}:${ACCOUNT_API_PORT}
+  run:
+    command: run
+    extends:
+      service: lein
+    links:
+      - datomic-db:${ACCOUNT_DATOMIC_HOST}
+    ports:
+      - ${ACCOUNT_API_PORT}:${ACCOUNT_API_PORT}

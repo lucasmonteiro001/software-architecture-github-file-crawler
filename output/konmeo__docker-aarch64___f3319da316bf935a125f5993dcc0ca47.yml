@@ -1,0 +1,9 @@
+version: '2'
+services:
+  make:
+    image: konmeo/python3-dev:latest
+    volumes:
+      - "${PWD}/../wheelhouse:/wheelhouse"
+    environment:
+      DEB_LIST: ${DEB_LIST}
+      WHEEL_LIST: ${WHEEL_LIST}

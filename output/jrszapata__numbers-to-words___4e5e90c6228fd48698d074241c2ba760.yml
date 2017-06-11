@@ -1,0 +1,9 @@
+version: "2"
+services:
+  web:
+    image: jrszapata/numbers-to-words
+    build: .
+    volumes: 
+      - ./:/var/www/html
+    ports:
+      - 8095:80

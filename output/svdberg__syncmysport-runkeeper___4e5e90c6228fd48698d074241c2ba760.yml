@@ -1,0 +1,46 @@
+db:
+  image: postgres
+  environment:
+    POSTGRES_PASSWORD: docker
+    POSTGRES_USER: docker
+mysql:
+  image: mariadb
+  environment:
+    - MYSQL_PASSWORD=docker
+    - MYSQL_USER=docker
+    - MYSQL_DATABASE=docker
+    - MYSQL_ROOT_PASSWORD=mysecret
+trigger:
+  build: .
+  command: bash -c "/usr/bin/env > /env.txt && cron -f -L 15 > /var/log/cron.log"
+  links:
+    - db
+    - mysql
+  environment:
+    - DATABASE_URL=postgres://docker:docker@db:5432/docker
+    - CLEARDB_DATABASE_URL=mysql://docker:docker@mysql/docker?reconnect=true
+worker:
+  build: syncmysport-worker/.
+  command: dockerize -timeout 20s -wait tcp://db:5432 -wait tcp://mysql:3306 ../../bin/app
+  links:
+    - db
+    - mysql
+  environment:
+    - DATABASE_URL=postgres://docker:docker@db:5432/docker
+    - CLEARDB_DATABASE_URL=mysql://docker:docker@mysql/docker?reconnect=true
+web:
+  build: syncmysport-web/.
+  command: dockerize -timeout 20s -wait tcp://mysql:3306 ../../bin/app
+  ports:
+    - "8080:8080"
+  links:
+    - mysql
+  environment:
+    - CLEARDB_DATABASE_URL=mysql://docker:docker@mysql/docker?reconnect=true
+    - ENVIRONMENT=Prod
+    - RUNKEEPER_REDIRECT=http://www.syncmysport.com/code
+    - RUNKEEPER_SECRET=abcd
+    - STRAVA_REDIRECT=http://www.syncmysport.com/exchange_token
+    - STRAVA_SECRET=abcde
+    - PORT=8080
+    - STATICPATH=/go/src/github.com/svdberg/syncmysport-runkeeper/api/static

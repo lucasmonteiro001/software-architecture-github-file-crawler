@@ -1,0 +1,44 @@
+version: '2'
+
+services:
+  postgres:
+    image: postgres:9.6.1
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    restart: always
+    environment:
+      POSTGRESS_PASSWORD: db1pwd
+      POSTGRESS_USER: db1usr
+
+  mongo:
+    image: mongo:3.0.14
+    volumes:
+      - db_data:/var/lib/mongo/data
+    restart: always
+    ports:
+      - 27017
+    command: "--smallfiles --logpath=/dev/null"
+    environment:
+      MONGODB_PASS: db2pwd
+      MONGODB_USER: db2usr
+
+  app1:
+    build: .
+    depends_on:
+      - postgres
+      - mongo
+    ports:
+      - "1337:1337"
+
+  web:
+    depends_on:
+      - app1
+    image: nginx:latest
+    ports:
+      - "80:1337"
+    restart: always
+
+volumes:
+  db_data:
+    driver: local
+    

@@ -1,0 +1,40 @@
+elasticsearch:
+  build: elasticsearch/
+  command: elasticsearch -Des.default.path.conf=/etc/elasticsearch
+  volumes:
+    - ./elasticsearch/config/:/etc/elasticsearch/
+  ports:
+    - "9200:9200"
+kibana:
+  build: kibana/
+  hostname: kibana1
+  volumes:
+    - ./kibana/config/kibana.yml:/opt/kibana/config/kibana.yml
+  ports:
+    - "5601:5601"
+  links:
+    - "elasticsearch:elasticsearch"
+mysql:
+  build: mysql
+  hostname: mysql1
+  ports:
+    - "3306:3306"
+  links:
+    - "elasticsearch:elasticsearch"
+  environment:
+    MYSQL_DATABASE: mysqlslap
+redis:
+  build: redis
+  hostname: redis1
+  links:
+    - "elasticsearch:elasticsearch"
+  ports:
+    - "6379:6379"
+web:
+  hostname: web1
+  links:
+    - "elasticsearch:elasticsearch"
+  restart: always
+  build: apache
+  ports:
+    - "80:80"

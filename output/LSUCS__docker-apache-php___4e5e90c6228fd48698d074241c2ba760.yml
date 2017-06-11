@@ -1,0 +1,10 @@
+# Compose script for testing the apache-php container
+http:
+  image: lsucs/apache-php
+  container_name: apache-php-test
+  ports:
+    - "8081:80"
+  volumes:
+    - "./testapp:/app:ro"
+
+# vi: sw=2 ts=2

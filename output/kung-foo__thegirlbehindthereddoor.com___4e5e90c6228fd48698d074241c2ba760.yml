@@ -1,0 +1,18 @@
+db:
+    build: vendor/alpine-postgres
+    env_file: common.env
+blog:
+    build: vendor/alpine-ghost
+    links:
+        - db
+    env_file: common.env
+    environment:
+        GHOST_STORE: postgres
+proxy:
+    build: vendor/alpine-nginx
+    links:
+        - blog
+    env_file: common.env
+    ports:
+        - "80:8080"
+        - "443:8443"

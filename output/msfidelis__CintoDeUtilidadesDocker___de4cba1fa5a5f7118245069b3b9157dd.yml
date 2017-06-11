@@ -1,0 +1,17 @@
+version: "3"
+services:
+  api:
+    build: ./PHP7
+    volumes:
+      - ./web:/var/www/html
+    ports:
+      - "80:80"
+    links:
+      - mongo
+
+  mongo:
+    image: mongo:3.0.4
+    ports:
+     - "27017:27017"
+    volumes:
+     - './mongodata:/data/db'

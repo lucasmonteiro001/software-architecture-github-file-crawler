@@ -1,0 +1,150 @@
+version: '3'
+services:
+  nginx:
+    image: nginx
+    container_name: nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    restart: always
+    volumes:
+      - ./www:/var/www/html/
+      - ./www/default:/var/www/default
+      - ./conf/nginx/ssl:/etc/ssl/local/
+      - ./conf/nginx/sites/includes:/etc/nginx/includes
+      - ./conf/nginx/sites/conf.d:/etc/nginx/conf.d
+      - ./storage/logs/supervisor:/var/log/supervisor
+      - ./storage/logs/nginx:/var/log/nginx
+    networks:
+      - backend
+
+  php56:
+    build:
+      context: .
+      dockerfile: ./builders/PHP/5.6-fpm
+    container_name: php56
+    restart: always
+    volumes:
+      - ./www:/var/www/html
+      - ./www/default:/var/www/default
+      - ./conf/php/5.6/mods-available:/usr/local/etc/php/conf.d
+      - ./conf/php/fpm/php-fpm.d:/usr/local/etc/php-fpm.d
+      - ./storage/logs/php-fpm/5.6:/var/log/php-fpm
+    networks:
+      - backend
+
+  php71:
+    build:
+        context: .
+        dockerfile: ./builders/PHP/7.1-fpm
+    container_name: php71
+    restart: always
+    volumes:
+      - ./www:/var/www/html
+      - ./www/default:/var/www/default
+      - ./conf/php/7.1/mods-available:/usr/local/etc/php/conf.d
+      - ./conf/php/fpm/php-fpm.d:/usr/local/etc/php-fpm.d
+      - ./storage/logs/php-fpm/5.6:/var/log/php-fpm
+    networks:
+      - backend
+
+  percona:
+    image: percona:latest
+    container_name: percona
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: percona
+      MYSQL_PASSWORD: percona
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./storage/percona/data:/var/lib/mysql
+      - ./storage/dumps:/var/dumps
+      # - ./conf/percona/conf.d:/etc/mysql/percona-server.conf.d
+    networks:
+      - backend
+
+  redis:
+    image: redis
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - backend
+
+  mailhog:
+    image: mailhog/mailhog
+    container_name: mailhog
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    networks:
+      - backend
+
+  #mysql:
+  #  image: mysql
+  #  container_name: mysql
+  #  ports:
+  #    - "3307:3306"
+  #  environment:
+  #    MYSQL_ROOT_PASSWORD: root
+  #  volumes:
+  #    - ./storage/mysql/data:/var/lib/mysql
+  #    - ./storage/dumps:/var/dumps
+
+  #varnish:
+  #  build:
+  #    context: .
+  #    dockerfile: builders/VarnishCache
+  #  container_name: varnish
+  #  ports:
+  #    - "8080:80"
+  #  links:
+  #    - backend:backend
+  #  volumes:
+  #    - ./conf/varnish/etc:/etc/varnish
+
+  #gearman:
+  #  build:
+  #    context: .
+  #    dockerfile: builders/Gearman
+  #  container_name: gearman
+  #  ports:
+  #     - "4730:4730"
+
+  #solr:
+  #  image: solr
+  #  container_name: solr
+  #  ports:
+  #    - "27017:27017"
+
+  #mongo:
+  #  image: mongo
+  #  container_name: mongo
+  #  ports:
+  #    - "27017:27017"
+
+  #memcached:
+  #  image: memcached
+  #  container_name: memcached
+  #  ports:
+  #    - "11211:11211"
+
+  #elasticsearch:
+  #  image: elasticsearch
+  #  container_name: elasticsearch
+  #  ports:
+  #    - "9200:9200"
+  #    - "9300:9300"
+
+  #rabbitmq:
+  #  image: rabbitmq:3.6.1-management
+  #  container_name: rabbitmq
+  #  ports:
+  #    - "15672:15672"
+  #    - "5672:5672"
+
+networks:
+  backend:
+    driver: bridge

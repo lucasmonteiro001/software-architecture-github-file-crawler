@@ -1,0 +1,13 @@
+consul:
+    extends:
+        file: base.yml
+        service: consul
+
+carbon:
+    extends:
+        file: base.yml
+        service: carbon
+    links:
+    - consul:consul
+    volumes:
+    - "/var/lib/carbon/whisper/"

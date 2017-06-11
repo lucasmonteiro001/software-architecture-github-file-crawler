@@ -1,0 +1,6 @@
+postgres:
+  image: postgres:9.3
+  environment:
+    - POSTGRES_PASSWORD=root
+  ports:
+    - "5433:5432"

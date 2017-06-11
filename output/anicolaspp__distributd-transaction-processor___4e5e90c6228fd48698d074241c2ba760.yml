@@ -1,0 +1,22 @@
+version: '2'
+
+services:
+  seed:
+    image: subscriber:1.0
+    ports:
+      - '1600:1600'
+
+    environment:
+      CLUSTER_PORT: 1600
+      CLUSTER_IP: seed
+      SEED_PORT_1600_TCP_ADDR: seed
+
+  publisher:
+    image: cluster-publisher:1.0
+    ports:
+      - '1601:1601'
+
+    environment:
+      CLUSTER_PORT: 1601
+      CLUSTER_IP: publisher
+      SEED_PORT_1600_TCP_ADDR: seed

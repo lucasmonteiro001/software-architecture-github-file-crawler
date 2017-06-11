@@ -1,0 +1,44 @@
+version: '2'
+services:
+  LaunchLeap-DEV:
+    image: eboraas/apache-php:latest
+    environment:
+      VIRTUAL_HOST: local.launchleap.com
+      VIRTUAL_PROTO: https
+      VIRTUAL_PORT: 443
+    links:
+      - mysql:mysql
+    volumes:
+      - /home/arthur/Documents/git/launchleap/src/:/var/www/
+    ports:
+      - 8080:80
+      - 4443:443
+  mysql:
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: Password
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    environment:
+      PHP_UPLOAD_MAX_FILESIZE: 500M
+      VIRTUAL_HOST: phpmyadmin.launchleap.com
+      VIRTUAL_PROTO: https
+      VIRTUAL_PORT: 443
+    links:
+      - mysql:mysql
+    restart: always
+    ports:
+      - 8081:80
+      - 4444:443
+  Proxy:
+    image: jwilder/nginx-proxy:latest
+    environment:
+      DEFAULT_HOST: dev.launchleap.com
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - /path/to/certs:/etc/nginx/certs:ro
+      - /etc/nginx/vhost.d
+      - /usr/share/nginx/html

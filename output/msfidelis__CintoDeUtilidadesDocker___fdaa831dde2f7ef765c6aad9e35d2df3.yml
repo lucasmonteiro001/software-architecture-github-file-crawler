@@ -1,0 +1,7 @@
+version: '2'
+services:
+  crontab:
+    build: .
+    volumes:
+      - ./crontabs:/etc/cron.d
+      - ./scripts:/var/scripts

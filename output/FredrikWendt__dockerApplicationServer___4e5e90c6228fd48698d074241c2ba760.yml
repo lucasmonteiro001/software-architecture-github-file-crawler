@@ -1,0 +1,35 @@
+repository:
+  image: mattgruter/artifactory
+  volumes:
+    - data/artifactory/data:/artifactory/data
+    - data/artifactory/logs:/artifactory/logs
+  ports:
+    - "18080:8080"
+
+gocddata:
+  build: gocddata
+
+gocdserver:
+  image: gocd/gocd-server:15.1.0
+  volumes_from:
+    - gocddata
+  ports:
+    - "28153:8153"
+  environment:  
+    - AGENT_KEY=388b633a88de126531afa41eff9aa69e
+
+gocdagent:
+  build: gocdagent
+  volumes:
+     - "/var/run/docker.sock:/var/run/docker.sock"
+  links:
+    - repository
+    - gocdserver
+
+elk:
+  image: willdurand/elk
+  volumes:
+    - elk/config:/etc/logstash
+  ports:
+    - "8080:80"
+    - "42000:42000"

@@ -1,0 +1,21 @@
+app:
+  environment:
+    - RAILS_ENV=development
+  container_name: app
+  build: .
+  command: /myapp/start.sh
+  volumes:
+    - .:/myapp
+    - ./database.yml.compose:/myapp/config/database.yml
+  ports:
+    - "3000:3000"
+  links:
+    - postgres
+postgres:
+  environment:
+    - POSTGRES_USER=postgres
+    - POSTGRES_DB=db/development
+  container_name: postgres
+  image: postgres:9.4
+  ports:
+    - "5432"

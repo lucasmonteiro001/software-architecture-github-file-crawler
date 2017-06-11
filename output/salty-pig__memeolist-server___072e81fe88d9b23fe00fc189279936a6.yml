@@ -1,0 +1,16 @@
+web:
+  build: .
+  ports:
+    - "8080:8080"
+    - "8443:8443"
+    - "9990:9990"
+    - "8787:8787"
+  links:
+    - memeolistpostgres:memeolistpostgres
+memeolistpostgres:
+  image: postgres:9.4
+  ports: 
+    - "5432:5432"
+  environment:
+    POSTGRES_USER: memeolist
+    POSTGRES_PASSWORD: memeolist

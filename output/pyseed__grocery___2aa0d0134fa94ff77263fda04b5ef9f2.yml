@@ -1,0 +1,11 @@
+version: '2'
+
+services:
+    python:
+        image: pyseed/python:3
+        volumes:
+            - .:/home/pyseed/project
+        working_dir: /home/pyseed/project
+        tty: true
+        ports:
+            - "8000:8000"

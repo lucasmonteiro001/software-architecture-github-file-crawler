@@ -1,0 +1,17 @@
+commerce:
+  build: .
+  command: bundle exec rackup
+  volumes:
+    - .:/commerce
+  ports:
+    - 9292:9292
+  links:
+    - riak
+  environment:
+    - RIAK_HOST= 'riak'
+riak:
+  image: hectcastro/riak:latest
+  environment:
+    - DOCKER_RIAK_CLUSTER_SIZE=1
+    - DOCKER_RIAK_BACKEND=leveldb
+    - DOCKER_RIAK_STRONG_CONSISTENCY=off

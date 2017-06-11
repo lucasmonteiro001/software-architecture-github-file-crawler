@@ -1,0 +1,25 @@
+proxy:
+  build: ./proxy
+  volumes:
+    # format: external:internal[:mode]
+    - static:/usr/local/nginx/html/static
+    - log/nginx:/var/log/nginx
+  ports:
+    - "80:80"
+  links:
+    - web
+
+web:
+  build: .
+  command: gunicorn extended_events.wsgi -b 0.0.0.0:9000
+  volumes:
+    # format: external:internal[:mode]
+    - .:/project_code
+  ports:
+    # format: external:internal (i.e. the world sees the external port)
+    - "8000:9000"
+  links:
+    - db
+
+db:
+  image: postgres

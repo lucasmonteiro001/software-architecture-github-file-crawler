@@ -1,0 +1,4 @@
+{{.Name}}:
+  build: .
+  ports:{{range $element := .Ports}}
+   - {{$element}}{{end}}

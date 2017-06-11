@@ -1,0 +1,108 @@
+version: "2"
+services:
+    php:
+        build:
+            context: ./images/php55
+            args:
+                PHP_SESSION_SAVE_HANDLER: redis
+                PHP_SESSION_SAVE_PATH: "tcp://redis:6379"
+                PHP_ERROR_LOG: "/var/log/php.log"
+        image: rnique/php55
+        volumes:
+            - ./data/www:/var/www/html
+#            - ./log/php.log:/var/log/php.log
+            - ./log/php-fpm-error.log:/var/log/php-fpm-error.log
+        tmpfs:
+            - /tmp
+        networks:
+            front-tier:
+                aliases:
+                    - php
+            back-tier:
+    apache:
+        build:
+            context: ./images/apache24
+        image: rnique/apache24
+        ports:
+            - "80:80"
+            - "443:443"
+        volumes:
+            - ./data/www:/var/www/html
+            - ./images/apache24/xtraparams.conf:/etc/httpd/conf.d/xtraparams.conf
+            - ./log/apache.log:/var/log/apache.log
+        tmpfs:
+            - /tmp
+        networks:
+            - front-tier
+    db:
+        image: percona/percona-server:5.7
+        environment:
+            - MYSQL_ROOT_PASSWORD=secret
+        volumes:
+            - db-data:/var/lib/mysql
+            - db-logs:/var/log/mysql
+            # bind mount my local my.cnf
+            # - $PWD/my.cnf:/etc/my.cnf
+        tmpfs:
+            - /tmp
+        networks:
+            back-tier:
+                aliases:
+                    - mysql
+        command:
+            # Workaround for no my.cnf in image
+            - '--user=mysql'
+        expose:
+            - "3306"
+    redis:
+        image: centos/redis
+        environment:
+            - MASTER=true
+#        volumes:
+#            - redis-data:/var/lib/redis
+        tmpfs:
+            - /tmp
+        networks:
+            back-tier:
+                aliases:
+                    - redis
+        expose:
+            - "6379"
+    elasticsearch:
+        image: million12/elasticsearch:1.4.4
+        environment:
+            - MARVEL_SUPPORT=true
+            - ES_HEAP_SIZE=2g
+        ports:
+            - "9200:9200/tcp"
+        volumes:
+            - ./images/elasticsearch/elasticsearch.in.sh:/opt/elasticsearch/bin/elasticsearch.in.sh
+            - ./images/elasticsearch/elasticsearch.yml:/opt/elasticsearch/config/elasticsearch.yml
+        tmpfs:
+            - /tmp
+        networks:
+            back-tier:
+                aliases:
+                    - elastic
+        expose:
+            - "9200"
+            - "9300"
+    cron:
+        build:
+            context: ./images/cronie
+        image: rnique/cronie
+        volumes:
+            - ./data/www:/var/www/html
+            - ./images/cronie/crontab:/etc/crontab
+            - ./log/cron.log:/var/log/cron.log
+        tmpfs:
+            - /tmp
+        networks:
+            - front-tier
+volumes:
+    db-data: {}
+    db-logs: {}
+#    redis-data: {}
+networks:
+    front-tier:
+    back-tier:

@@ -1,0 +1,49 @@
+logreceiver:
+        build: ./LogReceiver
+        hostname: logreceiver
+        expose:
+                - 8181
+                - 61616
+                - 1883
+        ports:
+                - "8181:8181"
+                - "61616:61616"
+                - "1883:1883"
+        environment:
+                - GATEWAY_MQTT_BROKER_URL=tcp://192.168.178.118:1883
+                - BROKER_ADMIN_UID=admin
+                - BROKER_ADMIN_PASSWD=change12_me
+                - JAVA_MIN_MEM=256M
+                - JAVA_MAX_MEM=256M
+                - JAVA_PERM_MEM=128M
+                - JAVA_MAX_PERM_MEM=128M
+        links:
+                - influxdb
+        privileged: true
+        volumes:
+                - ./LogReceiver/target:/home/psteiner/target
+                - ~/.m2/repository:/home/psteiner/.m2/repository
+
+grafana:
+        build: ./Grafana
+        hostname: grafana
+        expose:
+               - 3000
+        links:
+               - influxdb
+        ports:
+               - "3000:3000"
+
+influxdb:
+       build: ./InfluxDB
+       hostname: influxdb
+       expose:
+              - 8083
+              - 8086
+       ports:
+              - "8083:8083"
+              - "8086:8086"
+       environment:
+#              - ADMIN_USER=admin
+#              - INFLUXDB_INIT_PWD=change12_me
+              - PRE_CREATE_DB=iotdemo

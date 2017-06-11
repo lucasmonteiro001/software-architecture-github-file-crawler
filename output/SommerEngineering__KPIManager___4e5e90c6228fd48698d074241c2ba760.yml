@@ -1,0 +1,27 @@
+version: '2'
+services:
+  kpimanager:
+    build: .
+    ports:
+      - '80:40000'
+      - '127.0.0.1:50000:50000'
+    restart: always
+    environment:
+      dbHost: mongo
+      dbPassword: USER_PASS
+      dbUser: KPIManager
+      projectName: KPIManager
+    depends_on:
+      - mongo
+  mongo:
+    build: 'https://github.com/SommerEngineering/mongodb.git'
+    volumes:
+      - 'mongodb:/data/db'
+    restart: always
+    environment:
+      rootPwd: ROOT_PASS
+      dataPwd: USER_PASS
+      dataUser: KPIManager
+      dataName: KPIManager
+volumes:
+    mongodb: {}

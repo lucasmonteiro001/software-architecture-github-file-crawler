@@ -1,0 +1,184 @@
+version: '2'
+
+services:
+
+### Workspace Utilities Container ###########################
+    
+    workspace:
+        build:
+            context: ./workspace
+        volumes_from:
+           - volumes_source
+        ports:
+           - "22:22"
+        tty: true
+
+### PHP-FPM Container #######################################
+
+    php-fpm:
+        build:
+            context: ./php-fpm
+            dockerfile: Dockerfile   
+        volumes_from:
+            - volumes_source
+        expose:
+            - "9000"
+        networks:
+            - backend
+        environment:
+            # IMPORTANT: Set the Remote Interpreter entry matching name to `laravel`
+            - PHP_IDE_CONFIG="serverName=laravel"
+        restart: always
+
+### HHVM Container #######################################
+
+### Nginx Server Container ##################################
+
+    nginx:
+        build:
+            context: ./nginx
+            args:
+                - PHP_UPSTREAM=php-fpm
+        volumes_from:
+            - volumes_source
+        volumes:
+            - ./logs/nginx/:/var/log/nginx
+        ports:
+            - "80:80"
+            - "443:443"
+        networks:
+            - backend
+
+### Caddy Server Container ##################################
+
+    caddy:
+        build:
+             context: ./caddy
+        volumes_from:
+            - volumes_source
+            - volumes_data
+        ports:
+            - "80:80"
+            - "443:443"
+            - "2015:2015"
+        volumes:
+            - ./caddy/Caddyfile:/etc/Caddyfile
+            - ./logs/caddy:/var/log/caddy
+        networks:
+            - backend
+        restart: always
+
+### Caddy Server Container ##################################
+
+    nori.dev:
+       build:
+             context: ./nori.dev
+             args:
+                - PHP_UPSTREAM=php-fpm
+       volumes_from:
+            - volumes_source
+            - volumes_data
+       volumes:
+            - ./data/Caddyfile/n/:/etc/Caddy/conf.d
+            - ./logs/caddy/n/:/var/log/caddy
+       networks:
+            - backend
+       restart: always
+
+### Caddy Server Container ##################################
+
+    sushi.dev:
+        build:
+             context: ./sushi.dev
+             args:
+                - PHP_UPSTREAM=php-fpm
+        volumes_from:
+            - volumes_source
+            - volumes_data
+        volumes:
+            - ./data/Caddyfile/s/:/etc/Caddy/conf.d
+            - ./logs/caddy/s/:/var/log/caddy
+        networks:
+            - backend
+        restart: always
+
+### Caddy Server Container ##################################
+
+    laravel.dev:
+        build:
+             context: ./laravel.dev
+             args:
+                - PHP_UPSTREAM=php-fpm
+        volumes_from:
+            - volumes_source
+            - volumes_data
+        volumes:
+            - ./data/Caddyfile/l/:/etc/Caddy/conf.d
+            - ./logs/caddy/l/:/var/log/caddy
+        networks:
+            - backend
+        restart: always
+
+### MariaDB Container #######################################
+
+    mariadb:
+        build: ./mariadb
+        volumes_from:
+            - volumes_data
+        ports:
+            - "3306:3306"
+        networks:
+            - backend
+        environment:
+            MYSQL_DATABASE: homestead
+            MYSQL_USER: homestead
+            MYSQL_PASSWORD: secret
+            MYSQL_ROOT_PASSWORD: root
+
+### Redis Container #########################################
+
+    redis:
+        build: ./redis
+        volumes_from:
+            - volumes_data
+        ports:
+            - "6379:6379"
+        networks:
+            - backend
+        restart: always
+
+### Beanstalkd Container ####################################
+
+    beanstalkd:
+        build: ./beanstalkd
+        ports:
+            - "11300:11300"
+        privileged: true
+        networks:
+            - backend
+
+###  Data Container ################################   
+
+    volumes_source:
+        image: tianon/true
+        volumes:
+            - ../html/static/:/var/www
+            - ../html/sushi.dev/:/var/www/sushi.dev
+            - ../html/nori.dev/:/var/www/nori.dev
+            - ../html/oden.dev/:/var/www/oden.dev
+            - ../html/laravel.dev/:/var/www/laravel.dev
+### Databases Data Container ################################
+
+    volumes_data:
+        image: tianon/true
+        volumes:
+            - ./data/mysql:/var/lib/mysql
+            - ./data/redis:/data   
+            - ./data/beanstalk/data:/var/lib/beanstalkd/data
+            - ./data/caddy:/root/.caddy
+networks:
+  backend:
+    # Use a bridge driver
+    driver: bridge
+
+### Add more Containers below ###############################

@@ -1,0 +1,43 @@
+nextcloud:
+  image: vger/nextcloud:v11.0.3-1
+  stdin_open: true
+  restart: always
+  volumes_from:
+    - nextcloud-data
+  external_links:
+    - mariadb:database
+  labels:
+    io.rancher.container.pull_image: always
+    io.rancher.sidekicks: nextcloud-data
+    lb: true
+
+nextcloud-data:
+  image: vger/debian:jessie
+  volumes:
+    - ${VOLUME}:/var/www/nextcloud
+  labels:
+    io.rancher.container.start_once: true
+  volume_driver: ${VOLUME_DRIVER}
+
+mariadb:
+  image: vger/mariadb:latest
+  stdin_open: true
+  restart: always
+  volumes_from:
+    - mariadb-data
+  labels:
+    io.rancher.sidekicks: mariadb-data
+    io.rancher.container.pull_image: always
+  environment:
+    MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    DB_NAME: ${DB_NAME}
+    DB_USER: ${DB_USER}
+    DB_PASSWORD: ${DB_PASSWORD}
+
+mariadb-data:
+  image: vger/debian:jessie
+  volumes:
+    - ${MARIADB_VOLUME}:/var/lib/mysql
+  labels:
+    io.rancher.container.start_once: true
+  volume_driver: ${MARIADB_VOLUME_DRIVER}

@@ -1,0 +1,69 @@
+elasticsearch:
+  image: elasticsearch
+  hostname: elasticsearch
+  ports:
+    - "9200:9200"
+    - "9300:9300"
+zookeeper:
+  image: jplock/zookeeper:3.4.5
+  hostname: zookeeper
+marathon:
+  image: mesosphere/marathon:latest
+  hostname: marathon
+  environment:
+    - MARATHON_MASTER=zk://zookeeper:2181/mesos
+    - MARATHON_ZK=zk://zookeeper:2181/marathon
+  ports:
+    - "8080:8080"
+  links:
+    - zookeeper
+mesosmaster:
+  image: mesosphere/mesos-master:0.22.1-1.0.ubuntu1404
+  hostname: mesosmaster
+  volumes:
+    - /tmp/mesos:/tmp
+  environment:
+    - MESOS_QUORUM=1
+    - MESOS_WORK_DIR=/var/lib/mesos
+    - MESOS_LOG_DIR=/var/log
+    - MESOS_ZK=zk://zookeeper:2181/mesos
+  ports:
+    - "5050:5050"
+    - "9001:9001"
+  links:
+    - zookeeper
+    - marathon
+    - elasticsearch
+slave1:
+  extends:
+    file: slave.yml
+    service: slave
+  hostname: slave1
+  volumes:
+    - /tmp/slave1:/tmp/mesos/slaves
+    - /var/log/slave1:/var/log
+  links:
+   - mesosmaster
+   - zookeeper
+slave2:
+  extends:
+    file: slave.yml
+    service: slave
+  hostname: slave2
+  volumes:
+    - /tmp/slave2:/tmp/mesos/slaves
+    - /var/log/slave2:/var/log
+  links:
+   - mesosmaster
+   - zookeeper
+slave3:
+  extends:
+    file: slave.yml
+    service: slave
+  hostname: slave3
+  volumes:
+    - /tmp/slave3:/tmp/mesos/slaves
+    - /var/log/slave3:/var/log
+  links:
+   - mesosmaster
+   - zookeeper

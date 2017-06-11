@@ -1,0 +1,13 @@
+aspapp:
+  image: aspapp
+  hostname: aspapp
+  ports:
+    - "8181:80"
+  working_dir: /app
+  volumes:
+    - ./:/app
+    - ./vhost.conf:/etc/nginx/sites-enabled/aspapp.conf
+  extra_hosts:
+    - "asp.dev:127.0.0.1"
+  environment:
+    - TERM=xterm

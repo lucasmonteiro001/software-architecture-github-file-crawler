@@ -1,0 +1,57 @@
+version: '3'
+
+services:
+  radio:
+    build: ./
+    image: segleralex/php-radio
+    networks:
+      - mynet
+    ports:
+      - "80:80"
+    deploy:
+      mode: global
+  dbserver:
+    image: mariadb
+    environment:
+       - MYSQL_ROOT_PASSWORD=192837465
+       - MYSQL_USER=radiouser
+       - MYSQL_PASSWORD=password
+       - MYSQL_DATABASE=radio
+    networks:
+      - mynet
+    volumes:
+      - ./latest.sql.gz:/docker-entrypoint-initdb.d/radio.sql.gz
+      - /home/segler/mydb:/var/lib/mysql
+    deploy:
+      placement:
+        constraints:
+          - node.labels.dbserver == true
+  streamcheck:
+    image: segleralex/stream-check
+    environment:
+      - SERVICE=streamcheck
+      - LOG_LEVEL=3
+    networks:
+      - mynet
+    deploy:
+      mode: global
+    tty: true
+  regularcheck:
+    image: segleralex/stream-regular-check
+    environment:
+      - SERVICE=streamcheck
+      - MYSQL_USER=radiouser
+      - MYSQL_PASSWORD=password
+      - MYSQL_DATABASE=radio
+      - DB_SERVER=dbserver
+      - LOG_LEVEL=3
+      - QUEUE=100
+      - CONCURRENCY=10
+    networks:
+      - mynet
+    tty: true
+networks:
+  mynet:
+    driver: "overlay"
+    driver_opts:
+      encrypted: ""

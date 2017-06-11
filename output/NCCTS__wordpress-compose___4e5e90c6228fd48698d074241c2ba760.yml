@@ -1,0 +1,20 @@
+db:
+  image: orchardup/mysql
+  environment:
+    MYSQL_DATABASE: wordpress
+wordpress:
+  build: wordpress
+  command: php -S 0.0.0.0:8000 -t /wordpress -- /wordpress/router.php
+  links:
+    - db
+  # volumes:
+  #   - wordpress/wordpress:/wordpress
+nginx:
+  build: nginx
+  ports:
+    - "80:80"
+  links:
+    - wordpress
+  # volumes:
+  #   - nginx/sites:/etc/nginx/sites-available
+  #   - nginx/log:/var/log/nginx

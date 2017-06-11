@@ -1,0 +1,10 @@
+version: '2'
+services:
+
+  app:
+    command: -secret-key AIzaSyDCxN6faBfPjZFMJumlb-93DMYVQo3wC3Q
+    image: chchao/irproject-google:latest
+    ports:
+    - 8088:80
+    volumes:
+    - /Users/chazerod/gitHub_srcCode/IRPrj/IRProjectAPIServer/app:/usr/local/etc/app

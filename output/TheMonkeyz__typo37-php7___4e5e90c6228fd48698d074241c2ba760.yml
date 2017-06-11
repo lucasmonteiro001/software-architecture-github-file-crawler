@@ -1,0 +1,19 @@
+version: '2'
+
+services:
+  web:
+    build: 
+      context: ./web
+    links:
+      - db:db
+    ports:
+      - 80:80
+      - 443:443
+  db:
+    image: mariadb
+    environment:
+      - MYSQL_ROOT_PASSWORD=dev
+      - MYSQL_DATABASE=dev
+      - MYSQL_USER=dev
+      - MYSQL_PASSWORD=dev
+

@@ -1,0 +1,10 @@
+version: '2'
+services:
+  himawari-client:
+    build:
+      context: .
+      dockerfile: docker/node-libs/Dockerfile
+    image: cxpqwvtj/himawari-node-libs:latest
+    volumes:
+      - ../..:/app:Z
+    command: npm run watch

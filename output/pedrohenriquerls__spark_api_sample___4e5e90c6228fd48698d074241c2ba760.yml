@@ -1,0 +1,13 @@
+sampletest_db:
+  build: db_container/
+  expose:
+    - "5432"
+  ports:
+    - "5432:5432"
+web:
+  build: .
+  command: mvn exec:java -Dexec.args="--db-port 5432"
+  ports:
+    - "4567:4567"
+  links:
+      - sampletest_db

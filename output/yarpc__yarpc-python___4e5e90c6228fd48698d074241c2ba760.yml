@@ -1,0 +1,62 @@
+version: '2'
+
+services:
+    crossdock:
+        image: crossdock/crossdock
+        dns_search: .
+        links:
+            - python
+            - python-sync
+            - go
+            - java
+            - node
+        environment:
+            - WAIT_FOR=python,python-sync,node,go,java
+
+            - AXIS_CLIENT=python,python-sync,node,go,java
+            - AXIS_SERVER=python,node,go,java
+            - AXIS_TRANSPORT=http,tchannel
+            - AXIS_ERRORS_HTTPCLIENT=go,node
+            - AXIS_ENCODING=raw,json,thrift
+
+            - BEHAVIOR_RAW=client,server,transport
+            - BEHAVIOR_JSON=client,server,transport
+            - BEHAVIOR_THRIFT=client,server,transport
+            - BEHAVIOR_ERRORS_HTTPCLIENT=errors_httpclient,server
+            - BEHAVIOR_HEADERS=client,server,transport,encoding
+
+    python:
+        dns_search: .
+        build: .
+        ports:
+            - "8080-8082"
+        volumes:
+            - .:/usr/src/app
+
+    python-sync:
+        dns_search: .
+        build: .
+        ports:
+            - 8080
+        volumes:
+            - .:/usr/src/app
+        environment:
+            - SYNC=1
+
+    go:
+        dns_search: .
+        image: yarpc/yarpc-go:dev
+        ports:
+            - "8080-8082"
+
+    java:
+        dns_search: .
+        image: yarpc/yarpc-java
+        ports:
+            - "8080-8082"
+
+    node:
+        dns_search: .
+        image: yarpc/yarpc-node
+        ports:
+            - "8080-8082"

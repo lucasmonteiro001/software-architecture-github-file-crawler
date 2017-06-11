@@ -1,0 +1,134 @@
+version: "2"
+services:
+
+  tester:
+    image: datomic_tester
+    depends_on:
+      - datomic-tester
+    volumes_from:
+      - tester-data
+    links:
+      - n1
+      - n2
+      #- n3
+      - n4
+      #- n5
+      #- n6
+      - n7:postgres
+
+  tester-data:
+    image: datomic_tester
+    entrypoint: tail -f /dev/null
+    volumes:
+      - ./var/tester-data:/usr/src/app/store
+
+  n1:
+    image: datomic_tester
+    depends_on:
+      - datomic-tester
+    links:
+      - n7:postgres
+    entrypoint: /usr/src/app/scripts/wait-for-init-peer.sh
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+    ports:
+      - "22"
+      - "8001"
+
+  n2:
+    image: datomic_tester
+    depends_on:
+      - datomic-tester
+    links:
+      - n7:postgres
+    entrypoint: /usr/src/app/scripts/wait-for-init-peer.sh
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+    ports:
+      - "22"
+      - "8001"
+
+  # n3:
+  #   image: datomic_tester
+  #   depends_on:
+  #     - datomic-tester
+  #   links:
+  #     - n7:postgres
+  #   entrypoint: /usr/src/app/scripts/wait-for-init-peer.sh
+  #   restart: unless-stopped
+  #   ports:
+  #     - "22"
+  #     - "8001"
+
+  n4:
+    image: datomic_tester
+    depends_on:
+      - datomic-tester
+    links:
+      - n7:postgres
+    entrypoint: /usr/src/app/scripts/wait-for-init-transactor.sh n4
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+    ports:
+      - "22"
+      - "4334"
+      - "8001"
+
+  n5:
+    image: datomic_tester
+    depends_on:
+      - datomic-tester
+    links:
+      - n7:postgres
+    entrypoint: /usr/src/app/scripts/wait-for-init-transactor.sh n5
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+    ports:
+      - "22"
+      - "4334"
+      - "8001"
+
+  # n6:
+  #   image: datomic_tester
+  #   depends_on:
+  #     - datomic-tester
+  #   links:
+  #     - n7:postgres
+  #   entrypoint: /usr/src/app/scripts/wait-for-init-console.sh
+  #   restart: unless-stopped
+  #   cap_add:
+  #     - NET_ADMIN
+  #   ports:
+  #     - "22"
+  #     - "8001"
+  #     - "8080"
+
+  n7:
+    image: postgres:9.3
+    volumes_from:
+      - postgres-data
+    environment:
+      - LC_ALL=C.UTF-8
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+
+  postgres-data:
+    image: postgres:9.3
+    entrypoint: tail -f /dev/null
+    volumes:
+      - /var/lib/postgresql/data
+
+  datomic-tester:
+    build: build/datomic-tester
+    image: datomic_tester
+    depends_on:
+      - datomic-base
+
+  datomic-base:
+    build: build/datomic-base
+    image: datomic_base
+    entrypoint: tail -f /dev/null

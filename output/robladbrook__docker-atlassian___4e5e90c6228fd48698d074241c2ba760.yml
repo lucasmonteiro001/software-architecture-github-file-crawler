@@ -1,0 +1,30 @@
+data:
+  image: postgres
+  volumes:
+    - /var/log/postgresql
+    - /var/lib/postgresql
+  command: true
+
+postgres:
+  build: ./postgres
+  volumes_from:
+    - data
+  environment:
+    - POSTGRES_PASSWORD=docker
+
+confluence:
+  build: ./confluence
+  links:
+    - postgres
+  environment:
+    - PROXYHOST=confluence-dev.tab.tools
+
+nginx:
+  build: ./nginx
+  ports: 
+    - "80:80"
+    - "443:443"
+  links:
+    - confluence
+  environment:
+    - DOMAINSUFFIX=-dev.tab.tools

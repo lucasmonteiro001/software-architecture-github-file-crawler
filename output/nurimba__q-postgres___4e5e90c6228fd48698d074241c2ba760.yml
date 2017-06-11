@@ -1,0 +1,34 @@
+version: '2'
+
+services:
+  source:
+    image: busybox
+    container_name: 'pg-src'
+    volumes:
+      - $PWD:/pg/app
+
+  database:
+    build:
+      context: ./docker
+      dockerfile: DockerfileDB
+    hostname: "database"
+    container_name: pg-db
+    environment:
+      - POSTGRES_DB=q-postgres
+      - POSTGRES_USER=q-postgres
+      - POSTGRES_PASSWORD=RE7531PH
+
+  development:
+    image: q-postgres
+    build: ./docker/
+    hostname: "dev"
+    working_dir: /pg/app
+    environment:
+      - NODE_ENV=development
+    links:
+      - database
+    volumes_from:
+      - source
+    volumes:
+      - $HOME/.ssh:/pg/.ssh
+      - $HOME/.gitconfig:/pg/.gitconfig

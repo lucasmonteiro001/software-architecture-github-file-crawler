@@ -1,0 +1,55 @@
+version: '2'
+services:
+    db:
+        image: mysql:5.5
+        environment:
+            - MYSQL_ROOT_PASSWORD=root
+            - MYSQL_DATABASE=premis_local
+
+    base:
+        build: .
+        volumes:
+            - .:/app/
+
+    app:
+        extends:
+            service: base
+        depends_on:
+            - db
+        environment:
+            - DJANGO_SETTINGS_MODULE=tests.settings
+            # Comment for sqlite
+            - PES_BACKEND=mysql
+            # Comment to disable debug toolbar.
+            - PES_DEBUG_TOOLBAR=on
+            # Uncomment for query logging.
+            # - PES_DBDEBUG=on
+        command: ./appstart.sh
+        ports:
+            - "8000:80"
+        links:
+            - db
+
+    test:
+        extends:
+            service: base
+        entrypoint: tox -c /app/tox.mysql.ini
+        environment:
+            - DJANGO_SETTINGS_MODULE=tests.settings
+            - PES_BACKEND=mysql
+        links:
+            - db
+        depends_on:
+            - db
+
+    manage:
+        extends:
+            service: base
+        environment:
+            - DJANGO_SETTINGS_MODULE=tests.settings
+            - PES_BACKEND=mysql
+        entrypoint: /app/manage.py
+        links:
+            - db
+        depends_on:
+            - db

@@ -1,0 +1,135 @@
+---
+#
+#    Debian 8 (jessie) docker-compose.yml
+#    Copyright (C) 2016 SOL-ICT
+#    This file is part of the Docker General Purpose System Distro.
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+# For Docker Compose v2+ only
+version: '2'
+
+#
+# Main services
+#
+services:
+
+  minimal:
+    labels:
+      - "org.label-schema.schema-version=1.0"
+      - "org.label-schema.name=$PROJECT_NAME - Minimal service"
+      - "org.label-schema.description=Based on $PROJECT_ORIGIN"
+      - "org.label-schema.vendor=$PROJECT_VENDOR"
+      - "org.label-schema.url=$PROJECT_URL"
+      - "license=$PROJECT_LICENSE"
+      - "org.label-schema.vcs-ref=$VCS_REF"
+      - "org.label-schema.vcs-url=$VCS_URL"
+      - "os-id=$OS_ID"
+      - "os-version-id=$OS_VERSION_ID"
+      - "architecture=$BUILD_ARCH"
+      - "org.label-schema.version=$BUILD_VERSION"
+      - "org.label-schema.build-date=$BUILD_DATE"
+    image: "solict/general-purpose-system-distro:debian8_minimal"
+    build:
+      context: "./dockerfiles"
+      dockerfile: "minimal.dockerfile"
+      args:
+        os_terminal: "linux"
+        os_timezone: "Etc/UTC"
+        os_locale: "en_GB"
+        os_charset: "UTF-8"
+    logging:
+      driver: "json-file"
+    working_dir: "/tmp"
+    command: "/bin/bash"
+
+  standard:
+    labels:
+      - "org.label-schema.schema-version=1.0"
+      - "org.label-schema.name=$PROJECT_NAME - Standard service"
+      - "org.label-schema.description=Based on $PROJECT_FROM - Minimal service"
+      - "org.label-schema.vendor=$PROJECT_VENDOR"
+      - "org.label-schema.url=$PROJECT_URL"
+      - "license=$PROJECT_LICENSE"
+      - "org.label-schema.vcs-ref=$VCS_REF"
+      - "org.label-schema.vcs-url=$VCS_URL"
+      - "os-id=$OS_ID"
+      - "os-version-id=$OS_VERSION_ID"
+      - "architecture=$BUILD_ARCH"
+      - "org.label-schema.version=$BUILD_VERSION"
+      - "org.label-schema.build-date=$BUILD_DATE"
+    image: "solict/general-purpose-system-distro:debian8_standard"
+    build:
+      context: "./dockerfiles"
+      dockerfile: "standard.dockerfile"
+      args:
+        app_dropbear_listen_addr: "0.0.0.0"
+        app_dropbear_listen_port: "22"
+        app_dropbear_key_size: "4096"
+    depends_on:
+      - minimal
+    logging:
+      driver: "json-file"
+    ports:
+      - "22"
+    working_dir: "/tmp"
+    command: "/usr/bin/supervisord -c /etc/supervisor/supervisord.conf --nodaemon"
+
+  devel:
+    labels:
+      - "org.label-schema.schema-version=1.0"
+      - "org.label-schema.name=$PROJECT_NAME - Devel service"
+      - "org.label-schema.description=Based on $PROJECT_FROM - Standard service"
+      - "org.label-schema.vendor=$PROJECT_VENDOR"
+      - "org.label-schema.url=$PROJECT_URL"
+      - "license=$PROJECT_LICENSE"
+      - "org.label-schema.vcs-ref=$VCS_REF"
+      - "org.label-schema.vcs-url=$VCS_URL"
+      - "os-id=$OS_ID"
+      - "os-version-id=$OS_VERSION_ID"
+      - "architecture=$BUILD_ARCH"
+      - "org.label-schema.version=$BUILD_VERSION"
+      - "org.label-schema.build-date=$BUILD_DATE"
+    image: "solict/general-purpose-system-distro:debian8_devel"
+    build:
+      context: "./dockerfiles"
+      dockerfile: "devel.dockerfile"
+    depends_on:
+      - standard
+    logging:
+      driver: "json-file"
+    ports:
+      - "22"
+    working_dir: "/tmp"
+    command: "/usr/bin/supervisord -c /etc/supervisor/supervisord.conf --nodaemon"
+
+#
+# Networks
+#
+networks:
+  default:
+    driver: "bridge"
+
+#
+# Volumes
+#
+volumes:
+  minimal_data:
+    driver: "local"
+  standard_data:
+    driver: "local"
+  devel_data:
+    driver: "local"
+

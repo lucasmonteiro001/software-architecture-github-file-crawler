@@ -1,0 +1,46 @@
+wordpress:
+  image: vger/wordpress:latest
+  stdin_open: true
+  restart: always
+  volumes_from:
+    - wordpress-data
+  labels:
+    io.rancher.container.pull_image: always
+    io.rancher.sidekicks: wordpress-data
+    lb: true
+  environment:
+    DB_NAME: ${DB_NAME}
+    DB_USER: ${DB_USER}
+    DB_PASSWORD: ${DB_PASSWORD}
+    DB_HOST: mariadb
+
+wordpress-data:
+  image: vger/debian:jessie
+  volumes:
+    - ${WORDPRESS_VOLUME}:/var/www/wordpress
+  labels:
+    io.rancher.container.start_once: true
+  volume_driver: ${WORDPRESS_VOLUME_DRIVER}
+
+mariadb:
+  image: vger/mariadb:latest
+  stdin_open: true
+  restart: always
+  volumes_from:
+    - mariadb-data
+  labels:
+    io.rancher.sidekicks: mariadb-data
+    io.rancher.container.pull_image: always
+  environment:
+    MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    DB_NAME: ${DB_NAME}
+    DB_USER: ${DB_USER}
+    DB_PASSWORD: ${DB_PASSWORD}
+
+mariadb-data:
+  image: vger/debian:jessie
+  volumes:
+    - ${MARIADB_VOLUME}:/var/lib/mysql
+  labels:
+    io.rancher.container.start_once: true
+  volume_driver: ${MARIADB_VOLUME_DRIVER}

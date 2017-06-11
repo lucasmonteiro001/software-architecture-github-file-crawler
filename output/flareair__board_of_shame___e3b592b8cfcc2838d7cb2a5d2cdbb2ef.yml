@@ -1,0 +1,17 @@
+web:
+  build: .
+  expose:
+    - "80"
+  volumes:
+    - /app
+  environment:
+    VIRTUAL_HOST: boardofshame.ru,www.boardofshame.ru
+  restart: always
+  container_name: "boardofshame"
+  links:
+    - db
+
+db:
+  image: "mongo:latest"
+  restart: always
+  container_name: "boardofshame_db"

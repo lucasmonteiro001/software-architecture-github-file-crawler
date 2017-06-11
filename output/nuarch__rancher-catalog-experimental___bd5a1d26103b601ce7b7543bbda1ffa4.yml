@@ -1,0 +1,14 @@
+jenkins:
+  image: nuarch/jenkins
+  ports:
+    - 8081:8080/tcp
+    - 50000:50000/tcp
+  volumes_from:
+    - jenkins-data
+  labels:
+    io.rancher.container.dns: 'true'
+    io.rancher.container.hostname_override: container_name
+    io.rancher.sidekicks: jenkins-data
+
+jenkins-data:
+  image: nuarch/jenkins-data

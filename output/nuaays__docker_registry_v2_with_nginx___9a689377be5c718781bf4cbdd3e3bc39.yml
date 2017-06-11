@@ -1,0 +1,32 @@
+version: '2'
+services:
+   nginx:
+      image: nginx:latest
+      ports:
+        - 80:80
+        # - 5043:443
+      depends_on:
+        - private_registry
+      links:
+        - private_registry:registry_auth
+      volumes:
+        - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+        - ./nginx/registry.conf:/etc/nginx/conf.d/registry.conf:ro
+        - ./nginx/registry.passwd:/etc/nginx/.htpasswd:ro
+      restart: always
+      container_name: nginx
+      network_mode: "bridge"
+
+   private_registry:
+      image: registry:2.5
+      ports:
+        - 5000
+      environment:
+        REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY: /var/lib/registry
+      volumes:
+        - ./config.yml:/etc/docker/registry/config.yml
+        - ./data:/var/lib/registry
+      restart: always
+      container_name: registry
+      network_mode: "bridge"
+

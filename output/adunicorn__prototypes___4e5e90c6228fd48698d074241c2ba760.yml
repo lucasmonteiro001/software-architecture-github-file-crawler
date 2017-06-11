@@ -1,0 +1,14 @@
+rabbit:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+redis:
+    ports:
+      - "6379:6379"
+    image: redis
+rabbitconsumer:
+    image: adunicorn/rabbitconsumer
+    links:
+      - redis
+      - rabbit

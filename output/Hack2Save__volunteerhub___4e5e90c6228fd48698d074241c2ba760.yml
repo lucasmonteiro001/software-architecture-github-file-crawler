@@ -1,0 +1,56 @@
+version: '2'
+
+services:
+  postgres:
+    container_name: volunteerhub_postgresql.local
+    image: 'postgres:9.5'
+    volumes:
+      - './data/postgresql:/var/lib/postgresql'
+
+  # mailcatcher:
+  #   container_name: volunteerhub_mailcatcher.local
+  #   image: yappabe/mailcatcher
+  #   ports:
+  #       - 1025:1025
+  #       - 1080:1080
+
+  # redis:
+  #   container_name: volunteerhub_redis.local
+  #   image: 'redis:3.2-alpine'
+  #   command: redis-server
+  #   ports:
+  #     - '6379:6379'
+  #   volumes:
+  #     - './data/redis:/var/lib/redis/data'
+
+  app:
+    container_name: volunteerhub.local
+    depends_on:
+      - 'postgres'
+      # - 'redis'
+    build: .
+    ports:
+      - '3000:3000'
+    volumes:
+      - '.:/volunteerhub'
+    env_file:
+      - './data/application/.env'
+    stdin_open: true
+    tty: true
+    environment:
+      ELASTICSEARCH_URL: elasticsearch:9200
+
+  elasticsearch:
+    container_name: volunteerhub_elasticsearch.local
+    image: 'elasticsearch:2'
+    ports:
+      - '9200:9200'
+    volumes:
+      - 'elastic:/usr/share/elasticsearch/data'
+    environment:
+      - Des.network.host=0.0.0.0
+
+volumes:
+  # redis:
+  postgres:
+  elastic:

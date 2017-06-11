@@ -1,0 +1,7 @@
+services:
+  nsterling-angular2-demo:
+    image: nicksterlingiss/angular2-demo:latest
+    ports:
+    - '5555:5555'
+version: '2'
+

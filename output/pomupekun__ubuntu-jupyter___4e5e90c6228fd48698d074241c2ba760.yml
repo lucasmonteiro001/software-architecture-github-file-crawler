@@ -1,0 +1,14 @@
+ubuntu-jupyter:
+  #image: "pomupekun/ubuntu-jupyter:latest"
+  image: "ubuntu-jupyter:latest"
+  ports:
+    - "8888:8888"
+  container_name: ubuntu-jupyter
+  #tty: true
+  #stdin_open: true
+  volumes:
+     - ~/jupyter:/jupyter
+  command: ["notebook", "--ip=0.0.0.0", "--allow-root", "--notebook-dir=/jupyter/notebooks"]
+  #command: ["notebook", "--ip=0.0.0.0", "--notebook-dir=/jupyter/notebooks"]
+
+

@@ -1,0 +1,30 @@
+dockerregistry:
+  environment:
+    REGISTRY_AUTH: htpasswd
+    REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
+    REGISTRY_AUTH_HTPASSWD_PATH: /auth/htpasswd
+  log_driver: ''
+  labels:
+    io.rancher.container.pull_image: always
+  tty: true
+  log_opt: {}
+  image: registry:2
+  volumes:
+  - certs:/certs
+  - registrydata:/var/lib/registry
+  - ${AUTH_PATH}:/auth
+  stdin_open: true
+  volume_driver: convoy-gluster
+dockerregistry-frontend:
+  environment:
+    ENV_DOCKER_REGISTRY_HOST: dockerregistry
+    ENV_DOCKER_REGISTRY_PORT: '5000'
+  log_driver: ''
+  labels:
+    io.rancher.container.pull_image: always
+  tty: true
+  log_opt: {}
+  image: konradkleine/docker-registry-frontend:v2
+  links:
+  - dockerregistry:dockerregistry
+  stdin_open: true

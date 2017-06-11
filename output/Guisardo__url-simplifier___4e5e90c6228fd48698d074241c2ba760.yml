@@ -1,0 +1,14 @@
+version: '2'
+
+services:
+  mongodb:
+    image: mongo
+    restart: always
+
+  web:
+    image: lucardo/url-simplifier
+    restart: always
+    links:
+     - mongodb:mongodb
+    ports:
+     - "80:80"

@@ -1,0 +1,10 @@
+---
+# docker-compose.yml
+coreos-ipxeserver:
+  build: .
+  ports:
+    - "8085:80"
+  environment:
+    - MODE=dev
+  volumes:
+    - .:/usr/src/app:ro

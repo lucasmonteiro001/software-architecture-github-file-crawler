@@ -1,0 +1,22 @@
+es:
+  build: es
+  environment:
+   - ES_JAVA_OPTS=-Dmapper.allow_dots_in_name=true
+  volumes:
+   - $PWD/es/data:/data
+  ports:
+   - "9200:9200"
+   - "9300:9300"
+
+web:
+  build: web
+  volumes:
+   - $PWD/web/src/public:/src/public
+   - $PWD/web/src/server:/src/server
+   - $PWD/web/src/spec:/src/spec
+  ports:
+   - "8089:8089"
+  links:
+   - es:es
+
+

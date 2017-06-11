@@ -1,0 +1,32 @@
+# https:/hub.docker.com/_/mysql/
+# to run a mysql shell inside the container
+# docker exec -it name_of_container /bin/mysql
+# access via mysql client
+# docker run -it --link wikidb:mysql --rm mysql sh -c 'exec mysql -h"$MYSQL_PORT_3306_TCP_ADDR" -P"$MYSQL_PORT_3306_TCP_PORT" -uroot -p"$MYSQL_ENV_MYSQL_ROOT_PASSWORD"'
+
+wikidb:
+  image: mysql:5.5
+  environment:
+    MYSQL_ROOT_PASSWORD: foo
+  volumes:
+    - /home/docker-data-containers/wiki/mysql:/var/lib/mysql
+    - /home/docker-data-containers/wiki/mysql_config:/etc/mysql/conf.d
+
+# based on https:/github.com/fqxp/dockerfiles/tree/master/mediawiki, but using jessie instead of wheezy
+# we should wait for th mysql to be up. A proposal can be found here:
+# http:/brunorocha.org/python/dealing-with-linked-containers-dependency-in-docker-compose.html
+wiki:
+  build: ../mediawiki
+  environment:
+    MEDIAWIKI_DB_NAME:  elexis_wiki
+    MEDIAWIKI_DB_USER:  elexis
+    MEDIAWIKI_DB_PASSWORD: elexisTest
+  volumes:
+    - /home/docker-data-containers/mediawiki/config:/srv/mediawiki/config
+    - /home/docker-data-containers/mediawiki/images:/srv/mediawiki/images
+  links:
+    - wikidb:mysql
+  ports:
+    - "8888:80"
+
+

@@ -1,0 +1,10 @@
+hr_image:
+  build: .
+  expose:
+    - "80"
+  volumes:
+    - /app
+  environment:
+    VIRTUAL_HOST: hr.2enter.ru
+  restart: always
+  container_name: "hr_app"

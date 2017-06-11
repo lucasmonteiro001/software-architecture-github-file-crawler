@@ -1,0 +1,17 @@
+presentation:
+ image: tutum/haproxy
+ ports:
+  - "80:80"
+ links:
+  - web:web
+web:
+  image: tixu/mattermost
+  ports:
+    - "8065"
+  volumes:
+    - /mm/data:/mattermost/data
+    - /mm/config:/mattermost/conf
+  external_links:
+   - mysqlstore:mysql
+  environment:
+   - VIRTUAL_HOST:mattermost.qrn.ovh

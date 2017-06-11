@@ -1,0 +1,22 @@
+
+version: '2'
+
+services:
+  glam:
+    build: .
+    image: artturimatias/glampipe
+    links:
+     - mongo
+    ports:
+     - "3000:3000"
+    command: node glampipe.js
+    environment:
+     - DOCKER=1
+    volumes:
+     - ./data/projects:/glampipe/projects
+     - ./data/nodes:/glampipe/nodes
+     - ./data/tmp:/glampipe/tmp
+
+  mongo:
+    image: mongo:3.3.10
+

@@ -1,0 +1,22 @@
+version: '2.0'
+services:
+  minecraft:
+    image: itzg/minecraft-server
+    volumes:
+      - "data:/data"
+    ports:
+      - "25565:25565"
+    restart: always
+    environment:
+      EULA: "TRUE"
+      SPAWN_ANIMALS: "TRUE"
+      SPAWN_MONSTERS: "TRUE"
+      SPAWN_NPCS: "TRUE"
+      ALLOW_NETHER: "TRUE"
+      PVP: "FALSE"
+      DIFFICULTY: normal
+      MODE: creative
+      LEVEL: clark_world
+      JVM_OPTS: -Xmx1024M
+volumes:
+  data:

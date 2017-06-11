@@ -1,0 +1,6 @@
+redis:
+  image: redis:3.0.5
+  volumes:
+    - /home/jvazquez/workspace/bookmarks/configurations/redis/redis.conf:/usr/local/etc/redis/redis.conf
+    - /home/jvazquez/workspace/bookmarks/data-volume:/data
+  command: ["redis-server", "/usr/local/etc/redis/redis.conf"]

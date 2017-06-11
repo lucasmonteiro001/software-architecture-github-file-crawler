@@ -1,0 +1,13 @@
+version: '2'
+services:
+ deluge:
+  build: .
+  container_name: deluge
+  mem_limit: 256m
+  ports:
+  - "55100:55100"
+  - "55100:55100/udp"
+  - "8112:8112"
+  volumes:
+  - /host/deluge/home_dir:/var/lib/deluge
+  - /etc/localtime:/etc/localtime:ro

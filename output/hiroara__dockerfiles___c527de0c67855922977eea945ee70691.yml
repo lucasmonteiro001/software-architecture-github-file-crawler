@@ -1,0 +1,12 @@
+redis:
+  image: redis:2
+
+twemproxy:
+  build: .
+  links:
+    - redis:redis.host
+  volumes:
+    - ./etc:/etc/twemproxy
+  command: /usr/bin/nutcracker -c /etc/twemproxy/nutcracker.yml
+  ports:
+    - 6379:6379

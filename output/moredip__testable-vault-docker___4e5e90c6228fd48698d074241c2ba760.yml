@@ -1,0 +1,9 @@
+vault:
+  build: .
+  volumes:
+    - ./test/fixtures.json:/etc/vault_fixtures.json
+
+tests:
+  build: test/
+  links: 
+    - vault

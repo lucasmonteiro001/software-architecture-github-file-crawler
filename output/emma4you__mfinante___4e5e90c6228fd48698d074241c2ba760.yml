@@ -1,0 +1,4 @@
+mfinante:
+    image: emma4you/mfinante
+    ports:
+      - "5000:5000"

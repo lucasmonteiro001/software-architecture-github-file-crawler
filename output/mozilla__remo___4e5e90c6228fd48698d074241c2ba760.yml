@@ -1,0 +1,48 @@
+version: '2'
+services:
+  db:
+    image: mysql:5.5
+    environment:
+      - MYSQL_DATABASE=remo
+      - MYSQL_USER=remo
+      - MYSQL_PASSWORD=remo
+      - MYSQL_ROOT_PASSWORD=root
+    entrypoint:
+      - docker-entrypoint.sh
+      - --max_allowed_packet=2M
+  memcached:
+    image: memcached
+  broker:
+    image: rabbitmq
+  celery:
+    build:
+      context: .
+      dockerfile: docker/dev
+    volumes:
+      - .:/app
+    links:
+      - db
+      - broker
+      - memcached
+    command: ./bin/run-celery.sh
+    depends_on:
+      - broker
+      - db
+  web:
+    build:
+      context: .
+      dockerfile: docker/dev
+    depends_on:
+      - db
+      - memcached
+      - celery
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    links:
+      - db
+      - broker
+      - celery
+      - memcached
+    command: ./bin/run-dev.sh

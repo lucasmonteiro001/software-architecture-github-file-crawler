@@ -1,0 +1,43 @@
+# This Docker Compose file enables launching the constellation of
+# services in a way that is very similar to how we deploy this in
+# production.
+#
+# See running-with-docker-compose.md for details.
+
+version: '2'
+services:
+  docs:
+    build:
+      context: .
+      dockerfile: Dockerfile
+  asini-slackin:
+    image: reactserver/react-server-website-slackin
+    environment:
+     - SLACK_INTERVAL=30000
+     - SLACK_API_TOKEN
+    command: ./bin/slackin --coc "https://github.com/asini/asini/blob/master/CODE_OF_CONDUCT.md" --port 3000 asini $ASINI_SLACK_API_TOKEN
+    restart: unless-stopped
+  react-server-slackin:
+    image: reactserver/react-server-website-slackin
+    environment:
+     - SLACK_INTERVAL=30000
+     - SLACK_API_TOKEN
+    command: ./bin/slackin --coc "https://github.com/redfin/react-server/blob/master/CODE_OF_CONDUCT.md" --port 3000 react-server $REACT_SERVER_SLACK_API_TOKEN
+    restart: unless-stopped
+  nginx:
+    image: nginx:1.10.1
+    depends_on:
+     - docs
+     - asini-slackin
+     - react-server-slackin
+    links:
+     - docs:react-server-docs
+     - asini-slackin:asini-slackin
+     - react-server-slackin:react-server-slackin
+    ports:
+     - "8080:80"
+     - "8443:443"
+    volumes_from:
+     - docs:ro
+    volumes:
+     - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro

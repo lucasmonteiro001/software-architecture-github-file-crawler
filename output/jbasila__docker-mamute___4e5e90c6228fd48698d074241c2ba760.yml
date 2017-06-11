@@ -1,0 +1,48 @@
+mysql:
+  container_name: mysql-mamute
+  image: mysql:5.7.4
+  restart: always
+  privileged: true
+
+  volumes:
+    - /var/docker-storage/persistant/mysql-mamute:/var/lib/mysql
+
+  environment:
+    MYSQL_ROOT_PASSWORD: mamute
+    MYSQL_DATABASE: mamute
+    MYSQL_USER: mamute
+    MYSQL_PASSWORD: mamute
+
+mamute:
+  container_name: mamute
+  image: jbasila/mamute:1.4.0
+  restart: always
+  privileged: true
+
+  links:
+    - mysql:mysql
+
+  volumes:
+    - /var/docker-storage/persistant/mamute/attachments:/opt/attachments
+
+  environment:
+    MAMUTE_HOST: 1.2.3.4
+    MAMUTE_ENABLE_SIGNUP: "true"
+    MAMUTE_ATTACHMENTS_PATH: /opt/attachments
+    MAIL_SERVER: smtp.company.com
+
+nginx:
+  container_name: nginx-mamute
+  image: nginx:1.9
+  restart: always
+  privileged: true
+
+  links:
+    - mamute:mamute
+
+  volumes:
+    - /var/docker-storage/persistant/nginx:/etc/nginx:ro
+
+  ports:
+    - 443:443
+    - 80:80

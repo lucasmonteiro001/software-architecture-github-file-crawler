@@ -1,0 +1,7 @@
+vault:
+  image: nuarch/vault:latest
+  labels:
+    io.rancher.container.dns: 'true'
+    io.rancher.container.hostname_override: container_name
+  ports:
+    - 8200:8200/tcp

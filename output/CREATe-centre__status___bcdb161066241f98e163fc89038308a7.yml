@@ -1,0 +1,36 @@
+mysql:
+  container_name: mysql
+  image: mysql:5.7
+  environment:
+    MYSQL_ROOT_PASSWORD: password
+  restart: always
+    
+status-display:
+  build: status-display
+  container_name: status-display
+  ports:
+    - "80:80"
+  links:
+    - mysql:mysql
+  environment:
+    WORDPRESS_URL: localhost
+    WORDPRESS_TITLE: Status
+    WORDPRESS_ADMIN_USER: admin
+    WORDPRESS_ADMIN_PASSWORD: password
+    WORDPRESS_ADMIN_EMAIL: root@localhost.localdomain
+    TWITTER_OAUTH_KEY: <PUT YOUR TWITTER OAUTH KEY HERE>
+    TWITTER_OAUTH_SECRET: <PUT YOUR TWITTER OAUTH SECRET HERE>
+    GOOGLE_MAPS_API_KEY: <PUT YOUR GOOGLE MAPS API KEY HERE>
+    
+status-stream:
+  build: status-stream
+  container_name: status-stream
+  links:
+    - mysql:mysql
+  environment:
+    WORDPRESS_DB_NAME : wordpress
+    WORDPRESS_DB_USER : root
+    WORDPRESS_DB_PASSWORD : password
+    WORDPRESS_DB_HOST : mysql
+    WORDPRESS_DB_PREFIX : wp_
+		

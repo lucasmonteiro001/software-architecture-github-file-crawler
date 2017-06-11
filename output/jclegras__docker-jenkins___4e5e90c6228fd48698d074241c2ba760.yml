@@ -1,0 +1,13 @@
+dind:
+  container_name: dind
+  image: docker:dind
+  privileged: true
+
+jenkins:
+  build: jenkins/
+  container_name: jenkins
+  links:
+    - dind:docker
+  ports:
+    - "8080:8080" 
+  

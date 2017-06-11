@@ -1,0 +1,9 @@
+server:
+    image: gocd/gocd-server:latest
+    ports:
+    - "8153:8153"
+    - "8154:8154"
+agent:
+    image: gocd/gocd-agent:latest
+    links:
+    - server:go-server

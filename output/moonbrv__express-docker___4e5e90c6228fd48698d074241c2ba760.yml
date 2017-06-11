@@ -1,0 +1,25 @@
+version: '2'
+
+services:
+  site:
+    container_name: site
+    build: .
+    command: npm run dev
+    ports:
+      - '8080:8080'
+    volumes:
+      - '.:/code'
+      - '/code/node_modules'
+    links:
+      - db
+    depends_on:
+      - db
+
+  db:
+    container_name: mongo
+    image: mongo:3.2.10
+    volumes:
+      - 'data:/data/db'
+
+volumes:
+  data:

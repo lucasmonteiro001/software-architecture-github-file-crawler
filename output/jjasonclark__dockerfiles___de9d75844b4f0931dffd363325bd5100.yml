@@ -1,0 +1,25 @@
+version: '2.0'
+volumes:
+  owncloud-app:
+  owncloud-config:
+  owncloud-data:
+  db_data:
+services:
+  db:
+    image: postgres:9.6
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: owncloud
+      POSTGRES_PASSWORD: owncloud
+      POSTGRES_DB: owncloud
+  app:
+    image: owncloud:9.1
+    ports:
+      - "9000:80"
+    volumes:
+      - owncloud-app:/var/www/html/apps
+      - owncloud-config:/var/www/html/config
+      - owncloud-data:/var/www/html/data
+    depends_on:
+      - db

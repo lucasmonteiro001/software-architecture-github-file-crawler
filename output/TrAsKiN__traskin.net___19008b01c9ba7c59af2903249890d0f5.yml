@@ -1,0 +1,17 @@
+version: '2'
+
+services:
+    web:
+        container_name: traskin.net
+        image: traskin/docker-symfony
+        volumes:
+            - .:/var/www/html
+        external_links:
+            - mariadb:db
+        ports:
+            - "80:80"
+
+networks:
+    default:
+        external:
+            name: local.dev

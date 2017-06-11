@@ -1,0 +1,38 @@
+version: '2'
+services:
+  nginx-proxy:
+    image: sloppylopez/nginx-proxy
+    container_name: nginx-container
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - ./certs:/etc/nginx/certs
+      - ./conf.d:/etc/nginx/conf.d
+    links:
+      - node-server:node-server
+
+  node-server:
+    build: .
+    command: node_modules/.bin/browser-sync start
+    container_name: node-container
+    ports:
+      - 8080:8080
+      - 3000:3000
+      - 3001:3001
+      - 8081:8081
+      - 8083:8083
+    volumes:
+      - .:/home/whalephant
+      - nodemodules_app:/home/whalephant/app/node_modules
+      - jspm_packages_app:/home/whalephant/app/jspm_packages
+      - nodemodules_server:/home/whalephant/node_modules
+    environment:
+      - VIRTUAL_HOST=docker.nginx.node.com
+      - VIRTUAL_PORT=8080
+
+volumes:
+  nodemodules_server:
+  nodemodules_app:
+  jspm_packages_app:

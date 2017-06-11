@@ -1,0 +1,128 @@
+version: "2"
+networks:
+    replica:
+
+volumes:
+    db_mysql-router:
+    db_mysql-1:
+    db_mysql-2:
+    db_mysql-3:
+
+services:
+    mysql-router:
+        restart: always
+        image: ${MYSQL}
+#Regular variables for MYSQL
+        command:
+            - --skip-name-resolve
+            - --lower_case_table_names=1
+            - --slow-query-log
+            - --max_allowed_packet=1024M
+            - --max_connections=5000
+            - --query_cache_size=0
+            - --interactive_timeout=3600
+            - --wait_timeout=3600
+            - --lower_case_table_names=1
+            - --net_write_timeout=3600
+            - --net_read_timeout=3600
+            - --innodb_lock_wait_timeout=600
+            - --innodb_thread_sleep_delay=60000000
+            - --thread_stack=20971520
+        ports:
+            - 3306:3306
+        environment:
+            MYSQL_DATABASE: ${VIZIX_DATABASE}
+            MYSQL_ROOT_PASSWORD: ${VIZIX_DATABASE_PASSWORD}
+            CLUSTER_NAME: ${VIZIX_CLUSTER_NAME}
+            HOSTNAME: 'mysqlrouter'
+        volumes:
+            - db_mysql-router:/var/lib/mysqlrouter
+        networks:
+            - replica
+
+    mysql-1:
+        restart: always
+        image: ${MYSQL}
+#Regular variables for MYSQL
+        command:
+            - --skip-name-resolve
+            - --lower_case_table_names=1
+            - --slow-query-log
+            - --max_allowed_packet=1024M
+            - --max_connections=5000
+            - --query_cache_size=0
+            - --interactive_timeout=3600
+            - --wait_timeout=3600
+            - --lower_case_table_names=1
+            - --net_write_timeout=3600
+            - --net_read_timeout=3600
+            - --innodb_lock_wait_timeout=600
+            - --innodb_thread_sleep_delay=60000000
+            - --thread_stack=20971520
+#        ports:
+#            - 3306:3306
+        environment:
+            MYSQL_DATABASE: ${VIZIX_DATABASE}
+            MYSQL_ROOT_PASSWORD: ${VIZIX_DATABASE_PASSWORD}
+        volumes:
+            - db_mysql-1:/var/lib/mysql
+        networks:
+            - replica
+
+    mysql-2:
+        restart: always
+        image: ${MYSQL}
+#Regular variables for MYSQL
+        command:
+            - --skip-name-resolve
+            - --lower_case_table_names=1
+            - --slow-query-log
+            - --max_allowed_packet=1024M
+            - --max_connections=5000
+            - --query_cache_size=0
+            - --interactive_timeout=3600
+            - --wait_timeout=3600
+            - --lower_case_table_names=1
+            - --net_write_timeout=3600
+            - --net_read_timeout=3600
+            - --innodb_lock_wait_timeout=600
+            - --innodb_thread_sleep_delay=60000000
+            - --thread_stack=20971520
+#        ports:
+#            - 3306:3306
+        environment:
+            MYSQL_DATABASE: ${VIZIX_DATABASE}
+            MYSQL_ROOT_PASSWORD: ${VIZIX_DATABASE_PASSWORD}
+        volumes:
+            - db_mysql-2:/var/lib/mysql
+        networks:
+            - replica
+
+    mysql-3:
+        restart: always
+        image: ${MYSQL}
+#Regular variables for MYSQL
+        command:
+            - --skip-name-resolve
+            - --lower_case_table_names=1
+            - --slow-query-log
+            - --max_allowed_packet=1024M
+            - --max_connections=5000
+            - --query_cache_size=0
+            - --interactive_timeout=3600
+            - --wait_timeout=3600
+            - --lower_case_table_names=1
+            - --net_write_timeout=3600
+            - --net_read_timeout=3600
+            - --innodb_lock_wait_timeout=600
+            - --innodb_thread_sleep_delay=60000000
+            - --thread_stack=20971520
+#        ports:
+#            - 3306:3306
+        environment:
+            MYSQL_DATABASE: ${VIZIX_DATABASE}
+            MYSQL_ROOT_PASSWORD: ${VIZIX_DATABASE_PASSWORD}
+        volumes:
+            - db_mysql-3:/var/lib/mysql
+        networks:
+            - replica

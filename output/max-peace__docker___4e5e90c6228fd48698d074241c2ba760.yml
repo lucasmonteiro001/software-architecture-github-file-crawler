@@ -1,0 +1,23 @@
+web:
+  image: peace/nginx
+  ports:
+    - "8083:80"
+  volumes:
+    - ./peace.localhost.com.conf:/etc/nginx/sites-enabled/peace.localhost.com.conf
+  links:
+    - nodejsBackend
+    - nodejsFrontend
+
+nodejsBackend:
+  image: peace/nodejs
+  working_dir: /var/www/back-end/
+  command: npm run dev
+  volumes:
+    - ./src/back-end:/var/www/back-end
+
+nodejsFrontend:
+  image: peace/nodejs
+  working_dir: /var/www/front-end/
+  command: npm run start:dev
+  volumes:
+    - ./src/front-end:/var/www/front-end

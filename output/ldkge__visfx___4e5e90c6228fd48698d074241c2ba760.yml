@@ -1,0 +1,47 @@
+version: '2'
+services:
+  db:
+    build: ./db
+    volumes:
+      - ./db/data:/tmp/data
+  search:
+    build: ./search
+    command: elasticsearch -Des.network.host=0.0.0.0
+    ports:
+      - 9200:9200
+      - 9300:9300
+  spark:
+    build: ./spark
+    command: -d
+    volumes:
+      - ./spark/recommendations:/recommendations
+      - ./spark/predictions:/predictions
+    ports:
+      - 8088:8088
+      - 8042:8042
+      - 4040:4040
+    links:
+      - search
+  logstash:
+    build: ./logstash
+    command: logstash -f /etc/logstash/conf.d/logstash.conf
+    ports:
+      - 5000:5000
+    links:
+      - db
+      - search
+  web:
+    build: ./web
+    command: npm start
+    volumes:
+      - ./web:/visfx
+    ports:
+      - 8080:8080
+    links:
+      - search
+  kibana:
+    build: ./kibana
+    ports:
+      - 5601:5601
+    links:
+      - search

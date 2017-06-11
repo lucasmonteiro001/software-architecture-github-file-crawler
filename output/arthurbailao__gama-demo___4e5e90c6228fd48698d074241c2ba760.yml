@@ -1,0 +1,9 @@
+server:
+  build: .
+  ports:
+    - "8888:8888"
+  environment:
+    - PORT=8888
+  volumes:
+    - .:/usr/src/app
+    - /usr/src/app/node_modules

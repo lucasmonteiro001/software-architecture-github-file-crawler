@@ -1,0 +1,43 @@
+version: '2.0'
+
+services:
+
+  wordpress:
+    image: wordpress
+    volumes:
+      - './docker/:/docker'
+      - './src/:/var/www/html/wp-content/plugins/category-color-extended'
+    ports:
+      - "localhost:8085:80"
+    depends_on:
+      - wordpressdb
+    links:
+      - wordpressdb:db
+    environment:
+      DEBUG: 'true'
+      WORDPRESS_DB_PASSWORD: 'password'
+      WORDPRESS_DB_HOST: wordpressdb:3306
+    entrypoint: ["/docker/setup/wordpress/wordpress-setup.sh"]
+
+  wordpressdb:
+    image: mariadb
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: 'password'
+      MYSQL_DATABASE: 'wordpress'
+      MYSQL_USER: 'wordpress'
+      MYSQL_PASSWORD: 'password'
+    volumes:
+      - './docker/setup/wordpressdb:/docker-entrypoint-initdb.d'
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    links:
+      - wordpressdb:db
+    depends_on:
+      - wordpressdb
+    ports:
+      - "localhost:8081:80"
+    environment:
+      PMA_ARBITRARY: 0

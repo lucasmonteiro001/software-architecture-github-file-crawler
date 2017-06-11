@@ -1,0 +1,15 @@
+txfmtrack:
+  build: .
+  ports:
+    - "8585:80"
+  links:
+    - redis
+    - mongo
+  volumes:
+    - ./txfm-config:/var/www/txfmtrackservice-client/_config
+redis:
+  image: redis
+mongo:
+  image: mongo
+  volumes:
+    - ./.mongo:/var/lib/mongodb

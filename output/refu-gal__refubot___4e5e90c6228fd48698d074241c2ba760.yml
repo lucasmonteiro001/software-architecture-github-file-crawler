@@ -1,0 +1,59 @@
+version: '2'
+
+services:
+  telegram:
+    image: node:latest
+    depends_on:
+      - kafka
+    environment:
+      - PORT=3000
+    volumes:
+      - ./telegram/:/app
+    command: npm start
+    working_dir: /app
+    ports:
+      - "3000:3000"
+  nexmo:
+    image: node:latest
+    depends_on:
+      - kafka
+    environment:
+      - PORT=3001
+    volumes:
+      - ./sms_nexmo/:/app
+    command: npm start
+    working_dir: /app
+    ports:
+      - "3001:3001"
+  facebook:
+    image: node:latest
+    depends_on:
+      - kafka
+    environment:
+      - PORT=5000
+    volumes:
+      - ./facebook/:/app
+    command: npm start
+    working_dir: /app
+    ports:
+      - "5000:5000"
+  kafka:
+    image: spotify/kafka
+    volumes:
+      - ./kafka/:/app
+    command: bash -c "chmod +x kafka.sh && ./kafka.sh"
+    environment:
+      - ADVERTISED_PORT=9092
+      - AUTO_CREATE_TOPICS=true
+    working_dir: /app
+    ports:
+      - "2181:2181"
+      - "9092:9092"
+  refubot:
+    image: node:latest
+    depends_on:
+      - kafka
+    volumes:
+      - ./refubot/:/app
+    command: npm start
+    working_dir: /app

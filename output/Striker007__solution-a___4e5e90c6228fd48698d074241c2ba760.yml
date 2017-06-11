@@ -1,0 +1,15 @@
+version: '2'
+services:
+  development:
+    container_name: "solution-go"
+    build: .
+    volumes:
+      - .:/solution-a
+    depends_on:
+      - mysql
+  mysql:
+    image: mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root

@@ -1,0 +1,72 @@
+duraark-sessions:
+  image: duraark/duraark-sessions:latest
+  ports:
+    - "5011:5011"
+  volumes:
+    - /duraark-storage:/duraark-storage
+
+duraark-metadata:
+  image: duraark/duraark-metadata:latest
+  ports:
+    - "5012:5012"
+  volumes_from:
+    - duraark-sessions
+  volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
+
+duraark-sda:
+  image: duraark/duraark-sda:latest
+  ports:
+    - "5013:5013"
+
+duraark-geometricenrichment:
+  image: duraark/duraark-geometricenrichment:latest
+  ports:
+    - "5014:5014"
+  volumes_from:
+    - duraark-sessions
+  volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
+  environment:
+    # The outside storage path to an environment variable and link this folder into e.g. pc2bim at runtime
+    - DURAARK_STORAGE_PATH=/duraark-storage
+
+duraark-digitalpreservation:
+  image: duraark/duraark-digitalpreservation:latest
+  ports:
+    - "5015:5015"
+  volumes_from:
+    - duraark-sessions
+  volumes:
+    - /tmp:/tmp
+  links:
+    - duraark-metadata
+
+duraark-pointcloud-viewer:
+  image: duraark/duraark-pointcloud-viewer:latest
+  ports:
+    - "5016:5016"
+  volumes:
+    - duraark-sessions
+    - /var/run/docker.sock:/var/run/docker.sock
+
+workbench-ui:
+  image: duraark/workbench-ui:latest
+  ports:
+    - "4200:4200"
+  environment:
+    # - DURAARK_API_ENDPOINT=http://juliet.cgv.tugraz.at
+    - DURAARK_API_ENDPOINT=http://localhost
+
+web:
+  image: duraark/api-gatekeeper:latest
+  ports:
+    - "80:80"
+  links:
+    - duraark-sessions
+    - duraark-metadata
+    - duraark-sda
+    - duraark-geometricenrichment
+    - duraark-digitalpreservation
+    - duraark-pointcloud-viewer
+    - workbench-ui

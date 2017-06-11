@@ -1,0 +1,18 @@
+web:
+  image: daocloud.io/na57/jkef-web-react:latest
+  restart: always
+  ports:
+  - '5000'
+  links:
+  - redis:jkef_redis
+  - mongodb: jkef_mongo
+  environment:
+  - HOST_REDIS=jkef_redis
+  - PORT_REDIS=6379
+  - MONGO_URL=mongodb://jkef_mongo/jkef
+redis:
+  image: redis
+  restart: always
+mongodb:
+  image: daocloud.io/library/mongo:3.0.9
+  restart: always

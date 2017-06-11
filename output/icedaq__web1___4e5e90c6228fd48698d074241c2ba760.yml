@@ -1,0 +1,27 @@
+version: "2"
+
+services:
+  web:
+    image: icedaq/web:latest
+    restart: always
+    environment:
+      WEB1_ENV: DEV
+      DEV_DB_HOST: mysql
+      DEV_DB_DB: webshop
+      DEV_DB_USER: webshop
+      DEV_DB_PASSWORD: webshop
+    ports:
+      - "8080:80"
+    volumes:
+     - .:/tmp/web1
+     - ./src:/var/www/html
+    depends_on:
+     - mysql
+  mysql:
+    image: mysql:latest
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: webshop 
+      MYSQL_DATABASE: webshop
+      MYSQL_USER: webshop
+      MYSQL_PASSWORD: webshop

@@ -1,0 +1,33 @@
+version: '2'
+services:
+  db:
+    container_name: "db"
+    image: mysql:5.6
+    ports:
+      - "3306:3306"
+    environment:
+       - MYSQL_ROOT_PASSWORD=rootsecret
+       - MYSQL_DATABASE=voters
+       - MYSQL_USER=asw
+       - MYSQL_PASSWORD=secret
+
+  voter-access:
+    container_name: "voter-access"
+    image: emibloque/votersi2
+    ports:
+      - "8443:8443"
+    depends_on:
+      - db
+    environment:
+      - DB_URL=db
+      - DB_USER=asw
+      - DB_PASSWORD=secret
+
+  web-app:
+    image: emibloque/votersi2-web
+    ports:
+      - "8888:8888"
+    depends_on:
+      - voter-access
+    environment:
+      - API_URL=voter-access:8443

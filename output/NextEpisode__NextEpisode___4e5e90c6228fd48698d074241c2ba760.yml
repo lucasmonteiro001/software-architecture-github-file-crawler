@@ -1,0 +1,26 @@
+version: '2'
+services:
+  db:
+    image: postgres
+  redis:
+    image: redis
+  sidekiq:
+    build: .
+    env_file: .env
+    command: bundle exec sidekiq
+    volumes:
+      - .:/nextepisode
+    depends_on:
+      - db
+      - redis
+  web:
+    build: .
+    env_file: .env
+    command: bundle exec rails s -p 3000 -b '0.0.0.0'
+    volumes:
+      - .:/nextepisode
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+      - redis

@@ -1,0 +1,7 @@
+toran:
+  extends:
+    file: base.yml
+    service: toran
+  volumes:
+    - "./srv/toran:/toran-data"
+    - "./srv/toran/cache:/toran/app/toran/cache"

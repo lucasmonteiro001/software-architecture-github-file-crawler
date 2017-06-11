@@ -1,0 +1,15 @@
+version: '2'
+services:
+  mongo:
+    image: mongo
+    volumes:
+      - /data/db
+  
+  genvoice:
+    build: .
+    ports:
+      - 80:3000
+    environment: 
+      - MONGODB_ADDR=mongo
+    depends_on:
+      - mongo

@@ -1,0 +1,60 @@
+version: '2'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: "Dockerfile.development"
+    environment:
+      DATABASE_HOST: db
+      DATABASE_PORT: 5432
+      DATABASE_USER: postgres
+      DATABASE_PASSWORD: mysecretpassword1234
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_DATABASE: 0
+      RAILS_MAX_THREADS: 25
+  web:
+    extends:
+      service: app
+    command: "bundle exec rails s -p 3000 -b '0.0.0.0'"
+    volumes:
+      - ".:/tomoe"
+    ports:
+      - "3000:3000"
+    links:
+      - db
+      - redis
+    tty: true
+    stdin_open: true
+  worker:
+    extends:
+      service: app
+    command: "bundle exec sidekiq -C config/sidekiq.yml"
+    volumes:
+      - ".:/tomoe"
+    links:
+      - db
+      - redis
+  redis:
+    image: "redis:3.0"
+    volumes:
+      - "redis-data:/data"
+  db:
+    image: "postgres:9.5"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: mysecretpassword1234
+    volumes:
+      - "db-data:/var/lib/postgresql/data"
+  deploy:
+    build:
+      context: .
+      dockerfile: docker/deploy/Dockerfile
+    volumes:
+      - ".:/tomoe"
+
+volumes:
+  redis-data:
+    driver: local
+  db-data:
+    driver: local

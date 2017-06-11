@@ -1,0 +1,23 @@
+# MAINTERNER Long Ly Hoang <longly@seespace.co>
+
+app:
+  build: ./images/app
+  container_name: soccer_app
+  working_dir: /var/www
+  volumes:
+    - ./src:/var/www
+
+nginx:
+  build: ./images/nginx
+  container_name: soccer_nginx
+  ports:
+    - "9093:9093"
+  links:
+    - app
+
+db:
+  image: sameersbn/mysql
+  volumes:
+    - /var/lib/mysql
+  container_name: soccer_db
+  env_file: ./.env

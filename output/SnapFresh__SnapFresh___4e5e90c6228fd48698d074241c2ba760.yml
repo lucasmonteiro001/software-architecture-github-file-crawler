@@ -1,0 +1,13 @@
+postgres:
+  image: kpettijohn/postgis
+  ports:
+    - "5432:5432"
+
+snapfresh:
+  build: .
+  dockerfile: Dockerfile
+  command: snapfresh
+  links:
+    - postgres
+  ports:
+    - "3000:3000"

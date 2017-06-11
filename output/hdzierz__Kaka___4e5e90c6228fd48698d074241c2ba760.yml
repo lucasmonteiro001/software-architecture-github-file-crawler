@@ -1,0 +1,95 @@
+# Database Server
+# Software: PostGreSQL
+# You can reconfigure the port in case you
+
+db:
+  image: postgres
+  volumes:
+    - .:/dat
+  ports:
+    - "5434:5432"
+  environment:
+     - dummy:dummy
+     - http_proxy:http://proxy.pfr.co.nz:8080
+     - https_proxy:http://proxy.pfr.co.nz:8080
+     - no_proxy:localhost,127.0.0.1,*.pfr.co.nz,::1
+# cassandra:
+    # image: cassandra
+    # ports:
+        # - "7000:7000"
+    # environment:
+        # - dummy:dummy
+        # - http_proxy:http://proxy.pfr.co.nz:8080
+        # - https_proxy:http://proxy.pfr.co.nz:8080
+        # - no_proxy:web,localhost,127.0.0.1,*.pfr.co.nz,::1
+mongo:
+  build: .
+  dockerfile: Dockerfile_mongo
+  volumes:
+    - /output:/output
+  ports:
+    - "27018:27017"
+  environment:
+    - dummy:dummy
+    - http_proxy:http://proxy.pfr.co.nz:8080
+    - https_proxy:http://proxy.pfr.co.nz:8080
+    - no_proxy:localhost,127.0.0.1,*.pfr.co.nz,::1
+
+web:
+  build: .
+  dockerfile: Dockerfile_web
+  command: python manage.py runserver 0.0.0.0:80
+  volumes:
+    - .:/code
+    #- /input:/input
+    - /output:/output
+    #- /workspace:/workspace
+  ports:
+    - "8001:80"
+  links:
+    - db
+    - mongo
+  environment:
+     - dummy:dummy
+     - http_proxy:http://proxy.pfr.co.nz:8080
+     - https_proxy:http://proxy.pfr.co.nz:8080
+     - no_proxy:localhost,127.0.0.1,*.pfr.co.nz,::1
+#kea:
+#  build: .
+#  dockerfile: Dockerfile_kea
+#  environment:
+#     - dummy:dummy
+#     - http_proxy:http://proxy.pfr.co.nz:8080
+#     - https_proxy:http://proxy.pfr.co.nz:8080
+#     - no_proxy:web,localhost,127.0.0.1,*.pfr.co.nz,::1
+
+pyrat:
+#  image: cfljam/pyrat
+  build: .
+  dockerfile: Dockerfile_pyrat
+  volumes:
+#    - /input:/input
+    - /output:/output
+    - /workspace:/workspace
+  ports:
+    - "8890:8888"
+  links:
+    - web
+    - mongo
+  environment:
+     - dummy:dummy
+     - http_proxy:http://proxy.pfr.co.nz:8080
+     - https_proxy:http://proxy.pfr.co.nz:8080
+     - no_proxy:web,mongo,localhost,127.0.0.1,*.pfr.co.nz,::1
+
+shinyr:
+  build: .
+  dockerfile: Dockerfile_shinyr
+  volumes:
+    - /home/cfphxd/tt/Kaka/shinyapps/kaka/seafood:/srv/shiny-server/seafood
+    - /srv/shinylog/:/var/log/
+  links:
+    - web
+  ports:
+    - "3839:3838"
+

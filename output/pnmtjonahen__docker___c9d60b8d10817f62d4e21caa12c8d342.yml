@@ -1,0 +1,60 @@
+abk-client:
+  image: tjonahen/abk-client:latest
+  ports:
+  - "8088:80"
+
+abk-admin:
+  image: tjonahen/abk-admin:latest
+  ports:
+   - "3000:80"
+  links:
+   - derbydb
+  environment:
+   - DATABASE_UNIT=abk
+   - DATABASE_URL=jdbc:derby://derbydb:1527/abk
+
+abk-accounts:
+  image: tjonahen/abk-accounts:latest
+  ports:
+   - "3001:80"
+  links:
+   - derbydb
+  environment:
+   - DATABASE_UNIT=abk
+   - DATABASE_URL=jdbc:derby://derbydb:1527/abk
+   
+abk-costcenters:
+  image: tjonahen/abk-costcenters:latest
+  ports:
+   - "3002:80"
+  links:
+   - derbydb
+  environment:
+   - DATABASE_UNIT=abk
+   - DATABASE_URL=jdbc:derby://derbydb:1527/abk
+   
+abk-transactions:
+  image: tjonahen/abk-transactions:latest
+  ports:
+   - "3003:80"
+  links:
+   - derbydb
+  environment:
+   - DATABASE_UNIT=abk
+   - DATABASE_URL=jdbc:derby://derbydb:1527/abk
+   
+abk-upload:
+  image: tjonahen/abk-upload:latest
+  ports:
+   - "3004:80"
+  links:
+   - derbydb
+  environment:
+   - DATABASE_UNIT=abk
+   - DATABASE_URL=jdbc:derby://derbydb:1527/abk
+   
+derbydb:
+  image: tjonahen/derbydb:latest
+  volumes:
+    - ./abk-data:/dbs
+

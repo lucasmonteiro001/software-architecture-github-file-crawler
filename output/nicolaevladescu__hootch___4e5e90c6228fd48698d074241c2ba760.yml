@@ -1,0 +1,17 @@
+version: '2'
+services:
+  db:
+    image: mongo:3.0
+    restart: on-failure:12
+  worker:
+    build: ./workers
+    restart: on-failure:12
+    links:
+      - db
+  api:
+    build: ./api
+    restart: on-failure:12
+    links:
+      - db
+    expose:
+      - 8080

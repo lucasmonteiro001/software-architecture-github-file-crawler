@@ -1,0 +1,44 @@
+---
+lb:
+  image: crobays/haproxy-ubuntu:1.0.3
+  hostname: lb
+  ports: 
+    - 80:80
+    - 443:443
+    - 8080:8080
+  links:
+     - gulp:gulp
+     - backend:backend
+     - assets:assets
+     - db:db
+  environment:
+    TIMEZONE:
+    ENVIRONMENT:
+    ENABLE_FORWARD_FOR: FALSE
+  volumes:
+    - /workspace:/workspace
+
+gulp:
+    extends:
+        file: docker-compose-common.yml
+        service: gulp
+    links:
+        - backend:backend
+
+backend:
+    extends:
+        file: docker-compose-common.yml
+        service: backend
+    links:
+        - db:db
+
+assets:
+    extends:
+        file: docker-compose-common.yml
+        service: assets
+
+db:
+    extends:
+        file: docker-compose-common.yml
+        service: postgres
+...

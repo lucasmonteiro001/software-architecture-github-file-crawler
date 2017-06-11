@@ -1,0 +1,66 @@
+version: '2'
+
+services:
+  ndphp:
+    build: ./build/ndphp
+    image: ucodev/ndphp:latest
+    volumes:
+      - nd_www:/var/www
+    stdin_open: true
+    tty: true
+    command: bash -c "service apache2 start && bash"
+    depends_on:
+      - base
+      - dbms
+      - webserver
+    links:
+      - dbms
+    restart: always
+    networks:
+      ndnet:
+        ipv4_address: 192.168.100.2
+
+  dbms:
+    build:
+      context: ./build/mysql
+      args:
+        MYSQL_ROOT_PASSWORD: password
+        MYSQL_USER_DATABASE: ndphp
+        MYSQL_USER_USERNAME: ndphp_user
+        MYSQL_USER_PASSWORD: password
+    image: ucodev/mysql:latest
+    volumes:
+      - nd_dbms:/var/lib/mysql
+    stdin_open: true
+    tty: true
+    command: bash -c "service mysql start && bash"
+    depends_on:
+      - base
+    restart: always
+    networks:
+      ndnet:
+        ipv4_address: 192.168.100.3
+
+  webserver:
+    build: ./build/apache
+    image: ucodev/apache:latest
+
+  base:
+    build: ./build/base
+    image: ucodev/base:latest
+
+volumes:
+  nd_dbms:
+    driver: local
+  nd_www:
+    driver: local
+
+networks:
+  ndnet:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+      - subnet: 192.168.100.0/24
+        gateway: 192.168.100.1
+

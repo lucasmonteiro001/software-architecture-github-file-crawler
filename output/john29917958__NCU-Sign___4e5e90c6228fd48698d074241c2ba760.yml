@@ -1,0 +1,7 @@
+app:
+  image: cmfatih/phantomjs:latest
+  container_name: NCU-Sign
+  volumes:
+    - ./app:/NCU-Sign/app
+    - ./exec:/NCU-Sign
+  tty: true

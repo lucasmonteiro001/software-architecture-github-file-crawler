@@ -1,0 +1,13 @@
+padrino:
+  image: ruby
+  volumes:
+    - .:/root/padrino
+  links:
+    - mongo
+    - postgres
+
+mongo:
+  image: mongo
+
+postgres:
+  image: postgres

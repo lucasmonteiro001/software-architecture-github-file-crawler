@@ -1,0 +1,18 @@
+version: '2'
+services:
+  mobile:
+    image: twhtanghk/mobile
+    external_links:
+      - mobile_mongo
+    networks:
+      - mobilemongo_default
+    ports:
+      - 1337
+    volumes:
+      - ${COMPOSEROOT}/mobile/apn.p12:/usr/src/app/config/env/apn.p12
+    env_file: 
+      - ./.env
+
+networks:
+  mobilemongo_default:
+    external: true

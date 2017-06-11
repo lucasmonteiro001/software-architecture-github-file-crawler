@@ -1,0 +1,19 @@
+upstreams:
+  image: redis
+dproxy:
+  container_name: dproxy
+  build: ./dproxy/
+  ports:
+    - "80:80"
+    - "443:443"
+  links:
+    - upstreams:upstreams
+  volumes:
+    - "/var/log/dproxy:/var/log/nginx"
+    - "/etc/letsencrypt:/etc/letsencrypt:ro"
+linkd:
+  build: ./linkd/
+  links:
+    - upstreams:upstreams
+  volumes:
+    - "/var/run/docker.sock:/var/run/docker.sock"

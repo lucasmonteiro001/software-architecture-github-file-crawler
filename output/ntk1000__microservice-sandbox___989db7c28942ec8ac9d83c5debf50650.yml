@@ -1,0 +1,12 @@
+apigateway:
+  build: ./cmd/apigateway
+  ports:
+    - "8080:8080"
+  links:
+    - auth
+    - applicant
+auth:
+  build: ./cmd/auth
+
+applicant:
+  build: ./cmd/applicant

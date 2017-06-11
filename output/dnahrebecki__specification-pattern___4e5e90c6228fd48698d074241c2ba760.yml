@@ -1,0 +1,20 @@
+version: '2'
+services:
+  nginx:
+    build: ./build/docker/nginx/
+    volumes:
+      - "./:/usr/share/nginx/html"
+    restart: always
+    ports:
+      - "8080:80"
+    depends_on:
+      - php
+    environment:
+      XDEBUG_CONFIG: remote_host=172.18.0.1
+  php:
+    build: ./build/docker/php/
+    volumes:
+        - "./:/usr/share/nginx/html"
+    restart: always
+    environment:
+      XDEBUG_CONFIG: remote_host=172.18.0.1

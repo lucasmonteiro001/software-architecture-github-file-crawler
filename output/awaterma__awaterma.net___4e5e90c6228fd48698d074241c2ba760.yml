@@ -1,0 +1,9 @@
+version: '2'
+
+services:
+  awaterma.net:
+    build: . 
+    command: http-server app
+    ports:
+      - "80:8080"
+

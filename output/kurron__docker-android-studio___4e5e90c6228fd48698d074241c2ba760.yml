@@ -1,0 +1,13 @@
+studio:
+    build: .
+    labels:
+        org.kurron.description: "Android Studio"
+        org.kurron.version: "1.5.1.0"
+    container_name: "studio"
+    net: "host"
+    volumes:
+        - /tmp/.X11-unix:/tmp/.X11-unix
+        - /home/vagrant:/home/developer
+    environment:
+        DISPLAY: unix:0.0
+    user: 1000:1000

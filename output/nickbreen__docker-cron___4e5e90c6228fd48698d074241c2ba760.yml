@@ -1,0 +1,12 @@
+version: '2'
+services:
+  cron:
+    image: nickbreen/cron:v2.0.0
+    build:
+      context: .
+    environment:
+      HELLO_WORLD: Hello World!
+      CRON_D_HELLO_WORLD: |
+        @reboot root touch /foo
+        * * * * * root logger --tag cron-minute < /etc/container_environment/HELLO_WORLD
+        * * * * * root ls -lrt /foo | logger --tag cron-minute

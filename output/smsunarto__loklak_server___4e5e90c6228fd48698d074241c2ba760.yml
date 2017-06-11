@@ -1,0 +1,4 @@
+loklak:
+  build: docker
+  ports:
+  - "80:80"

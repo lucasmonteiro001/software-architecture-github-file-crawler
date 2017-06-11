@@ -1,0 +1,41 @@
+version: '2'
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: cookadlib/www
+    # networks:
+    #   - front
+    #   - back
+    ports:
+      - "80:8080"
+    labels:
+      com.cookadlib.description: "Website"
+      com.cookadlib.department: "Marketing"
+    volumes:
+      - /:/tmp
+    #  - app:/tmp/app
+    #  - gulp_tasks:/tmp/gulp_tasks
+    #  - www:/opt/www
+  # redis:
+  #   image: redis
+  #   volumes:
+  #     - redis-data:/var/lib/redis
+  #   networks:
+  #     - back
+# networks:
+#   front:
+#     driver: overlay
+#   back:
+#     driver: overlay
+# volumes:
+#   redis-data:
+#     driver: flocker
+# volumes:
+#   app:
+#     driver: local
+#   gulp_tasks:
+#     driver: local
+#   www:
+#     driver: local

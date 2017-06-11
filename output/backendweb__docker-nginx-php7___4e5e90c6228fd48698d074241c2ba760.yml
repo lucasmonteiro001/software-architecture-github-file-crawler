@@ -1,0 +1,35 @@
+app:
+    build: app
+    volumes:
+        - ./../:/var/www
+    tty: true
+        
+php:
+    build: php
+    expose:
+        - 9000
+    volumes_from:
+        - app
+    links:
+        - mysql
+    
+mysql:
+    image: mysql
+    ports:
+        - 3306:3306
+    environment:
+        MYSQL_ROOT_PASSWORD: root
+        MYSQL_DATABASE: symfony
+        MYSQL_USER: symfony
+        MYSQL_PASSWORD: symfony
+
+nginx:
+    build: nginx
+    ports:
+        - 80:80
+    links:
+        - php
+    volumes_from:
+        - app
+    volumes:
+        - ./../var/logs/nginx/:/var/log/nginx

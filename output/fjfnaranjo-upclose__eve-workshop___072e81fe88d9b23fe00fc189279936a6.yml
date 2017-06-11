@@ -1,0 +1,22 @@
+version: '2'
+
+volumes:
+  homes:
+  db:
+  configdb:
+
+services:
+  devbox:
+    build: .
+    ports:
+      - "8022:22"
+      - "12000-12255:12000-12255"
+    volumes:
+      - homes:/home
+    links:
+      - mongodb
+  mongodb:
+    image: mongo:3.2
+    volumes:
+      - db:/data/db
+      - configdb:/data/configdb

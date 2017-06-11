@@ -1,0 +1,12 @@
+sphinx:
+  build: image
+  dockerfile: Dockerfile
+  ports:
+   - "9312:9312"
+   - "9306:9306"
+  volumes:
+      - "../sphinx/conf:/etc/sphinxsearch"
+      - "../runtime:/var/log"
+      - "../runtime/data:/var/lib/sphinx/data"
+  command: "sleep infinity"
+  mem_limit: 150m

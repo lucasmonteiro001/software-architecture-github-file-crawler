@@ -1,0 +1,25 @@
+app:
+  build: .
+  command: bundle exec rails s -p 3000 -b 0.0.0.0
+  working_dir: /app
+  env_file: .env
+  user: "${UID}:${GID}"
+  volumes:
+    - .:/app
+  ports:
+    - "3000:3000"
+  links:
+    - db
+    - ngrok
+
+db:
+  image: postgres
+  ports:
+    - "5432"
+
+ngrok:
+  image: centurylink/ngrok
+  ports:
+    - "4040:4040"
+  environment:
+    HTTP_PORT: 3000

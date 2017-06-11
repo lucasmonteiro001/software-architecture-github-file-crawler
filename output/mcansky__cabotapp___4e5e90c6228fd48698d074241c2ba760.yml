@@ -1,0 +1,31 @@
+cabot-app:
+  build: .
+  links:
+    - cabot-db
+    - cabot-celerybroker
+  ports:
+    - "8000:8000"
+  command: bin/web
+
+cabot-celery:
+  build: .
+  links:
+    - cabot-db
+    - cabot-celerybroker
+  command: bin/celery-worker
+
+cabot-beat:
+  build: .
+  links:
+    - cabot-db
+    - cabot-celerybroker
+  command: bin/celery-beat
+
+cabot-db:
+  image: postgres:9.4
+  environment:
+    POSTGRES_USER: docker
+    POSTGRES_PASSWORD: docker
+
+cabot-celerybroker:
+  image: redis:2.8

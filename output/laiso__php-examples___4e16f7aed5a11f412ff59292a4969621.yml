@@ -1,0 +1,24 @@
+version: '2'
+services:
+  db:
+    image: postgres:alpine
+    environment:
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+  web:
+    build: .
+    environment:
+      APP_DEBUG: "true"
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_DATABASE: homestead
+      DB_USERNAME: postgres
+      DB_PASSWORD: password
+      DB_CONNECTION: pgsql
+    volumes:
+      - ".:/var/www"
+    ports:
+      - "80:80"
+    links:
+      - db:db

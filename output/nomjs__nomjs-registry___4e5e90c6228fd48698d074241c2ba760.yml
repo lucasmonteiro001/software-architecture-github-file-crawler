@@ -1,0 +1,28 @@
+version: '2'
+
+services:
+  redis:
+    image: redis:3.2-alpine
+    expose:
+      - 6379
+
+  rethinkdb:
+    image: rethinkdb:2.3
+    expose:
+      - 8080
+      - 28015
+      - 29015
+    ports:
+      - 9081:8080
+
+  nomjs-registry:
+    build: .
+    environment:
+      NODE_ENV: development
+    ports:
+      - 9080:9080
+    volumes:
+      - ${PWD}/:/nomjs-registry
+    links:
+      - redis
+      - rethinkdb

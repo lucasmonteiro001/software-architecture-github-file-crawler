@@ -1,0 +1,9 @@
+version: '2'
+services:
+  spark: &base
+    build:
+      context: .
+    volumes:
+      - .:/usr/src/app
+    ports:
+      - "4040:4040"

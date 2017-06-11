@@ -1,0 +1,27 @@
+sickrage:
+  image: gionn/sickrage
+  net: "host"
+  ports:
+    - "8081:8081"
+  volumes:
+    - /srv/popcorns/sickrage-config:/config
+    - /srv/popcorns/sickrage-data:/data
+    - /srv/popcorns/downloads:/downloads
+    - /srv/popcorns/tv:/tv
+plex:
+  image: gionn/plex
+  net: "host"
+  ports:
+    - "32400:32400"
+  volumes:
+    - /srv/popcorns/plex-library:/var/lib/plexmediaserver
+    - /srv/popcorns/tv:/tv
+transmission:
+  image: dperson/transmission
+  net: "host"
+  ports:
+    - "9091:9091"
+    - "51413:51413"
+    - "51413:51413/udp"
+  volumes:
+    - /srv/popcorns/downloads:/var/lib/transmission-daemon/downloads

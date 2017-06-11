@@ -1,0 +1,16 @@
+version: '2'
+services:
+  app:
+    image: abaez/pebble
+    depends_on:
+      - data
+    volumes_from:
+      - data
+  data:
+    image: alpine
+      volumes:
+        /pebble
+        /home/pebble/.pebble-sdk
+
+
+

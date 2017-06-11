@@ -1,0 +1,16 @@
+version: '2'
+
+services:
+
+  upstream:
+    image: repo.itmh.io/arms/php7-apache
+    ports:
+      - "11180:80"
+    volumes:
+      - .:/var/www
+      - ./web:/var/www/html
+    environment:
+      - SYMFONY__ENV=dev
+      - SYMFONY__DEBUG=1
+      - SYMFONY__SECRET=SomeSecret
+    restart: always

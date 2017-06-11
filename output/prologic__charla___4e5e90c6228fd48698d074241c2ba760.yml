@@ -1,0 +1,12 @@
+redis:
+    image: redis
+    restart: always
+
+charla:
+    build: .
+    # image: prologic/charla
+    links:
+      - redis
+    ports:
+      - "7000:6667"
+    restart: always

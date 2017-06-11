@@ -1,0 +1,113 @@
+version: '2'
+services:
+
+  ##########################
+  ### REACTJS ##############
+  ##########################
+
+  frontend:
+    image: node:7-alpine
+    working_dir: /app
+    labels:
+      - 'traefik.backend=node'
+      - 'traefik.port=3000'
+      - 'traefik.frontend.rule=Host:app.docker.localhost'
+    expose:
+      - "3000"
+    volumes:
+      - ./reactjs:/app
+      # By default we tell Docker to copy files inside of ./node_modules
+      # folder from Docker container into the host machine.
+      # However if you're experiencing performance issues,
+      # feel free to uncomment the line below.
+      # - /app/node_modules
+    command: sh -c 'npm install && npm run start'
+
+  ##########################
+  ### DRUPAL ###############
+  ##########################
+
+  # Here we use almost out of the box docker4drupal configuration.
+  # So you can refer to their documentation for configuration.
+  # You can add more containers for memcached, redis, varnish, solr, etc
+  # using pre-built docker images.
+  # https://github.com/wodby/docker4drupal/blob/master/docker-compose.yml
+
+  backend_php:
+    image: wodby/drupal-php:7.1-2.0.0
+    # image: wodby/drupal-php:7.0-2.0.0
+    environment:
+      PHP_SENDMAIL_PATH: /usr/sbin/sendmail -t -i -S backend_mailhog:1025
+      # PHP_XDEBUG: 1
+      # PHP_XDEBUG_DEFAULT_ENABLE: 1
+      # PHP_XDEBUG_REMOTE_CONNECT_BACK: 0         # This is needed to respect remote.host setting bellow
+      # PHP_XDEBUG_REMOTE_HOST: "10.254.254.254"  # You will also need to 'sudo ifconfig lo0 alias 10.254.254.254'
+    volumes:
+      - ./drupal:/var/www/html
+      # - d4d-unison-sync:/var/www/html:rw # Replace volume to this to use docker-sync for macOS users
+
+  backend_mariadb:
+    image: wodby/mariadb:10.1-2.0.0
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: drupal
+      MYSQL_USER: drupal
+      MYSQL_PASSWORD: drupal
+    # command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci # The simple way to override the mariadb config.
+    # volumes:
+    #   - ./mariadb-init:/docker-entrypoint-initdb.d # Place init .sql file(s) here.
+    #   - /path/to/mariadb/data/on/host:/var/lib/mysql # I want to manage volumes manually.
+
+  backend_nginx:
+    image: wodby/drupal-nginx:8-1.10-2.0.0
+    restart: unless-stopped
+    depends_on:
+      - backend_php
+    environment:
+      NGINX_BACKEND_HOST: backend_php
+      NGINX_SERVER_ROOT: /var/www/html/web
+    volumes:
+      - ./drupal:/var/www/html
+    labels:
+      - 'traefik.backend=nginx'
+      - 'traefik.port=80'
+      - 'traefik.frontend.rule=Host:drupal.docker.localhost'
+
+  backend_pma:
+    image: phpmyadmin/phpmyadmin
+    environment:
+      PMA_HOST: backend_mariadb
+      PMA_USER: drupal
+      PMA_PASSWORD: drupal
+      PHP_UPLOAD_MAX_FILESIZE: 1G
+      PHP_MAX_INPUT_VARS: 1G
+    labels:
+      - 'traefik.backend=pma'
+      - 'traefik.port=80'
+      - 'traefik.frontend.rule=Host:pma.drupal.docker.localhost'
+
+  backend_mailhog:
+    image: mailhog/mailhog
+    labels:
+      - 'traefik.backend=mailhog'
+      - 'traefik.port=8025'
+      - 'traefik.frontend.rule=Host:mailhog.drupal.docker.localhost'
+
+  ##########################
+  ### REVERSE PROXY ########
+  ##########################
+
+  traefik:
+    image: traefik
+    restart: unless-stopped
+    command: -c /dev/null --web --docker --logLevel=INFO
+    ports:
+      - '8000:80'
+      - '8080:8080'
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+# Docker-sync for macOS users
+#volumes:
+#  d4d-unison-sync:
+#    external: true

@@ -1,0 +1,23 @@
+php7:
+  build: .
+  volumes:
+    - ./sites:/var/www/html
+    - ./etc/php/php.ini:/etc/php/7.0/apache2/php.ini
+    - ./etc/apache2/hosts.conf:/etc/apache2/sites-enabled/hosts.conf
+  ports:
+    - "80:80"
+  links:
+    - mysql
+
+
+mysql:
+  image: mysql:5.7
+  restart: always
+  ports:
+    - "3306:3306"
+  environment:
+    - MYSQL_ROOT_PASSWORD=root
+    - MYSQL_DATABASE=transformers
+  volumes:
+    - ./etc/mysql:/docker-entrypoint-initdb.d
+    - ./data/db:/var/lib/mysql

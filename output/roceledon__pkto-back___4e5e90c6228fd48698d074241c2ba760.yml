@@ -1,0 +1,32 @@
+version: "2"
+
+services:
+  mysql:
+    image: mysql:5.6
+    ports:
+    - "3306:3306"
+#    volumes:
+#   - mysql-data: /var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: "s1TgPwOIHenYMOsR5Myk"
+      MYSQL_DATABASE: "pkmn_tournament"
+      MYSQL_USER: "iUxOIr4dZluh"
+      MYSQL_PASSWORD: "s1TgPwOIHenYMOsR5Myk"
+
+  user:
+    build: user/target/docker
+    ports:
+    - "8000:8080"
+    links:
+    - mysql
+
+  auth:
+      build: auth/target/docker
+      ports:
+      - "8001:8080"
+      links:
+      - mysql
+
+volumes:
+  mysql-data:
+    external: false

@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+  fract:
+    container_name: fract
+    build:
+      context: .
+    restart: always
+    environment:
+      FRACT_YML: /host/fract.yml
+    volumes:
+      - ${HOME}:/host
+    command:
+      - open

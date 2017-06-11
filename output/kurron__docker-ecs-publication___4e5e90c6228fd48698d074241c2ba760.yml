@@ -1,0 +1,29 @@
+ecs-publication:
+    build: .
+    container_name: "ecs-publication"
+    net: "host"
+    volumes:
+        - /home/vagrant/GitHub/docker-ecs-publication/templates:/templates
+    environment:
+        ORG_GRADLE_PROJECT_artifactGroup: org.kurron
+        ORG_GRADLE_PROJECT_artifactID: tara
+        ORG_GRADLE_PROJECT_major: 4
+        ORG_GRADLE_PROJECT_minor: 5
+        ORG_GRADLE_PROJECT_patch: 6
+        ORG_GRADLE_PROJECT_branch: development
+
+        ORG_GRADLE_PROJECT_releaseURL: http://192.168.254.81:81/artifactory/transparent-release
+        ORG_GRADLE_PROJECT_milestoneURL: http://192.168.254.81:81/artifactory/transparent-milestone
+        ORG_GRADLE_PROJECT_publishUsername: SVNBuild
+        ORG_GRADLE_PROJECT_publishPassword: Snoopy*09
+
+        ORG_GRADLE_PROJECT_family: Alpha
+        ORG_GRADLE_PROJECT_containerName: Bravo
+        ORG_GRADLE_PROJECT_registry: Charlie
+        ORG_GRADLE_PROJECT_imageName: Delta
+        ORG_GRADLE_PROJECT_clusterName: Foxtrot
+        ORG_GRADLE_PROJECT_serviceName: Golf
+        ORG_GRADLE_PROJECT_loadBalancerName: Hotel
+        ORG_GRADLE_PROJECT_ecsInstanceRole: Juliett
+        ORG_GRADLE_PROJECT_desiredCount: Kilo
+

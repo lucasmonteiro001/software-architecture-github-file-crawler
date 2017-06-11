@@ -1,0 +1,20 @@
+version: "2"
+services:
+  elasticsearch:
+    image: dordyan/tls-monitoring-elasticsearch
+  kibana:
+    image: kibana
+    ports:
+     - "5601:5601"
+    links:
+     - elasticsearch
+    depends_on:
+     - elasticsearch
+  script:
+     image: dordyan/tls-monitoring:latest
+     volumes:
+     - ./:/usr/share/
+     links:
+     - elasticsearch
+     depends_on:
+     - elasticsearch

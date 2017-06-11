@@ -1,0 +1,25 @@
+version: '2'
+
+services:
+  swagger-ui:
+    build: ./build/swagger-ui
+    image: ucodev/swagger-ui:latest
+    hostname: swagger-ui-01
+    domainname: somedomain.tld
+    stdin_open: true
+    tty: true
+    command: /etc/rc.local
+    restart: always
+    networks:
+      swagnet:
+        ipv4_address: 192.168.160.2
+
+networks:
+  swagnet:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+      - subnet: 192.168.160.0/24
+        gateway: 192.168.160.1
+

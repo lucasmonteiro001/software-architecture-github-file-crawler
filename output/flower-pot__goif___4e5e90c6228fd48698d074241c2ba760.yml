@@ -1,0 +1,9 @@
+web:
+  image: flowerpot/goif
+  ports:
+    - "8080:8080"
+#  log_driver: "syslog"
+#  log_opt:
+#    syslog-address: "udp://syslog-server:514"
+  environment:
+    - SOME_VALUE=this_is_an_example_from_docker_compose

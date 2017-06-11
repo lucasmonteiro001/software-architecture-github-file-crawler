@@ -1,0 +1,10 @@
+version: "2"
+services:
+  publish-to-bintray:
+    extends:
+      file: ../.common/docker-compose.yml
+      service: sbt
+    entrypoint: sbt +publish
+    environment:
+      - BINTRAY_USERNAME
+      - BINTRAY_API_KEY

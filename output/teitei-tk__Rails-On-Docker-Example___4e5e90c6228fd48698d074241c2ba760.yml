@@ -1,0 +1,36 @@
+mysql:
+  image: mysql:5.6.23
+  environment:
+    MYSQL_ROOT_PASSWORD: 'pass'
+  ports:
+    - '3306:3306'
+  volumes_from:
+    - datastore
+
+nginx:
+  build: containers/nginx
+  ports:
+    - '8080:80'
+  volumes_from:
+    - datastore
+  links:
+    - rails
+
+datastore:
+  build: containers/datastore
+
+rails:
+  build: .
+  ports:
+    - '3000:3000'
+  environment:
+    RAILS_ENV: development
+    MYSQL_ROOT_PASSWORD: 'pass'
+    DATABASE_URL: mysql2://root:pass@mysql:3306
+    SECRET_KEY_BASE: hogehoge
+  volumes:
+    - ./:/usr/src/app
+  volumes_from:
+    - datastore
+  links:
+    - mysql

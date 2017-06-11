@@ -1,0 +1,130 @@
+version: "2"
+
+services:
+  #client:
+  #  depends_on:
+  #    - server
+  #  build: ./services/client
+  #  environment:
+  #    - LOG_LEVEL=debug
+  #    - SERVICE_HOST=server
+  #    - SERVICE_PORT=3000
+  #    - SERVICE_SOCKET_TYPE=REQ
+  #    - SERVICE_TRANSPORT=tcp
+  #  #ports:
+  #  #  - 3001:3000
+  #  volumes:
+  #    - ./services/client:/service
+  #    - ./common/:/service/common
+
+  #application_authentication:
+  #  build: ./services/application/AuthenticationService
+  #  ports:
+  #    - 3000:3000
+  #  environment:
+  #    - LOG_LEVEL=debug
+  #    - SERVICE_HOST=0.0.0.0
+  #    - SERVICE_PORT=3000
+  #    - SERVICE_SOCKET_TYPE=REP
+  #    - SERVICE_TRANSPORT=tcp
+  #  volumes:
+  #    - ./services/application/AuthenticationService:/service
+  #    - ./common:/service/common
+
+  #application_authorization:
+  #  build: ./services/application/AuthorizationService
+  #  ports:
+  #    - 3001:3000
+  #  environment:
+  #    - LOG_LEVEL=debug
+  #    - SERVICE_HOST=0.0.0.0
+  #    - SERVICE_PORT=3001
+  #    - SERVICE_SOCKET_TYPE=REP
+  #    - SERVICE_TRANSPORT=tcp
+  #  volumes:
+  #    - ./services/application/AuthorizationService:/service
+  #    - ./common:/service/common
+
+  #application_cmd:
+  #  build: ./services/application/CMDService
+  #  ports:
+  #    - 3002:3000
+  #  environment:
+  #    - LOG_LEVEL=debug
+  #    - SERVICE_HOST=0.0.0.0
+  #    - SERVICE_PORT=3002
+  #    - SERVICE_SOCKET_TYPE=REP
+  #    - SERVICE_TRANSPORT=tcp
+  #  volumes:
+  #    - ./services/application/CMDService:/service
+  #    - ./common:/service/common
+
+  #application_http:
+  #  build: ./services/application/HTTPService
+  #  ports:
+  #    - 3003:3000
+  #  environment:
+  #    - LOG_LEVEL=debug
+  #    - SERVICE_HOST=0.0.0.0
+  #    - SERVICE_PORT=3003
+  #    - SERVICE_SOCKET_TYPE=REP
+  #    - SERVICE_TRANSPORT=tcp
+  #  volumes:
+  #    - ./services/application/HTTPService:/service
+  #    - ./common:/service/common
+
+  #application_session:
+  #  build: ./services/application/SessionService
+  #  ports:
+  #    - 3004:3000
+  #  environment:
+  #    - LOG_LEVEL=debug
+  #    - SERVICE_HOST=0.0.0.0
+  #    - SERVICE_PORT=3004
+  #    - SERVICE_SOCKET_TYPE=REP
+  #    - SERVICE_TRANSPORT=tcp
+  #  volumes:
+  #    - ./services/application/SessionService:/service
+  #    - ./common:/service/common
+
+  domain_article:
+    build: ./services/domain/ArticleService
+    ports:
+      - 3005:3000
+    environment:
+      - LOG_LEVEL=debug
+      - SERVICE_HOST=0.0.0.0
+      - SERVICE_PORT=3005
+      - SERVICE_SOCKET_TYPE=REP
+      - SERVICE_TRANSPORT=tcp
+    volumes:
+      - ./services/domain/ArticleService:/service
+      - ./common:/service/common
+
+  #domain_comment:
+  #  build: ./services/domain/CommentService
+  #  ports:
+  #    - 3006:3000
+  #  environment:
+  #    - LOG_LEVEL=debug
+  #    - SERVICE_HOST=0.0.0.0
+  #    - SERVICE_PORT=3006
+  #    - SERVICE_SOCKET_TYPE=REP
+  #    - SERVICE_TRANSPORT=tcp
+  #  volumes:
+  #    - ./services/domain/CommentService:/service
+  #    - ./common:/service/common
+
+  #domain_user:
+  #  build: ./services/domain/UserService
+  #  ports:
+  #    - 3007:3000
+  #  environment:
+  #    - LOG_LEVEL=debug
+  #    - SERVICE_HOST=0.0.0.0
+  #    - SERVICE_PORT=3007
+  #    - SERVICE_SOCKET_TYPE=REP
+  #    - SERVICE_TRANSPORT=tcp
+  #  volumes:
+  #    - ./services/domain/UserService:/service
+  #    - ./common:/service/common

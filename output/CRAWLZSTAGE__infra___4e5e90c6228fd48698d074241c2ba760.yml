@@ -1,0 +1,209 @@
+version: "3"
+
+#
+# Prometheus Guide - https://github.com/vegasbrianc/prometheus
+#
+
+volumes:
+    prometheus_data: {}
+    grafana_data: {}
+    postgresql_data: {}
+
+services:
+  db:
+    build: ./db
+    volumes:
+      - postgresql_data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    env_file:
+      - _deployment/common.env
+    environment:
+      - PGDATA=/var/lib/postgresql/data
+
+  mqtt:
+    build: ./mqtt
+    links:
+      - nginx-proxy
+    depends_on:
+      - nginx-proxy
+    environment:
+      - VIRTUAL_HOST=rabbitmq.crawlz.me
+      - VIRTUAL_PORT=15672
+      - HTTPS_METHOD=redirect
+      - CERT_NAME=crawlz.me
+    env_file:
+      - _deployment/common.env
+    restart: always
+
+  fetch:
+    build: ./fetch
+    links:
+      - mqtt
+    depends_on:
+      - mqtt
+    env_file:
+      - _deployment/common.env
+      - _deployment/secrets.env
+    restart: always
+    deploy:
+      replicas: 10
+      update_config:
+        parallelism: 2
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+        delay: 2s
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 256M
+      placement:
+        constraints: [node.role == worker, engine.labels.db == true]
+    cap_add:
+      - sys_ptrace
+
+  parser:
+    build: ./parser
+    links:
+      - mqtt
+    depends_on:
+      - mqtt
+    env_file:
+      - _deployment/common.env
+    restart: always
+
+  store:
+    build: ./store
+    links:
+      - mqtt
+      - db
+    depends_on:
+      - mqtt
+      - db
+    env_file:
+      - _deployment/common.env
+    restart: always
+
+  filter:
+    build: ./filter
+    links:
+      - mqtt
+      - db
+    depends_on:
+      - mqtt
+      - db
+    env_file:
+      - _deployment/common.env
+    restart: always
+
+  search_backend:
+    build: ./search_backend
+    links:
+      - mqtt
+      - db
+      - nginx-proxy
+    depends_on:
+      - mqtt
+      - db
+    environment:
+      - VIRTUAL_HOST=backend.crawlz.me
+      - HTTPS_METHOD=redirect
+    env_file:
+      - _deployment/common.env
+      - _deployment/secrets.env
+    restart: always
+
+  search_frontend:
+    build: ./search_frontend
+    links:
+      - nginx-proxy
+    depends_on:
+      - search_backend
+    environment:
+      - VIRTUAL_HOST=crawlz.me,frontend.crawlz.me
+      - HTTPS_METHOD=redirect
+      - CERT_NAME=crawlz.me
+    env_file:
+      - _deployment/common.env
+    restart: always
+
+  nginx-proxy:
+    image: jwilder/nginx-proxy
+    container_name: nginx-proxy
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - /root/ssl:/etc/nginx/certs
+    restart: always
+
+  prometheus:
+    build: ./prometheus
+    container_name: prometheus
+    volumes:
+      - prometheus_data:/prometheus
+    command:
+      - '-config.file=/etc/prometheus/prometheus.yml'
+      - -storage.local.path=/prometheus'
+    expose:
+      - 9090
+    links:
+      - cadvisor:cadvisor
+      - nginx-proxy
+    depends_on:
+      - cadvisor
+    environment:
+      - VIRTUAL_HOST=prometheus.crawlz.me
+      - VIRTUAL_PORT=9090
+      - HTTPS_METHOD=redirect
+      - CERT_NAME=crawlz.me
+  
+  node-exporter:
+    container_name: node-exporter
+    image: prom/node-exporter
+    volumes: 
+      - /proc:/host/proc
+      - /sys:/host/sys
+      - /:/rootfs
+    command:
+      - '-collector.procfs=/host/proc'
+      - '-collector.sysfs=/host/sysfs'
+      - '-collector.filesystem.ignored-mount-points="^/(sys|proc|dev|host|etc)($$|/)"'
+    expose:
+      - 9100
+    environment:
+      - VIRTUAL_HOST=node-exporter.crawlz.me
+      - VIRTUAL_PORT=9100
+      - HTTPS_METHOD=redirect
+      - CERT_NAME=crawlz.me
+      
+  cadvisor:
+    image: google/cadvisor
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    expose:
+      - 8080
+  
+  grafana:
+    image: grafana/grafana
+    depends_on:
+      - prometheus
+    volumes:
+      - grafana_data:/var/lib/grafana
+    env_file:
+      - _deployment/graphana.config
+    environment:
+      - VIRTUAL_HOST=grafana.crawlz.me
+      - VIRTUAL_PORT=3000
+      - HTTPS_METHOD=redirect
+      - CERT_NAME=crawlz.me
+
+
+
+
+

@@ -1,0 +1,32 @@
+version: "2"
+services:
+  devtools:
+    image: shane/devtools-nix:example
+    volumes:
+      - nix:/nix
+      - devtools:/devtools
+    tty: true
+    stdin_open: true
+    restart: always
+    command: bash -l
+
+  demo:
+    image: ubuntu:xenial
+    volumes_from:
+      - devtools
+    tty: true
+    stdin_open: true
+    entrypoint: /devtools/enter
+    command: |
+      bash -c "echo \
+      && echo -e \"some installed devtools: \n\
+         vim:`which vim` \n\
+         zsh:`which zsh` \n\
+         node:`which node` \n\
+         py3:`which python3` \n\
+         hg:`which hg` \n\" \
+      && echo && exec zsh -l"
+
+volumes:
+  nix: {}
+  devtools: {}

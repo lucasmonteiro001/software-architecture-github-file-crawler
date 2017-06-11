@@ -1,0 +1,12 @@
+web:
+  build: .
+  command: php -S 0.0.0.0:8002 -t /code
+  ports:
+    - "8002:8002"
+  links:
+    - php
+  volumes:
+    - .:/code
+php:
+  image: php:5.6-cli
+

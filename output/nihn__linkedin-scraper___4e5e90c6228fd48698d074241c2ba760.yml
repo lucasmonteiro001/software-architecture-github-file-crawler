@@ -1,0 +1,16 @@
+version: "2"
+
+services:
+
+  crawler:
+    build: .
+    entrypoint: scrapy people_search
+    volumes:
+      - .:/opt/linkedin_scraper
+    links:
+      - splash
+    environment:
+      SPLASH_ADDR: http://splash:8050
+
+  splash:
+    image: scrapinghub/splash:2.3.1

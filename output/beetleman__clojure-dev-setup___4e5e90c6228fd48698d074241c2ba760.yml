@@ -1,0 +1,68 @@
+version: '2'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    volumes:
+      - maven:/root/.m2/repository
+      - ./:/app/
+    links:
+      - db
+      - app-scss
+    environment:
+      - DATABASE_URL=jdbc:postgresql://db/postgres?user=postgres&password=sacred-password
+    ports:
+      - "3000:3000"
+      - "7000:7000"
+      - "7002:7002"
+      - "3449:3449"
+    command: lein repl :headless :host 0.0.0.0 :port 7000
+
+  app-scss:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    volumes:
+      - maven:/root/.m2/repository
+      - ./:/app/
+    command: lein auto sassc once
+
+  test-clj:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    volumes:
+      - maven:/root/.m2/repository
+      - ./:/app/
+    links:
+      - db-test
+    environment:
+      - DATABASE_URL=jdbc:postgresql://db-test/postgres?user=postgres&password=sacred-password
+    stdin_open: true
+    command: lein test-refresh
+
+  test-cljs:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    volumes:
+      - maven:/root/.m2/repository
+      - ./:/app/
+    stdin_open: true
+    command: lein with-profile test doo phantom
+
+  db:
+    image: postgres:9.2-alpine
+    environment:
+      - POSTGRES_PASSWORD=sacred-password
+
+  db-test:
+    image: postgres:9.2-alpine
+    environment:
+      - POSTGRES_PASSWORD=sacred-password
+
+volumes:
+  maven:
+    driver: local

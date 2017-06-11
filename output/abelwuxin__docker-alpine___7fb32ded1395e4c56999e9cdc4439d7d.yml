@@ -1,0 +1,9 @@
+use-consul:
+  image: registry.aliyuncs.com/abeldeng/alpine-consul
+  
+use-consul-ui:
+  image: registry.aliyuncs.com/abeldeng/alpine-consul-ui
+  ports:
+    - "8500:8500"
+  links:
+    - use-consul:consul-agent

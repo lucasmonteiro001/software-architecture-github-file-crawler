@@ -1,0 +1,24 @@
+version: "2"
+services:
+    mongodb:
+        image: mongo:latest
+        expose:
+            - "27017"
+        volumes:
+            - "/home/laoqiren/docker/mongo/data:/data/db"
+        command: --auth
+    nginx:
+        build: /home/laoqiren/docker/nginx
+        ports:
+            - "8080:8080"
+            - "80:80"
+        links:
+            - node_server:node
+    node_server:
+        build: /home/laoqiren/desktop/workspace/isomorphic-redux-CNode 
+        links:
+            - mongodb:mongo
+        ports:
+            - "3000:3000"
+        expose:
+            - "3000"

@@ -1,0 +1,27 @@
+web:
+  build: nginx
+  ports: 
+    - 8080:80
+  links: 
+    - app:php
+  volumes: 
+    - /etc/localtime:/etc/localtime:ro
+         
+app:
+  build: php
+  links: 
+    - drill:drill
+  volumes: 
+    - /etc/localtime:/etc/localtime:ro
+    - ./php/app:/var/www/html
+    
+drill:
+  build: drill
+  stdin_open: true
+  ports:
+    - 8047:8047
+  volumes: 
+    - /etc/localtime:/etc/localtime:ro
+    - ./drill/storage.conf:/opt/drill/storage.conf 
+  
+  

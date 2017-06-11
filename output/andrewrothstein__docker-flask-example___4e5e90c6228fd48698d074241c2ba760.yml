@@ -1,0 +1,10 @@
+---
+# docker-compose.yml
+flask-webserver:
+  build: .
+  ports:
+    - 80
+  environment:
+    - MODE=dev
+  volumes:
+    - .:/usr/src/app:ro

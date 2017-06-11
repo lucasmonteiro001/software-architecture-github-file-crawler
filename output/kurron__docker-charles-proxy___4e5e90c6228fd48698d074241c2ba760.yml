@@ -1,0 +1,17 @@
+version: '2'
+services:
+    charles:
+        build: .
+        image: charles:compose
+        container_name: "charles"
+        network_mode: "host"
+        volumes:
+        - /var/run/docker.sock:/var/run/docker.sock
+        - /tmp/.X11-unix:/tmp/.X11-unix
+        - /home/vagrant:/home/developer
+        stdin_open: true
+        tty: true
+        user: 1000:1000
+        environment:
+            DISPLAY: unix:0.0
+

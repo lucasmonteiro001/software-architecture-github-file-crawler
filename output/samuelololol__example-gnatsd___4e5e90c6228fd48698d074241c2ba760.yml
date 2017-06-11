@@ -1,0 +1,34 @@
+gnatsd:
+    image: apcera/gnatsd
+    ports:
+        - "8222:8222"
+
+stone:
+    image: aanand/wait
+    links:
+        - gnatsd
+
+pynatss1:
+    build: .
+    dockerfile: Dockerfile-sub
+    links:
+        - gnatsd
+        - stone
+
+pynatss2:
+    build: .
+    dockerfile: Dockerfile-sub
+    links:
+        - gnatsd
+        - stone
+        - pynatss1
+
+pynatsp:
+    build: .
+    dockerfile: Dockerfile-pub
+    links:
+        - gnatsd
+        - pynatss1
+        - pynatss2
+
+

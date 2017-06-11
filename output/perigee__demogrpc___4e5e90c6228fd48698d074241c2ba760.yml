@@ -1,0 +1,40 @@
+version: '3'
+
+networks:
+  grpc:
+      external:
+        name: grpc
+
+services:
+  hellopython:
+    build:
+      context: ./python
+      args:
+        http_proxy: ${http_proxy}
+        https_proxy: ${https_proxy}
+        no_proxy: ${no_proxy}
+    image: hellopython:dev
+    networks:
+      - grpc
+    volumes:
+      - ".:/opt/hello"
+    ports:
+      - "3000:3000"
+    entrypoint: ["python", "server.py"]
+    #entrypoint: ["/bin/bash"]    
+
+  hellonodejs:
+    build:
+      context: ./nodejs
+      args:
+        http_proxy: ${http_proxy}
+        https_proxy: ${https_proxy}
+        no_proxy: ${no_proxy}
+    image: hellonodejs:dev
+    networks:
+      - grpc
+    volumes:
+      - ".:/opt/hello"
+    ports:
+      - "3001:3000"
+    entrypoint: ["/bin/bash"]    

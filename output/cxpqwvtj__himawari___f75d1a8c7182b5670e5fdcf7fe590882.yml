@@ -1,0 +1,7 @@
+version: '2'
+services:
+  swagger:
+    build:
+      context: docker/swagger
+    volumes:
+      - ../../docs/swagger/swagger.yml:/app/swagger/swagger.yml

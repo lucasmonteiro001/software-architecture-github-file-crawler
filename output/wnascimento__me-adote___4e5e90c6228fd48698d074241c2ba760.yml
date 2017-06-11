@@ -1,0 +1,94 @@
+version: '2.1'
+networks:
+    me-adote:
+        driver: bridge
+services:
+    ownersdb:
+        image: mysql:5.7
+        ports:
+            - 3306:3306
+        networks:
+            - me-adote
+        environment:
+               MYSQL_ROOT_PASSWORD: root
+               MYSQL_DATABASE: owners_db
+               MYSQL_USER: root
+               MYSQL_PASSWORD: root
+    petsdb:
+        image: mysql:5.7
+        ports:
+            - 3307:3306
+        networks:
+            - me-adote
+        environment:
+               MYSQL_ROOT_PASSWORD: root
+               MYSQL_DATABASE: pets_db
+               MYSQL_USER: root
+               MYSQL_PASSWORD: root
+    config:
+        image: wnascimento/me-adote-config
+        ports:
+            - 8888:8888
+        networks:
+            - me-adote
+        healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:8888/info"]
+            interval: 1m30s
+            timeout: 10s
+            retries: 3
+    discovery:
+        image: wnascimento/me-adote-discovery
+        ports:
+            - 8761:8761
+        links:
+            - config
+        depends_on:
+            config:
+                condition: service_healthy 
+        networks:
+            - me-adote
+        healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:8761/info"]
+            interval: 1m30s
+            timeout: 10s
+            retries: 3
+    gateway:
+        image: wnascimento/me-adote-gateway
+        ports:
+            - 9090:9090
+        links:
+            - config
+            - discovery
+        depends_on:
+            config:
+                condition: service_healthy
+            discovery:
+                condition: service_healthy
+        networks:
+            - me-adote
+    owners:
+        image: wnascimento/me-adote-owners
+        links:
+            - config
+            - discovery
+            - ownersdb
+        depends_on:
+            discovery:
+                condition: service_healthy
+            config:
+                condition: service_healthy
+        networks:
+            - me-adote
+    pets:
+        image: wnascimento/me-adote-pets
+        links:
+            - config
+            - discovery
+            - petsdb
+        depends_on:
+            discovery:
+                condition: service_healthy
+            config:
+                condition: service_healthy
+        networks:
+            - me-adote

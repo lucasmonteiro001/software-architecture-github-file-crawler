@@ -1,0 +1,37 @@
+elasticsearch:
+  image: elasticsearch:1.7.1
+
+kipavois:
+  image: cogniteev/kipavois:0.0.2
+  command: npm start -- -f company
+  links:
+    - elasticsearch:elasticsearch
+
+kibana:
+  build: kibana
+  links:
+    - kipavois:elasticsearch
+  extra_hosts:
+    - "sandbox.docido.com:192.168.99.100"
+
+kibana-config:
+  build: kibana-config
+  links:
+    - elasticsearch:elasticsearch
+
+logstash:
+  build: logstash
+  links:
+    - elasticsearch:elasticsearch
+
+flask:
+  build: flask
+  links:
+    - kibana:kibana
+
+nginx:
+  build: nginx
+  links:
+    - flask:flask
+  ports:
+    - "80:80"

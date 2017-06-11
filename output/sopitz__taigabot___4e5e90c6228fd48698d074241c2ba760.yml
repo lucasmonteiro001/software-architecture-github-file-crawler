@@ -1,0 +1,12 @@
+version: '3'
+services:
+  taigabot:
+    #image: sopitz/taigabot
+    build: .
+    deploy:
+      replicas: 0
+      restart_policy:
+        condition: none
+    env_file:
+      - ./resources/env.files/bot.env
+      - ./resources/env.files/taiga.env

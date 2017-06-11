@@ -1,0 +1,38 @@
+version: '2'
+
+services:
+  zookeeper:
+    build:
+      context: ./build/zookeeper
+      args:
+        ZOOKEEPER_CLUSTER_ID: 1
+    image: ucodev/zookeeper:latest
+    volumes:
+      - zoo_data:/var/lib/zookeeper
+    stdin_open: true
+    tty: true
+    command: /etc/rc.local
+    depends_on:
+      - base
+    restart: always
+    networks:
+      zoonet:
+        ipv4_address: 192.168.150.2
+
+  base:
+    build: ./build/base
+    image: ucodev/base:latest
+
+volumes:
+  zoo_data:
+    driver: local
+
+networks:
+  zoonet:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+      - subnet: 192.168.150.0/24
+        gateway: 192.168.150.1
+

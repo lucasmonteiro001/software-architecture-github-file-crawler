@@ -1,0 +1,25 @@
+version: '2'
+services:
+    db:
+        image: mysql:5.5
+        ports:
+            - "3306:3306"
+        environment:
+            MYSQL_ROOT_PASSWORD: root
+            MYSQL_DATABASE: symfony
+    php-apache:
+        build: docker/php-apache
+        ports:
+            - "80:80"
+        volumes:
+            - ./:/var/www
+            - ./docker/logs/symfony/:/var/www/app/logs
+            - ./docker/logs/apache2/:/var/log/apache2
+        links:
+            - db
+    elasticsearch:
+        image: elasticsearch:2.3
+        command: elasticsearch -Des.network.host=0.0.0.0
+        ports:
+            - "9200:9200"
+            - "9300:9300"

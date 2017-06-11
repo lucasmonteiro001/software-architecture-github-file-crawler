@@ -1,0 +1,22 @@
+# PHP Web Server
+apache:
+  container_name: apollo-apache
+  build: .
+  ports:
+    - "8102:80"
+  volumes:
+    - ./public:/var/www/html
+  links:
+    - mysql:mysql
+  restart: always
+
+# MySQL Server
+mysql:
+  container_name: apollo-database
+  image: mysql:latest
+  environment:
+    - MYSQL_ROOT_PASSWORD=root
+  ports:
+    - "3306:3306"
+  volumes:
+    - ./database:/docker-entrypoint-initdb.d

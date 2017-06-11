@@ -1,0 +1,102 @@
+version: '2'
+services:
+
+  eurekaserver:
+    # build: ../eurekaserver
+    image: dschroe/eurekaserver
+    restart: always
+    networks:
+      - cloud
+    ports:
+      - 4000:8080
+  confserver:
+    # build: ../confserver
+    image: dschroe/confserver
+    restart: always
+    networks:
+      - cloud
+    depends_on:
+      - eurekaserver
+    ports:
+      - 8888:8080
+
+  taskservice:
+    # build: ../taskservice
+    image: dschroe/taskservice
+    restart: always
+    logging:
+      driver: fluentd
+    networks:
+      - cloud
+    depends_on:
+      - confserver
+  userservice:
+    # build: ../userservice
+    image: dschroe/userservice
+    restart: always
+    logging:
+      driver: fluentd
+    networks:
+      - cloud
+    depends_on:
+      - confserver
+
+  reverseproxy:
+    # build: ../reverseproxy
+    image: dschroe/reverseproxy
+    restart: always
+    networks:
+      - cloud
+    depends_on:
+      - confserver
+    ports:
+      - 8900:8080
+
+  monitor:
+    # build: ../monitor
+    image: dschroe/monitor
+    restart: always
+    depends_on:
+      - rabbitmq
+    networks:
+      - cloud
+    ports:
+      - 9500:8080
+      - 9600:8989
+
+  rabbitmq:
+    image: rabbitmq:3.6.5-management
+    restart: always
+    networks:
+      - cloud
+    ports:
+      - 15672:15672
+
+  fluentd:
+    build: fluentd
+    restart: always
+    ports:
+      - 24224:24224
+    networks:
+      - cloud
+  elasticsearch:
+    image: elasticsearch:latest
+    restart: always
+    ports:
+      - 9200:9200
+      - 9300:9300
+    networks:
+      - cloud
+  kibana:
+    image: kibana:latest
+    restart: always
+    ports:
+      - 5601:5601
+    environment:
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+    networks:
+      - cloud
+
+networks:
+  cloud:
+    driver: bridge

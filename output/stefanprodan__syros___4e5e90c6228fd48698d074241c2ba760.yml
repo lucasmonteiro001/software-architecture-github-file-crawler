@@ -1,0 +1,75 @@
+version: '3'
+services:
+  nats:
+    image: nats
+    container_name: syros-nats
+    command: -m 8222
+    ports:
+      - 4222:4222
+      - 8222:8222
+      - 6222:6222
+    restart: unless-stopped
+    networks:
+      - local
+
+  mongo:
+    image: mongo
+    container_name: syros-mongo
+    command: --smallfiles
+    ports:
+      - 27017:27017
+    volumes:
+      - mongodata:/data/db
+      - mongocfg:/data/configdb
+    restart: unless-stopped
+    networks:
+      - local
+
+  mongoclient:
+    image: mongoclient/mongoclient
+    container_name: syros-mongoclient
+    ports:
+      - 3000:3000
+    volumes:
+      - mongoclient:/data/db
+    environment:
+      - MONGO_URL=mongodb://syros-mongo:27017/mongoclient
+      - MONGOCLIENT_AUTH=true
+      - MONGOCLIENT_USERNAME=admin
+      - MONGOCLIENT_PASSWORD=admin
+    restart: unless-stopped
+    networks:
+      - local
+
+  consul:
+    image: consul
+    container_name: syros-consul
+    hostname: syros-consul
+    environment:
+      - "CONSUL_LOCAL_CONFIG={\"disable_update_check\": true}"
+      - "CONSUL_BIND_INTERFACE=eth0"
+      - "CONSUL_HTTP_ADDR=0.0.0.0"
+    command: [
+                "agent",
+                "-server",
+                "-bootstrap-expect=1",
+                "-client=0.0.0.0",
+                "-ui"
+              ]
+    ports:
+      - 8500:8500
+    volumes:
+      - consuldata:/consul/data
+    restart: unless-stopped
+    networks:
+      - local
+
+networks:
+  local:
+    driver: bridge
+
+volumes:
+  mongodata: {}
+  mongocfg: {}
+  mongoclient: {}
+  consuldata: {}

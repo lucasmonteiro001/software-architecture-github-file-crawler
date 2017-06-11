@@ -1,0 +1,39 @@
+tweetsandfeelings:
+  build: .
+  dockerfile: Dockerfile-taf
+  ports:
+    - "4288:4288"
+  volumes:
+    - .:/code
+  links:
+    - orion
+    - mongo
+    - tweetsandfeelingsapi
+
+tweetsandfeelingsapi:
+  build: .
+  dockerfile: Dockerfile-tafAPI
+  ports:
+    - "4242:4242"
+  volumes:
+    - .:/code
+  links:
+    - orion
+    - rabbitmq
+
+orion:
+  image: fiware/orion
+  ports:
+    - "1026:1026"
+  links:
+    - mongo
+  command: -dbhost mongo
+
+mongo:
+  image: mongo:2.6
+  command: --smallfiles --nojournal
+
+rabbitmq:
+  image: rabbitmq:3-management
+  ports:
+    - "15672:15672"

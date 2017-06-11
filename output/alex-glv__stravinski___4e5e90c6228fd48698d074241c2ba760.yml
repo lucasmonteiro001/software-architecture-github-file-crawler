@@ -1,0 +1,9 @@
+stravinski:
+  build: .
+  ports:
+    - "7253:7253"
+  volumes:
+    - .:/app
+  dns:
+    - 8.8.8.8
+    - 9.9.9.9

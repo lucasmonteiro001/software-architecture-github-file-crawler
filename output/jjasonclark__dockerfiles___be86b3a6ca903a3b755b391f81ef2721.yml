@@ -1,0 +1,12 @@
+version: '2.0'
+volumes:
+  data:
+services:
+  gogs:
+    image: gogs/gogs:latest
+    ports:
+      - "10090:3000"
+      - "10032:22"
+    volumes:
+      - data:/data
+    restart: always

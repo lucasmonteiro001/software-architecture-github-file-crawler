@@ -1,0 +1,35 @@
+rabbitmq1:
+  image: rabbitmq:3.6.1-management
+  ports:
+    - "15672:15672"
+  hostname: rabbitmq1
+  environment:
+    - RABBITMQ_ERLANG_COOKIE='Rex Rabbit Roots'
+rabbitmq2:
+  image: rabbitmq:3.6.1-management
+  ports:
+    - "15673:15672"
+  links:
+    - rabbitmq1:rabbitmq1
+  hostname: rabbitmq2
+  environment:
+    - RABBITMQ_ERLANG_COOKIE='Rex Rabbit Roots'
+rabbitmq3:
+  image: rabbitmq:3.6.1-management
+  ports:
+    - "15674:15672"
+  links:
+    - rabbitmq1:rabbitmq1
+    - rabbitmq2:rabbitmq2
+  hostname: rabbitmq3
+  environment:
+    - RABBITMQ_ERLANG_COOKIE='Rex Rabbit Roots'
+haproxy:
+  build: ./haproxy
+  ports:
+    - "1936:1936"
+    - "5672:5672"
+  links:
+    - rabbitmq1:rabbitmq1
+    - rabbitmq2:rabbitmq2
+    - rabbitmq3:rabbitmq3

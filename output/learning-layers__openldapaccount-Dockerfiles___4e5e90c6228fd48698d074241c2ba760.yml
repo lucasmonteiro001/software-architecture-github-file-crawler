@@ -1,0 +1,14 @@
+openldapaccountdata:
+    container_name: openldapaccount-data
+    image: learninglayers/openldapaccount-data:0.0.7
+openldapaccount:
+    container_name: openldapaccount
+    image: learninglayers/openldapaccount:0.0.9
+    volumes_from:
+        - openldapaccountdata
+    links: [openldap, oidc]
+    env_file:
+        - common.env
+        - services/openldap/LDAP.env
+    volumes:
+        - /dev/urandom:/dev/random

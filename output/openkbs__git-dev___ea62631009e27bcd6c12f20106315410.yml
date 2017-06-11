@@ -1,0 +1,6 @@
+version: '2'
+services:
+  arangodb:
+    image: arangodb
+    environment:
+      - ARANGO_NO_AUTH=1

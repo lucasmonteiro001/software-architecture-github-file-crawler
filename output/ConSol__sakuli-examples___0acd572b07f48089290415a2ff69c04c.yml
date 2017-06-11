@@ -1,0 +1,21 @@
+version: '2'
+
+services:
+  sakuli_java_test:
+    image: consol/sakuli-ubuntu-xfce-java:v1.0.2
+#    image: local/sakuli-centos-xfce-java:v1.0.2
+    environment:
+    - TZ=Europe/Berlin
+    volumes:
+    - .:/opt/maven
+    - data:/root/.m2
+    network_mode: "bridge"
+    ports:
+    - 5911:5901
+    - 6911:6901
+    # to keep container running and login via `docker exec -it javaexample_sakuli_java_test_1 bash`
+    #command: "'--tail-log'"
+
+volumes:
+  data:
+    driver: local

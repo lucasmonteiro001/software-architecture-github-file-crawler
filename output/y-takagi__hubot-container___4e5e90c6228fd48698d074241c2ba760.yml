@@ -1,0 +1,14 @@
+bot:
+  build: .
+  environment:
+    - REDIS_URL=redis://redis:6379/hubot
+  volumes:
+    - ./app:/app
+  links:
+    - redis
+
+redis:
+  image: redis
+  volume_driver: local
+  volumes:
+    - hubotcontainer_redis_data:/data

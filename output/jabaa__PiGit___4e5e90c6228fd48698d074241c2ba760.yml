@@ -1,0 +1,12 @@
+pigit:
+  build: .
+  ports:
+    - "8000:8000"
+  links:
+    - "mongodb"
+  volumes:
+    - "./client:/PiGit/client"
+    - "./server:/PiGit/server"
+
+mongodb:
+  image: mongo

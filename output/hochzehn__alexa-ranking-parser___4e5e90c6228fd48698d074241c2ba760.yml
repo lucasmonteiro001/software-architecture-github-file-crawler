@@ -1,0 +1,8 @@
+version: '2'
+services:
+  parser:
+    build:
+      context: .
+    environment:
+      jobs: 100
+    command: "10"

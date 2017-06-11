@@ -1,0 +1,54 @@
+version: "2"
+
+services:
+  #This handles all of the http request to simple cert issues and both the SP and IdP can share the same ports.
+  httpd-proxy:
+    build: ./httpd-proxy/
+    networks:
+     - front
+     - back
+    ports:
+     - "80:80"
+     - "443:443"
+
+  idp:
+    build: ./idp/
+    depends_on: 
+     - ldap
+    environment:
+     - JETTY_MAX_HEAP=64m
+     - JETTY_BROWSER_SSL_KEYSTORE_PASSWORD=password
+     - JETTY_BACKCHANNEL_SSL_KEYSTORE_PASSWORD=password
+    expose: 
+     - "4443"
+    networks:
+     - back
+   
+  ldap:
+    build: ./ldap/
+    networks:
+     - back
+
+  sp:
+    build: ./sp/ 
+    networks:
+     - back
+
+  gateway: 
+    build: ./gateway/ 
+    depends_on: 
+     - idp
+    hostname: gateway.kaazing.test
+    environment:
+      GATEWAY_OPTS: -Dgateway.hostname=gateway.kaazing.test
+    networks:
+     - front
+    ports:
+     - "8000:8000"
+     - "9000:9000"
+
+networks:
+  front:
+    driver: bridge
+  back:    
+    driver: bridge

@@ -1,0 +1,21 @@
+mongo:
+  image: fixel/wg-tools:mongo
+  hostname: mongo
+  volumes:
+    - /opt/wg-tools-mongo-data:/data/db
+
+depts:
+  image: fixel/wg-tools:backend
+  hostname: depts
+  volumes:
+    - /home/flx/workspace/wg-tools/py-backend/secrets:/secrets
+  links: 
+    - mongo:mongo
+
+frontend:
+  image: fixel/wg-tools:frontend
+  ports:
+    - 3000:3000
+  hostname: frontend
+  links:
+    - depts:depts

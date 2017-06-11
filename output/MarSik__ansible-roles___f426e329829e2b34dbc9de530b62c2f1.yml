@@ -1,0 +1,59 @@
+# docker-elabftw configuration file
+# use : "docker-compose up -d" to start containers
+# https://hub.docker.com/r/elabftw/docker-elabftw/
+# http://www.elabftw.net
+
+# our first container is nginx + php-fpm + elabftw
+web:
+    image: elabftw/docker-elabftw
+    restart: always
+    environment:
+      VIRTUAL_HOST: "{{ elabftw_hostname }}"
+      LETSENCRYPT_HOST: "{{ elabftw_hostname }}"
+      LETSENCRYPT_EMAIL: "{{ elabftw_email }}"
+      # no need to change
+      DB_HOST: mysql
+      DB_NAME:
+      DB_USER: elabftw
+      # need to change
+      DB_PASSWORD: "{{ elabftw_sec_database_password }}"
+      # get the secret key from https://demo.elabftw.net/install/generateSecretKey.php
+      SECRET_KEY: "{{ elabftw_sec_secret_key }}"
+      # optional: change to your server name in nginx config
+      SERVER_NAME: "{{ elabftw_hostname }}"
+      # optional: disable https, use this to have an http server listening on port 443
+      # useful if the SSL stack is handled by haproxy or something alike
+      DISABLE_HTTPS: "true"
+      # set to true to use letsencrypt certificates
+      ENABLE_LETSENCRYPT: "false"
+    expose:
+      # if you want elabftw to run on a different port, change the first number
+      # host:container
+      - 443
+    volumes:
+      # this is where you will keep the uploaded files persistently
+      # host:container
+      - "{{ service }}-data:/elabftw/uploads"
+      # if you've enabled letsencrypt, uncomment the line below
+      # path to the folder with SSL certificates (must contain fullchain.pem and privkey.pem)
+      # host:container
+      #- /etc/letsencrypt:/ssl
+    links:
+        - mysql
+mysql:
+    image: mysql:5.7
+    restart: always
+    environment:
+      # need to change
+      MYSQL_ROOT_PASSWORD: "{{ elabftw_sec_database_root_password }}"
+      # no need to change
+      MYSQL_DATABASE: elabftw
+      # no need to change
+      MYSQL_USER: elabftw
+      # need to change
+      MYSQL_PASSWORD: "{{ elabftw_sec_database_password }}"
+    volumes:
+      # this is where you will keep the database persistently
+      # host:container
+      - "{{ service }}-db:/var/lib/mysql"
+

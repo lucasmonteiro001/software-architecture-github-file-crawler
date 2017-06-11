@@ -1,0 +1,35 @@
+web:
+  image: richarvey/nginx-php-fpm
+  links:
+    - db
+  ports:
+    - "8080:80"
+  volumes:
+    - ./registration-system:/var/www/html
+    - ./.git:/var/www/html/.git
+
+pma:
+  image: phpmyadmin/phpmyadmin
+  links:
+    - db
+  environment:
+    - PMA_HOST=db
+    - PMA_PORT=3306
+    - PMA_USER=fsfahrt
+    - PMA_PASSWORD=9Lug*96q
+  ports:
+    - "8090:80"
+
+db:
+  build: docker
+  dockerfile: DockerfileMariaDB
+  environment:
+    - MYSQL_DATABASE=fsfahrt
+    - MYSQL_USER=fsfahrt
+    - MYSQL_PASSWORD=9Lug*96q
+  expose:
+    - "3306"
+  volumes:
+    - ./mysql_data:/var/lib/mysql
+    - ./registration-system/other/sqlDumps/init_20170421.sql:/dump.sql:ro
+

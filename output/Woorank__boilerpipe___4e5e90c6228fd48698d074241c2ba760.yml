@@ -1,0 +1,16 @@
+boilerpipe:
+  build: .
+  environment:
+    APPLICATION_ENV: development
+    APP_PORT: 3000
+  ports:
+    - "14610:3000"
+  volumes:
+    - ./app.js:/opt/app.js
+    - ./src:/opt/src
+    - ./package.json:/opt/package.json
+    - ./.jshintrc:/opt/.jshintrc
+    - ./.jshintignore:/opt/.jshintignore
+    - ./.jscsrc:/opt/jscsrc
+    - ./test:/opt/test
+    - ./config:/opt/config

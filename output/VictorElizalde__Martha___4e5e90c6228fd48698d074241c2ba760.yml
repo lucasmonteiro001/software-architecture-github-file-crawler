@@ -1,0 +1,16 @@
+version: "2"
+
+volumes:
+  gems:
+    driver: local
+services:
+  martha:
+    image: ruby:2.3.0
+    entrypoint: /usr/src/martha/development-entrypoint.sh
+    command: bash
+    volumes:
+      - .:/usr/src/martha
+      - gems:/usr/local/bundle
+    working_dir: /usr/src/martha
+    tty: true
+    stdin_open: true

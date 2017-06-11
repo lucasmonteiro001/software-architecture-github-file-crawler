@@ -1,0 +1,21 @@
+version: '2'
+services:
+  imsails:
+    image: twhtanghk/imsails
+    external_links:
+      - im_mongo
+    networks:
+      - immongo_default
+    ports:
+      - 1337
+    volumes:
+      - /etc/ssl/certs:/etc/ssl/certs
+      - /usr/local/share/ca-certificates:/usr/local/share/ca-certificates
+    environment:
+      SERVICE_NAME: imsails
+    env_file: 
+      - ./.env
+
+networks:
+  immongo_default:
+    external: true

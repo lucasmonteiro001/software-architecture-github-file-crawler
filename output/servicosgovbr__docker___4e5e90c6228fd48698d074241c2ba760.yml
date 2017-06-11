@@ -1,0 +1,144 @@
+balanceador:
+  container_name: 'balanceador'
+  extends:
+    file: 'balanceador/docker-compose.yml'
+    service: 'balanceador'
+  ports:
+    - '80:80'
+    - '443:443'
+    - '8080:8080'
+    - '5601:5601'
+  links:
+    - 'es1'
+    - 'es2'
+    - 'logstash'
+    - 'kibana'
+    - 'logspout'
+    - 'portal1'
+    - 'portal2'
+    - 'editor1'
+   # - 'editor2'
+    - 'cadvisor'
+    - 'postgres'
+
+cadvisor:
+  container_name: 'cadvisor'
+  image: 'google/cadvisor:latest'
+  privileged: true
+  volumes:
+    - '/:/rootfs:ro'
+    - '/var/run:/var/run:rw'
+    - '/sys:/sys:ro'
+    - '/var/lib/docker/:/var/lib/docker:ro'
+  expose:
+    - '8080'
+
+logspout:
+  container_name: 'logspout'
+  restart: 'always'
+  image: 'servicosgovbr/logspout:latest'
+  volumes:
+    - '/var/run/docker.sock:/tmp/docker.sock'
+  expose:
+    - '80'
+  environment:
+    ROUTE_URIS: 'logstash://logstash:5000'
+  links:
+    - 'logstash'
+
+logstash:
+  container_name: 'logstash'
+  image: 'servicosgovbr/logstash'
+  links:
+    - 'es1'
+    - 'es2'
+
+kibana:
+  container_name: 'kibana'
+  image: 'kibana:4.1'
+  restart: 'always'
+
+  environment:
+    ELASTICSEARCH_URL: 'http://es1:9200'
+
+  links:
+    - 'es1'
+    - 'es2'
+
+portal1:
+  container_name: 'portal1'
+  extends:
+    file: 'portal-de-servicos/docker-compose.yml'
+    service: 'portal-de-servicos'
+  links:
+    - 'es1'
+    - 'es2'
+
+portal2:
+  container_name: 'portal2'
+  extends:
+    file: 'portal-de-servicos/docker-compose.yml'
+    service: 'portal-de-servicos'
+  links:
+    - 'es1'
+    - 'es2'
+  environment:
+    FLAGS_IMPORTAR_AUTOMATICAMENTE: 'false'
+
+editor1:
+  container_name: 'editor1'
+  extends:
+    file: 'editor-de-servicos/docker-compose.yml'
+    service: 'editor-de-servicos'
+  links:
+    - 'postgres'
+
+#editor2:
+#  container_name: 'editor2'
+#  extends:
+#    file: 'editor-de-servicos/docker-compose.yml'
+#    service: 'editor-de-servicos'
+#  links:
+#    - 'postgres'
+
+es1:
+  container_name: 'es1'
+  image: 'elasticsearch:1.7'
+  command: 'elasticsearch -Des.node.name="es1"'
+  volumes:
+   - '/usr/share/elasticsearch/es1/data:/usr/share/elasticsearch/data'
+  links:
+   - 'es2'
+
+es2:
+  container_name: 'es2'
+  image: 'elasticsearch:1.7'
+  command: 'elasticsearch -Des.node.name="es2"'
+  volumes:
+    - '/usr/share/elasticsearch/es2/data:/usr/share/elasticsearch/data'
+
+dbdata:
+  container_name: 'dbdata'
+  image: 'postgres:9.4.5'   
+  volumes:
+    - '/dbdata'
+  command: '/bin/true' 
+
+postgres:
+  container_name: 'postgres'
+  image: 'postgres:9.4.5'   
+  volumes_from: 
+    - 'dbdata'
+  environment:
+    PGDATA: '/dbdata'
+
+rotacionador:
+  container_name: 'rotacionador'
+  image: 'servicosgovbr/rotacionador'
+  restart: 'always'
+  links:
+    - 'es1'
+  environment:
+    INTERVAL_IN_HOURS: 2
+    BIGGER_THAN_GIGA: 5
+    ESNAME: 'es1'

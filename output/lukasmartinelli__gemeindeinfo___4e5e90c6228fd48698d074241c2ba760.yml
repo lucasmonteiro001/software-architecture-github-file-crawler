@@ -1,0 +1,34 @@
+pgdata:
+  image: "tianon/true"
+  volumes:
+  - /var/lib/postgresql/data
+postgres:
+  build: "src/postgres"
+  volumes_from:
+   - pgdata
+  ports:
+   - "5432"
+import:
+  build: "src/import"
+  links:
+   - postgres:postgres
+  volumes:
+   - ./data:/data
+schema:
+  build: "src/schema"
+  links:
+   - postgres:postgres
+api:
+  build: "src/api"
+  links:
+   - postgres:postgres
+  ports:
+   - "3000:3000"
+  volumes:
+   - ./src/api:/usr/src/app
+pregenerate:
+  build: "src/pregenerate"
+  links:
+   - api:api
+  volumes:
+   - ./apidata/:/data

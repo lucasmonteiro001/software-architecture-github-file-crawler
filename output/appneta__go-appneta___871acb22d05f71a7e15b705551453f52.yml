@@ -1,0 +1,51 @@
+# Example distributed app using TraceView: http://www.appneta.com/products/traceview/
+# APPNETA_KEY="xx" docker-compose build
+version: '2'
+services:
+  redis:
+    image: redis
+  # Alice is a Go service
+  alice:
+    build:
+      context: ./alice
+      args:
+        - APPNETA_KEY=${APPNETA_KEY}
+    links:
+      - bob
+      - caroljs:carol
+      - davepy:dave
+      - otto:otto
+    ports:
+      - "8890:8890"
+  # Bob is a Go service
+  bob:
+    build:
+      context: ./bob
+      args:
+        - APPNETA_KEY=${APPNETA_KEY} 
+    links:
+      - redis
+      - caroljs:carol
+  # Carol runs in Node.js
+  caroljs:
+    build:
+      context: ./caroljs
+      args:
+        - APPNETA_KEY=${APPNETA_KEY} 
+  # Dave is a Flask app running on uWSGI
+  davepy:
+    build:
+      context: ./davepy
+      args:
+        - APPNETA_KEY=${APPNETA_KEY}
+  otto:
+    build:
+      context: ./otto
+      args:
+        - APPNETA_KEY=${APPNETA_KEY}
+    links:
+      - bob
+      - caroljs:carol
+      - davepy:dave
+    ports:
+      - "8084:8084"

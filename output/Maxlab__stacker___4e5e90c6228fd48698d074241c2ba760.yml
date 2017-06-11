@@ -1,0 +1,127 @@
+version: '2'
+
+services:
+    
+    web:
+        build:
+            context: ./conf/nginx 
+        image: maxlab/nginx
+        restart: always
+        env_file: .env
+        depends_on:
+            - php7xdebug
+            - mysql
+            - pgsql
+            - redis
+            - mailcatcher
+        volumes:
+            - ./conf/nginx/conf:/etc/nginx
+            - ./conf/nginx/conf/sites-available/vhost/symfony.env.tpl:/tmp/nginx/symfony.env.tpl
+        volumes_from:
+            - php7xdebug
+        links:
+            - php7xdebug:fpm7
+            - mailcatcher
+        ports:
+            - 80:80
+            - 443:443
+        command: /bin/bash -c "envsubst '$$SYMFONY_ENV' < /tmp/nginx/symfony.env.tpl > /etc/nginx/sites-available/vhost/symfony && nginx"
+        
+        
+    mysql:
+        image: mysql:5.7
+        env_file: .env
+        ports:
+            - 3307:3306
+        volumes:
+            - ./conf/mysql/conf:/etc/mysql/conf.d
+            - ./data/mysql:/var/lib/mysql
+        restart: always
+        
+        
+    pgsql:
+        image: postgres:9.6
+        env_file: .env
+        ports:
+            - 5433:5432
+        volumes:
+            - ./data/pgsql:/var/lib/postgresql
+        restart: always
+        
+        
+    redis:
+        image: redis:3.0
+        restart: always
+        volumes: 
+            - ./data/redis:/data
+        ports:
+            - 6379:6379
+            
+        
+    mailcatcher:
+        image: schickling/mailcatcher
+        restart: always
+        
+    
+    php7console:
+        env_file: .env
+        build:
+            args:
+                - TZ=${TZ}
+            context: ./conf/php7console 
+        container_name: php7console 
+        image: maxlab/php7console
+        restart: always        
+        volumes_from:
+            - php7xdebug 
+        tty: true
+        
+        
+    php7xdebug:
+        env_file: .env
+        build:
+            context: ./conf/php7xdebug
+        image: maxlab/php7xdebug
+        restart: always
+        volumes:
+            - ./workspace:/data
+        links:
+            - pgsql
+            - mysql
+            - mailcatcher
+            - redis
+            - elasticsearch
+            
+            
+    php5apache:
+        build: 
+            context: ./conf/php5apache
+        image: maxlab/php5apache
+        restart: always        
+        volumes:
+            - ./conf/php5apache/conf/apache:/etc/apache2
+            - ./conf/php5apache/conf/php/php.ini:/usr/local/etc/php/conf.d/my.ini
+        env_file: .env
+        volumes_from:
+            - php7xdebug
+        depends_on:
+            - mysql
+            - redis
+            - mailcatcher
+        links:
+            - php7xdebug:fpm7
+            - mailcatcher
+        ports:
+            - 81:80
+            - 444:443
+            
+                
+    elasticsearch: 
+        build: 
+            context: ./conf/elasticsearch
+        volumes:
+            - ./data/elasticsearch:/usr/share/elasticsearch/data
+        ports:
+            - "9200:9200"
+            - "9300:9300"
+        tty: true

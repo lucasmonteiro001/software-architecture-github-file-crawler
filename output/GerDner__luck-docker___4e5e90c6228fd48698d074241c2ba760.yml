@@ -1,0 +1,19 @@
+web:
+  image: luck:latest
+  ports:
+     - "8080:80"
+  volumes:
+   - .:/usr/share/nginx/html
+  links:
+   - php
+   - mysql
+php:
+  image: php:7-fpm
+  ports:
+    - "9000:9000"
+  volumes:
+    - .:/usr/share/nginx/html
+mysql:
+  image: mariadb:latest
+  environment:
+    - MYSQL_ROOT_PASSWORD=rootpw

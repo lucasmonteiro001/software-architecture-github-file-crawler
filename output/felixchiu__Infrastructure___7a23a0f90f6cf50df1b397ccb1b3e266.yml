@@ -1,0 +1,14 @@
+database:
+  image: mysql:5.7
+  container_name: mysql_database
+  environment:
+    - MYSQL_DATABASE=app_database
+    - MYSQL_USER=app_user
+    - MYSQL_PASSWORD
+    - MYSQL_ROOT_PASSWORD
+    - TZ=America/Los_Angeles
+  volumes:
+    - /etc/localtime:/etc/localtime
+    - /opt/mysql-database/data:/var/lib/mysql
+  ports:
+    - "3306:3306"

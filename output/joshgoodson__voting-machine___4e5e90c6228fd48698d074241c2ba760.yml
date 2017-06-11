@@ -1,0 +1,9 @@
+worker:
+  build: .
+  environment:
+    - VOTING_RABBITMQ=amqp://voting-machine:secure@rabbitmq//
+    - VOTING_REDIS=redis://redis
+    - VOTING_QUEUE=votes
+  external_links:
+    - votingmachine_redis_1:redis
+    - votingmachine_rabbitmq_1:rabbitmq

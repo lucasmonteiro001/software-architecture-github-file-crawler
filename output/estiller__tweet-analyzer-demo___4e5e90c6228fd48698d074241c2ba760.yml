@@ -1,0 +1,24 @@
+version: "2"
+
+services:
+  reader:
+    build: ./reader
+
+  rabbitmq:
+    image: rabbitmq:3.6.5-management
+    ports: 
+     - "8080:15672"
+
+  analyzer:
+    build: ./analyzer
+
+  aggregator:
+    build: ./aggregator
+
+  redis:
+    image: redis:3.2.4-alpine
+
+  result:
+    build: ./result
+    ports: 
+      - "4000:80"

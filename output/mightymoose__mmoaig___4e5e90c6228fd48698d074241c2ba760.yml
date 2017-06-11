@@ -1,0 +1,33 @@
+version: '2'
+services:
+  arena:
+    build: ./arena
+    ports:
+      - "3000:3000"  
+    links:
+      - proxy
+  realtime:
+    build: ./realtime
+  client:
+    build: ./client
+  identity:
+    build: ./api/identity
+  match:
+    build: ./api/match
+  tictactoe:
+    links: 
+      - realtime
+    build: ./api/tic-tac-toe
+  registration:
+    build: ./api/event-registration
+  proxy:
+    build: ./proxy
+    ports:
+      - "80:80"  
+    links:
+      - tictactoe
+      - identity
+      - client
+      - realtime
+      - match
+      - registration

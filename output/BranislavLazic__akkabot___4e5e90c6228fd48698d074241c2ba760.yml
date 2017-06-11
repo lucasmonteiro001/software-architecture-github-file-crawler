@@ -1,0 +1,23 @@
+version: '2'
+
+services:
+  cassandra:
+    image: cassandra
+    ports:
+      - "9042:9042"
+
+  rabbitmq:
+    image: tutum/rabbitmq
+    environment:
+        RABBITMQ_DEFAULT_VHOST: "/"
+        RABBITMQ_USER: "admin"
+        RABBITMQ_PASS: "admin"
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+
+  elasticsearch:
+    image: elasticsearch:2.4
+    ports:
+      - "9300:9300"
+      - "9200:9200"

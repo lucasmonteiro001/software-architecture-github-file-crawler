@@ -1,0 +1,30 @@
+version: '2'
+services:
+  api:
+    build: api/
+    restart: on-failure
+    volumes:
+      - static-files:/code/static-files
+      - site-media:/code/site-media
+    depends_on:
+      - db
+    ports:
+      - "8000:8000"
+  node:
+    build: frontend/
+    volumes:
+      - node_modules:/code/node_modules
+    depends_on:
+      - api
+    ports:
+      - "8080:8080"
+  db:
+    image: mariadb
+    volumes:
+      - database:/var/lib/mysql
+      - ./mariadb:/etc/mysql/conf.d
+volumes:
+  database:
+  node_modules:
+  static-files:
+  site-media:

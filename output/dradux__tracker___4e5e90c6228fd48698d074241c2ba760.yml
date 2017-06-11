@@ -1,0 +1,53 @@
+version: '2'
+
+services:
+    web:
+      #restart: always
+      build: ./web
+      expose:
+        - "8000"
+      depends_on:
+        - postgres
+      volumes:
+        - ./web:/usr/src/app
+      env_file: .env
+
+      # for production/normal
+      #command: /usr/local/bin/gunicorn -w 2 -b :8000 app:app
+      # for debugging
+      # command: /usr/local/bin/gunicorn -w 2 -b :8000 --log-level=DEBUG app:app
+      # for 'live/hot reload'
+      #command: /usr/local/bin/gunicorn -w 2 -b :8000 --reload app:app
+      command: /usr/local/bin/gunicorn -w 2 -b :8000 ${ADDITIONAL_GUNICORN_OPTIONS} app:app
+
+    nginx:
+      build:
+        context: ./nginx/
+        #args:
+        #  SERVER_URL: ${SERVER_URL}
+      ports:
+        - "80:80"
+        - "443:443"
+      volumes:
+        - /www/static
+        - ./nginx/logs:/var/log/nginx
+      volumes_from:
+        - web
+      depends_on:
+        - web
+
+    postgres:
+      # https://hub.docker.com/_/postgres/
+      image: postgres:9.6-alpine
+      volumes:
+        - db-volume:/var/lib/postgresql
+
+    maint:
+      build: ./maint
+      volumes:
+        - ./maint/backups:/backups/
+      volumes_from:
+        - postgres
+
+volumes:
+    db-volume: {}

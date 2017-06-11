@@ -1,0 +1,13 @@
+version: "2"
+
+services:
+   multiroomaudio:
+        image: s1lvester/docker-snapcast-multiroomaudio
+     
+        networks:
+            mylan:
+                ipv4_address: # desired address for container e.g. 192.168.5.80
+     
+networks:
+    mylan:
+        external: true

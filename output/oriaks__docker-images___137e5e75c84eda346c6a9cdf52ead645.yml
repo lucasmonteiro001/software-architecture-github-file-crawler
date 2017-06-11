@@ -1,0 +1,7 @@
+mongodb:
+  image: oriaks/mongodb:latest
+  ports:
+    - 0.0.0.0:27017:27017/tcp
+  restart: unless-stopped
+  volumes:
+    - /var/lib/mongodb

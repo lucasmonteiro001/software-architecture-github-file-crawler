@@ -1,0 +1,24 @@
+app:
+  build: .
+  ports:
+    - "3000:3000"
+  links:
+    - db
+  volumes:
+    - .:/usr/src/app
+  volumes_from:
+    - bundler
+bundler:
+  image: busybox
+  volumes:
+    - /gems
+db:
+  image: mdillon/postgis
+  ports:
+    - "5432:5432"
+  environment:
+    - POSTGRES_USER=bicimapa
+    - POSTGRES_PASSWORD=bicimapa
+    - POSTGRES_DB=bicimapa
+  volumes:
+    - /var/lib/postgresql/data

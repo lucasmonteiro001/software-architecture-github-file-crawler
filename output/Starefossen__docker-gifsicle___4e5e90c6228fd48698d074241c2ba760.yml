@@ -1,0 +1,13 @@
+gifsicle:
+    build: .
+    working_dir: /usr/src/app
+    volumes:
+        - .:/usr/src/app
+    command: --version
+
+build:
+    build: build/
+    working_dir: /build
+    volumes:
+        - ./build/:/build
+    entrypoint: /build/gifsicle.sh

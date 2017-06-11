@@ -1,0 +1,22 @@
+version: '2'
+services:
+  postgres:
+     image: postgres:9.5
+     environment:
+        - POSTGRES_PASSWORD=bigguy
+        - POSTGRES_USER=postgres
+     volumes:
+        - ./data/postgres/:/var/lib/postgresql/data/
+        - ./log/postgres/:/var/log/postgresql
+        - ./config/postgres/:/etc/postgresql
+     ports:
+       - "5432:5432"
+  web:
+    build: .
+    command: bash -c "python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - .:/src
+    ports:
+       - "8000:8000"
+    depends_on:
+       - postgres

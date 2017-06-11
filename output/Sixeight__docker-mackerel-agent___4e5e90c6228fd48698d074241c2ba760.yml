@@ -1,0 +1,12 @@
+debian:
+  build: debian
+  environment:
+    - APIKEY=<YOUR_APIKEY>
+ubuntu:
+  build: ubuntu
+  environment:
+    - APIKEY=<YOUR_APIKEY>
+centos:
+  build: centos
+  environment:
+    - APIKEY=<YOUR_APIKEY>

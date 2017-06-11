@@ -1,0 +1,18 @@
+dokuwiki:
+  image: vger/dokuwiki:latest
+  stdin_open: true
+  restart: always
+  volumes_from:
+    - dokuwiki-data
+  labels:
+    io.rancher.container.pull_image: always
+    io.rancher.sidekicks: dokuwiki-data
+    lb: true
+
+dokuwiki-data:
+  image: vger/debian:jessie
+  volumes:
+    - ${VOLUME}:/var/www/dokuwiki
+  labels:
+    io.rancher.container.start_once: true
+  volume_driver: ${VOLUME_DRIVER}

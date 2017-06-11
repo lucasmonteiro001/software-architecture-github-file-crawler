@@ -1,0 +1,44 @@
+mailin:
+  build: ./mailin
+  ports:
+   - "25:25"
+  links:
+   - tricket
+  environment:
+  - WEBHOOK=http://172.17.0.6:3000/api/emails
+  - SERVICE_IGNORE=true
+tricket:
+  build: .
+  ports:
+   - "3000"
+  links:
+    - mongo
+  environment:
+   - NODE_ENV=pro
+   - SERVICE_3000_NAME=tricket
+  volumes:
+    - ~/ses.js:/web/config/ses.js:ro
+    - ~/auth.js:/web/config/auth.js:ro
+mongo:
+  image: mongo
+  environment:
+  - SERVICE_IGNORE=true
+backup:
+  build: ./backup
+  volumes:
+    - ~/.aws:/root/.aws
+  volumes_from:
+    - tricket
+  links:
+    - mongo
+  environment:
+  - SERVICE_IGNORE=true
+migrate-up:
+  build: .
+  links:
+    - mongo
+  environment:
+  - SERVICE_IGNORE=true
+  command: node ./node_modules/mongodb-migrate -runmm -cfg docker-config.json
+
+

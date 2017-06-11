@@ -1,0 +1,24 @@
+# docker-compose.yml
+version: '2'
+
+services:
+  vorto-repo:
+    image: eclipsevorto/vorto-repo
+    container_name: vorto-repo
+    ports:
+      - 8080:8080
+    expose:
+      - "8080"
+
+  vorto-boschthings-generator:
+    image: eclipsevorto/vorto-bosch
+    container_name: vorto-boschthings-generator
+    ports:
+      - 9014:9014
+    depends_on:
+      - vorto-repo
+    environment:
+      VORTO_SERVICE_REPOSITORYURL: http://vorto-repo:8080/infomodelrepository/rest
+      SERVER_CONTEXTPATH: /vorto-boschthings
+      SERVER_HOST: vorto-boschthings-generator
+      SERVER_PORT: "9014"

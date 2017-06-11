@@ -1,0 +1,18 @@
+version: '3.2'
+
+services:
+  app:
+    container_name: benchmarks-app
+    image: petk/benchmarks:swoole
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 127.0.0.1:80:9501
+    command: php /var/www/html/index.php
+    networks:
+      - benchmarks
+
+networks:
+  benchmarks:
+    driver: bridge

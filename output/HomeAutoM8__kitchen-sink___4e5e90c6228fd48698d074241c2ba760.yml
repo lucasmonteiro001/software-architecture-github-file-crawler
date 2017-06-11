@@ -1,0 +1,180 @@
+mysql:
+  build: Database
+  environment:
+    - MYSQL_ROOT_PASSWORD=8Tb97GYz456P1Ft
+  restart: always
+
+phpmyadmin:
+  image: corbinu/docker-phpmyadmin:latest
+  links:
+   - mysql
+  environment:
+   - VIRTUAL_HOST=mysql.ham8.dev
+  restart: always
+
+redis:
+  image: redis
+  ports:
+   - "127.0.5.1:6379:6379"
+  restart: always
+  volumes:
+   - /data/automation/redis:/data
+
+redis_commander:
+  image: tenstartups/redis-commander
+  command: --redis-host redis
+  links:
+    - redis:redis
+  environment:
+    - VIRTUAL_HOST=redis.ham8.dev
+  restart: always
+
+#debug_redis:
+#  build: ./DebugRedis
+#  links:
+#   - redis
+#  volumes:
+#   - "./DebugRedis:/app"
+#  restart: always
+
+monitor_owl:
+  build: ./MonitorOwlIntuition
+  links:
+   - redis
+  volumes:
+   - "./MonitorOwlIntuition:/app"
+  ports:
+   - "22600:22600/udp"
+  restart: always
+
+monitor_philips_hue:
+  build: MonitorPhilipsHue
+  links:
+   - redis
+  volumes:
+    - "./MonitorPhilipsHue:/app"
+  restart: always
+
+monitor_milights_downstairs:
+  build: MonitorMilights
+  links:
+   - redis
+  environment:
+   - MILIGHTS_HOST=10.0.2.93
+   - MILIGHTS_NAME=livingroom
+  volumes:
+    - "./MonitorMilights:/app"
+  restart: always
+
+monitor_milights_upstairs:
+  build: MonitorMilights
+  links:
+   - redis
+  environment:
+   - MILIGHTS_HOST=10.0.2.94
+   - MILIGHTS_NAME=office
+  volumes:
+    - "./MonitorMilights:/app"
+  restart: always
+
+monitor_amazon_dash:
+  build: MonitorAmazonDash
+  volumes:
+    - "./MonitorAmazonDash:/app"
+  environment:
+    - DASH_BUTTON_PLAYDOUGH=ac:63:be:02:be:72
+    - DASH_BUTTON_NERF=84:d6:d0:d1:3f:df
+    - DASH_BUTTON_DEPENDS=50:f5:da:5e:f4:49
+    - REDIS_HOST=127.0.5.1
+    - REDIS_PORT=6379
+    - NETWORK_INTERFACES=eth0,enp0s25,enp3s0
+  net: "host"
+  restart: always
+
+monitor_smartthings:
+   build: MonitorSmartthings
+   links:
+    - redis
+   volumes:
+    - "./MonitorSmartthings:/app"
+   environment:
+    - APP_URL=https://graph-eu01-euwest1.api.smartthings.com:443/api/smartapps/installations/
+    - APP_ID=cde36e0c-7310-4679-a8e4-6c22b0fada64
+    - ACCESS_TOKEN=86cfa3dc-5ab6-4937-a885-3dda0bcf5f07
+   restart: always
+
+monitor_telegram:
+   build: MonitorTelegram
+   links:
+    - redis
+    - telegram_client
+   volumes:
+    - "./MonitorTelegram:/app"
+   restart: always
+
+telegram_client:
+   build: MonitorTelegram_TelegramCli
+   links:
+    - redis
+   volumes:
+    - "./Data/Telegram:/root/.telegram-cli"
+    - "./MonitorTelegram_TelegramCli:/app"
+   restart: always
+
+monitor_nabaztag_openkarotz:
+  build: MonitorNabaztagOpenkarotz
+  volumes:
+    - "./MonitorNabaztagOpenkarotz:/app"
+  links:
+    - redis
+  environment:
+    - LAPINE_NAME=Barry
+    - LAPINE_ENDPOINT=http://10.0.2.88/
+  restart: always
+
+monitor_notifier:
+  build: MonitorNotifier
+  volumes:
+    - "./MonitorNotifier:/app"
+  links:
+    - redis
+  environment:
+    - NOTIFY_NAME=Pooter
+  restart: always
+
+ui:
+  build: UI
+  links:
+   - redis
+   - mysql
+  environment:
+   - VIRTUAL_HOST=ham8.dev
+   - MYSQL_HOST=tcp://mysql:3306
+   - MYSQL_USERNAME=ham8
+   - MYSQL_DATABASE=automation
+   - MYSQL_PASSWORD=0x66DzB85380m7x
+  volumes:
+    - "./UI:/app"
+  restart: always
+
+runtime:
+  build: Runtime
+  links:
+   - redis
+  volumes:
+   - "./Runtime:/app"
+  restart: always
+
+haproxy:
+  image: 'tutum/haproxy:latest'
+  environment:
+    - 'STATS_AUTH=stats:CaptainMorgan'
+    - TIMEOUT=connect 50000, client 500000, server 500000
+  ports:
+    - '127.0.5.1:80:80'
+    - '127.0.5.1:1936:1936'
+  links:
+    - phpmyadmin
+    - redis_commander
+    - ui
+  restart: always

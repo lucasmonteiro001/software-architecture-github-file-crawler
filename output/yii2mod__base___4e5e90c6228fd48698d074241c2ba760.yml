@@ -1,0 +1,42 @@
+version: '2'
+services:
+    db:
+        container_name: yii2mod-db-container
+        build:
+            context: ./data/docker/db
+            args:
+                HOST_UID: ${HOST_UID}
+        restart: always
+        volumes:
+            - ./data/volumes/db:/var/lib/mysql
+        environment:
+            MYSQL_ROOT_PASSWORD: secret
+            MYSQL_DATABASE: yii2mod_base
+            MYSQL_USER: yii2mod
+            MYSQL_PASSWORD: secret
+
+    web:
+        container_name: yii2mod-web-container
+        build:
+            context: ./data/docker/web
+            args:
+                HOST_UID: ${HOST_UID}
+        restart: always
+        volumes:
+            - .:/var/www/html
+        links:
+            - db
+            - redis
+        depends_on:
+            - db
+            - redis
+
+    redis:
+        container_name: yii2mod-redis-container
+        restart: always
+        build:
+            context: ./data/docker/redis
+            args:
+                HOST_UID: ${HOST_UID}
+        volumes:
+            - ./data/volumes/redis:/data

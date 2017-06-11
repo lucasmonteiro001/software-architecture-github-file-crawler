@@ -1,0 +1,20 @@
+web:
+  image: montefuscolo/wordpress
+  volumes:
+   - ./src/:/var/www/html/
+   - ./src/_htaccess:/var/www/html/.htaccess
+   - ./db/jsons/:/var/www/jsons/
+  links:
+   - db:mysql
+  ports:
+   - "80:80"
+db:
+  image: mariadb
+  environment:
+   - MYSQL_USER=thewpuser
+   - MYSQL_PASSWORD=thewppass
+   - MYSQL_DATABASE=wordpress
+   - MYSQL_ROOT_PASSWORD=thesuperpass
+   - TERM=dumb
+  volumes:
+   - ./db/base.sql:/docker-entrypoint-initdb.d/base.sql

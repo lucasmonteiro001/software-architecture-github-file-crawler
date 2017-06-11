@@ -1,0 +1,46 @@
+memcached:
+  image: memcached:latest
+  restart: always
+
+mariadb:
+  image: mariadb:10.1
+  restart: always
+  volumes:
+    - "${SHELVES_DATABASE}:/var/lib/mysql"
+  environment:
+    MYSQL_USER: "{{ service }}"
+    MYSQL_PASSWORD: "{{ shelves_sec_database_password }}"
+    MYSQL_DATABASE: "${MYSQL_DATABASE}"
+    MYSQL_ROOT_PASSWORD: "{{ shelves_sec_database_root_password }}"
+
+mosquitto:
+  image: jllopis/mosquitto
+  restart: always
+  expose:
+    - 1883
+    - 9883
+
+backend:
+  image: marsik/shelves-backend
+  restart: always
+  links:
+    - "memcached:memcached"
+    - "mariadb:mariadb"
+    - "mosquitto:mosquitto"
+  expose:
+    - 8080
+    # DEBUG PORT - 8000
+  volumes:
+    - "${SHELVES_CONFIG}:/etc/shelves"
+    - "${SHELVES_DATA}:/shelves"
+  environment:
+    VIRTUAL_HOST: "{{ shelves_backend_hostname }}"
+    LETSENCRYPT_HOST: "{{ shelves_backend_hostname }}"
+    LETSENCRYPT_EMAIL: "{{ shelves_backend_email }}"
+    VIRTUAL_PORT: 8080
+    MEMCACHED_SERVER: memcached
+    MYSQL_SERVER: mariadb
+    MQTT_SERVER: mosquitto
+    MYSQL_DATABASE: "${MYSQL_DATABASE}"
+    JAVA_MAX_MEM: "{{ shelves_backend_java_max_mem }}"
+

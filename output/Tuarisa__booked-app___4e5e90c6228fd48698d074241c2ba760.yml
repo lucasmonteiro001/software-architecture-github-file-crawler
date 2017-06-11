@@ -1,0 +1,21 @@
+web:
+  image: trukhinyuri/apache-php
+  ports:
+    - "80:80"
+    - "443:443"
+  volumes:
+    - .:/var/www/html
+  links:
+    - db
+  restart: always
+db:
+  image: centurylink/mysql:latest
+  volumes:
+    - ./mysql/conf/:/etc/mysql/conf.d/
+    - ./mysql/data/:/var/lib/mysql/
+  environment:
+    MYSQL_ROOT_PASSWORD: 123
+    MYSQL_DATABASE: booked
+    MYSQL_USER: book
+    MYSQL_PASSWORD: book
+  restart: always

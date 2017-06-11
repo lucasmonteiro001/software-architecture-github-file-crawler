@@ -1,0 +1,48 @@
+#
+# RAGE WP2 server-side infrastructure
+# This version requires the use of 
+#   docker v1.9+
+#   docker-compose v1.5+, running with --x-networking
+#
+
+# A fast in-memory store
+#     saves data to ./data/redis
+redis:
+    image: redis:3.0
+    container_name: "redis"
+    volumes: 
+      - "./data/redis:/data"
+
+# A scalable cache
+#     saves data to ./data/mongo
+mongo:
+    image: mongo:3.0
+    container_name: "mongo"
+    volumes:
+      - "./data/mongo:/data/db"
+
+# Authentication & Authorization
+#    requires: redis, mongo
+a2:
+    image: eucm/a2
+    container_name: "a2"
+    environment:
+      - REDIS_PORT=tcp://redis:6379
+      - MONGO_PORT=tcp://mongo:27017
+
+# TLS Termination
+#    exposes a2, but encrypted
+sslproxy:
+    image: eucm/nginx-ssl-proxy
+    container_name: "sslproxy"
+    environment:
+      - ENABLE_SSL=true
+      - ENABLE_BASIC_AUTH=false
+      - TARGET_SERVICE=a2:3000
+    volumes:
+      - ./keys/public.crt:/etc/secrets/proxycert 
+      - ./keys/private.key:/etc/secrets/proxykey 
+      - ./keys/dh2048.pem:/etc/secrets/dhparam       
+    ports: 
+      - "80:80"
+      - "443:443"

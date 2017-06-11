@@ -1,0 +1,14 @@
+jetbrains:
+    build: .
+    container_name: "jetbrains-base"
+    net: "host"
+    volumes:
+        - /tmp/.X11-unix:/tmp/.X11-unix
+        - /home/vagrant:/home/vagrant
+    environment:
+        DISPLAY: unix:0.0
+    user: 1000:1000
+    stdin_open: true
+    tty: true
+    privileged: false
+    command: bash

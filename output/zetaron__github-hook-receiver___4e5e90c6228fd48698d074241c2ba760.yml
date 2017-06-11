@@ -1,0 +1,38 @@
+version: '2'
+
+services:
+  queue:
+    image: redis:3.2.5-alpine
+    volumes:
+      - queue:/data
+    networks:
+      - backend
+  github-hook-receiver:
+    image: zetaron/github-hook-receiver:1.0.0
+    volumes:
+      - secrets:/var/cache/secrets:ro
+    depends_on:
+      - queue
+    environment:
+      - REDIS_URL=queue:6379
+    networks:
+      - frontends
+      - backend
+    labels:
+      - "ingress=true"
+      - "ingress.dnsname=$INGRESS_DNSNAME"
+      - "ingress.targetport=80"
+
+volumes:
+  queue:
+    driver: local
+  secrets:
+    external:
+      name: $GITHUB_HOOK_RECEIVER_SECRETS_VOLUME_NAME
+
+networks:
+  backend:
+    driver: overlay
+  frontends:
+    external:
+      name: frontends

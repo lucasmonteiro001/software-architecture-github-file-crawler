@@ -1,0 +1,21 @@
+use-consul:
+  image: registry.aliyuncs.com/abeldeng/alpine-consul
+  environment:
+    - HOSTNAME=mob.abeldeng.com
+    - JOIN_HOSTNAME=mob.abeldeng.com
+    - CONSUL_DOMAIN=abeldeng
+  
+use-consul-nginx-nodejs:
+  image: registry.aliyuncs.com/abeldeng/use-consul-nginx-nodejs
+  ports:
+    - "80:80"
+  links:
+    - use-consul:consul-agent
+    
+use-consul-ui:
+  image: registry.aliyuncs.com/abeldeng/alpine-consul-ui
+  ports:
+    - "8500:8500"
+  links:
+    - use-consul:consul-agent
+  

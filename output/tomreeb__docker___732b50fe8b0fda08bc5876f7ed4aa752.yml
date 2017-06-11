@@ -1,0 +1,5 @@
+tom-web:
+  image: tomreeb/web
+  ports: 
+    - "8080:80"
+   

@@ -1,0 +1,40 @@
+version: "2"
+
+services:
+
+    waf:
+        image: jlabusch/docker-naxsi-proxy-waf
+        links:
+            - lb:haproxy
+        ports:
+            - "8000:80"
+        security_opt:
+            - "apparmor:docker-nginx-sample"
+
+    lb:
+        image: dockercloud/haproxy:1.2.1
+        links:
+            - app
+        expose:
+            - "80"
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+
+    app:
+        image: docker-demo/app
+        restart: always
+        build: ./app
+        links:
+            - db
+        expose:
+            - "8000"
+        environment:
+            VIRTUAL_HOST: "example.com"
+
+    db:
+        image: postgres:9.4
+        expose:
+            - "5132"
+        volumes:
+            - ./db:/docker-entrypoint-initdb.d:ro
+

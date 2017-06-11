@@ -1,0 +1,32 @@
+version: '2'
+
+services:
+  frontend-server:
+    build: ./frontend-server
+    container_name: projectx-frontend-server
+    ports:
+    - "8080:8080"
+    restart: always
+
+  api-server:
+    build: ./api-server
+    container_name: projectx-api-server
+    ports:
+      - "9090:7070"
+    links:
+     - db
+    restart: always
+
+  db:
+    image: mariadb:10.3.0
+    container_name: mariadb
+    environment:
+     - MYSQL_ROOT_PASSWORD=abcd
+     - MYSQL_DATABASE=projectx
+     - MYSQL_USER=projectx_admin
+     - MYSQL_PASSWORD=pa$$word
+    ports:
+    - "3306:3306"
+    volumes:
+    - ./database-volume:/var/lib/mysql
+    restart: always

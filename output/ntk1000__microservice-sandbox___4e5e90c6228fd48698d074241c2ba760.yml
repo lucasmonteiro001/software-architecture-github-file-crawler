@@ -1,0 +1,30 @@
+# api
+auth0:
+  build: ./api/auth
+  ports:
+    - "8084:8080"
+  environment:
+    - DB_TYPE=$DB_TYPE
+    - DB_IP=db
+    - DB_PORT=${DB_PORT}
+    - DB_USER=${DB_USER}
+    - DB_PASS=${DB_PASS}
+    - DB_DB=${DB_DB}
+
+redis0:
+  image: redis:alpine
+  #build: ./datastore/redis
+  ports:
+    - "6379:6379"
+
+# tool
+mackerel:
+  image: mackerel/mackerel-agent
+  environment:
+    - apikey=${Mackerel_API}
+  volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
+    - /var/lib/mackerel-agent/:/var/lib/mackerel-agent/
+    - /proc/mounts:/host/proc/mounts:ro 
+    - /sys/fs/cgroup/:/host/sys/fs/cgroup:ro
+

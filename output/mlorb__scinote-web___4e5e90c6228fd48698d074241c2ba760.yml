@@ -1,0 +1,22 @@
+
+dbdata:
+  image: busybox
+  volumes:
+    - /var/lib/postgresql
+  command: "true"
+
+db:
+  image: postgres:9.4
+  volumes_from:
+    - dbdata
+
+web:
+  build: .
+  stdin_open: true
+  tty: true
+  ports:
+   - "3000:3000"
+  volumes:
+   - .:/usr/src/app
+  links:
+    - db

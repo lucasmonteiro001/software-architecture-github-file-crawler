@@ -1,0 +1,30 @@
+nginx:
+    build: ./load_balancer
+    links:
+        - ranking:ranking
+        - ranking2:ranking2
+        - auth:auth
+        - mobile:mobile
+        - mobile2:mobile2
+    ports:
+        - "80:80"
+ranking:
+    build: ./ranking
+    links:
+        - mongo
+    ports:
+        - "3000"
+ranking2:
+    build: ./ranking
+    links:
+        - mongo
+    ports:
+        - "3000"
+mongo:
+    image: mongo
+    ports:
+        - "27017"
+auth:
+    build: ./auth
+    ports:
+        - "3000"

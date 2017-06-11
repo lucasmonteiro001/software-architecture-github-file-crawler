@@ -1,0 +1,8 @@
+webapp:
+  build: .
+  volumes:
+   - ./static:/usr/src/app/serve/static/
+   - ./media:/usr/src/app/media/
+   - ./pepeight:/usr/src/app/
+  ports:
+   - "8049:8000"

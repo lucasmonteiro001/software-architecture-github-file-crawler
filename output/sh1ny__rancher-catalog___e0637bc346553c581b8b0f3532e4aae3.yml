@@ -1,0 +1,9 @@
+etcd:
+  image: rancher/etcd:v2.3.7-6
+  labels:
+    io.rancher.scheduler.affinity:container_label_ne: io.rancher.stack_service.name=$${stack_name}/$${service_name}
+  environment:
+    RANCHER_DEBUG: '${DEBUG}'
+  volume_driver: ${DRIVER}
+  volumes:
+  - ${PFX}-data:/data

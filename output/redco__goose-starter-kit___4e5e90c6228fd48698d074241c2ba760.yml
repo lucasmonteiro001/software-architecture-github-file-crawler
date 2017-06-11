@@ -1,0 +1,6 @@
+goose-starter-kit:
+  build: .
+  environment:
+    - DEBUG=*
+  volumes:
+    - ./lib:/app/lib

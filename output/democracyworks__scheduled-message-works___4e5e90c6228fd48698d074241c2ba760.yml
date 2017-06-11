@@ -1,0 +1,26 @@
+app:
+  build: .
+  links:
+    - rabbitmq
+    - datomic
+  environment:
+    SCHEDULED_MESSAGE_WORKS_DATOMIC_URI: "datomic:dev://datomic:4334/scheduled-message-works"
+    INITIALIZE_DATOMIC: "true"
+    SCHEDULED_MESSAGE_WORKS_AWS_ACCESS_KEY:
+    SCHEDULED_MESSAGE_WORKS_AWS_SECRET_KEY:
+    SCHEDULED_MESSAGE_WORKS_S3_BUCKET:
+    SCHEDULED_MESSAGE_WORKS_RUN_SCHEDULER: "true"
+    SCHEDULED_MESSAGE_WORKS_SCHEDULE_MESSAGE_THREADS: 2
+    SCHEDULED_MESSAGE_WORKS_DELETE_MESSAGE_THREADS: 2
+    SCHEDULED_MESSAGE_WORKS_READ_MESSAGE_THREADS: 2
+    SCHEDULED_MESSAGE_WORKS_SEARCH_MESSAGE_THREADS: 2
+datomic:
+  image: quay.io/democracyworks/datomic-tx:0.9.5544
+  environment:
+    ALT_HOST: datomic
+rabbitmq:
+  image: rabbitmq:3.6.9-management
+  ports:
+    - "45672:5672"
+    - "55672:15672"
+  hostname: rabbitmq

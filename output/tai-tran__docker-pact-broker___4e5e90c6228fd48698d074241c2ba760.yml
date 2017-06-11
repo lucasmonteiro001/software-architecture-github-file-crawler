@@ -1,0 +1,30 @@
+---
+db:
+  restart: always
+  image: postgres:9.4
+  environment:
+    - POSTGRES_USER=pact_broker
+    - POSTGRES_PASSWORD=pact_broker
+    - POSTGRES_DB=pact_broker
+  ports:
+    - 5432
+  volumes_from:
+    - db_data
+db_data:
+  image: postgres:9.4
+  command: /bin/true
+  volumes:
+      - /var/lib/pgsql/9.4/data/
+
+app:
+  restart: always
+  image: txtran/pact-broker:1.9
+  environment:
+    - DB=pact_broker
+    - DB_USER=pact_broker
+    - DB_PASSWORD=pact_broker
+    - DB_HOST=db
+  ports:
+    - 8080:8080
+  links:
+    - db

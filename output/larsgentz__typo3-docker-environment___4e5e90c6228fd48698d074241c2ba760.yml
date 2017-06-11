@@ -1,0 +1,76 @@
+version: "3"
+env_file:
+  - config/web/typo3/environment.env
+services:
+  web:
+    build:
+      #####################################################
+      ##### Select the webserver which should be used #####
+      #####################################################
+      ### Apache2 ###
+      context: docker/web/apache/
+      ### nginx ####
+      #context: docker/web/nginx/
+
+      ##################################
+      ##### Name of the Dockerfile #####
+      ##################################
+      dockerfile: Dockerfile
+
+      ################################
+      ##### Mapped network ports #####
+      ################################
+      ports:
+            - "8000:80"
+            - "8443:443"
+
+      ##############################################
+      ##### Container which holdes data folder #####
+      ##############################################
+      volumes_from:
+            - storage
+
+  db:
+    build:
+      ####################################################
+      ##### Select the dbserver which should be used #####
+      ####################################################
+      ### mariaDB ###
+      context: docker/db/mariadb/
+
+      ##################################
+      ##### Name of the Dockerfile #####
+      ##################################
+      dockerfile: Dockerfile
+
+      ################################
+      ##### Mapped network ports #####
+      ################################
+      ports:
+            - 3306:3306
+
+      ####################################################
+      ##### Select the dbserver which should be used #####
+      ####################################################
+      volumes_from:
+            - storage
+
+
+  data:
+    build:
+      ######################################################
+      ##### Select the dataserver which should be used #####
+      ######################################################
+      ### busybox ###
+      context: docker/data/busybox/
+
+      ##################################
+      ##### Name of the Dockerfile #####
+      ##################################
+      dockerfile: Dockerfile
+
+      ###############################
+      ##### File volumes #####
+      ###############################
+      volumes:
+        - /storage

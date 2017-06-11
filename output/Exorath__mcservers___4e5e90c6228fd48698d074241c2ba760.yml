@@ -1,0 +1,39 @@
+---
+version: '2'
+services:
+  bungeecord:
+    build: bungeecord
+    network_mode: "bridge"
+    stdin_open: true
+    tty: true
+    volumes:
+    - /opt/bungeecord:/opt/bungeecord
+    restart: always
+    links:
+    - spigot
+    external_links:
+    - etcd:etcd
+  spigot:
+    image: exorath/docker-spigot
+    network_mode: "bridge"
+    environment:
+      SERVICE_NAME: GAME=spigot
+    stdin_open: true
+    tty: true
+    volumes:
+    - /opt/minecraft:/opt/minecraft
+    restart: always
+  hub:
+    extends:
+      service: spigot
+    environment:
+      SERVICE_NAME: GAME=hub
+  registrator:
+    image: gliderlabs/registrator
+    command: "--internal=true -cleanup=true etcd://etcd:2379"
+    network_mode: "bridge"
+    container_name: registrator
+    volumes:
+    - /var/run/docker.sock:/tmp/docker.sock
+    external_links:
+    - etcd:etcd

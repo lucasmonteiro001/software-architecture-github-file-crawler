@@ -1,0 +1,30 @@
+version: "2"
+
+services:
+
+  blog:
+    build: ./blog
+    ports:
+      - "8080:8080"
+    links:
+      - "mongodb:mongodb"
+    volumes:
+      - "./blog:/go/src"
+      - "./.data:/data"
+
+  mongodb:
+    image: "mongo"
+    ports:
+      - "27017:27017"
+    volumes:
+      - "./.data/mongodb:/data/db"
+
+  #couchdb:
+  #  image: "couchdb"
+  #  ports:
+  #    - "5984:5984"
+  #  volumes:
+  #    - "./.data/couchdb:/usr/local/var/lib/couchdb"
+  #  environment:
+  #    - "COUCHDB_USER=admin"
+  #    - "COUCHDB_PASSWORD=keyboardcat"

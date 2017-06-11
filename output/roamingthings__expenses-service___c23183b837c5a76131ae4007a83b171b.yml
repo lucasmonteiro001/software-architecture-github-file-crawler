@@ -1,0 +1,58 @@
+version: "3"
+
+services:
+  lb:
+    image: 'dockercloud/haproxy:latest'
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    links:
+      - expenses
+    depends_on:
+      - app
+    networks:
+      - proxy
+    ports:
+      - '80:80'
+      - '1936:1936'
+    environment:
+      - DOCKER_TLS_VERIFY
+      - DOCKER_HOST
+      - DOCKER_CERT_PATH
+      - MONITOR_URI=/ping
+      - MONITOR_PORT=80
+      - STATS_PORT=1936
+      - STATS_AUTH=stats:stats
+
+  app:
+    image: localhost:5000/expenses-mono:0.0.1-SNAPSHOT
+    networks:
+      - proxy
+      - backend
+    environment:
+      - SERVICE_PORTS="8080"
+      - SPRING_PROFILES_ACTIVE=prod
+    depends_on:
+      - database
+    deploy:
+      replicas: 2
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+  
+  database:
+    image: postgres
+    networks:
+      - backend
+    environment:
+      - POSTGRES_DB=expenses
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - 5432:5432
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+
+networks:
+  proxy:
+  backend:

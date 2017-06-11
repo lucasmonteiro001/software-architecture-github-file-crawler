@@ -1,0 +1,16 @@
+version: '2'
+volumes:
+  scoreboard-db:
+    driver: local
+services:
+  db:
+    image: postgres
+    volumes:
+      - scoreboard-db:/var/lib/postgresql/data
+  web:
+    image: mitrectf/ctf-scoreboard
+    env_file: ./.env_vars
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db

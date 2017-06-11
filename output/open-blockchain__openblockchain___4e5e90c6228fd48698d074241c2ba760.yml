@@ -1,0 +1,261 @@
+version: '2'
+services:
+  cassandra-seed:
+    image: openblockchaininfo/docker-cassandra-svc
+    container_name: cassandra-seed
+    environment:
+      - constraint:node==obc
+      - CASSANDRA_READ_REQUEST_TIMEOUT_IN_MS=60000
+      - CASSANDRA_WRITE_REQUEST_TIMEOUT_IN_MS=60000
+      - CASSANDRA_CONCURRENT_READS=64
+      - CASSANDRA_CONCURRENT_WRITES=64
+      - CASSANDRA_CONCURRENT_COUNTER_WRITES=64
+      - CASSANDRA_CONCURRENT_COMPACTORS=8
+      - CASSANDRA_MEMTABLE_FLUSH_WRITERS=8
+      - CASSANDRA_MEMTABLE_HEAP_SPACE_IN_MB=4096
+      - CASSANDRA_MEMTABLE_OFFHEAP_SPACE_IN_MB=4096
+      - MAX_HEAP_SIZE=8G
+      - HEAP_NEWSIZE=800M
+      - CASSANDRA_BROADCAST_ADDRESS=cassandra-seed
+    volumes:
+      - /openblockchain/cassandra/data:/var/lib/cassandra
+    restart: always
+  cassandra-01:
+    image: openblockchaininfo/docker-cassandra-svc
+    container_name: cassandra-01
+    environment:
+      - constraint:node==obc-01
+      - CASSANDRA_READ_REQUEST_TIMEOUT_IN_MS=60000
+      - CASSANDRA_WRITE_REQUEST_TIMEOUT_IN_MS=60000
+      - CASSANDRA_CONCURRENT_READS=64
+      - CASSANDRA_CONCURRENT_WRITES=64
+      - CASSANDRA_CONCURRENT_COUNTER_WRITES=64
+      - CASSANDRA_CONCURRENT_COMPACTORS=8
+      - CASSANDRA_MEMTABLE_FLUSH_WRITERS=8
+      - CASSANDRA_MEMTABLE_HEAP_SPACE_IN_MB=4096
+      - CASSANDRA_MEMTABLE_OFFHEAP_SPACE_IN_MB=4096
+      - MAX_HEAP_SIZE=8G
+      - HEAP_NEWSIZE=800M
+      - CASSANDRA_BROADCAST_ADDRESS=cassandra-01
+      - CASSANDRA_SEEDS=cassandra-seed
+    depends_on:
+      - cassandra-seed
+    volumes:
+      - /openblockchain/cassandra/data:/var/lib/cassandra
+    restart: always
+  cassandra-02:
+    image: openblockchaininfo/docker-cassandra-svc
+    container_name: cassandra-02
+    environment:
+      - constraint:node==obc-02
+      - CASSANDRA_READ_REQUEST_TIMEOUT_IN_MS=60000
+      - CASSANDRA_WRITE_REQUEST_TIMEOUT_IN_MS=60000
+      - CASSANDRA_CONCURRENT_READS=64
+      - CASSANDRA_CONCURRENT_WRITES=64
+      - CASSANDRA_CONCURRENT_COUNTER_WRITES=64
+      - CASSANDRA_CONCURRENT_COMPACTORS=8
+      - CASSANDRA_MEMTABLE_FLUSH_WRITERS=8
+      - CASSANDRA_MEMTABLE_HEAP_SPACE_IN_MB=4096
+      - CASSANDRA_MEMTABLE_OFFHEAP_SPACE_IN_MB=4096
+      - MAX_HEAP_SIZE=8G
+      - HEAP_NEWSIZE=800M
+      - CASSANDRA_BROADCAST_ADDRESS=cassandra-02
+      - CASSANDRA_SEEDS=cassandra-seed
+    depends_on:
+      - cassandra-seed
+      - cassandra-01
+    volumes:
+      - /openblockchain/cassandra/data:/var/lib/cassandra
+    restart: always
+  bitcoin:
+    image: 'openblockchaininfo/docker-bitcoin:latest'
+    container_name: bitcoin
+    command: 'root /usr/bin/bitcoind -conf=/etc/bitcoin.conf -txindex'
+    environment:
+      - constraint:node==obc-01
+      - CONF_RPCALLOWIP=0.0.0.0/0
+      - CONF_RPCPASSWORD=pass123
+      - CONF_RPCUSER=bitcoinrpc
+      - CONF_DBCACHE=2048
+      - CONF_RPCTHREADS=8
+      - CONF_SERVER=1
+    volumes:
+      - /openblockchain/bitcoin/data:/bitcoin/data
+    restart: always
+  scanner-01:
+    image: openblockchaininfo/scanner
+    container_name: scanner-01
+    command: './sbttask.sh "run-main org.dyne.danielsan.openblockchain.Driver 1 250000"'
+    environment:
+      - BITCOIN_AUTH=bitcoinrpc:pass123
+      - BITCOIN_SERVER_URL=http://bitcoin:8332
+      - CASSANDRA_HOSTS_NUM=3
+      - CASSANDRA_HOST_1=cassandra-seed
+      - CASSANDRA_HOST_2=cassandra-01
+      - CASSANDRA_HOST_3=cassandra-02
+    depends_on:
+      - bitcoin
+      - cassandra-seed
+      - cassandra-01
+      - cassandra-02
+    volumes:
+      - /openblockchain/scanner/.ivy2:/root/.ivy2
+    restart: always
+  scanner-02:
+    image: openblockchaininfo/scanner
+    container_name: scanner-02
+    command: './sbttask.sh "run-main org.dyne.danielsan.openblockchain.Driver 250000 350000"'
+    environment:
+      - BITCOIN_AUTH=bitcoinrpc:pass123
+      - BITCOIN_SERVER_URL=http://bitcoin:8332
+      - CASSANDRA_HOSTS_NUM=3
+      - CASSANDRA_HOST_1=cassandra-seed
+      - CASSANDRA_HOST_2=cassandra-01
+      - CASSANDRA_HOST_3=cassandra-02
+    depends_on:
+      - bitcoin
+      - cassandra-seed
+      - cassandra-01
+      - cassandra-02
+    volumes:
+      - /openblockchain/scanner/.ivy2:/root/.ivy2
+    restart: always
+  scanner-03:
+    image: openblockchaininfo/scanner
+    container_name: scanner-03
+    command: './sbttask.sh "run-main org.dyne.danielsan.openblockchain.Driver 350000 385000"'
+    environment:
+      - BITCOIN_AUTH=bitcoinrpc:pass123
+      - BITCOIN_SERVER_URL=http://bitcoin:8332
+      - CASSANDRA_HOSTS_NUM=3
+      - CASSANDRA_HOST_1=cassandra-seed
+      - CASSANDRA_HOST_2=cassandra-01
+      - CASSANDRA_HOST_3=cassandra-02
+    depends_on:
+      - bitcoin
+      - cassandra-seed
+      - cassandra-01
+      - cassandra-02
+    volumes:
+      - /openblockchain/scanner/.ivy2:/root/.ivy2
+    restart: always
+  scanner-04:
+    image: openblockchaininfo/scanner
+    container_name: scanner-04
+    command: './sbttask.sh "run-main org.dyne.danielsan.openblockchain.Driver 385000 406000"'
+    environment:
+      - BITCOIN_AUTH=bitcoinrpc:pass123
+      - BITCOIN_SERVER_URL=http://bitcoin:8332
+      - CASSANDRA_HOSTS_NUM=3
+      - CASSANDRA_HOST_1=cassandra-seed
+      - CASSANDRA_HOST_2=cassandra-01
+      - CASSANDRA_HOST_3=cassandra-02
+    depends_on:
+      - bitcoin
+      - cassandra-seed
+      - cassandra-01
+      - cassandra-02
+    volumes:
+      - /openblockchain/scanner/.ivy2:/root/.ivy2
+    restart: always
+  scanner-05:
+    image: openblockchaininfo/scanner
+    container_name: scanner-05
+    command: './sbttask.sh "run-main org.dyne.danielsan.openblockchain.Driver 406000"'
+    environment:
+      - BITCOIN_AUTH=bitcoinrpc:pass123
+      - BITCOIN_SERVER_URL=http://bitcoin:8332
+      - CASSANDRA_HOSTS_NUM=3
+      - CASSANDRA_HOST_1=cassandra-seed
+      - CASSANDRA_HOST_2=cassandra-01
+      - CASSANDRA_HOST_3=cassandra-02
+    depends_on:
+      - bitcoin
+      - cassandra-seed
+      - cassandra-01
+      - cassandra-02
+    volumes:
+      - /openblockchain/scanner/.ivy2:/root/.ivy2
+    restart: always
+  node-api:
+    image: openblockchaininfo/node-api
+    container_name: node-api
+    environment:
+      - CASSANDRA_HOSTS_NUM=3
+      - CASSANDRA_HOST_1=cassandra-seed
+      - CASSANDRA_HOST_2=cassandra-01
+      - CASSANDRA_HOST_3=cassandra-02
+    ports:
+      - '10010:10010'
+    depends_on:
+      - cassandra-seed
+      - cassandra-01
+      - cassandra-02
+    restart: always
+  frontend:
+    image: openblockchaininfo/frontend
+    container_name: frontend
+    command: 'npm run build && npm run start-prod'
+    environment:
+      - APIHOST=node-api
+      - APIPORT=10010
+    ports:
+      - '80:8090'
+    depends_on:
+      - node-api
+    restart: always
+  spark-submit:
+    image: openblockchaininfo/spark
+    container_name: spark-submit
+    command: './run_all_vizgen_cron.sh'
+    environment:
+      - OBC_SPARK_MASTER=spark://spark-master:7077
+      - CASSANDRA_HOST=cassandra-seed,cassandra-01,cassandra-02
+    ports:
+      - '4040:4040'
+      - '4041:4041'
+      - '4042:4042'
+    depends_on:
+      - spark-master
+      - cassandra-seed
+      - cassandra-01
+      - cassandra-02
+    volumes:
+      - /openblockchain/spark-submit/.ivy2:/root/.ivy2
+    restart: always
+  spark-master:
+    image: openblockchaininfo/docker-spark-master
+    container_name: spark-master
+    environment:
+      - constraint:node==obc
+    ports:
+      - '8080:8080'
+    restart: always
+  spark-worker-01:
+    image: openblockchaininfo/docker-spark-worker
+    container_name: spark-worker-01
+    environment:
+      - constraint:node==obc-01
+      - SPARK_MASTER_URL=spark://spark-master:7077
+      - SPARK_PUBLIC_DNS=obc-01
+    depends_on:
+      - spark-master
+    ports:
+      - '8081:8081'
+    restart: always
+  spark-worker-02:
+    image: openblockchaininfo/docker-spark-worker
+    container_name: spark-worker-02
+    environment:
+      - constraint:node==obc-02
+      - SPARK_MASTER_URL=spark://spark-master:7077
+      - SPARK_PUBLIC_DNS=obc-02
+    depends_on:
+      - spark-master
+    ports:
+      - '8081:8081'
+    restart: always
+networks:
+  default:
+    external:
+      name: obcnet

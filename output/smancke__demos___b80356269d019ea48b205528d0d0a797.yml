@@ -1,0 +1,18 @@
+
+
+grafana:
+  image: grafana/grafana
+  ports:
+    - 3000:3000
+  links:
+    - influxdb:influxdb
+
+influxdb:
+  image: tutum/influxdb
+  ports:
+   - 8083:8083
+   - 8086:8086
+  environment:
+    PRE_CREATE_DB: "demo"
+  volumes:
+    - ./test_data.txt.gz:/test_data.txt.gz

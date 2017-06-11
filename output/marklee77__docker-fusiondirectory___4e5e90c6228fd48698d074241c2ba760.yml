@@ -1,0 +1,9 @@
+version: '2'
+
+services:
+  fusiondirectory:
+    build: .
+    environment:
+      fusiondirectory_admin_password: password
+    ports:
+      - "127.0.0.1:80:80"

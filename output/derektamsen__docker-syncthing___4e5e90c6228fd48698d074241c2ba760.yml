@@ -1,0 +1,16 @@
+---
+version: '2'
+services:
+  syncthing:
+    image: derektamsen/syncthing
+    build: ./
+    mem_limit: 512m
+    cpu_shares: 512
+    read_only: true
+    network_mode: host
+    restart: on-failure:5
+    volumes:
+      - data:/data
+volumes:
+  data:
+    driver: local

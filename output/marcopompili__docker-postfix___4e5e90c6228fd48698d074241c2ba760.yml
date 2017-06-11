@@ -1,0 +1,8 @@
+postfix_srv:
+  image: emarcs/postfix
+  hostname: mail
+  domainname: example.com
+  ports:
+    - "25:25"
+  volumes:
+    - ./data/spool/:/var/spool/postfix

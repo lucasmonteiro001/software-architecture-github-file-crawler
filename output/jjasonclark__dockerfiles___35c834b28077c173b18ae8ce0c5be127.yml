@@ -1,0 +1,10 @@
+version: '2.0'
+volumes:
+  ghost_data:
+services:
+  blog:
+    image: ghost:0.11
+    volumes:
+      - ghost_data:/var/lib/ghost
+    ports:
+      - "2368:2368"

@@ -1,0 +1,14 @@
+
+web:
+  image: devops-test-webapp
+  ports:
+   - "5500:5000"
+  links:
+   - redis
+   - db
+redis:
+  image: redis
+db:
+  image: devops-test-db
+  environment:
+   - MYSQL_ROOT_PASSWORD=test123

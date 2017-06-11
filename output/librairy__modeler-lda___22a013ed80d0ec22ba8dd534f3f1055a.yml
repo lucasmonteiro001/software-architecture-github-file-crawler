@@ -1,0 +1,19 @@
+version: "2"
+services:
+  modelerLDA:
+    container_name: modelerLDA
+    image: librairy/modeler-lda:latest
+    #restart: always
+    volumes:
+         - ./librairy:/librairy
+    external_links:
+         - column-db
+         - document-db
+         - graph-db
+         - event-bus
+    networks:
+         - "lnet"
+networks:
+  lnet:
+    external:
+      name: distribution_lnet

@@ -1,0 +1,14 @@
+version: "2"
+
+services:
+  cloudcode:
+    build: .
+    env_file: .env
+    image: poddworks/lambda-parse-cloudcode
+    ports:
+      - "8080:8080"
+    networks:
+      - backend
+
+networks:
+  backend:

@@ -1,0 +1,22 @@
+version: '2'
+services:
+  integration-tester:
+    tty: true
+    build: .
+    links:
+      - mcdir
+      - mcnode
+
+  mcdir:
+    build:
+      context: ./integration-test/concat
+      args:
+        concat_ref: ${concat_ref}
+    entrypoint: ["mcdir", "-d", "/integration-test/mcdir"]
+
+  mcnode:
+    build:
+      context: ./integration-test/concat
+      args:
+        concat_ref: ${concat_ref}
+    entrypoint: ["mcnode", "-b", "0.0.0.0", "-d", "/integration-test/mcnode"]

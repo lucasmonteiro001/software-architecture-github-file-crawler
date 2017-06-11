@@ -1,0 +1,13 @@
+version: '2.0'
+volumes:
+  ovpn-data:
+    driver: local
+services:
+  openvpn-server:
+    image: "kylemanna/openvpn"
+    ports:
+      - "1194:1194/udp"
+    cap_add:
+      - NET_ADMIN
+    volumes:
+      - ovpn-data:/etc/openvpn

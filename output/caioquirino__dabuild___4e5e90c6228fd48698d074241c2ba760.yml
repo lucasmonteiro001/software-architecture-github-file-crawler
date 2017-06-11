@@ -1,0 +1,57 @@
+version: '2'
+
+services:
+
+  discovery-server:
+    image: dabuild/discovery-server:1.0-SNAPSHOT
+
+  config-server:
+    image: dabuild/config-server:1.0-SNAPSHOT
+    links:
+     - discovery-server
+    environment:
+      - SERVICE_DISCOVERY_HOST=discovery-server
+      - SERVICE_DISCOVERY_PORT=8080
+
+  proxy-server:
+    image: dabuild/proxy-server:1.0-SNAPSHOT
+    links:
+     - discovery-server
+    ports:
+      - "80:80"
+    environment:
+      - SERVICE_DISCOVERY_HOST=discovery-server
+      - SERVICE_DISCOVERY_PORT=8080
+
+  repository:
+    image: dabuild/repository:1.0-SNAPSHOT
+    links:
+     - config-server
+     - discovery-server
+    environment:
+      - SERVICE_DISCOVERY_HOST=discovery-server
+      - SERVICE_DISCOVERY_PORT=8080
+
+  service:
+    image: dabuild/service:1.0-SNAPSHOT
+    links:
+     - config-server
+     - discovery-server
+    environment:
+      - SERVICE_DISCOVERY_HOST=discovery-server
+      - SERVICE_DISCOVERY_PORT=8080
+
+  #web:
+  #  image: dabuild/web:1.0-SNAPSHOT
+  #  links:
+  #   - config-server
+  #   - discovery-server
+
+  webhook-api:
+    image: dabuild/webhook-api:1.0-SNAPSHOT
+    links:
+     - config-server
+     - discovery-server
+    environment:
+      - SERVICE_DISCOVERY_HOST=discovery-server
+      - SERVICE_DISCOVERY_PORT=8080

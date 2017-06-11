@@ -1,0 +1,12 @@
+alpinejava:
+  build: .
+  dockerfile: Dockerfile-alpine
+  volumes:
+    - ./tmp/jdk:/jdk:rw
+
+alpinetest:
+  build: .
+  dockerfile: Dockerfile-test-alpine
+  volumes_from:
+    - alpinejava
+

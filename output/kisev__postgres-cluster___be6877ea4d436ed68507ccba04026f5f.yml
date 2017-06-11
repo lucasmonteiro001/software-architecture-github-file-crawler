@@ -1,0 +1,102 @@
+version: "3"
+services:
+  pg-stolon-sentinel:
+    image: kisev/postgres:{{ docker_tag_postgres }}
+    command: stolon-sentinel
+    environment:
+      - STSENTINEL_CLUSTER_NAME={{ stolon_cluster_name }}
+      - STSENTINEL_STORE_BACKEND=consul
+      - STSENTINEL_STORE_ENDPOINTS=http://consul-1:8500
+      - STSENTINEL_INITIAL_CLUSTER_SPEC=/etc/stolon/init-spec.json
+    deploy:
+      mode: global
+    networks:
+      - postgres-cluster
+    depends_on:
+      - consul-1
+      - consul-2
+      - consul-3
+
+  pg-stolon-keeper:
+    image: kisev/postgres:{{ docker_tag_postgres }}
+    command: stolon-keeper
+    environment:
+      - STKEEPER_CLUSTER_NAME={{ stolon_cluster_name }}
+      - STKEEPER_STORE_BACKEND=consul
+      - STKEEPER_STORE_ENDPOINTS=http://consul-1:8500
+      - STKEEPER_DATA_DIR=/data/postgres
+      - STKEEPER_PG_SU_PASSWORD={{ stolon_keeper_su_password }}
+      - STKEEPER_PG_REPL_PASSWORD={{ stolon_keeper_repl_password }}
+    volumes:
+      - pgdata:/data/postgres
+    deploy:
+      replicas: 3
+    networks:
+      - postgres-cluster
+    depends_on:
+      - consul-1
+      - consul-2
+      - consul-3
+
+  pg-stolon-proxy:
+    image: kisev/postgres:{{ docker_tag_postgres }}
+    command: stolon-proxy
+    environment:
+      - STPROXY_CLUSTER_NAME={{ stolon_cluster_name }}
+      - STPROXY_STORE_BACKEND=consul
+      - STPROXY_STORE_ENDPOINTS=http://consul-1:8500
+      - STPROXY_LISTEN_ADDRESS=0.0.0.0
+      - STPROXY_PORT={{ stolon_proxy_port }}
+    deploy:
+      mode: global
+    networks:
+      - postgres-cluster
+    ports:
+      - {{ stolon_proxy_port }}:25432
+    depends_on:
+      - consul-1
+      - consul-2
+      - consul-3
+
+  consul-1:
+    image: consul:{{ docker_tag_consul }}
+    command: "agent -server -client 0.0.0.0 -bootstrap-expect 3 -ui"
+    environment:
+      - CONSUL_BIND_INTERFACE=eth2
+    deploy:
+      replicas: 1
+    ports:
+      - 8500:8500
+    networks:
+      - postgres-cluster
+
+  consul-2:
+    image: consul:{{ docker_tag_consul }}
+    command: "agent -server -client 0.0.0.0 -join consul-1"
+    environment:
+      - CONSUL_BIND_INTERFACE=eth0
+    deploy:
+      replicas: 1
+    networks:
+      - postgres-cluster
+    depends_on:
+      - consul-1
+
+  consul-3:
+    image: consul:{{ docker_tag_consul }}
+    command: "agent -server -client 0.0.0.0 -join consul-1"
+    environment:
+      - CONSUL_BIND_INTERFACE=eth0
+    deploy:
+      replicas: 1
+    networks:
+      - postgres-cluster
+    depends_on:
+      - consul-1
+
+volumes:
+  pgdata:
+
+networks:
+  postgres-cluster:
+    driver: overlay

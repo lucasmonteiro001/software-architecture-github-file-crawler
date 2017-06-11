@@ -1,0 +1,80 @@
+version: '2'
+services:
+  web2py:
+    restart: always
+    build: web2py
+    volumes:
+    # This is where you mount your project
+    - ./app:/opt/web2py/applications/init
+    links:
+    - postgres
+    - redis
+    environment:
+    - SERVICE_NAME=web2py
+    - SERVICE_TAGS=example,web2py,DMZ
+    - SERVICE_APPLICATION=example
+    - TCP_PORTS=80
+  
+  postgres:
+    restart: always
+    image: postgres
+    volumes:
+    - ./postgres_data:/data
+    environment:  # These variables should reflect whatever is in your applications private/appconfig.ini 
+    - POSTGRES_PASSWORD=password
+    - POSTGRES_USER=postgres
+    - POSTGRES_DB=postgres
+    - PGDATA=/data
+    environment:
+    - SERVICE_NAME=postgres
+    - SERVICE_TAGS=example,postgres,DMZ
+    - SERVICE_APPLICATION=example
+  
+  scheduler:
+    restart: always
+    build: web2py
+    entrypoint: python /opt/web2py/web2py.py -K 
+    command: "init"  # specify multiple times to start more workers, separated by ,
+    volumes_from:
+    - web2py
+    links:
+    - postgres
+    environment:
+    - SERVICE_NAME=scheduler
+    - SERVICE_TAGS=example,scheduler,DMZ
+    - SERVICE_APPLICATION=example
+  
+  redis:
+    restart: always
+    image: redis
+    environment:
+    - SERVICE_NAME=redis
+    - SERVICE_TAGS=example,redis,DMZ
+    - SERVICE_APPLICATION=example
+    
+  proxy:
+    restart: always
+    image: dockercloud/haproxy
+    links:
+    - web2py
+    ports:
+    - '12345:80'  # use this if you want the haproxy to be reachable without using the frontend
+    - '12346:1936'  # use this to export the stats for this haproxy
+    volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+    - STATS_PORT=1936
+    - VIRTUAL_HOST=test.example.com
+    - LETSENCRYPT_HOST=test.example.com
+    - LETSENCRYPT_EMAIL=me@example.com
+    - SERVICE_NAME=proxy
+    - SERVICE_TAGS=example,proxy,DMZ
+    - SERVICE_APPLICATION=example
+    - SERVICE_80_CHECK_HTTP=/static/health.html
+    #- DEBUG=True
+    networks:
+    - DMZ
+    - default
+networks:
+  DMZ:  # links us to the frontend
+    external: true

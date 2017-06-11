@@ -1,0 +1,35 @@
+version: '2'
+services:
+    db:
+        image: mysql:5.5
+        environment:
+            - MYSQL_ROOT_PASSWORD=root
+            - MYSQL_DATABASE=coda_local
+
+    base:        
+        build: .
+        volumes:
+            - .:/app/
+
+    app:
+        extends:
+            service: base
+        command: ./appstart.sh
+        ports:
+            - "8787:80"
+        links:
+            - db
+
+    test:
+        extends:
+            service: base
+        entrypoint: py.test
+        links:
+            - db
+
+    manage:
+        extends:
+            service: base
+        entrypoint: /app/manage.py
+        links:
+            - db

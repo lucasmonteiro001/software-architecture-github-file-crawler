@@ -1,0 +1,24 @@
+apache:
+  image: matthb/apache_php7_stack
+  ports:
+    - "80:80"
+    - "443:443"
+    - "6379:6379"
+    - "9009:9009"
+  volumes:
+    - /var/www/vhosts:/var/www/vhosts
+  links:
+    - redis:db
+    - mysql
+
+redis:
+  image: matthb/redis:latest
+
+mysql:
+  image: mysql:latest 
+  volumes:
+    - /var/lib/mysql:/var/lib/mysql
+  ports:
+    - "3306:3306"
+  environment:
+    - MYSQL_ROOT_PASSWORD=password

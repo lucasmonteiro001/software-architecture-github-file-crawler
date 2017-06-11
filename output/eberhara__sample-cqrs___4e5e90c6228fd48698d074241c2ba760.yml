@@ -1,0 +1,85 @@
+version: '2'
+services:
+  webapp:
+    container_name: webapp
+    restart: unless-stopped
+    build: 
+      context: ./webapp
+    ports:
+      - 80:80
+
+  command-service:
+    container_name: command-service
+    restart: unless-stopped
+    build: 
+      context: ./command-service
+    ports:
+      - 3000:3000
+    links:
+      - mongo-command
+      - kafka
+
+  query-service-lb:
+    container_name: query-service-lb
+    restart: unless-stopped
+    build: 
+      context: ./query-service-lb
+    ports:
+      - 3300:80
+    links:
+      - query-service-1
+      - query-service-2
+
+  query-service-1:
+    container_name: query-service-1
+    restart: unless-stopped
+    build: 
+      context: ./query-service
+    ports:
+      - 3100
+    links:
+      - mongo-query
+
+  query-service-2:
+    container_name: query-service-2
+    restart: unless-stopped
+    build: 
+      context: ./query-service
+    ports:
+      - 3100
+    links:
+      - mongo-query
+  
+  kafka-consumer:
+    container_name: kafka-consumer
+    restart: unless-stopped
+    build: 
+      context: ./kafka-consumer
+    links:
+      - kafka
+      - mongo-query
+
+  kafka:
+    image: spotify/kafka
+    container_name: kafka
+    restart: unless-stopped
+    ports:
+      - 2181:2181
+      - 9092:9092
+    environment:
+      ADVERTISED_PORT: 9092
+      ADVERTISED_HOST: kafka
+
+  mongo-command:
+    image: mongo
+    container_name: mongo-command
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+
+  mongo-query:
+    image: mongo
+    container_name: mongo-query
+    restart: unless-stopped
+    ports:
+      - 27018:27017

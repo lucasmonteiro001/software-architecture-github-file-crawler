@@ -1,0 +1,16 @@
+DisplayServer:
+  image: suchja/x11server
+  ports:
+      - 5900:5900
+  environment:
+      VNC_PASSWORD: AnotherDamnPW
+
+Wix:
+  image: suchja/wix
+  volumes_from:
+      - DisplayServer
+  links:
+      - DisplayServer:xserver
+  volumes:
+      - .:/home/xclient/wix-project
+  working_dir: /home/xclient/wix-project

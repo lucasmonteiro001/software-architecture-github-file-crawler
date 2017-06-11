@@ -1,0 +1,15 @@
+db:
+  image: postgres
+mailcatcher:
+  image: schickling/mailcatcher
+  ports:
+    - "1080:1080"
+web:
+  build: .
+  volumes:
+    - .:/usr/src/app
+  ports:
+    - "3000:3000"
+  links:
+    - db
+    - mailcatcher

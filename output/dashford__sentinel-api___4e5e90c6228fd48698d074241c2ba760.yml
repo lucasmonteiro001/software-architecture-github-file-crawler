@@ -1,0 +1,78 @@
+version: '2'
+services:
+    app:
+        build: ./docker/php
+        volumes:
+            - .:/var/www/html
+        command: "true"
+
+    nginx:
+        build: ./docker/nginx
+        depends_on:
+            - app
+        links:
+            - app
+            - php
+        ports:
+            - 3001:80
+        volumes_from:
+            - app
+
+    php:
+        build: ./docker/php
+        expose:
+            - 9000
+        volumes_from:
+            - app
+        environment:
+            - INFLUXDB_HOST=influxdb
+            - INFLUXDB_PORT=8086
+            - INFLUXDB_USER=${INFLUXDB_USER}
+            - INFLUXDB_PASSWORD=${INFLUXDB_PASSWORD}
+            - MYSQL_HOST=mysql
+            - MYSQL_PORT=3306
+            - MYSQL_DB=${MYSQL_DB}
+            - MYSQL_USER=${MYSQL_USER}
+            - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+        links:
+            - mysql
+
+    mysql:
+        image: mysql:5.7
+        expose:
+            - 3306
+        volumes:
+            - mysql-data:/var/lib/mysql
+        environment:
+            - MYSQL_RANDOM_ROOT_PASSWORD=yes
+            - MYSQL_DATABASE=${MYSQL_DB}
+            - MYSQL_USER=${MYSQL_USER}
+            - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+# docker exec -it sentinel_mysql_1 sh -c 'exec mysql -h localhost -P 3306 -u sentinel -p'
+
+    grafana:
+        image: grafana/grafana:3.0.4
+        ports:
+            - 3000:3000
+
+    influxdb:
+        image: tutum/influxdb:0.13
+        expose:
+            - 8083
+            - 8086
+        ports:
+            - 8083:8083
+            - 8086:8086
+        volumes:
+            - influxdb-data:/data
+            - ./docker/influxdb/config.toml:/config/config.toml
+        environment:
+            - PRE_CREATE_DB=${INFLUXDB_DB}
+            - ADMIN_USER=${INFLUXDB_USER}
+            - INFLUXDB_INIT_PWD=${INFLUXDB_PASSWORD}
+
+volumes:
+    mysql-data:
+        driver: local
+    influxdb-data:
+        driver: local

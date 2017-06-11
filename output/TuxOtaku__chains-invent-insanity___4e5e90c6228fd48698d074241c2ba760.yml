@@ -1,0 +1,17 @@
+app:
+  build: ./app
+  env_file: ./app/.env
+  expose:
+    - "8000"
+  ports:
+    - "8000:8000"
+  volumes:
+    - ./app:/app
+  command: gunicorn -b 0.0.0.0:8000 invent:app
+
+nginx:
+  build: ./nginx
+  links:
+    - app
+  ports:
+    - "80:80"

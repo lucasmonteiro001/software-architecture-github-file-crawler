@@ -1,0 +1,17 @@
+androidjenkins:
+  image: ocasta/android-jenkins
+  volumes_from:
+    - androidjenkinsdata
+  links:
+    - androidjenkinsdata
+  ports:
+    - "8080:8080"
+  devices:
+    - "/dev/bus/usb:/dev/bus/usb:rwm"
+
+androidjenkinsdata:
+  image: ocasta/android-jenkins
+  command: "sleep 300"
+  volumes:
+    - /var/jenkins_home
+    - /opt/android-sdk-linux

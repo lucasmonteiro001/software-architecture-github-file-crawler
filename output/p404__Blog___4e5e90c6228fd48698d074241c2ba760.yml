@@ -1,0 +1,17 @@
+version: '2'
+services:
+  ghost_server:
+    build: .
+    image: ghost_image
+    command: sh -c 'GHOST_NODE_VERSION_CHECK=false npm install --production; GHOST_NODE_VERSION_CHECK=false npm start'
+    volumes:
+      - .:/ghost
+    ports:
+      - 2368:2368
+  assets:
+    image: ghost_image
+    command: sh -c 'cd content/themes/ruby-theme; gulp'
+    volumes:
+     - .:/ghost
+    depends_on:
+      - ghost_server

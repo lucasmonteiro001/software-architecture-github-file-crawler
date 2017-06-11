@@ -1,0 +1,35 @@
+version: '2'
+services:
+  athia_db:
+    container_name: athia_db
+    dns:
+      - 127.0.0.1
+    image: postgres
+  athia_uwsgi:
+    build: .
+    container_name: athia_uwsgi
+    depends_on:
+      - athia_db
+    dns:
+      - 127.0.0.1
+      - 8.8.8.8
+    environment:
+      DJANGO_SETTINGS_MODULE: 'athia.settings_docker_compose'
+    command: uwsgi --yaml=devscripts/docker-compose/uwsgi-compose.yml
+    volumes:
+      - .:/code
+    ports:
+      - 7000
+  athia_nginx:
+    container_name: athia_nginx
+    depends_on:
+      - athia_uwsgi
+    dns:
+      - 127.0.0.1
+      - 8.8.8.8
+    image: nginx
+    volumes:
+      - .:/code
+      - ./devscripts/docker-compose/nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - 8668:80

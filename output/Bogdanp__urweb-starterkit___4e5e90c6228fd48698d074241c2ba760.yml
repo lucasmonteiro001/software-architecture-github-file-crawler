@@ -1,0 +1,30 @@
+app:
+  build: .
+  command: python rundebug.py
+  environment:
+    - "PRE_COMMAND=urweb daemon start"
+    - "POST_COMMAND=urweb daemon stop"
+    - "COMPILATION_COMMAND=urweb app"
+    - "RUN_COMMAND=exec ./app"
+    - "URWEB_PQ_CON=host=192.168.99.100 dbname=urweb_starterkit user=postgres"
+  volumes:
+    - ".:/app"
+  ports:
+    - "8079:8080"
+  links:
+    - postgres
+
+nginx:
+  image: nginx:1.7
+  volumes:
+    - "./static:/app/static"
+    - "./nginx.conf:/etc/nginx/conf.d/app.conf"
+  ports:
+    - "8080:80"
+  links:
+    - app
+
+postgres:
+  image: postgres:9.4.1
+  ports:
+    - "5432:5432"

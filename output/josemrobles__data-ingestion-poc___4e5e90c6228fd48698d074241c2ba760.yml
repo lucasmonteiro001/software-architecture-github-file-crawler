@@ -1,0 +1,26 @@
+rabbitmq:
+  container_name: "MessageQueueServer"
+  image: rabbitmq:3-management
+  ports:
+    - "9002:15672"
+    - "5672:5672"
+api:
+  build: api/.
+  env_file: .env
+  container_name: "ApiServer"
+  links:
+    - rabbitmq
+  ports:
+    - "1337:1337"
+worker:
+  build: worker/.
+  env_file: .env
+  links:
+    - rabbitmq
+    - elasticsearch
+elasticsearch:
+  container_name: "ElasticsearchServer"
+  image: elasticsearch:latest
+  ports:
+    - "19200:9200"
+    - "19300:9300"

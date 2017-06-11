@@ -1,0 +1,15 @@
+db:
+    image: postgres:9.4.1
+memcached:
+    image: memcached:1.4.22
+web:
+    build: .
+    volumes:
+        - .:/airmozilla
+    ports:
+        - "8000:8000"
+    environment:
+        - DISPLAY=:99.0
+    links:
+        - db
+        - memcached

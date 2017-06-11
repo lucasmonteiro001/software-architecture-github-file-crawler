@@ -1,0 +1,186 @@
+version: '2'
+
+services:
+  eventql-cluster-01:
+    build:
+      context: ./build/eventql-cluster-node
+      args:
+        EVENTQL_CLIENT_HOST: localhost
+        EVENTQL_CLIENT_PORT: 9175
+        EVENTQL_SERVER_NAME: evql-cluster-01.somedomain.tld
+        EVENTQL_SERVER_DATADIR: /var/lib/eventql
+        EVENTQL_SERVER_LISTEN: 0.0.0.0:9175
+        EVENTQL_SERVER_INDEXBUILD_THREADS: 2
+        EVENTQL_SERVER_CLIENT_AUTH_BACKEND: trust
+        EVENTQL_SERVER_PIDFILE: /var/run/eventql.pid
+        EVENTQL_CLUSTER_NAME: mycluster
+        EVENTQL_CLUSTER_COORDINATOR: zookeeper
+        EVENTQL_CLUSTER_ZOOKEEPER_HOSTS: 192.168.130.2:2181
+    image: ucodev/eventql-cluster-node-01:latest
+    hostname: evql-cluster-01
+    domainname: somedomain.tld
+    volumes:
+      - evql_data_01:/var/lib/eventql
+    stdin_open: true
+    tty: true
+    command: /etc/rc.local
+    depends_on:
+      - eventql-base
+      - zookeeper
+    links:
+      - zookeeper
+    restart: always
+    networks:
+      evqlnet:
+        ipv4_address: 192.168.130.3
+
+  eventql-cluster-02:
+    build:
+      context: ./build/eventql-cluster-node
+      args:
+        EVENTQL_CLIENT_HOST: localhost
+        EVENTQL_CLIENT_PORT: 9175
+        EVENTQL_SERVER_NAME: evql-cluster-02.somedomain.tld
+        EVENTQL_SERVER_DATADIR: /var/lib/eventql
+        EVENTQL_SERVER_LISTEN: 0.0.0.0:9175
+        EVENTQL_SERVER_INDEXBUILD_THREADS: 2
+        EVENTQL_SERVER_CLIENT_AUTH_BACKEND: trust
+        EVENTQL_SERVER_PIDFILE: /var/run/eventql.pid
+        EVENTQL_CLUSTER_NAME: mycluster
+        EVENTQL_CLUSTER_COORDINATOR: zookeeper
+        EVENTQL_CLUSTER_ZOOKEEPER_HOSTS: 192.168.130.2:2181
+    image: ucodev/eventql-cluster-node-02:latest
+    hostname: evql-cluster-02
+    domainname: somedomain.tld
+    volumes:
+      - evql_data_02:/var/lib/eventql
+    stdin_open: true
+    tty: true
+    command: /etc/rc.local
+    depends_on:
+      - eventql-base
+      - zookeeper
+    links:
+      - zookeeper
+    restart: always
+    networks:
+      evqlnet:
+        ipv4_address: 192.168.130.4
+
+  eventql-cluster-03:
+    build:
+      context: ./build/eventql-cluster-node
+      args:
+        EVENTQL_CLIENT_HOST: localhost
+        EVENTQL_CLIENT_PORT: 9175
+        EVENTQL_SERVER_NAME: evql-cluster-03.somedomain.tld
+        EVENTQL_SERVER_DATADIR: /var/lib/eventql
+        EVENTQL_SERVER_LISTEN: 0.0.0.0:9175
+        EVENTQL_SERVER_INDEXBUILD_THREADS: 2
+        EVENTQL_SERVER_CLIENT_AUTH_BACKEND: trust
+        EVENTQL_SERVER_PIDFILE: /var/run/eventql.pid
+        EVENTQL_CLUSTER_NAME: mycluster
+        EVENTQL_CLUSTER_COORDINATOR: zookeeper
+        EVENTQL_CLUSTER_ZOOKEEPER_HOSTS: 192.168.130.2:2181
+    image: ucodev/eventql-cluster-node-03:latest
+    hostname: evql-cluster-03
+    domainname: somedomain.tld
+    volumes:
+      - evql_data_03:/var/lib/eventql
+    stdin_open: true
+    tty: true
+    command: /etc/rc.local
+    depends_on:
+      - eventql-base
+      - zookeeper
+    links:
+      - zookeeper
+    restart: always
+    networks:
+      evqlnet:
+        ipv4_address: 192.168.130.5
+
+  eventql-cluster-04:
+    build:
+      context: ./build/eventql-cluster-node
+      args:
+        EVENTQL_CLIENT_HOST: localhost
+        EVENTQL_CLIENT_PORT: 9175
+        EVENTQL_SERVER_NAME: evql-cluster-04.somedomain.tld
+        EVENTQL_SERVER_DATADIR: /var/lib/eventql
+        EVENTQL_SERVER_LISTEN: 0.0.0.0:9175
+        EVENTQL_SERVER_INDEXBUILD_THREADS: 2
+        EVENTQL_SERVER_CLIENT_AUTH_BACKEND: trust
+        EVENTQL_SERVER_PIDFILE: /var/run/eventql.pid
+        EVENTQL_CLUSTER_NAME: mycluster
+        EVENTQL_CLUSTER_COORDINATOR: zookeeper
+        EVENTQL_CLUSTER_ZOOKEEPER_HOSTS: 192.168.130.2:2181
+    image: ucodev/eventql-cluster-node-04:latest
+    hostname: evql-cluster-04
+    domainname: somedomain.tld
+    volumes:
+      - evql_data_04:/var/lib/eventql
+    stdin_open: true
+    tty: true
+    command: /etc/rc.local
+    depends_on:
+      - eventql-base
+      - zookeeper
+    links:
+      - zookeeper
+    restart: always
+    networks:
+      evqlnet:
+        ipv4_address: 192.168.130.6
+
+  eventql-base:
+    build: ./build/eventql-base
+    image: ucodev/eventql-base:latest
+    depends_on:
+      - base
+
+  zookeeper:
+    build:
+      context: ./build/zookeeper
+      args:
+        ZOOKEEPER_CLUSTER_ID: 1
+    image: ucodev/zookeeper:latest
+    hostname: evql-zookeeper-01
+    domainname: somedomain.tld
+    volumes:
+      - evql_zoo_data:/var/lib/zookeeper
+    stdin_open: true
+    tty: true
+    command: /etc/rc.local
+    depends_on:
+      - base
+    restart: always
+    networks:
+      evqlnet:
+        ipv4_address: 192.168.130.2
+
+  base:
+    build: ./build/base
+    image: ucodev/base:latest
+
+volumes:
+  evql_data_01:
+    driver: local
+  evql_data_02:
+    driver: local
+  evql_data_03:
+    driver: local
+  evql_data_04:
+    driver: local
+  evql_zoo_data:
+    driver: local
+
+networks:
+  evqlnet:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+      - subnet: 192.168.130.0/24
+        gateway: 192.168.130.1
+

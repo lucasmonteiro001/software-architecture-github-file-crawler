@@ -1,0 +1,15 @@
+api:
+  build: backend
+  environment:
+    - POSTGRES_HOST=$POSTGRES_HOST
+    - POSTGRES_USER=wiki
+    - POSTGRES_PASSWORD=$POSTGRES_PASSWORD
+    - NODE_ENV=production
+  expose:
+    - 3000
+web:
+  build: web
+  ports:
+    - 8000:80
+  links:
+    - api

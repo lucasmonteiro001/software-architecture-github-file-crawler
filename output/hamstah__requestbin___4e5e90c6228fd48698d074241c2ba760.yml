@@ -1,0 +1,37 @@
+api:
+  image: hamstah/requestbin
+  links:
+    - redis
+    - elasticsearch
+    - kibana
+  ports:
+    - 8080:8080
+    - 8081:8081
+    - 8082:8082
+    - 9999:9999
+  environment:
+    - PORT=8080
+    - TCP_PORT=:9900
+    - ELASTICSEARCH=elasticsearch:9200
+    - ROOT=/app
+    - REDIS=redis:6379
+    - KIBANA=kibana:5601
+    - HOSTNAME=localhost
+  volumes:
+    - ./passwd:/app/passwd
+
+redis:
+  image: redis
+  volumes:
+    - ./data:/data
+  command: redis-server --appendonly yes
+
+kibana:
+  image: kibana
+  links:
+    - elasticsearch
+
+elasticsearch:
+  image: elasticsearch
+  volumes:
+    - ./data:/usr/share/elasticsearch/data

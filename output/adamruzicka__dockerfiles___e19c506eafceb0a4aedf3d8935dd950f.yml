@@ -1,0 +1,16 @@
+version: '2'
+services:
+  storage:
+    image: busybox:latest
+    volumes:
+      - /var/lib/postgresql/data
+  postgres:
+    image: postgres:latest
+    volumes_from:
+      - storage
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: foreman
+      POSTGRES_PASSWORD: foreman
+    

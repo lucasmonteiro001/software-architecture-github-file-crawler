@@ -1,0 +1,11 @@
+version: '2.1'
+
+services:
+  compile:
+    image: konmeo/golang-dev:latest
+    volumes: ["${PWD}/bin:/gocode/bin"]
+    command: get -v -ldflags '-s -w -linkmode external -extldflags -static' ${SOURCE}
+
+  container:
+    image: ${IMAGE}:latest
+    build: .

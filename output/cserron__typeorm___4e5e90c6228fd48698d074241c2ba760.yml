@@ -1,0 +1,49 @@
+version: '2'
+services:
+
+  # mysql
+  mysql:
+    image: "mysql:5.7.10"
+    container_name: "mysql"
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: "admin"
+      MYSQL_USER: "test"
+      MYSQL_PASSWORD: "test"
+      MYSQL_DATABASE: "test"
+
+  # mariadb
+  mariadb:
+    image: "mariadb:10.1.16"
+    container_name: "mariadb"
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: "admin"
+      MYSQL_USER: "test"
+      MYSQL_PASSWORD: "test"
+      MYSQL_DATABASE: "test"
+
+  # postgres
+  postgres:
+    image: "postgres:9.5.3"
+    container_name: "postgres"
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: "test"
+      POSTGRES_PASSWORD: "test"
+      POSTGRES_DB: "test"
+
+  # mssql
+  # mssql:
+  #   image: "microsoft/mssql-server-linux"
+  #   container_name: "mssql"
+  #   ports:
+  #     - "1433:1433"
+  #   environment:
+  #     ACCEPT_EULA: "Y"
+  #     SA_PASSWORD: "thisIs@V3ryh&rdP@55w0rd"
+  #   volumes:
+  #     - "./temp/mssql:/var/opt/mssql"

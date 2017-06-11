@@ -1,0 +1,12 @@
+web:
+  image: nginx
+  restart: always
+  ports:
+  - 40001:80
+  volumes:
+  - /data/jkef-web:/usr/share/nginx/html:ro
+builder:
+  image: daocloud.io/na57/jkef-web:latest
+  restart: always
+  volumes:
+  - /data/jkef-web:/dist

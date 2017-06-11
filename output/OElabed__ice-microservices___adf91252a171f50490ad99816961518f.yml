@@ -1,0 +1,40 @@
+rabbitmq:
+  image: rabbitmq:3-management
+  restart: always
+  ports:
+    - 15672:15672
+    - 5672:5672
+  environment:
+    - RABBITMQ_DEFAULT_USER=admin#1
+    - RABBITMQ_DEFAULT_PASS=${RABBIT_MQ_BUS_PASSWORD}
+mysql-auth:
+  image: mysql:latest
+  ports:
+   - 3306:3306
+  environment:
+   - MYSQL_ROOT_PASSWORD=${MYSQL_AUTH_DB_PASSWORD}
+   - MYSQL_DATABASE=auth
+  volumes:
+      - /data/mysql:/var/lib/mysql
+mongo-auth:
+  image: mongo
+  ports:
+   - 27017:27017
+   - 28017:28017
+  environment:
+  #  - MONGODB_USER="admin#1"
+  #  - MONGODB_PASS="${MONGODB_AUTH_PASSWORD}"
+   - MONGODB_DATABASE="authDB"
+  volumes:
+      - /data/mongo/auth:/data/db
+mongo-account:
+  image: mongo
+  ports:
+   - 27018:27017
+   - 28018:28017
+  environment:
+  #  - MONGODB_USER="admin#1"
+  #  - MONGODB_PASS="${MONGODB_ACCOUNT_PASSWORD}"
+   - MONGODB_DATABASE="accountDB"
+  volumes:
+      - /data/mongo/account:/data/db

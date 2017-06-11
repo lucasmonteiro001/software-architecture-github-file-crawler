@@ -1,0 +1,76 @@
+version: '3'
+services:
+
+  # Create the proxy container
+  proxy:
+    image: dockertools-front:nginx
+    ports:
+      - 80:80
+    links:
+      - engine:php
+    working_dir: /home/dev
+    volumes:
+      - ../src:/home/dev
+      - ./nginx/config/friendlytodo.conf:/etc/nginx/conf.d/friendlytodo.conf
+      - logs:/var/log/nginx/
+
+  # Create the front container
+  front:
+    image: dockertools-front:apache
+    ports:
+      - 8080:8080
+    links:
+      - engine:php
+    working_dir: /home/dev
+    volumes:
+      - ../src:/home/dev
+      - ./apache/config/friendlytodo.conf:/etc/apache2/sites-available/default.conf
+      - logs:/var/log/apache2/
+
+  # Add the engine container
+  engine:
+    image: dockertools-engine:latest
+    ports:
+      - 9000:9000
+    links:
+      - mariadb:db
+    user: "1000"
+    working_dir: /home/dev
+    volumes:
+      - ../src:/home/dev:rw
+      - /etc/passwd:/etc/passwd:ro
+      - /etc/group:/etc/group:ro
+    environment:
+      COMPOSER_HOME: /home/dev/.composer
+
+  # Create the mariadb container
+  mariadb:
+    image: dockertools-mariadb:latest
+    ports:
+      - 3306:3306
+    working_dir: /home/dev
+    volumes:
+      - ../src:/home/dev
+      - dbdata:/var/lib/mysql
+      - logs:/var/log/mysql/
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: friendlytodo
+      MYSQL_USER: friendlytodo
+      MYSQL_PASSWORD: friendlytodo
+
+  # Create adminer container
+  adminer:
+    image: dockertools-adminer:latest
+    ports:
+      - 88:8080
+    links:
+      - mariadb:db
+    volumes:
+      - adminer:/srv/adminer
+
+# Create volumes for the project
+volumes:
+  logs: {}
+  dbdata: {}
+  adminer: {}

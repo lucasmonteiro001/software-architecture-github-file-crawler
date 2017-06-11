@@ -1,0 +1,18 @@
+
+pulltest-target:
+  build: pulltest-target/
+  environment:
+  - PULLTEST_PW=5ieeri576uhyu
+  links:
+  - "pulltest-source"
+  volumes:
+  - /home/vagrant/source.tar.gz:/home/pysnapshotd/source.tar.gz:ro
+  - ./pulltest-pysnapshotd.conf:/home/pysnapshotd/pysnapshotd.conf:ro
+  - ./tmp/pulltest-find-output.txt:/find_output.txt:rw
+pulltest-source:
+  build: pulltest-source/
+  environment:
+  - PULLTEST_PW=5ieeri576uhyu
+  volumes:
+  - ./tmp/pulltest-find-output.txt:/find_output.txt:rw
+

@@ -1,0 +1,12 @@
+version: '2'
+services:
+  restsvr:
+    build: .
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/code
+  memcached:
+    image: "memcached:alpine"
+  redis:
+    image: "redis:3.0-alpine"

@@ -1,0 +1,23 @@
+
+elda:
+  build: .
+  hostname: elda
+  domainname: nocv.tw.rpi.edu
+  links:
+  - fuseki
+  ports:
+  - "8080:8080"
+  volumes:
+  - elda/elda-standalone/target/elda-standalone:/usr/local/tomcat/webapps/elda
+  restart: on-failure:3
+
+fuseki:
+  build: docker/fuseki
+  hostname: fuseki
+  domainname: nocv.tw.rpi.edu
+  ports:
+  - "3030:3030"
+  volumes:
+  - skos:/var/lib/tdb:ro
+  command: --file=/var/lib/tdb/dcmp.ttl /dcmp
+  restart: on-failure:3

@@ -1,0 +1,87 @@
+roomer:
+    build: ../profx/
+    environment:
+        SERVER: "irc:6667"
+        SERVER_NAME: "192.168.99.100:6667"
+        DISPATCH: "vision:8080"
+        CHAN: "#other #roomtest #harrison"
+    env_file:
+        - .roomer_env
+    volumes:
+        - ../profx/:/go/src/github.com/bigroom/profx
+        - ../vision/models/:/go/src/github.com/bigroom/vision/models
+        - ../../paked/rerun/:/go/src/github.com/paked/rerun
+    links:
+        - irc
+        - vision
+        - jarvis
+    expose:
+        - "3000"
+
+vision:
+    build: ../vision/
+    environment:
+        DEFAULT_IRC: "192.168.99.100"
+    env_file:
+        - .vision_env
+    volumes:
+        - ../communicator/:/go/src/github.com/bigroom/communicator
+        - ../vision/:/go/src/github.com/bigroom/vision
+        - ../vision/models/:/go/src/github.com/bigroom/vision/models
+        - ../zombies/:/go/src/github.com/bigroom/zombies
+    expose:
+        - "6060"
+        - "8080"
+    links:
+        - jarvis
+        - zombies
+
+mystique:
+    build: ../mystique
+    volumes:
+        - ../mystique/:/app
+    expose:
+        - "8080"
+
+quinn:
+    build: ./nginx
+    ports:
+        - "80:80"
+    links:
+        - vision
+        - mystique
+
+irc:
+    image: yrpri/ngircd
+    ports:
+        - "6667:6667"
+
+jarvis:
+    image: postgres
+
+store:
+    image: quay.io/coreos/etcd:v2.0.8
+    environment:
+        ETCD_NAME: "etcd0"
+        ETCD_ADVERTISE_CLIENT_URLS: "http://192.168.99.100:2379,http://192.168.99.100:4001"
+        ETCD_LISTEN_CLIENT_URLS: "http://0.0.0.0:2379,http://0.0.0.0:4001"
+        ETCD_INITIAL_ADVERTISE_PEER_URLS: "http://192.168.99.100:2380"
+        ETCD_LISTEN_PEER_URLS: "http://0.0.0.0:2380"
+        ETCD_CLUSTER_TOKEN: "etcd-cluster-1"
+        ETCD_INITIAL_CLUSTER: "etcd0=http://192.168.99.100:2380"
+        ETCD_INITIAL_CLUSTER_STATE: "new"
+    ports:
+        - "4001:4001"
+        - "2380:2380"
+        - "2379:2379"
+
+zombies:
+    build: ../zombies/cmd/pool
+    env_file: .zombies_env
+    links:
+        - store
+    volumes:
+        - ../zombies/cmd/pool/:/go/src/github.com/bigroom/zombies/cmd/pool
+        - ../zombies:/go/src/github.com/bigroom/zombies
+    expose:
+        - "3001"

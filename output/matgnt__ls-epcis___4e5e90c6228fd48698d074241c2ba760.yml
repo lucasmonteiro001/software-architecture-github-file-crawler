@@ -1,0 +1,31 @@
+
+rabbitmqmaster:
+  #image: tutum/rabbitmq
+  build: ./tutum-docker-rabbitmq
+  environment:
+    - RABBITMQ_PASS=admin
+  ports:
+    - "15672:15672"
+    - "5672:5672"
+
+mongodb:
+  image: mongo
+  ports:
+    - "27017:27017"
+
+storageworker:
+  build: ./workers/storageworker/
+  links:
+    - rabbitmqmaster
+
+# this is a worker to receive EPCIS XML events with routing key "input.xml"
+# it converts it to JS and sends it to routing key "input.json"
+xml2jsonworker:
+  build: ./workers/xmlepcis2json/
+  links:
+    - rabbitmqmaster
+
+eventgenerator:
+  build: ./workers/dummyeventworker/
+  links:
+    - rabbitmqmaster

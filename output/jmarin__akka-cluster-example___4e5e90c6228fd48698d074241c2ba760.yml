@@ -1,0 +1,37 @@
+version: '2'
+services:
+  seed:
+    build: seed
+    ports:
+      - "2552:2552"
+    depends_on:
+      - zookeeper
+    environment:
+      CLUSTER_IP: seed
+      ZOOKEEPER_HOST: zookeeper
+      ZOOKEEPER_PORT: 2181
+
+  frontend:
+    build: frontend
+    ports:
+      - '8080:8080'
+    depends_on:
+      - seed
+    environment:
+      CLUSTER_IP: frontend
+      ZOOKEEPER_HOST: zookeeper
+      ZOOKEEPER_PORT: 2181
+
+  backend:
+    build: backend
+    depends_on:
+      - seed
+    environment:
+      CLUSTER_IP: backend
+      ZOOKEEPER_HOST: zookeeper
+      ZOOKEEPER_PORT: 2181
+
+  zookeeper:
+    image: jplock/zookeeper
+    ports:
+      - '2181:2181'

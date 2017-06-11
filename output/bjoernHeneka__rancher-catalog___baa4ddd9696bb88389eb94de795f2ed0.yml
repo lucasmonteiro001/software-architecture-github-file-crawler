@@ -1,0 +1,40 @@
+jenkins:
+  log_driver: ''
+  labels:
+    io.rancher.sidekicks: jenkins-volume,jenkins-backup
+    io.rancher.container.pull_image: always
+  tty: true
+  log_opt: {}
+  image: jenkins:2.7.1
+  volumes_from:
+  - jenkins-volume
+  stdin_open: true
+jenkins-volume:
+  log_driver: ''
+  labels:
+    io.rancher.container.pull_image: always
+    io.rancher.container.start_once: 'true'
+  tty: true
+  entrypoint:
+  - chown
+  - -R
+  - 1000:1000
+  - /var/jenkins_home
+  log_opt: {}
+  image: busybox
+  volumes:
+  - /var/jenkins_home
+  stdin_open: true
+jenkins-backup:
+  log_driver: ''
+  labels:
+    io.rancher.container.pull_image: always
+  tty: true
+  log_opt: {}
+  image: bjoernheneka/backup_container
+  volumes:
+  - ${VOLUME_NAME}:/backup
+  volumes_from:
+  - jenkins-volume
+  stdin_open: true
+  volume_driver: ${VOLUME_DRIVER}

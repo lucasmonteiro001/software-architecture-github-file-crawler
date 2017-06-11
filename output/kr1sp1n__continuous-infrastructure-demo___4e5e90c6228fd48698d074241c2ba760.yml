@@ -1,0 +1,22 @@
+version: '2'
+services:
+  
+  nginx:
+    build: build/nginx/
+    ports:
+      - "8080:80"
+    links:
+      - hello
+
+  hello:
+    build: build/hello/
+    links:
+      - graphite
+    expose:
+      - "8580"
+    command: npm start
+
+  graphite:
+    image: hopsoft/graphite-statsd:latest
+    ports:
+    - "8500:80"

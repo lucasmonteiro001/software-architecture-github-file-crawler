@@ -1,0 +1,14 @@
+version: "2"
+
+services:
+  jenkins:
+    image: mjdev/docker-jenkins
+    build: .
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock 
+      - /usr/local/bin/docker:/usr/local/bin/docker
+    environment:
+      - DOCKER_GID_ON_HOST
+    ports:
+      - 5000:5000
+      - 8080:8080

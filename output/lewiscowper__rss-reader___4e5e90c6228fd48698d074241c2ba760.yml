@@ -1,0 +1,9 @@
+version: '2'
+services:
+  app:
+    build: .
+    ports:
+      - "1337:1337"
+    command: node server.js
+    volumes:
+      - "${PWD}/build:/app/build"

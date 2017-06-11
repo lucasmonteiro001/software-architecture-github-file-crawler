@@ -1,0 +1,106 @@
+version: '2'
+
+services:
+  elasticsearch1:
+    container_name: es1
+    build: elasticsearch/
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      ES_JAVA_OPTS: "-Xms1g -Xmx1g"
+      # this value is required because we set "network.host"
+      # be sure to modify it appropriately for a production cluster deployment
+      discovery.zen.minimum_master_nodes: 1
+    mem_limit: "2g"
+    cap_add:
+      - "IPC_LOCK"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    networks:
+      - docker_elk
+  elasticsearch2:
+    container_name: es2
+    build: elasticsearch/
+    environment:
+      ES_JAVA_OPTS: "-Xms1g -Xmx1g"
+      # this value is required because we set "network.host"
+      # be sure to modify it appropriately for a production cluster deployment
+      discovery.zen.minimum_master_nodes: 1
+      discovery.zen.ping.unicast.hosts: elasticsearch1
+    mem_limit: "2g"
+    cap_add:
+      - "IPC_LOCK"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    networks:
+      - docker_elk
+    depends_on:
+      - elasticsearch1
+  logstash:
+    container_name: logstash
+    build: logstash/
+    ports:
+      - "5000:5000"
+      - "9600:9600"
+    mem_limit: "8g"
+    cpu_shares: 2048
+    environment:
+      LS_JAVA_OPTS: "-Xms4g -Xmx4g"
+    networks:
+      - docker_elk
+    depends_on:
+      - elasticsearch1
+      - elasticsearch2
+  kibana:
+    container_name: kibana
+    build: kibana/
+    volumes:
+      - ./kibana/config/:/usr/share/kibana/config
+    ports:
+      - "5601:5601"
+    environment:
+      ELASTICSEARCH_URL: "http://elasticsearch1:9200"
+    networks:
+      - docker_elk
+    depends_on:
+      - elasticsearch1
+      - elasticsearch2
+  internal-logs:
+    image: astronomerio/kinesis-consumer-internal-logs:v2.0.0
+    volumes:
+      - ./internal-logs/prod.properties:/usr/src/app/properties/prod.properties
+      - ./log/internal-logs/:/usr/src/app/log/
+    environment:
+      NODE_ENV: production
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+    networks:
+      - docker_elk
+  filebeat:
+    container_name: filebeat
+    build: filebeat/
+    environment:
+      LOGSTASH_URL: "logstash:5044"
+    volumes:
+      - ./log/internal-logs/:/var/log/filebeat/internal-logs/
+      - ./log/aries/:/var/log/filebeat/aries/
+      - ./log/clickstream/:/var/log/filebeat/clickstream/
+    depends_on:
+      - logstash
+    networks:
+      - docker_elk
+
+networks:
+  docker_elk:
+    driver: bridge

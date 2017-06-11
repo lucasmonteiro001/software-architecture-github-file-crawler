@@ -1,0 +1,50 @@
+store:
+  build: .
+  restart: always
+  ports:
+   - "7000:7000"
+   - "7100:7100"
+   - "7200:7200"
+  links:
+    - postgresql
+    - elasticsearch
+  volumes:
+   - /data-leveldb:/data-leveldb
+   - /data-projects:/data-projects
+  environment:
+    - STORE_PROJECT_STRATEGY=file
+    - STORE_PROJECT_FILE_PATH=/data-schemamapper
+    - STORE_EXPOSE_STRATEGIES=websocket,rest,admin
+    - STORE_EXPOSE_WEBSOCKET_PORT=7000
+    - STORE_EXPOSE_REST_PORT=7100
+    - STORE_EXPOSE_ADMIN_PORT=7200
+    - STORE_DRIVER_STRATEGIES=elasticsearch,postgresql,leveldb
+    - STORE_DRIVER_ELASTICSEARCH_HOST=http://elasticsearch:9200
+    - STORE_DRIVER_POSTGRESQL_HOST=postgresql
+    - STORE_DRIVER_POSTGRESQL_USER=postgres
+    - STORE_DRIVER_POSTGRESQL_PASSWORD=schemamapper
+    - STORE_DRIVER_LEVELDB_PATH=/data-leveldb
+    - DEBUG=*
+postgresql:
+  image: schemamapper/postgresql-postgis-uuid
+  restart: always
+  environment:
+    - POSTGRES_PASSWORD=schemamapper
+  ports:
+    - "5432:5432"
+  volumes:
+    - /data-postgresql:/var/lib/postgresql/data
+elasticsearch:
+  image: elasticsearch:2
+  command: elasticsearch -Des.network.bind_host=0.0.0.0 -Des.http.cors.enabled=true -Des.http.cors.allow-origin=*
+  restart: always
+  ports:
+    - "9200:9200"
+  volumes:
+    - /data-elasticsearch:/usr/share/elasticsearch/data
+authorizedkeys:
+  image: tutum/authorizedkeys
+  environment:
+    - AUTHORIZED_KEYS=ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEApzubzNrYNSYv66Hbv92ChEJLS+2d0+u4FvktO1iE6jFRx2UL9Xk8SmGoP6+MYPrzaZutZudqrcf8tBH028snPzMOKoXiNJeqS0wGeGegR4l1lHHfk5T+1F5aziEBpun7etV1M0iNWEP8oK8Rr7NDMqnYOGUTFa8k/fuwvOslDMxmESX5wh6J0k8dDVTrSIXCJnpL0AAwFfuGwl5mm8iCZwi4xTyINwwjkZMAthG/BhJV4FolTxyFKGC/ZN+a418SUgLP6FUJ7C6HCjwjNZON77IJHquQsYJc+Gqz69H6jodYeRXD9f3UMI/JL2k1ti3aDqmnF+W0NWhFO51RSKLQvQ== k.schmeets@gmail.com
+  volumes:
+    - /root:/user:rw

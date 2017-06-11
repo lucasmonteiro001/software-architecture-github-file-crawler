@@ -1,0 +1,52 @@
+version: '2'
+
+services:
+  eventql-standalone:
+    build:
+      context: ./build/eventql-standalone
+      args:
+        EVENTQL_CLIENT_HOST: localhost
+        EVENTQL_CLIENT_PORT: 9175
+        EVENTQL_SERVER_DATADIR: /var/lib/eventql
+        EVENTQL_SERVER_LISTEN: 0.0.0.0:9175
+        EVENTQL_SERVER_INDEXBUILD_THREADS: 2
+        EVENTQL_SERVER_CLIENT_AUTH_BACKEND: trust
+        EVENTQL_SERVER_PIDFILE: /var/run/eventql.pid
+    image: ucodev/eventql-standalone:latest
+    hostname: evql-standalone-01
+    domainname: somedomain.tld
+    volumes:
+      - evql_standalone_data:/var/lib/eventql
+    stdin_open: true
+    tty: true
+    command: /etc/rc.local
+    depends_on:
+      - eventql-base
+    restart: always
+    networks:
+      evqlnet:
+        ipv4_address: 192.168.140.2
+
+  eventql-base:
+    build: ./build/eventql-base
+    image: ucodev/eventql-base:latest
+    depends_on:
+      - base
+
+  base:
+    build: ./build/base
+    image: ucodev/base:latest
+
+volumes:
+  evql_standalone_data:
+    driver: local
+
+networks:
+  evqlnet:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+      - subnet: 192.168.140.0/24
+        gateway: 192.168.140.1
+

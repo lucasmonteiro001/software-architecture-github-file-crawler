@@ -1,0 +1,12 @@
+rhug-db:
+  build: ../rhug-db
+rhug-app:
+  build: ../rhug-app 
+  links:
+    - rhug-db
+rhug-web:
+  build: ../rhug-web
+  links:
+    - rhug-app
+  ports:
+    - "80:80"

@@ -1,0 +1,23 @@
+engine:
+  image: elasticsearch:2
+  container_name: search_engine
+  environment:
+    ES_JAVA_OPTS: "-Des.network.bind_host=0.0.0.0"
+    TZ: America/Los_Angeles
+  volumes:
+    - /etc/localtime:/etc/localtime
+    - /opt/platform-search/data/:/usr/share/elasticsearch/data/
+    - /opt/platform-search/search-engine-logs/:/usr/share/elasticsearch/logs/
+service:
+  build: /opt/platform-search/
+  container_name: search_service_proxy
+  links:
+    - engine
+  ports:
+    - "9200:443"
+  environment:
+    - TZ=America/Los_Angeles
+  volumes:
+    - /etc/localtime:/etc/localtime
+    - /opt/platform-search/https-proxy-logs:/var/log/nginx
+    - /opt/platform-search/container/conf/default:/etc/nginx/sites-enabled/default

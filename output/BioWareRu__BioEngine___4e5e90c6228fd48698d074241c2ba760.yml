@@ -1,0 +1,37 @@
+version: '2'
+
+services:
+  resizr:
+    image: resizr
+    build:
+      context: ./src/Resizr
+      dockerfile: Dockerfile
+  mysql:
+    image: mariadb:latest
+    volumes:
+      - .:/app
+      - /var/data/bwcore/mysql:/var/lib/mysql
+    ports:
+      - 3306:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=123
+    volumes:
+      - .:/app
+      - /var/data/bwcore/mysql:/var/lib/mysql
+  elasticsearch:
+    image: elasticsearch:alpine
+    volumes:
+      - /var/data/bwcore/elasticsearch:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+  site:
+    image: site
+    build:
+      context: ./src/Site
+      dockerfile: Dockerfile
+
+  api:
+    image: bioengine.api
+    build:
+      context: ./src/API
+      dockerfile: Dockerfile

@@ -1,0 +1,16 @@
+version : '2.1'
+services:
+    mongo:
+        build: ./mongo
+        networks:
+            - backend
+    mongoclient:
+        build : ./mongoclient
+        ports:
+            - "8081:8081"
+        depends_on: 
+            - mongo
+        networks:
+            - backend
+networks:
+    backend:

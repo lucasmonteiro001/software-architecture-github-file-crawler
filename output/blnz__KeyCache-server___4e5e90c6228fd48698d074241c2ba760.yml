@@ -1,0 +1,19 @@
+db:  
+  image: postgres
+  volumes:
+    - ./db/dumps:/app-db-dumps # We're mounting this folder so we can backup/restore database dumps from our app folder.
+    - ./db/initDB.sql:/docker-entrypoint-initdb.d/initDB.sql
+
+syncserver:
+  build: .
+  links:
+    - db
+  ports:
+    - "8000:8000"
+  environment:
+    - PGHOST=db
+    - PGDATABASE=postgres
+    - PGUSER=ssdb
+    - PGPASSWORD=ssdb
+
+ 

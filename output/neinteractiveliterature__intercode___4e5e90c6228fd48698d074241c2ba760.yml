@@ -1,0 +1,16 @@
+postgres:
+  image: postgres:latest
+  expose:
+    - "3306"
+  ports:
+    - "3307:3306"
+  environment:
+    POSTGRES_PASSWORD: postgres
+web:
+  build: .
+  volumes:
+    - .:/usr/src/app
+  ports:
+    - "3000:3000"
+  links:
+    - "postgres:postgres"

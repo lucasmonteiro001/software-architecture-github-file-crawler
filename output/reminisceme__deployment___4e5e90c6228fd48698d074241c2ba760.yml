@@ -1,0 +1,95 @@
+version: "2"
+services:
+  app:
+    image: reminisceme/app:latest
+    env_file: ./env/prod.sh
+    restart: on-failure:5
+    volumes_from:
+      - data
+
+  nginx:
+    build: nginx/
+    ports:
+      - 80:80
+      - 443:443
+      - 8080:8080
+    volumes:
+      - /etc/ssl/dhparams:/etc/ssl/dhparams
+      - /etc/letsencrypt:/etc/letsencrypt
+      - /var/www/downloads:/var/www/downloads
+    restart: on-failure:5
+
+  game-creator:
+    image: reminisceme/game-creator:latest
+    cap_drop:
+      - CHOWN
+      - MKNOD
+      - DAC_OVERRIDE
+      - FSETID
+      - FOWNER
+      - SYS_CHROOT
+    restart: on-failure:5
+
+  stats:
+    image: reminisceme/stats:latest
+    cap_drop:
+      - CHOWN
+      - MKNOD
+      - DAC_OVERRIDE
+      - FSETID
+      - FOWNER
+      - SYS_CHROOT
+    restart: on-failure:5
+
+  mongo:
+    image: mongo:3.2.4
+    volumes_from:
+      - data
+    cap_drop:
+      - DAC_OVERRIDE
+      - FSETID
+      - FOWNER
+      - SYS_CHROOT
+    restart: on-failure:5
+
+  data:
+    image: cogniteev/echo
+    volumes:
+      - /var/lib/mongo/data/db:/data/db
+      - /misc:/misc
+      - /esdata:/usr/share/elasticsearch/data
+      - /app-logs:/winston-logs
+    cap_drop:
+      - CHOWN
+      - DAC_OVERRIDE
+      - FSETID
+      - FOWNER
+      - SYS_CHROOT
+    restart: on-failure:5
+
+  mongo-seed:
+    image: reminisceme/reverse-geoloc:latest
+    volumes_from:
+      - data
+
+  elasticsearch:
+    image: elasticsearch:2.4.1
+    volumes_from:
+      - data
+
+  kibana:
+    image: kibana:4.6.2
+    environment:
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+      - SERVER_HOST=kibana
+    depends_on:
+      - elasticsearch
+
+  logstash:
+    build: logstash/
+    command: logstash -f /config/logstash.conf
+    volumes_from:
+      - data
+    depends_on:
+      - elasticsearch
+

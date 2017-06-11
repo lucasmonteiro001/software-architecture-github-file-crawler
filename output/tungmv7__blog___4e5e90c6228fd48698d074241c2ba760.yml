@@ -1,0 +1,25 @@
+front:
+  build: docker/images/nginx
+  ports:
+    - "80:80"
+  volumes:
+    - .:/sources
+  links:
+    - php:phpfpm
+php:
+  build: docker/images/php
+  ports:
+    - "9000:9000"
+  volumes:
+    - .:/sources
+  links:
+    - db:mysql
+db:
+  build: docker/images/mysql
+  ports:
+    - "3306:3306"
+  environment:
+    MYSQL_ROOT_PASSWORD: "123@cms"
+    MYSQL_PASS: "123@cms"
+    MYSQL_DATABASE: 'yii2basic'
+    MYSQL_USER: 'tung'

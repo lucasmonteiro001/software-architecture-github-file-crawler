@@ -1,0 +1,8 @@
+nginx:
+  image: nginx
+  ports:
+    - "80:80"
+  volume_driver: convoy-nfs
+  volumes:
+    - magento:/etc/nginx/sites-enabled
+  restart: always

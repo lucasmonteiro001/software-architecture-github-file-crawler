@@ -1,0 +1,29 @@
+consul:
+  image: progrium/consul
+  hostname: "consul"
+  ports:
+    - "8500:8500"
+    - "8600:53"
+  command: -server -bootstrap -log-level debug -ui-dir /ui
+
+sample-app:
+  build: deploy/web
+  environment:
+    SERVICE_NAME: "sample-app"
+  ports:
+    - 8484
+
+lb:
+  build: deploy/lb
+  links:
+    - consul:consul
+  ports:
+    - 80:80
+
+registrator:
+  command: -internal consul://consul:8500
+  image: gliderlabs/registrator:latest
+  links:
+    - consul:consul
+  volumes:
+    - "/var/run/docker.sock:/tmp/docker.sock"

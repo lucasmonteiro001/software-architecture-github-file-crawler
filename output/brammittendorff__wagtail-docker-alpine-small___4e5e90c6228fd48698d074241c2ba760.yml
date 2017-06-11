@@ -1,0 +1,10 @@
+wagtail:
+  build: .
+  command: 'bash build.sh mywebsite'
+  volumes:
+    - '.:/app'
+  working_dir: /app
+  ports:
+    - '8000:8000'
+  environment:
+    PORT: 8000

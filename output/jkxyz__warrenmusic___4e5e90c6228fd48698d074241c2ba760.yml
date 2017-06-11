@@ -1,0 +1,30 @@
+version: "3"
+
+services:
+
+  api:
+    build:
+      context: ./warrenmusic-api
+      dockerfile: Dockerfile.development
+    environment:
+      - NODE_PORT=3000
+      - NODE_ENV=development
+    ports:
+      - 3001:3000
+    volumes:
+      - ./warrenmusic-api:/opt/warrenmusic-api
+      - api_node_modules:/opt/warrenmusic-api/node_modules
+
+  frontend:
+    build:
+      context: ./warrenmusic-frontend
+      dockerfile: Dockerfile.development
+    ports:
+      - 3000:3000
+    volumes:
+      - ./warrenmusic-frontend:/opt/warrenmusic-frontend
+      - frontend_node_modules:/opt/warrenmusic-frontend/node_modules
+
+volumes:
+  api_node_modules:
+  frontend_node_modules:

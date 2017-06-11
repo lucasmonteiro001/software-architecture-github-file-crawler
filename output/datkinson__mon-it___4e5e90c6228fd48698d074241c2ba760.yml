@@ -1,0 +1,22 @@
+php:
+  image: registry.noprobe.co.uk/nginx-phpfpm
+  ports:
+    - "9000:80"
+  volumes:
+    - .:/var/www
+  links:
+    - mysql:mysql
+
+mysql:
+  image: registry.noprobe.co.uk/mariadb
+  ports:
+    - "3309:3306"
+  volumes:
+    - .docker/db/data:/var/lib/mysql
+
+node:
+  image: node:latest
+  volumes_from:
+    - php
+  command:
+    - "/var/www/.docker/nodewatch.sh"

@@ -1,0 +1,16 @@
+rs1m0:
+  image: mongo:2.6
+  ports:
+  - ":27017"
+  command: mongod --replSet rs1 --noprealloc --smallfiles
+rs1m1:
+  image: mongo:2.6
+  ports:
+  - ":27017"
+  command: mongod --replSet rs1 --noprealloc --smallfiles
+rs1m2:
+  image: mongo:2.6
+  ports:
+  - ":27017"
+  command: mongod --replSet rs1 --noprealloc --smallfiles
+

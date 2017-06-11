@@ -1,0 +1,10 @@
+version: '2'
+
+services:
+  sannel.house.generator:
+    image: user/sannel.house.generator
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        source: ${DOCKER_BUILD_SOURCE}

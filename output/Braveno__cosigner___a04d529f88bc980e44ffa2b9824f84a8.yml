@@ -1,0 +1,40 @@
+bitcoind:
+  build: ../bitcoind 
+  ports:
+    - "18332:18332"
+
+geth:
+  build: ../geth 
+  ports:
+    - "30303:30303"
+  environment:
+    GETHOPTS: "--verbosity 3 --mine --minerthreads 1"
+
+cosigner:
+  build: ../../
+  hostname: cosigner
+  ports:
+    - "8080:8080"
+    - "8443:8443"
+    - "8445:8445"
+    - "5555:5555"
+    - "5555:5555/udp"
+    - "5556:5556"
+    - "5556:5556/udp"
+  links:
+    - bitcoind
+    - geth
+  environment:
+    BITCOIND_MSIG_ACCOUNTS: 
+    GETH_CONTRACT_ACCOUNT: 
+    GETH_MSIG_ACCOUNTS: 
+
+functional:
+  build: ./
+  hostname: functional
+  links:
+    - cosigner
+    - bitcoind
+    - geth
+  environment:
+    GETH_CONTRACT_ACCOUNT:

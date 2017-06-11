@@ -1,0 +1,19 @@
+version: "2"
+services:
+  app:
+    build:
+      context: ./docker/app
+    working_dir: /data/app
+    links:
+      - mongo
+      - cassandra
+
+  mongo:
+    image: mongo
+    ports:
+      - "27017"
+  cassandra:
+    image: cassandra
+    ports:
+      - "9042"
+    

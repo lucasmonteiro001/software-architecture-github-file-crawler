@@ -1,0 +1,8 @@
+helloworld-web:
+  build: .
+  restart: always
+  ports:
+    - "80"
+  environment:
+    - SERVICE_NAME=helloworld
+    - SERVICE_TAGS=web

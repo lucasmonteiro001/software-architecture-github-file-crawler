@@ -1,0 +1,23 @@
+consul:
+    image: qnib/consul
+    hostname: consul
+    container_name: consul
+    dns: 127.0.0.1
+    environment:
+    - DC_NAME=dc1
+    - CONSUL_BOOTSTRAP=true
+    ports:
+    - "8500:8500"
+
+redis:
+    image: qnib/redis
+    hostname: redis
+    container_name: redis
+    dns: 127.0.0.1
+    links:
+     - consul:consul
+    environment:
+    - DC_NAME=dc1
+    ports:
+    - "6379:6379"
+

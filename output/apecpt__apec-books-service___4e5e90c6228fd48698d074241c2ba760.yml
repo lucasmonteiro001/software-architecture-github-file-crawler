@@ -1,0 +1,13 @@
+db:
+  image:  postgres:9.4.4
+  ports:
+    - "5432:5432"
+  environment:
+    POSTGRES_PASSWORD: test
+service:
+  image: "apec-books-service:0.1"
+  ports:
+    - "8081:8081"
+  command: -Ddb.default.host=db
+  links:
+    - db

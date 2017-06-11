@@ -1,0 +1,40 @@
+jenkinsdata:
+  build: jenkins-data
+jenkinsmaster:
+  build: jenkins-master
+  volumes_from:
+    - jenkinsdata
+  ports:
+    - "50000:50000"
+    - "8080:8080"
+mainnginx:
+  build: nginx
+  ports:
+    - "80:80"
+    - "443:443"
+  links:
+    - jenkinsmaster:jenkins-master
+
+#ports:
+#- "80:80"
+#links:
+#- jenkinsmaster:jenkins-master
+
+# gitlab
+# elasticsearch
+# appium
+# kibana
+# sonarqube
+# versioneye
+# graphite
+# dockergc
+# jenkinsslave
+# cadvisor
+# gather metrics
+# graphana
+# influxdb
+# Zabbix
+# Chef Server
+# cadvisor
+# openldap(?)
+#

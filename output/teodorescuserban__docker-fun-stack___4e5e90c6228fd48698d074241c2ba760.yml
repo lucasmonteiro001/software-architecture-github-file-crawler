@@ -1,0 +1,62 @@
+
+version: "2"
+
+services:
+  flask:
+    image: unocha/alpine-base-python3
+    container_name: flask
+    hostname: flask
+    domainname: $DOCKDOMAIN
+    volumes:
+      - "./app:/opt"
+    environment:
+      - FLASK_APP=/opt/app.py
+    entrypoint:
+      - "/opt/runapp.sh"
+    depends_on:
+      - mongo
+    networks:
+      dbnet:
+      appnet:
+        aliases:
+          - app
+          - app.$DOCKDOMAIN
+
+  mongo:
+    image: unocha/alpine-mongo
+    container_name: mongo
+    hostname: mongo
+    domainname: $DOCKDOMAIN
+    volumes:
+      - "./db:/srv/db"
+      - "./db:/opt"
+    networks:
+      dbnet:
+        aliases:
+          - mongo.$DOCKDOMAIN
+
+  web:
+    image: unocha/alpine-nginx-extras
+    #build: .
+    container_name: web
+    hostname: web
+    domainname: $DOCKDOMAIN
+    ports:
+      - "0.0.0.0:80:80"
+    volumes:
+      - "./app:/srv/www/html"
+      - "./web:/etc/nginx/conf.d"
+    depends_on:
+      - flask
+    networks:
+      default:
+        aliases:
+          - web.$DOCKDOMAIN
+      appnet:
+        aliases:
+          - gw
+          - gw.$DOCKDOMAIN
+
+networks:
+  dbnet:
+  appnet:

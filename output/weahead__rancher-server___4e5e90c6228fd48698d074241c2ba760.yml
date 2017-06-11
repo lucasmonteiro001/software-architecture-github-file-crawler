@@ -1,0 +1,42 @@
+version: '2'
+
+services:
+  web:
+    image: nginx:1.9.12
+    restart: unless-stopped
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - /certs:/certs:ro
+    links:
+      - rancher
+    ports:
+      - "80:80"
+      - "443:443"
+    env_file: ./rancher.env
+
+  rancher:
+    image: rancher/server:v1.1.2
+    restart: unless-stopped
+    volumes:
+      - rancher-data:/var/lib/cattle
+      - /certs/cert.pem:/ca.crt:ro
+    links:
+      - db
+    env_file:
+      - ./rancher.env
+      - ./database.env
+
+  db:
+    image: mariadb:10.1.12
+    restart: unless-stopped
+    volumes:
+      - db-data:/var/lib/mysql
+      - ./rancher.cnf:/etc/mysql/conf.d/rancher.cnf:ro
+      - ./init.sh:/docker-entrypoint-initdb.d/init.sh:ro
+    environment:
+      MYSQL_RANDOM_ROOT_PASSWORD: 1
+    env_file: ./database.env
+
+volumes:
+  rancher-data: {}
+  db-data: {}

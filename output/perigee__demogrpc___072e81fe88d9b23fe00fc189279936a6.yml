@@ -1,0 +1,13 @@
+version: "3"
+
+#networks:
+#  testing: {"driver": "overlay", "attachable": true}
+
+services:
+  vote:
+    image: nginx:alpine
+    deploy:
+      mode: replicated
+      replicas: 1
+    networks:
+      - testing

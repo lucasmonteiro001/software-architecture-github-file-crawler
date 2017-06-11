@@ -1,0 +1,32 @@
+data:
+    image: unzeroun/base
+
+fpm:
+    image:        unzeroun/fpm
+    volumes_from: [ data ]
+    links:        [ mysql, mailcatcher ]
+    volumes:      [ '.:/www' ]
+
+mysql:
+    build:        docker/mysql
+    volumes_from: [ data ]
+    environment:  { MYSQL_ROOT_PASSWORD: root }
+
+apache:
+    image:        unzeroun/apache
+    volumes_from: [ data ]
+    links:        [ fpm  ]
+    ports:        [ '8010:80' ]
+    volumes:      [ '.:/www'  ]
+
+cli:
+    build:        docker/cli
+    volumes_from: [ data ]
+    links:        [ mysql, mailcatcher ]
+    stdin_open:   true
+    tty:          true
+    volumes:      [ '.:/www' ]
+
+mailcatcher:
+    image: schickling/mailcatcher
+    ports: [ '1080:1080' ]

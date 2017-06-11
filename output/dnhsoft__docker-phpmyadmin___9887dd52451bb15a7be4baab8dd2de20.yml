@@ -1,0 +1,9 @@
+pma:
+  image: dnhsoft/phpmyadmin:4.6.4
+  links:
+   - db
+  ports:
+   - "8001:80"
+
+db:
+  image: dnhsoft/mysql-utf8:5.7

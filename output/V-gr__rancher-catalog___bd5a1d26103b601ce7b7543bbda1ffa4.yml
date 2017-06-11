@@ -1,0 +1,23 @@
+version: '2'
+services:
+  jenkins:
+    image: vger/jenkins:latest
+    stdin_open: true
+    restart: always
+    volumes_from:
+      - jenkins-data
+    labels:
+      io.rancher.container.pull_image: always
+      io.rancher.sidekicks: jenkins-data
+      lb: true
+    environment:
+      XMS: ${XMS}
+      XMX: ${XMX}
+
+  jenkins-data:
+    image: vger/debian:jessie
+    volumes:
+      - ${VOLUME}:/jenkins/jenkins_home
+    labels:
+      io.rancher.container.start_once: true
+    volume_driver: ${VOLUME_DRIVER}

@@ -1,0 +1,69 @@
+version: '2'
+
+volumes:
+  postgres_data: {}
+  postgres_backup: {}
+  django_media: {}
+
+services:
+  postgres:
+    build: ./compose/postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - postgres_backup:/backups
+    env_file: .env
+
+  django:
+    build:
+      context: .
+      dockerfile: ./compose/django/Dockerfile
+    user: django
+    volumes:
+      - django_media:/app/penne_core/media 
+    depends_on:
+      - postgres
+      - redis
+    command: /gunicorn.sh
+    env_file: .env
+
+  nginx:
+    build: ./compose/nginx
+    depends_on:
+      - django
+
+    ports:
+      - "0.0.0.0:80:80"
+
+
+  redis:
+    image: redis:latest
+
+  celeryworker:
+    build:
+      context: .
+      dockerfile: ./compose/django/Dockerfile
+    user: django
+    env_file: .env
+    depends_on:
+     - postgres
+     - redis
+     - clamav
+    command: celery -A penne_core.taskapp worker -l INFO
+
+  celerybeat:
+    build:
+      context: .
+      dockerfile: ./compose/django/Dockerfile
+    user: django
+    env_file: .env
+    depends_on:
+      - postgres
+      - redis
+      - clamav
+    command: celery -A penne_core.taskapp beat -l INFO
+
+  clamav:
+    build: ./compose/clamav
+    ports:
+      - "3310:3310"
+

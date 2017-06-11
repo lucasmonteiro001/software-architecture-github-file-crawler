@@ -1,0 +1,15 @@
+repo:
+ build: .
+ dockerfile: Dockerfile-repo
+ ports:
+   - "80:80"
+ volumes:
+   - ../poky/build-docker/tmp/deploy/rpm/:/usr/share/nginx/html
+
+machine:
+  build: .
+  dockerfile: Dockerfile-machine
+  ports :
+    - "22:22"
+  links :
+    - repo:repo

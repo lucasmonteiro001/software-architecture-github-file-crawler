@@ -1,0 +1,27 @@
+wordpress-cicp2r-datas:
+  labels:
+    io.rancher.scheduler.global: 'true'
+    io.rancher.container.pull_image: always
+  tty: true
+  image: 116539552606.dkr.ecr.eu-west-1.amazonaws.com/cicp2r/wordpress_cicp2r-datas:latest
+  stdin_open: true
+lb-cicp2r:
+  ports:
+  - 80:80
+  labels:
+    io.rancher.scheduler.global: 'true'
+  tty: true
+  image: rancher/load-balancer-service
+  links:
+  - wordpress-cicp2r:wordpress-cicp2r
+  stdin_open: true
+wordpress-cicp2r:
+  labels:
+    io.rancher.scheduler.global: 'true'
+    io.rancher.sidekicks: wordpress-cicp2r-datas
+    io.rancher.container.pull_image: always
+  tty: true
+  image: 116539552606.dkr.ecr.eu-west-1.amazonaws.com/cicp2r/wordpress_nginx:latest
+  volumes_from:
+  - wordpress-cicp2r-datas
+  stdin_open: true

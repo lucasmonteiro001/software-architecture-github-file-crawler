@@ -1,0 +1,39 @@
+version: '3'
+
+services:
+#    php:
+#        build: docker/php
+#        volumes:
+#            - ./:/code
+#
+#    web:
+#        build: docker/nginx
+#        ports:
+#            - "8080:80"
+#        volumes:
+#            - ./:/code
+
+#    phantomjs:
+#        image: wernight/phantomjs:2
+#        ports:
+#            - 8910
+#        entrypoint:
+#            - phantomjs
+#            - --webdriver=8910
+
+
+#
+#    db:
+#        image: mysql:latest
+#        environment:
+#            - MYSQL_ROOT_PASSWORD=root
+#            - MYSQL_DATABASE=wenalyzer
+#
+#        ports:
+#            - "3306:3306"
+
+    chrome:
+        image: selenium/standalone-chrome-debug
+        ports:
+            - "4444:4444"
+            - "5900:5900"

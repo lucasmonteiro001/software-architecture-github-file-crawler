@@ -1,0 +1,13 @@
+memcached:
+  image: dockerizedrupal/memcached:2.0.0
+  hostname: memcached
+  ports:
+    - "11211:11211"
+    - "11211:11211/udp"
+  environment:
+    - TIMEZONE=Etc/UTC
+    - CACHESIZE=512
+    - MAX_CONNECTIONS=1024
+    - THREADS=4
+    - MAX_ITEM_SIZE=16m
+    - VERBOSITY=

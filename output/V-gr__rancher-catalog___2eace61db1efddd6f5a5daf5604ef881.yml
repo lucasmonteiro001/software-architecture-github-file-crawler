@@ -1,0 +1,30 @@
+version: '2'
+services:
+  rocketchat:
+    image: vger/rocketchat:latest
+    stdin_open: true
+    restart: always
+    labels:
+      io.rancher.container.pull_image: always
+      lb: true
+    environment:
+      ROCKETCHAT_URL: ${ROCKETCHAT_URL}
+      MONGODB_HOST: mongodb
+
+  mongodb:
+    image: vger/mongodb:latest
+    stdin_open: true
+    restart: always
+    volumes_from:
+      - mongodb-data
+    labels:
+      io.rancher.sidekicks: mongodb-data
+      io.rancher.container.pull_image: always
+
+  mongodb-data:
+    image: vger/debian:jessie
+    volumes:
+      - ${MONGODB_VOLUME}:/var/lib/mongodb
+    labels:
+      io.rancher.container.start_once: true
+    volume_driver: ${MONGODB_VOLUME_DRIVER}

@@ -1,0 +1,17 @@
+web:
+  image: "packetops/web:latest"
+  links:
+   - redis
+  expose:
+   - 80
+redis:
+  image: redis
+lb:
+  image: tutum/haproxy
+  links:
+   - web
+  ports:
+   - "80:80"
+  environment:
+   - BACKEND_PORT=80
+   - BALANCE=roundrobin

@@ -1,0 +1,75 @@
+version: '2'
+services:
+    node:
+        container_name: log84-node
+        build: ./node
+        image: log84.de/node
+        command: /bin/true
+    redis:
+        container_name: log84-redis
+        build: ./redis
+        image: log84.de/redis
+        command: /bin/true
+    redis-data:
+        container_name: log84-redis-data
+        image: log84.de/redis
+        volumes:
+            - /var/redis
+        command: /bin/true
+    redis-server:
+        container_name: log84-redis-server
+        build: ./redis-server
+        volumes_from:
+            - redis-data
+        expose:
+            - "6379"
+        depends_on:
+            - redis-data
+    server:
+        container_name: log84-server
+        build: ./server
+        env_file: 
+            - ./server/env.properties
+        expose: 
+            - "1337"
+        links:
+            - mongodb
+        depends_on:
+            - node
+            - mongodb
+    dbdata:
+        container_name: log84-dbdata
+        image: mongo
+        volumes: 
+            - /data/db
+            - /data/configdb
+        command: /bin/true      
+    mongodb:
+        container_name: log84-db
+        image: mongo
+        volumes_from: 
+            - dbdata
+        expose:
+            - "27017"
+        depends_on:
+            - dbdata
+    build:
+        container_name: log84-build
+        build: ./build
+        depends_on:
+            - mongodb
+            - server
+        volumes:
+            - ../:/var/lib/project/:rw
+    www:
+        container_name: log84-www
+        image: nginx
+        volumes: 
+            - ./www/nginx.conf:/etc/nginx/nginx.conf:ro
+            - ../dist:/usr/share/nginx/html:ro
+        links:
+            - server
+        depends_on:
+            - server
+        ports:
+            - "8080:80"

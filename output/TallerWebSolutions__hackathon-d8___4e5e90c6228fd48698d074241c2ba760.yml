@@ -1,0 +1,27 @@
+version: '2'
+
+services:
+  mysql_dev:
+    image: mysql:5.6
+    environment:
+      - MYSQL_USER=drupal8
+      - MYSQL_DATABASE=drupal_8
+      - MYSQL_PASSWORD=SenhaDrupal8
+      - MYSQL_ROOT_PASSWORD=SenhaRootDrupal8
+    # volumes:
+    #   - ../databases/drupal8:/var/lib/mysql
+
+  development:
+    hostname: "dev"
+    image: taller/hackataller
+    working_dir: /drupal/src/docroot
+    #build: ./
+    cap_add:
+      - NET_ADMIN
+      - SYS_ADMIN
+    volumes:
+      - $HOME/.ssh:/drupal/.ssh
+      - $HOME/.gitconfig:/drupal/.gitconfig
+      - ./:/drupal/src
+    links:
+      - mysql_dev:drupal-db

@@ -1,0 +1,24 @@
+db_data:
+    image: schwierd/atlassian-postgres:9.3-1
+    command: echo 'Data Container for PostgreSQL'
+
+db:
+    image: schwierd/atlassian-postgres:9.3-1
+    volumes_from:
+        - db_data
+    environment:
+        - POSTGRES_PASSWORD=testpass
+        - POSTGRES_INIT=stash
+
+app_data:
+    image: schwierd/bitbucket-server:4.3-1
+    command: echo 'Data Container for Bitbucket'
+
+app:
+    image: schwierd/bitbucket-server:4.3-1
+    volumes_from:
+        - app_data
+    ports:
+        - "7990:7990"
+    links:
+        - db

@@ -1,0 +1,16 @@
+version: '2'
+services:
+  himawari-server:
+    build:
+      context: ../..
+    image: cxpqwvtj/himawari-java-libs:latest
+    volumes:
+      - .:/app:Z
+    expose:
+      - 8080
+    links:
+      - mysql:mysqlhost
+    environment:
+      - TZ=Asia/Tokyo
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysqlhost:3306/himawari?useSSL=false&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC
+    command: ./gradlew bootRun

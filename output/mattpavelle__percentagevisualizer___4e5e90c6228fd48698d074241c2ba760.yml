@@ -1,0 +1,12 @@
+version: '2'
+services:
+  web:
+    build: .
+    volumes:
+      - .:/usr/share/nginx/html
+    ports:
+      - "80:80"
+
+# (re)build this image with: `docker-compose build`
+# run this image with: `docker-compose up`
+# stop and remove all Docker containers with: `docker stop $(docker ps -a -q) ; docker rm $(docker ps -a -q)`

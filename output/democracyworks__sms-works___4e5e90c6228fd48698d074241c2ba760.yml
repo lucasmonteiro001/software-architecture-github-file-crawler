@@ -1,0 +1,14 @@
+smsworks:
+  build: .
+  links:
+    - rabbitmq
+  environment:
+    TWILIO_SID:
+    TWILIO_TOKEN:
+    TWILIO_NUMBERS:
+rabbitmq:
+  image: rabbitmq:3.5.3-management
+  ports:
+    - "45672:5672"
+    - "55672:15672"
+  hostname: rabbitmq

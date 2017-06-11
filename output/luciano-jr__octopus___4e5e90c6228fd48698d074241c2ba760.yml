@@ -1,0 +1,37 @@
+application:
+    image: lucianojr/octopus-docker-application
+    volumes:
+        - ./:/var/www/octopus
+    tty: true
+mysql:
+    image: mysql
+    ports:
+        - 3306:3306
+    environment:
+        MYSQL_ROOT_PASSWORD: root
+        MYSQL_DATABASE: octopus
+        MYSQL_USER: root
+        MYSQL_PASSWORD: root
+    volumes:
+        - /data/logs/mysql:/data/log/mysql
+    tty: true
+php:
+    image: lucianojr/octopus-docker-php-fpm
+    ports:
+        - 9000:9000
+    volumes_from:
+        - application
+    links:
+        - mysql
+nginx:
+    image: lucianojr/octopus-docker-nginx
+    ports:
+        - 80:80
+    links:
+        - php
+    volumes_from:
+        - application
+composer:
+    image: composer/composer
+    links:
+        - application

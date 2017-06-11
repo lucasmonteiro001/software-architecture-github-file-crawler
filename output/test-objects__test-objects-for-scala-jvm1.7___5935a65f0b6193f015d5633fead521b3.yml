@@ -1,0 +1,7 @@
+version: "2"
+services:
+  unit-test:
+    extends:
+      file: ../.common/docker-compose.yml
+      service: sbt
+    entrypoint: sbt clean +test

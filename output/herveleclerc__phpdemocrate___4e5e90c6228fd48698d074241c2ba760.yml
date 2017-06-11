@@ -1,0 +1,4 @@
+listproduct:
+  build: .
+  ports:
+    - "80:80"

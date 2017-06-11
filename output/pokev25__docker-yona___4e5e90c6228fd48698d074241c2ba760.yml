@@ -1,0 +1,14 @@
+version: '2'
+
+services:
+  yona:
+    build: .
+    image: pokev25/yona:1.5.1
+    restart: always
+    environment:
+      - BEFORE_SCRIPT=before.sh
+      - JAVA_OPTS=-Xmx2048m -Xms1024m
+    volumes:
+      - ./data:/yona/data
+    ports:
+      - "9000:9000"

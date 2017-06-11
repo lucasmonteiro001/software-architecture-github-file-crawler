@@ -1,0 +1,57 @@
+version: '2'
+
+services:
+    hslmapservice:
+        container_name: hsl-map-server
+        environment:
+          - ROUTE_REST_URL=http://hslrouterest:3030/api/list
+        build:
+            context: .
+            dockerfile: docker-hsl-map-server.dockerfile
+        links:
+          - hslrouterest:hslrouterest
+        ports:
+          - "3000:3000"
+        #volumes:
+        #  - .:/var/www/hslmapserver
+        #working_dir: /var/www/hslmapserver
+            
+        #env_file:
+        #  - ./env/app.${APP_ENV}.env
+        networks:
+          - homework-network
+       
+    hslrouterest:
+        container_name: hsl-route-rest
+        environment:
+          - MONGO_URL=mongodb://hslmongodb/gtfs
+        build:
+            context: .
+            dockerfile: docker-hsl-route-rest.dockerfile
+        links:
+          - hslmongodb:hslmongodb
+        ports:
+          - "3030:3030"
+        #volumes:
+        #  - .:/var/www/hslrouterest
+        #working_dir: /var/www/hslrouterest
+        #env_file:
+        #  - ./env/app.${APP_ENV}.env
+        networks:
+          - homework-network
+          
+    hslmongodb:
+        container_name: hsl-mongodb
+        build:
+            context: .
+            dockerfile: docker-hsl-mongodb.dockerfile
+        ports:
+          - "27017:27017"
+        #env_file:
+        #  - ./env/app.${APP_ENV}.env
+        networks:
+          - homework-network
+
+networks:
+    homework-network:
+      driver: bridge

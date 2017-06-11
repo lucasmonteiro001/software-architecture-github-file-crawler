@@ -1,0 +1,22 @@
+content:
+  build: ./content
+app:
+  image: ghost:0.7.3
+  restart: always
+  env_file: .env
+  volumes_from:
+    - content
+  volumes:
+    - /usr/src/ghost/core/shared
+    - /usr/src/ghost/core/built/assets
+webserver:
+  build: ./webserver
+  restart: always
+  ports:
+    - "443:443"
+    - "80:80"
+  links:
+    - app:app
+  volumes_from:
+    - content:ro
+    - app:ro

@@ -1,0 +1,10 @@
+version: '2'
+services:
+  zcashd:
+    build: .
+    working_dir: /root
+    entrypoint: bash -c "/root/zcash.git/zcashd-startup.sh"
+    volumes:
+      - ./:/root/zcash.git
+      - ./zcash-datavol/:/root/.zcash/
+      - ./zcash-paramsvol/:/root/.zcash-params/

@@ -1,0 +1,20 @@
+db:
+    image: mysql:5.5.47
+    ports:
+        - "3306:3306"
+    environment:
+        #MYSQL_USER: root
+        #MYSQL_PASSWORD: root
+        MYSQL_ROOT_PASSWORD: root
+        MYSQL_DATABASE: myboard
+
+web:
+    image: java:openjdk-8-jdk
+    working_dir: /app
+    volumes:
+        - ./target:/app
+    ports:
+        - "8080:8080"
+    command: java -jar /app/myboard-0.0.1-SNAPSHOT.jar
+    links:
+        - db:db

@@ -1,0 +1,25 @@
+---
+tor:
+  dns:
+    - '192.121.170.22'
+    - '92.222.80.28'
+    - '78.138.97.93'
+    - '5.196.14.201'
+  expose:
+    - 9050
+    - 9040
+    - 5400
+  image: 'ethack/tor:latest'
+
+firefox:
+  entrypoint:
+    - '/usr/local/bin/startup'
+  image: 'ethack/firefox:latest'
+  links:
+    - 'tor'
+  ports:
+    - '2000:22'
+  volumes:
+    - './shared:/home/docker/Downloads'
+    - './common-files/docker_rsa.pub:/home/docker/.ssh/authorized_keys:ro'
+    - './common-files/mozilla:/home/docker/.mozilla'

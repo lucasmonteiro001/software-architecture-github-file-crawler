@@ -1,0 +1,16 @@
+version: "2"
+
+services:
+ mysql:
+  container_name: mysql-sb
+  ports:
+   - "3306:3306"
+  volumes:
+    - web-logs:/var/log/mysql
+ ihm:
+  image: demo/springboot-mysql:0.0.1
+  container_name: front
+  ports:
+   - "8085:8080"
+  links:
+   - mysql

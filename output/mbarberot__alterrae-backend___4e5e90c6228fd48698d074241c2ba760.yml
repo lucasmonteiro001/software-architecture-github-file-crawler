@@ -1,0 +1,17 @@
+backend:
+    image: alterrae/backend
+    ports:
+        - "443:8080"
+        - "8787:8787"
+    links:
+        - database
+
+database:
+    image: mongo
+
+admin:
+    image: mongo-express
+    ports:
+        - "3000:8081"
+    links:
+        - database:mongo

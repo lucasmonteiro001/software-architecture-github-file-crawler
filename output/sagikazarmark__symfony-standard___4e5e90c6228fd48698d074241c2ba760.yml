@@ -1,0 +1,77 @@
+version: '2'
+
+services:
+    data:
+        image: alpine
+        command: /bin/true
+        volumes:
+            - .:/app
+
+    frontend:
+        build: etc/docker/dev/frontend
+        command: /bin/true
+        volumes_from:
+            - data
+
+    db: &db
+        extends:
+            file: etc/docker/common/db/docker-compose.yml
+            service: db
+        volumes:
+            - ./var/docker/dev/mysql:/var/lib/mysql
+        volumes_from:
+            - data
+
+    app: &app
+        build: etc/docker/dev/app
+        environment: &app_environment
+            SYMFONY__DATABASE_HOST: db
+        links:
+            - db
+            - blackfire
+        volumes_from:
+            - data
+
+    web: &web
+        build: etc/docker/dev/web
+        ports:
+            - 80
+        links:
+            - app
+        volumes_from:
+            - data
+
+    app_debug: &app_debug
+        <<: *app
+        build:
+            context: etc/docker/dev/app
+            args:
+               USE_XDEBUG: "yes"
+
+    web_debug:
+        <<: *web
+        links:
+            - app_debug:app
+
+    test:
+        <<: *app_debug
+        command: /bin/true
+        environment:
+            <<: *app_environment
+            SYMFONY_ENV: test
+        links:
+            - db:db_test
+            - blackfire
+
+    db_test:
+        <<: *db
+        volumes:
+            - ./var/docker/test/mysql:/var/lib/mysql
+
+    # Set your blackfire IDs and tokens as environment variables
+    # in docker-compose.override.yml before building the containers.
+    # You can find your IDs and tokens in your account profile
+    # https://blackfire.io/account or on the blackfire docker
+    # integration page: https://blackfire.io/docs/integrations/docker
+    blackfire:
+        image: blackfire/blackfire

@@ -1,0 +1,20 @@
+version: '2'
+services:
+  wwwdata:
+    image: tianon/true:latest
+    volumes:
+      - .:/var/www/generate
+
+  composer:
+    image: composer/composer:1.0-alpine
+    volumes_from:
+      - wwwdata
+    working_dir: /var/www/generate
+    restart: on-failure
+
+  php-cli:
+    build: ./etc/docker/php-cli
+    volumes_from:
+      - wwwdata
+    restart: on-failure
+    working_dir: /var/www/generate

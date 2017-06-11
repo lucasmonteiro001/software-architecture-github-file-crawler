@@ -1,0 +1,17 @@
+# Isolated development and test environment.
+version: '2'
+services:
+  firehose:
+    build: .
+    depends_on:
+      - redis
+    environment:
+      REDIS_URL: redis://redis:6379/0
+    ports:
+      - 7474
+    volumes:
+      - .:/firehose/
+  redis:
+    image: redis
+    expose:
+      - 6379

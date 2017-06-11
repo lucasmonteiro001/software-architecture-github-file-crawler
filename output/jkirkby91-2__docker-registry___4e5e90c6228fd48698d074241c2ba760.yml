@@ -1,0 +1,61 @@
+version: '3'
+
+networks:
+  frontend:
+  registry:
+
+services:
+
+  registry:
+    image: registry
+    container_name: registry
+    hostname: registry
+    restart: always
+    networks:
+      - registry     
+    expose:
+      - 5000
+    environment:
+      REGISTRY_HTTP_TLS_CERTIFICATE: /srv/ssl/server.crt
+      REGISTRY_HTTP_TLS_KEY: /srv/ssl/server.key
+      REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY: /srv
+    volumes:
+      - /srv/registry:/srv
+      - ./certs:/srv/ssl     
+
+  registry-proxy:
+    build:
+      args:
+        - SSL_DIR=/srv/ssl
+      context: ./registry-rp/
+      dockerfile: Dockerfile
+    container_name: registry-proxy
+    hostname: registry-proxy
+    restart: always
+    image: jkirkby91/registry-proxy
+    networks:
+      - frontend
+      - registry    
+    ports:
+      - 8080:1025
+    depends_on:
+      - "registry"
+      - "registry-ui"
+    volumes:
+      - ./certs:/srv/ssl          
+
+  registry-ui:
+    image: konradkleine/docker-registry-frontend:v2
+    container_name: registry-ui
+    hostname: registry-ui
+    restart: always
+    networks:
+      - registry
+    expose:
+      - 80   
+    environment:
+      ENV_DOCKER_REGISTRY_HOST: registry
+      ENV_DOCKER_REGISTRY_PORT: 5000            
+      ENV_DOCKER_REGISTRY_USE_SSL: 1
+    depends_on:
+      - "registry"     

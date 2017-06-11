@@ -1,0 +1,49 @@
+version: "2"
+services:
+  database:
+    image: mysql:5.7
+    ports:
+      - 3306:3306
+    volumes:
+      - ./db_data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: savanna
+      MYSQL_DATABASE: savanna
+      MYSQL_USER: savanna
+      MYSQL_PASSWORD: savanna
+  savanna:
+    image: zazujs/savanna
+    depends_on:
+      - database
+    ports:
+      - 1337:1337
+    environment:
+      API_KEY: 'MySuperSecretHashTokenBasedAuthSystemIsSuperSecureYouKnow'
+      CONNECTION_NAME: mysql
+      MYSQL_PORT: 3306
+      MYSQL_HOST: database
+      MYSQL_USER: savanna
+      MYSQL_PASSWORD: savanna
+      MYSQL_DATABASE_NAME: savanna
+  zazu:
+    build: .
+    image: zazujs/zazu
+    ports:
+      - 4000:4000
+    depends_on:
+      - savanna
+    environment:
+      SAVANNA_TOKEN: "MySuperSecretHashTokenBasedAuthSystemIsSuperSecureYouKnow"
+      SAVANNA_ENDPOINT: "http://savanna:1337"
+      BIND_HOST: zazu.local
+      JWT_TOKEN: "MegaSuperSecretOfDoomYeahFeelMySecretness"
+  mufasa:
+    image: zazujs/mufasa
+    ports:
+      - 3000:80
+    environment:
+      # assuming you have zazu.local set up like described here: http://cavaliercoder.com/blog/update-etc-hosts-for-docker-machine.html
+      SAVANNA_ENDPOINT: 'http://zazu.local:1337'
+      SAVANNA_TOKEN: 'MySuperSecretHashTokenBasedAuthSystemIsSuperSecureYouKnow'
+    depends_on:
+      - savanna

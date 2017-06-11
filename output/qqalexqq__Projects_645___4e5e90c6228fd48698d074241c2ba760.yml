@@ -1,0 +1,26 @@
+nginx:
+  build: nginx-fpm
+  links:
+    - phpfpm
+  ports:
+    - "80:80"
+  volumes_from:
+    - src
+  restart: always
+phpfpm:
+  build: php-5.6-fpm-custom
+  volumes_from:
+    - src
+    - db
+  restart: always
+db:
+  image: mariadb
+  volumes:
+    - /var/run/mysqld
+  environment:
+    MYSQL_ROOT_PASSWORD: change_this
+  restart: always
+src:
+  build: src
+  stdin_open: true
+  restart: always

@@ -1,0 +1,191 @@
+# TODO try to use environment's - VIRTUAL_PROTO=https
+# TODO firefox sync server
+# TODO openvpn
+# TODO youtube-dl-server
+# TODO monitor
+# TODO groupware
+# TODO inventaire
+
+# reverse-proxy
+proxy:
+    build: ./docker-nginx-proxy
+    container_name: proxy
+    restart: unless-stopped
+    ports:
+    - "80:80"
+    - "443:443"
+    volumes:
+    - /etc/localtime:/etc/localtime:ro
+    - /var/run/docker.sock:/tmp/docker.sock:ro 
+    - /etc/nginx/vhost.d
+    - /usr/share/nginx/html 
+    - /srv/certs:/etc/nginx/certs:ro
+    - /srv/htpasswd:/etc/nginx/htpasswd:ro
+    environment:
+    - DEFAULT_HOST=blog.${DOMAIN}
+    - LETSENCRYPT_HOST=${DOMAIN}
+    - LETSENCRYPT_EMAIL=remy@${DOMAIN}
+ 
+# Certificate for nginx-proxy
+# Warning : https://community.letsencrypt.org/t/rate-limits-for-lets-encrypt/6769
+certs:
+    build: ./docker-certs
+    container_name: certs
+    restart: unless-stopped
+    volumes:
+    - /etc/localtime:/etc/localtime:ro
+    - /var/run/docker.sock:/var/run/docker.sock:ro
+    - /srv/certs:/etc/nginx/certs:rw
+    volumes_from:
+    - proxy
+
+mariadb:
+    image: mariadb
+    container_name: mariadb
+    restart: unless-stopped
+    volumes:
+    - /etc/localtime:/etc/localtime:ro
+    - /srv/mariadb:/var/lib/mysql
+    environment:
+    - MYSQL_ROOT_PASSWORD=MariaDBPa$$w0rd
+
+# After first run, use "docker logs dropbox" to grab url for dropbox connection validation
+dropbox:
+    build: ./docker-dropbox
+    container_name: dropbox
+    restart: unless-stopped
+    volumes:
+    - /etc/localtime:/etc/localtime:ro
+    - /srv/dropbox:/dbox/Dropbox:rw 
+    - /srv/dropbox_credentials:/dbox/.dropbox:rw
+
+# OpenVPN server
+# https://hub.docker.com/r/kylemanna/openvpn/
+# vpn:
+#     image: kylemanna/openvpn
+#     container_name: vpn
+#     restart: unless-stopped
+#     volumes:
+#     - /srv/openvpn:/etc/openvpn:ro
+#     cap_add: NET_ADMIN
+#     ports: 
+#     - 1194/udp
+
+# Ghost blog
+blog:
+    image: ghost
+    container_name: blog
+    restart: unless-stopped
+    links:
+    - proxy
+    volumes:
+    - /etc/localtime:/etc/localtime:ro
+    - /srv/ghost:/var/lib/ghost
+    environment:
+    - VIRTUAL_HOST=blog.${DOMAIN}
+    - LETSENCRYPT_HOST=blog.${DOMAIN},${DOMAIN}
+    - LETSENCRYPT_EMAIL=remy@${DOMAIN}
+    # Doesn't work, errors show up in docker logs
+    # - NODE_ENV=production
+
+# Groupware including mail, calendar, contact book, doc
+# mail:
+#     image: kvaps/kolab
+#     container_name: mail
+#     hostname: mail
+#     domainname: ${DOMAIN}
+#     restart: unless-stopped
+#     links:
+#     - proxy
+#     volumes:
+#     - /etc/localtime:/etc/localtime:ro
+#     - /srv/kolab:/data:rw
+#     environment:
+#     - VIRTUAL_HOST=mail.${DOMAIN},calendar.${DOMAIN}
+#     - LETSENCRYPT_HOST=mail.${DOMAIN},calendar.${DOMAIN}
+#     - LETSENCRYPT_EMAIL=remy@${DOMAIN}
+#     - TZ=Europe/Paris
+#     - LDAP_ADMIN_PASS=LdapAdminPass${DOMAIN}
+#     - LDAP_MANAGER_PASS=LdapManagerPass${DOMAIN}
+#     - LDAP_CYRUS_PASS=LdapCyrusPass${DOMAIN}
+#     - LDAP_KOLAB_PASS=LdapKolabPass${DOMAIN}
+#     - MYSQL_ROOT_PASS=MysqlRootPass${DOMAIN}
+#     - MYSQL_KOLAB_PASS=MysqlKolabPass${DOMAIN}
+#     - MYSQL_ROUNDCUBE_PASS=MysqlRoundcubePass${DOMAIN}
+#     - KOLAB_DEFAULT_LOCALE=fr_FR
+#     - ROUNDCUBE_SKIN=larry
+#     cap_add:
+#     - NET_ADMIN
+mail:
+    build: ./docker-roundcube
+    container_name: mail
+    hostname: mail
+    domainname: ${DOMAIN}
+    restart: unless-stopped
+    links:
+    - proxy
+    - mariadb
+    volumes:
+    - /etc/localtime:/etc/localtime:ro
+    - /srv/roundcube/apache2:/etc/apache2:rw
+    - /srv/roundcube/www:/var/www:rw
+    environment:
+    - VIRTUAL_HOST=mail.${DOMAIN}
+    - LETSENCRYPT_HOST=mail.${DOMAIN}
+    - LETSENCRYPT_EMAIL=remy@${DOMAIN}
+    - ROUNDCUBE_DB_DSNW='mysql://roundcubeuser:roundcubepassword@mariadb/roundcube'
+    - ROUNDCUBE_DEFAULT_HOST='ssl://mail.garrigue.re'
+    - ROUNDCUBE_DEFAULT_PORT='993'
+    - ROUNDCUBE_SMTP_SERVER='ssl://smtp.gandi.net'
+    - ROUNDCUBE_SMTP_PORT='465'
+    - ROUNDCUBE_SMTP_USER='remy@garrigue.re'
+    # - ROUNDCUBE_SMTP_PASS='pass'
+
+# IRC persistent web client
+irc:
+    build: ./docker-thelounge
+    container_name: irc
+    restart: unless-stopped
+    links:
+    - proxy
+    volumes:
+    - /etc/localtime:/etc/localtime:ro
+    - /srv/thelounge:/home/lounge/.lounge:rw
+    - /srv/certs/irc.${DOMAIN}:/home/lounge/certs:ro
+    environment:
+    - VIRTUAL_HOST=irc.${DOMAIN}
+    - LETSENCRYPT_HOST=irc.${DOMAIN}
+    - LETSENCRYPT_EMAIL=remy@${DOMAIN}
+
+# Monitoring
+# monitor:
+#     image: pboos/collectd-graphite
+#     container_name: monitor
+#     restart: unless-stopped
+#     # net: host
+#     privileged: true
+#     links:
+#     - proxy
+#     volumes:
+#     - /etc/localtime:/etc/localtime:ro
+#     - /:/hostfs:ro
+#     environment:
+#     - VIRTUAL_HOST=monitor.${DOMAIN}
+#     - LETSENCRYPT_HOST=monitor.${DOMAIN}
+#     - LETSENCRYPT_EMAIL=remy@${DOMAIN}
+#     - HOST_NAME=${DOMAIN}
+#     - GRAPHITE_HOST=monitor.${DOMAIN}
+
+ytdl:
+    build: ./docker-ytdl
+    container_name: ytdl
+    restart: unless-stopped
+    links:
+    - proxy
+    volumes:
+    - /etc/localtime:/etc/localtime
+    - /srv/youtube-dl:/youtube-dl
+    environment:
+    - VIRTUAL_HOST=ytdl.${DOMAIN}
+    - LETSENCRYPT_HOST=ytdl.${DOMAIN}
+    - LETSENCRYPT_EMAIL=remy@${DOMAIN}

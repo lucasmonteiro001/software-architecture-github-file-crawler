@@ -1,0 +1,16 @@
+notebook:
+    image: gramhagen/ml-toolbox
+    ports:
+        - "8888:8888"
+        - "4040:4040"
+    volumes:
+        - "./examples:/notebook/examples"
+        - "./data:/notebook/data"
+        - "./misc:/notebook/misc"
+    links:
+        - redis
+
+redis:
+  image: redis
+  ports:
+    - "6379"

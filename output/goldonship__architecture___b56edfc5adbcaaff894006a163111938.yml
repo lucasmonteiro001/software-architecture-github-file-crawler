@@ -1,0 +1,14 @@
+version: "2"
+services:
+  dropwizard-plugin:
+    build: .
+    container_name: dropwizard-plugin
+    hostname: dropwizard
+    image: dropwizard-plugin:v1.4.1-SNAPSHOT
+    restart: always
+    expose:
+      - "8080"
+      - "8777"
+    ports:
+      - "8080:8080"
+      - "8777:8777"

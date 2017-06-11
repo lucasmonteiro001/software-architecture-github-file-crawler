@@ -1,0 +1,28 @@
+version: "2"
+services:
+  appdb:
+    container_name: "database"
+    image: mysql
+    network_mode: "my-net"
+    environment:
+      - MYSQL_ROOT_PASSWORD=qwerty123
+      - MYSQL_DATABASE=gojidb
+  webapp:
+    container_name: "webapp"
+    image: postgred/goapp:latest
+    network_mode: "my-net"
+    depends_on:
+      - appdb
+  lb:
+    image: postgred/nginx
+    container_name: lb
+    network_mode: "my-net"
+    environment:
+      - APP_NAME=webapp
+      - "constraint:node==aaleksandrov-master"
+    ports:
+      - "80:80"
+    depends_on:
+      - appdb
+      - webapp
+

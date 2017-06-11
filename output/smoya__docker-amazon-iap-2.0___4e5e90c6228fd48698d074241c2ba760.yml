@@ -1,0 +1,4 @@
+tomcat:
+  build: .
+  ports:
+    - "8888:8080"

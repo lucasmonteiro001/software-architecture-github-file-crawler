@@ -1,0 +1,31 @@
+version: "2"
+services:
+  php:
+    build:
+      context: ./
+      dockerfile: ./docker/php/Dockerfile
+    container_name: devopsatscale_php
+    domainname: devopsatscale.com.au
+    restart: on-failure:10
+    environment:
+      Env: dev
+    hostname: devopsatscale_php
+    volumes:
+      - "./src:/usr/src/app/src"
+      - "./app:/usr/src/app/app"
+      - "./config:/usr/src/app/config"
+      - "./public:/usr/src/app/public"
+  nginx:
+    build:
+      context: ./
+      dockerfile: ./docker/nginx/Dockerfile
+    container_name: devopsatscale_nginx
+    restart: on-failure:10
+    environment:
+      Env: dev
+    links:
+      - php
+    ports:
+      - "3000:3000"
+    volumes:
+      - "./logs/nginx/:/var/log/nginx/"

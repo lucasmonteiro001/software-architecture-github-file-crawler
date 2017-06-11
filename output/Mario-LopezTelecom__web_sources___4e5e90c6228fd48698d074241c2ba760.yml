@@ -1,0 +1,7 @@
+jekyll_service:
+  image: mlopeztelecom/jekyll
+  ports:
+    - "4000:4000"
+  volumes:
+    - .:/srv/jekyll
+  container_name: jekyll_container

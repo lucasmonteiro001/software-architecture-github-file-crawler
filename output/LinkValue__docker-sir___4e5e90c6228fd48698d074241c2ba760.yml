@@ -1,0 +1,19 @@
+web:
+  build: .
+  user: www-data
+  ports:
+    - "80:80"
+  volumes:
+    - ..:/var/www/html
+  links:
+    - mysql
+
+mysql:
+  image: mysql
+  ports:
+    - "3306:3306"
+  volumes:
+    - /var/lib/mysql
+  environment:
+    MYSQL_DATABASE: sir
+    MYSQL_ALLOW_EMPTY_PASSWORD: yes

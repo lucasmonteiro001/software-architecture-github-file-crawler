@@ -1,0 +1,8 @@
+version: '2'
+services:
+  nginxbasic:
+    image: nginx:1.11.7
+    volumes:
+      - ./public:/usr/share/nginx/html:ro
+    ports:
+      - '80:80'

@@ -1,0 +1,23 @@
+version: '2'
+services:
+  graphql:
+    build: .
+<<<<<<< HEAD
+    command: nodemon --inspect=0.0.0.0:5858 -L
+=======
+    command: nodemon --inspect=0.0.0.0:5858 --verbose -L
+>>>>>>> e1c81f539885f33fe893949a402864b3274b33fa
+    ports:
+     - "8000:8000"
+     - "5858:5858"
+    volumes:
+     - .:/usr/src/queen
+     - /usr/src/queen/node_modules
+  postgres:
+    image: "postgres:latest"
+    ports:
+      - "8001:5432"
+    environment:
+      - POSTGRES_USER=queen
+      - POSTGRES_PASSWORD=nevada
+      - POSTGRES_DB=queen

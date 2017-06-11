@@ -1,0 +1,53 @@
+version: '2'
+
+services:
+
+  client:
+    build:
+      dockerfile: Dockerfile.client
+      context: .
+    volumes:
+      - .:/usr/src/app
+    stdin_open: true
+    tty: true
+    networks:
+      - back
+
+  repl:
+    build:
+      dockerfile: Dockerfile.client
+      context: .
+    volumes:
+      - .:/usr/src/app
+    stdin_open: true
+    tty: true
+    networks:
+      - back
+    environment:
+      - LEIN_REPL_PORT=40001
+      - LEIN_REPL_HOST=0.0.0.0
+    ports:
+      - "0.0.0.0:40001:40001"
+    command: lein repl
+
+  lint:
+    build:
+      dockerfile: Dockerfile.client
+      context: .
+    volumes:
+      - .:/usr/src/app
+    command: lein eastwood
+
+  server:
+    build:
+      dockerfile: Dockerfile.client
+      context: .
+    ports:
+      - "0.0.0.0:3000:3000"
+    volumes:
+      - .:/usr/src/app
+    command: lein ring server-headless
+
+networks:
+  back:
+    driver: bridge

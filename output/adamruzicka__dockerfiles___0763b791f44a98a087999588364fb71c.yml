@@ -1,0 +1,49 @@
+# Container which holds the postgres database, so the user can redeploy
+# the postgres container without losing data
+storage:
+  image: busybox
+  volumes:
+    - /var/lib/postgresql/data
+postgres:
+  image: postgres
+  volumes_from: 
+    - storage
+  environment:
+    # Set these in foreman/config/database.yml as username and password
+    POSTGRES_PASSWORD: secret
+    POSTGRES_USER: foreman
+proxy:
+  build: proxy
+  tty: true
+  stdin_open: true
+  extra_hosts:
+    # Docker host
+    - "master.example.com:192.168.122.1"
+  expose:
+    - "8000"
+  user: foreman
+  links:
+    - foreman
+  volumes:
+    # Mount the directory which contains smart-proxy directory with its sources
+    - /home/aruzicka/git:/data
+    # Mount the directory with ssh keys for the proxy
+    - /home/aruzicka/.ssh:/home/foreman/.ssh
+  hostname: smart-proxy
+  working_dir: /data/smart-proxy
+foreman:
+  build: foreman
+  tty: true
+  stdin_open: true
+  extra_hosts:
+    - "master.example.com:192.168.122.1"
+  ports:
+    # Bind port 3000 to the physical host
+    - "3000:3000"
+  links:
+    - postgres
+  volumes:
+    # Mount the directory which contains forman directory with its sources
+    - /home/aruzicka/git:/data
+  user: foreman
+  working_dir: /data/foreman

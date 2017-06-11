@@ -1,0 +1,11 @@
+version: '2'
+services:
+  albert:
+    build: .
+    ports:
+      - "3000:3000"
+    restart: "always"
+    environment:
+      - NODE_ENV=development
+  mongo:
+    image: mongo

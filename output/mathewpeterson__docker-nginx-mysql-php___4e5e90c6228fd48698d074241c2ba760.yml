@@ -1,0 +1,36 @@
+app:
+    container_name: project-app
+    image: ubuntu:trusty
+    volumes:
+        - .:/var/www
+    tty: true
+
+php:
+    container_name: project-php
+    image: php:5.6-fpm
+    working_dir: "/var/www"
+    volumes:
+        - ./docker/php.ini:/usr/local/etc/php/conf.d/php.ini:ro
+        - ./docker/pool.conf:/usr/local/etc/php/pool.conf:ro
+    volumes_from:
+        - app
+    links:
+        - mysql
+
+nginx:
+    container_name: project-nginx
+    image: nginx
+    environment:
+        VIRTUAL_HOST: project.docker.local
+    links:
+        - php
+    volumes:
+        - ./docker/nginx.conf:/etc/nginx/nginx.conf:ro
+    volumes_from:
+        - app
+
+mysql:
+    container_name: project-mysql
+    image: mysql
+    environment:
+        MYSQL_ROOT_PASSWORD: root

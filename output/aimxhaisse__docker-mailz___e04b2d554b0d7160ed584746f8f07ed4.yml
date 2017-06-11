@@ -1,0 +1,51 @@
+smtpd:
+  build: ../../dockerfiles/opensmtpd
+  volumes:
+  - {conf_dir}cert.pem:/etc/ssl/mail.crt
+  - {conf_dir}privkey.pem:/etc/ssl/private/mail.key
+  - {conf_dir}smtpd.conf:/etc/smtpd.conf
+  - {conf_dir}mailname:/etc/mailname
+  - {conf_dir}credentials:/etc/smtpd-credentials
+  - {conf_dir}userbase:/etc/smtpd-userbase
+  - {conf_dir}aliases:/etc/smtpd-aliases
+  - {data_dir}spool:/var/spool/smtpd
+  ports:
+  - "25:25"
+  - "587:587"
+  links:
+  - spampd
+
+spampd:
+  build: ../../dockerfiles/spampd
+  expose:
+  - "24"
+  links:
+  - dovecot
+
+dovecot:
+  build: ../../dockerfiles/dovecot
+  volumes:
+  - {conf_dir}cert.pem:/etc/pki/tls/certs/mail.crt
+  - {conf_dir}privkey.pem:/etc/ssl/private/mail.key
+  - {conf_dir}users:/etc/users.db
+  - {conf_dir}dovecot.conf:/etc/dovecot/dovecot.conf
+  - {data_dir}maildir:/var/vmail
+  ports:
+  - "993:993"
+  - "143:143"
+  expose:
+  - "24"
+
+roundcube:
+  build: ../../dockerfiles/roundcube
+  environment:
+  - VIRTUAL_HOST={virtualhost}
+  volumes:
+  - {conf_dir}virtualhost.conf:/etc/apache2/sites-available/roundcube.conf
+  - {data_dir}roundcube:/var/www/roundcube/data
+  - {conf_dir}roundcube.config.inc.php:/var/www/roundcube/config/config.inc.php
+  expose:
+  - "80"
+  links:
+  - smtpd
+  - dovecot

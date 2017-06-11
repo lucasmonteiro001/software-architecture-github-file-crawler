@@ -1,0 +1,8 @@
+mysql:
+  environment:
+    - MYSQL_ALLOW_EMPTY_PASSWORD=true
+  image: mysql:5.7
+  ports:
+    - "3306:3306"
+  volumes:
+    - /home/max/data/docker/mysql:/var/lib/mysql

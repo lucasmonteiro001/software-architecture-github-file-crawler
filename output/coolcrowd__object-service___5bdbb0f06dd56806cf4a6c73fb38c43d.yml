@@ -1,0 +1,44 @@
+version: '2'
+services:
+  controlui:
+    extends:
+        file: base.yml
+        service: controlui
+
+  objectservice:
+    extends:
+      file: base.yml
+      service: objectservice
+    links:
+       - db:db
+       - workerui:workerui
+    depends_on:
+       - db
+       - workerui
+    command:
+      - -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005
+      - -Dworkerservice.url=http://${DOCKERIP}:3333
+      - -Dworkeruipublic.url=http://${DOCKERIP}:8080
+      - -Dpybossa.disabled=true
+
+  workerservice:
+    extends:
+      file: base.yml
+      service: workerservice
+    links:
+       - db:db
+       - objectservice:objectservice
+    depends_on:
+         - db
+         - objectservice
+
+
+  workerui:
+    extends:
+      file: base.yml
+      service: workerui
+
+  db:
+     extends:
+        file: base.yml
+        service: db

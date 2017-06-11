@@ -1,0 +1,96 @@
+postgres:
+  image: postgres
+  hostname: postgres
+
+activemq:
+  image: webcenter/activemq
+  ports:
+    - "61616:61616"
+    - "8161:8161"
+  hostname: activemq
+
+cassandra:
+  image: cassandra
+  ports:
+    - "9160:9160"
+    - "9042:9042"
+  volumes:
+    - ./cassandra:/etc/cassandra
+
+loadbalancer:
+  image: jwilder/nginx-proxy
+  ports:
+    - "443:443"
+    - "80:80"
+  volumes:
+    - ./nginx/certs:/etc/nginx/certs
+    - /var/run/docker.sock:/tmp/docker.sock:ro
+  environment:
+    DEFAULT_HOST: assi
+
+assistanceplatform:
+  image: m156/assistance-platform-service
+  command: '-Dconfig.resource=docker.conf'
+  expose:
+    - "9000"
+  links:
+      - postgres:db
+      - cassandra
+      - activemq
+  hostname: assi
+  environment:
+      VIRTUAL_HOST: assi
+      VIRTUAL_PORT: 9000
+      # override links with hostnames
+      ACTIVEMQ_PORT_61616_TCP_ADDR: activemq
+      DB_PORT_5432_TCP_ADDR: postgres
+
+#sparkmaster:
+#  image: gettyimages/spark
+#  command: /usr/spark/bin/spark-class org.apache.spark.deploy.master.Master -h sparkmaster
+#  hostname: sparkmaster
+#  environment:
+#    SPARK_CONF_DIR: /conf
+#    MASTER: spark://sparkmaster:7077
+#  expose:
+#    - 7001
+#    - 7002
+#    - 7003
+#    - 7004
+#    - 7005
+#    - 7006
+#    - 7077
+#    - 6066
+#  ports:
+#    - 4040:4040
+#    - 6066:6066
+#    - 7077:7077
+#    - 8080:8080
+  #volumes:
+  #  - ./conf/master:/conf
+  #  - ./data:/tmp/data
+
+# sparkworker:
+#   image: gettyimages/spark
+#   command: /usr/spark/bin/spark-class org.apache.spark.deploy.worker.Worker spark://sparkmaster:7077
+#   hostname: sparkworker
+#   environment:
+#     SPARK_CONF_DIR: /conf
+#     SPARK_WORKER_CORES: 4
+#     SPARK_WORKER_MEMORY: 4g
+#     SPARK_WORKER_PORT: 8881
+#     SPARK_WORKER_WEBUI_PORT: 8081
+#   links:
+#     - sparkmaster
+#   expose:
+#     - 7012
+#     - 7013
+#     - 7014
+#     - 7015
+#     - 7016
+#     - 8881
+#   ports:
+#     - 8081:8081
+#   #volumes:
+#   #  - ./conf/worker:/conf
+#   #  - ./data:/tmp/data

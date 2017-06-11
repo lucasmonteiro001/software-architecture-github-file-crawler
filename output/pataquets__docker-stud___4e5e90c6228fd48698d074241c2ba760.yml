@@ -1,0 +1,12 @@
+tls:
+#  image: pataquets/stud
+  build: .
+  links:
+    - web:backend
+  ports:
+    - 443:8443
+
+web:
+  image: httpd
+  ports:
+    - "80:80"

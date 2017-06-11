@@ -1,0 +1,25 @@
+version: '2'
+services:
+  dbflute:
+    build:
+      context: ../..
+      dockerfile: ./docker/dbflute/Dockerfile
+    volumes:
+      - ../../dbflute_himawari/dfprop:/app/dbflute_himawari/dfprop:ro
+      - ../../dbflute_himawari/extlib:/app/dbflute_himawari/extlib
+      - ../../dbflute_himawari/log:/app/dbflute_himawari/log
+      - ../../dbflute_himawari/output:/app/dbflute_himawari/output
+      - ../../dbflute_himawari/playsql:/app/dbflute_himawari/playsql:ro
+      - ../../dbflute_himawari/schema:/app/dbflute_himawari/schema
+      - ../../dbflute_himawari/build.properties:/app/dbflute_himawari/build.properties
+      - ../../src:/app/src
+    environment:
+      - TZ=Asia/Tokyo
+    external_links:
+      - himawari_mysql_1:mysqlhost
+    networks:
+      - himawari_default
+networks:
+  himawari_default:
+    external:
+      name: himawari_default

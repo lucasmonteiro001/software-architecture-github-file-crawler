@@ -1,0 +1,9 @@
+pycsw:
+  image: birdhouse/pycsw
+  command: make update-config update-user start
+  ports:
+    - "48082:48082"
+    - "8082:8082"
+  volumes:
+    - data:/data
+  volume_driver: local

@@ -1,0 +1,45 @@
+postgres:
+  container_name: odl-postgres
+  image: postgres:9.5.1
+cassandra:
+  container_name: odl-cassandra
+  image: spotify/cassandra
+qpid:
+  container_name: odl-qpid
+  build: qpid
+  ports:
+   - "5672:5672"
+opennms:
+  container_name: odl-opennms
+  build: opennms
+  ports:
+   - "18101:8101"
+   - "8980:8980"
+  # Work around for too many files issue when running the Liquibase migrations
+  privileged: true
+  ulimits:
+    nofile:
+      soft: 40000
+      hard: 80000
+  links:
+   - postgres
+   - cassandra
+   - controller
+   - qpid
+grafana:
+  container_name: odl-grafana
+  build: grafana
+  ports:
+   - "3000:3000"
+  links:
+   - opennms
+controller:
+  container_name: odl-controller
+  build: controller
+  ports:
+   - "28101:8101"
+   - "8181:8181"
+   - "6633:6633"
+  links:
+   - cassandra
+   - qpid

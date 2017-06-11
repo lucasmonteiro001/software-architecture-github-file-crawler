@@ -1,0 +1,23 @@
+db:
+  image: postgres
+  ports:
+    - "15432:5432"
+db_alt:
+  image: mysql
+  environment:
+      - MYSQL_ROOT_PASSWORD=root
+  ports:
+    - "13306:3306"
+web:
+  build: .
+  command: python manage.py runserver 0.0.0.0:8000
+  #command: sleep 999999
+  restart: always
+  volumes:
+    - ./microerp/:/code
+  ports:
+    - "8000:8000"
+    - "8001:8001"
+  links:
+    - db
+    - db_alt

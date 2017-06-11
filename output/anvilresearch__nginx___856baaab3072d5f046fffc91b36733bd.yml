@@ -1,0 +1,10 @@
+nginx:
+  image: anvilresearch/nginx
+  volumes:
+    - ./conf.d:/etc/nginx/conf.d:ro
+    - ./certs:/etc/nginx/certs:ro
+    - ./public:/var/www/html:ro
+    - ./logs:/var/log/nginx
+  ports:
+    - "443:443"
+  restart: always

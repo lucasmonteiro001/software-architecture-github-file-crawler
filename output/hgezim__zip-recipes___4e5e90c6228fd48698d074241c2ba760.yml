@@ -1,0 +1,18 @@
+version: '2'
+services:
+  dev:
+    container_name: dev
+    image: hgezim/wordpress-nginx-nocache-xdebug:1.42
+    ports:
+      - "8080:8080"
+      - "21000:21"
+      - "22000:22"
+    volumes:
+      - ./src:/usr/share/nginx/html/wordpress/wp-content/plugins/zip-recipes
+
+  db:
+    container_name: db
+    image: mysql:5.5
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: wordpress # db name of wordpress

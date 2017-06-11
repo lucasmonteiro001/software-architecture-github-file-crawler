@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+  myapp:
+    build: .
+    image: myapp
+    container_name: myapp
+    command: yarn start
+    ports:
+      - '3030:3030'
+
+  tests:
+    build: .
+    image: myapp
+    container_name: myapp-tests
+    command: yarn test

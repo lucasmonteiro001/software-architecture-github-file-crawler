@@ -1,0 +1,14 @@
+unifi-controller:
+  image: jacobalberty/unifi:stable
+  net: host
+  volumes:
+    - /docker/unifi/lib:/var/lib/unifi
+    - /docker/unifi/log:/var/log/unifi
+    - /docker/unifi/run:/var/run/unifi
+  ports:
+    - "8080:8080"
+    - "8081:8081"
+    - "8443:8443"
+    - "8843:8843"
+    - "8880:8880"
+    - "3478:3478"

@@ -1,0 +1,38 @@
+version: '2'
+services:
+
+  ####### infrastructure
+
+  mongo:
+    image: mongo
+    ports:
+      - "27017:27017"
+
+  ####### services
+
+  jackie:
+    image: node:alpine
+    command: node .
+    environment:
+      jackie_mongo__url: mongodb://mongo/jackie
+    links:
+      - mongo
+    volumes:
+      - ${TT_PROJECTS}/jackie:/app:ro
+    working_dir: /app
+    labels:
+      com.tarantino.source: git@github.com:meet-tarantino/jackie.git
+
+  jules:
+    image: node:alpine
+    command: node .
+    environment:
+      jules_jackie: http://jackie:8080
+    links:
+      - mongo
+      - jackie
+    volumes:
+      - ${TT_PROJECTS}/jules:/app:ro
+    working_dir: /app
+    labels:
+      com.tarantino.source: git@github.com:meet-tarantino/jules.git

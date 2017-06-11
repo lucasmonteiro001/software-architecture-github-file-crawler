@@ -1,0 +1,7 @@
+aureliatestapp:
+  build: .
+  volumes:
+    - .:/usr/src/app
+  ports:
+    - 9000:9000
+  user: dock

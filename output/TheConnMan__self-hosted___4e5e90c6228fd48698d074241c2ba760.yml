@@ -1,0 +1,39 @@
+nginx:
+  build: .
+  ports:
+    - 80:80
+
+transient:
+  image: theconnman/transient
+  ports:
+    - 8080:3000
+
+youtransfer:
+  image: remie/youtransfer:stable
+  ports:
+    - 8081:5000
+
+mongo:
+  image: mongo
+
+rocketchat:
+  image: rocketchat/rocket.chat:latest
+  ports:
+    - 8082:3000
+  links:
+    - mongo:mongo
+
+db:
+  image: mysql:latest
+  environment:
+    - MYSQL_DATABASE=streama
+    - MYSQL_USER=streama
+    - MYSQL_PASSWORD=streama
+    - MYSQL_RANDOM_ROOT_PASSWORD=yes
+
+streama:
+  image: dularion/streama
+  links:
+    - db:db
+  ports:
+    - 8083:8080

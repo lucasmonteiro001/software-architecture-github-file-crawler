@@ -1,0 +1,62 @@
+version: "2"
+
+services:
+  tor:
+     image: goldy/tor-hidden-service:latest
+     links:
+          - ghost
+          - wordpress
+          - mediawiki
+          - paperwork
+     restart: always
+     volumes:
+          - "~/.keys/:/var/lib/tor/hidden_service/"
+     environment:
+        # Set mapping ports
+         GHOST_PORTS: "80:2368"
+         WORDPRESS_PORTS: "80:80"
+         MEDIAWIKI_PORTS: "80:80"
+         PAPERWORK_PORTS: "80:80"
+
+  ghost:
+     image: ghost
+     restart: always
+
+  wordpress:
+     depends_on:
+          - db
+     image: wordpress:latest
+     links:
+          - db
+     restart: always
+     environment:
+         WORDPRESS_DB_HOST: db:3306
+         WORDPRESS_DB_USER: paperwork
+         WORDPRESS_DB_PASSWORD: paperwork
+         WORDPRESS_DB_NAME: paperwork
+
+  mediawiki:
+     depends_on:
+          - db
+     image: synctree/mediawiki
+     links:
+          - db
+     restart: always
+     environment:
+         MEDIAWIKI_DB_HOST: db:3306
+         MEDIAWIKI_DB_USER: paperwork
+         MEDIAWIKI_DB_PASSWORD: paperwork
+         MEDIAWIKI_DB_NAME: paperwork
+
+  paperwork:
+     image: conoria/paperwork
+     links:
+          - db
+     
+  db:
+     image: mariadb
+     environment:
+          - MYSQL_ROOT_PASSWORD=paperwork
+          - MYSQL_DATABASE=paperwork
+          - MYSQL_USER=paperwork
+          - MYSQL_PASSWORD=paperwork

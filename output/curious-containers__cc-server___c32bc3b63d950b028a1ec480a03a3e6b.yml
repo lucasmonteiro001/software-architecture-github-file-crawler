@@ -1,0 +1,76 @@
+version: "2"
+services:
+  cc-server-web:
+    build: ./cc-server-image
+    command: "python3 -u /root/.config/curious-containers/cc-server-web/init.py"
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../cc_server_web:/opt/cc_server_web:ro
+      - ../cc_commons:/opt/cc_commons:ro
+      - .:/root/.config/curious-containers:ro
+    links:
+      - mongo
+      - cc-server-master
+      - cc-server-log
+    tty: true
+
+  cc-server-master:
+    build: ./cc-server-image
+    command: "python3 -u /root/.config/curious-containers/cc-server-master/init.py"
+    volumes:
+      - ../cc_server_master:/opt/cc_server_master:ro
+      - ../cc_commons:/opt/cc_commons:ro
+      - .:/root/.config/curious-containers:ro
+      - ~/.docker/machine:/root/.docker/machine:ro
+    links:
+      - mongo
+      - dind
+      - cc-server-log
+    depends_on:
+      - mongo-seed
+    tty: true
+
+  cc-server-log:
+    build: ./cc-server-image
+    command: "python3 -u /opt/cc_server_log"
+    volumes:
+      - ../cc_server_log:/opt/cc_server_log:ro
+      - ../cc_commons:/opt/cc_commons:ro
+      - .:/root/.config/curious-containers:ro
+      - ~/.cc_server_compose/logs:/root/.cc_server/logs
+    tty: true
+
+  mongo:
+    image: mongo
+    volumes:
+      - ~/.cc_server_compose/mongo/db:/data/db
+    tty: true
+
+  mongo-seed:
+    build: ./mongo-seed
+    volumes:
+      - .:/root/.config/curious-containers
+    command: "python3 -u /root/.config/curious-containers/mongo-seed/init.py"
+    links:
+      - mongo
+    tty: true
+
+  dind:
+    image: docker:dind
+    privileged: true
+    command: "docker daemon --insecure-registry=registry:5000 -H tcp://0.0.0.0:2375"
+    volumes:
+      - ~/.cc_server_compose/dind/docker:/var/lib/docker
+    links:
+      - registry
+    tty: true
+
+  registry:
+    image: registry:2
+    ports:
+      - "5000:5000"
+    environment:
+      REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY: /data
+    volumes:
+      - ~/.cc_server_compose/registry/data:/data

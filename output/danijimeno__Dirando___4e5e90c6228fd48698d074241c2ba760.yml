@@ -1,0 +1,59 @@
+version: "2.0"
+
+
+
+services: 
+
+  dirandobd:
+
+    image: rperezll/dirando-mysql
+
+    environment:
+
+      - MYSQL_ROOT_PASSWORD=root
+
+      - MYSQL_DATABASE=dirandobd
+
+      - MYSQL_USER=root
+
+      - MYSQL_PASSWORD=root
+
+  backend:
+
+    image: rperezll/dirando-backend
+
+    depends_on:
+
+      - dirandobd
+
+    ports:
+
+      - 8443:8443
+
+    environment:
+
+      - DATABASE_HOST=dirando
+
+      - DATABASE_USER=root
+
+      - DATABASE_PASSWORD=root
+
+      - DATABASE_NAME=dirandobd
+
+      - DATABASE_PORT=3306
+
+  frontend:
+
+    image: rperezll/dirando-angular
+
+    depends_on:
+
+      - backend
+
+    ports:
+
+      - 4200:80
+
+    environment:
+
+      - API_URL=backend

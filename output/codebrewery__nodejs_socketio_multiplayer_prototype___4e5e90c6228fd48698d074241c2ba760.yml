@@ -1,0 +1,21 @@
+socket:
+  build: .
+  links:
+   - mongo
+   - redis
+  env_file: .env.ci
+  ports:
+   - "3000:3000"
+  volumes:
+   - ./src:/app/src
+  container_name: socketio_app
+mongo:
+  image: mongo:3.0.9
+  ports:
+   - "27017:27017"
+  command:  --smallfiles
+redis:
+  image: redis:2.8
+  ports:
+   - "6379:6379"
+  command: redis-server

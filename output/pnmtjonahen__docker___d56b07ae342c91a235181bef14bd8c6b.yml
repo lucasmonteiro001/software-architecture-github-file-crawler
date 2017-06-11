@@ -1,0 +1,58 @@
+mongodb:
+  image: mongo:latest
+  container_name: mongodb
+  command: mongod --smallfiles
+  ports:
+   - "27017:27017"
+  volumes:
+   - ./mongo:/data/db:rw
+  volume_driver: local
+hygieia-api:
+  image: capitalone/hygieia-api:latest
+  container_name: hygieia-api
+  ports:
+  - "8082:8080"
+  volumes:
+  - ./logs:/hygieia/logs
+  links:
+  - mongodb:mongo
+hygieia-ui:
+  image: capitalone/hygieia-ui:latest
+  container_name: hygieia-ui
+  ports:
+  - "8088:80"
+  links:
+  - hygieia-api
+  
+hygieia-jenkins-build-collector:
+  image: capitalone/hygieia-jenkins-build-collector:latest
+  container_name: hygieia-jenkins-build
+  volumes:
+  - ./logs:/hygieia/logs
+  links:
+  - mongodb:mongo
+  - hygieia-api
+  environment:
+#Jenkins server (required) - Can provide multiple
+  - JENKINS_MASTER=http://jenkins:8081
+#If using username/token for api authentication (required for Cloudbees Jenkins Ops Center) see sample
+#  - JENKINS_OP_CENTER=http://username:token@jenkins.company.com
+#Another option: If using same username/password Jenkins auth - set username/apiKey to use HTTP Basic Auth (blank=no auth)
+#  - JENKINS_USERNAME
+#  - JENKINS_API_KEY
+#  - JENKINS_CRON=0 0/5 * * * *
+#Determines if build console log is collected - defaults to false
+#  - JENKINS_SAVE_LOG=true
+
+hygieia-sonar-codequality-collector:
+  image: capitalone/hygieia-sonar-codequality-collector:latest
+  container_name: hygieia-sonar-codequality
+  volumes:
+  - ./logs:/hygieia/logs
+  links:
+  - mongodb:mongo
+  - hygieia-api
+  environment:
+#  - SONAR_CRON=0 0/5 * * * *
+  - SONAR_URL=http://sonarqube:9000
+

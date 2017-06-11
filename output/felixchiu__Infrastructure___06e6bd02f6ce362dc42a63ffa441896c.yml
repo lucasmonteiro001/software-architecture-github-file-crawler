@@ -1,0 +1,11 @@
+gateway:
+  image: api-gateway
+  container_name: api-gateway
+  ports:
+    - "443:443"
+  environment:
+    - TZ=America/Los_Angeles
+  volumes:
+    - /etc/localtime:/etc/localtime
+    - /opt/api-gateway/logs/https-proxy-logs:/var/log/nginx
+    - /opt/api-gateway/container/conf/default:/etc/nginx/sites-enabled/default

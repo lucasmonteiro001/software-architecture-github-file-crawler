@@ -1,0 +1,62 @@
+---
+version: '3'
+services:
+  broker:
+    image: rabbitmq:3-management-alpine
+    ports:
+      - "15672:15672"
+    networks:
+      - back-tier
+  web:
+    image: markstory/lint-review
+    command:
+      - gunicorn
+      - -c
+      - /code/settings.py
+      - lintreview.web:app
+    healthcheck:
+      test: ["CMD", "/code/docker_healthcheck.sh", "web"]
+      interval: 10s
+      timeout: 10s
+      retries: 3
+    environment: &lintreview_env
+      LINTREVIEW_GUNICORN_BIND: '0.0.0.0:5000'
+      LINTREVIEW_GUNICORN_LOG_ACCESS: '-'
+      LINTREVIEW_GUNICORN_LOG_ERROR: '-'
+    ports:
+      - "5000:5000"
+    links:
+      - broker
+    networks:
+      - front-tier
+      - back-tier
+    depends_on:
+      - broker
+      - worker
+  worker:
+    image: markstory/lint-review
+    command:
+      - celery
+      - -A
+      - lintreview.tasks
+      - worker
+      - -l
+      - info
+    healthcheck:
+      test: ["CMD", "/code/docker_healthcheck.sh", "worker"]
+      interval: 10s
+      timeout: 10s
+      retries: 3
+    environment:
+      <<: *lintreview_env
+      C_FORCE_ROOT: "true"
+    links:
+      - broker
+    networks:
+      - back-tier
+    depends_on:
+      - broker
+
+networks:
+  front-tier:
+  back-tier:

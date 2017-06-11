@@ -1,0 +1,16 @@
+# Before starting this compose:
+# $ docker create -v /ruby_gems/2.2 --name gems22 alpine:3.1 /bin/true
+# if `gems22` not already created
+
+web:
+  build: .
+  environment:
+    PASSENGER_APP_ENV: development
+  ports:
+  - "80:80"
+  - "443:443"
+  volumes:
+  - .:/home/app/web
+  volumes_from:
+  - gems22
+

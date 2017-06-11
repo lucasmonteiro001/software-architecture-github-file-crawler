@@ -1,0 +1,14 @@
+version: '2'
+services:
+  nodeserver:
+    build:
+      context: .
+      dockerfile: Dockerfile.node.conf
+    container_name: node-server
+    ports:
+      - "9000:9000"
+      - "3001:3001"
+      - "3000:3000"
+    volumes:
+      - /code/:/project
+      - /Users/:/Users 

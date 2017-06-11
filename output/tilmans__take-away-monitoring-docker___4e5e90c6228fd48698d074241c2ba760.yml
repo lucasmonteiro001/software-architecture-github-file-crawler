@@ -1,0 +1,39 @@
+graphite:
+  restart: always
+  image: tilmans/graphite
+  ports:
+    - "8080:80"
+    - "2003:2003"
+  volumes:
+    - "/docker-data/graphite:/var/lib/graphite/storage/whisper"
+elasticsearch:
+  restart: always
+  image: dockerfile/elasticsearch
+  volumes:
+    - "/docker-data/elasticsearch:/data"
+  ports:
+    - "9200:9200"
+grafana:
+  restart: always
+  image: tilmans/grafana
+  ports:
+    - "8100:80"
+grafana2:
+  restart: always
+  image: grafana/grafana
+  ports:
+    - "3000:3000"
+  volumes: 
+    - "/docker-data/grafana2/data:/opt/grafana/data"
+    - "/docker-data/grafana2/config:/opt/grafana/config"
+statsd:
+  restart: always
+  image: tilmans/statsd
+  ports:
+    - "8125:8125/udp"
+  links: 
+    - graphite
+  environment:
+    GRAPHITE_HOST: graphite_1
+
+

@@ -1,0 +1,24 @@
+version: '2'
+services:
+  server:
+    container_name: server
+    build:
+      context: backend/server/
+      dockerfile: Dockerfile
+    ports:
+      - 1337:1337
+    volumes:
+      - ./backend/server/:/usr/src/deep_thought/server/:rw
+    network_mode: bridge
+  frontend:
+    container_name: frontend
+    build:
+      context: frontend/
+      dockerfile: Dockerfile
+    ports:
+      - 3000:3000
+    volumes:
+      - ./frontend/:/usr/src/deep_thought/client/:rw
+    links:
+        - server:server.local
+    network_mode: bridge

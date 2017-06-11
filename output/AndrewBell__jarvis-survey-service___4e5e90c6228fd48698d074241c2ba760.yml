@@ -1,0 +1,15 @@
+version: '2'
+services:
+  survey-service:
+    build: ./survey-service
+    image: recursivechaos/survey-service
+    ports:
+      - "3000:3000"
+    links:
+    - mongo
+  mongo:
+    image: mongo
+    volumes:
+    - ./data:/data
+    ports:
+    - "27027:27017"

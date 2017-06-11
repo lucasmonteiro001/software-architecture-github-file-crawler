@@ -1,0 +1,11 @@
+web:
+  build: .
+  command: foreman start web
+  volumes:
+    - .:/usr/src/app
+  volumes_from:
+    - gems-2.1
+  ports:
+    - "3000:3000"
+  external_links:
+    - neofrogmiservices_db_1:db

@@ -1,0 +1,11 @@
+version: '2'
+services:
+  lib:
+    command: rspec
+    image: sticksnleaves/ruby-project:2.4
+    volumes:
+      - .:/usr/src/app
+      - lib.volume:/usr/local/bundle
+volumes:
+  lib.volume:
+    driver: local

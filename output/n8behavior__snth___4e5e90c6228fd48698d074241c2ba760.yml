@@ -1,0 +1,11 @@
+consul0:
+    image: progrium/consul
+    command: -server -bootstrap-expect 3
+    links:
+        - consul
+
+consul:
+    image: progrium/consul
+    command: --server -join consul0
+    links: 
+        - consul0

@@ -1,0 +1,12 @@
+# If you want the data to stay inside the container, comment out
+# the volumes section below.  I prefer to leave it there because
+# it keeps the data outside of the container (which means you can
+# destroy the container and rebuild, yet retain the data
+
+dynamodb:
+    #image: freedomben/dynamodb
+    build: .
+    ports:
+        - "8000:8000"
+    volumes:
+        - "./dynamo_data:/app/dynamo_data"

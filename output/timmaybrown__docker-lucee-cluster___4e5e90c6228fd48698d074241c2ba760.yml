@@ -1,0 +1,25 @@
+lb:
+  image: nginx
+  ports:
+   - "8080:80"
+  volumes:
+   - ./cluster/default.conf:/etc/nginx/conf.d/default.conf
+  links:
+   - lucee1:lucee1
+   - lucee2:lucee2
+   - lucee3:lucee3
+lucee1:
+  image: lucee/lucee4:latest
+  volumes:
+   - ./cluster/server.xml:/usr/local/tomcat/conf/server.xml
+   - ./cluster/ROOT:/usr/local/tomcat/webapps/ROOT
+lucee2:
+  image: lucee/lucee4:latest
+  volumes:
+   - ./cluster/server.xml:/usr/local/tomcat/conf/server.xml
+   - ./cluster/ROOT:/usr/local/tomcat/webapps/ROOT
+lucee3:
+  image: lucee/lucee4:latest
+  volumes:
+   - ./cluster/server.xml:/usr/local/tomcat/conf/server.xml
+   - ./cluster/ROOT:/usr/local/tomcat/webapps/ROOT

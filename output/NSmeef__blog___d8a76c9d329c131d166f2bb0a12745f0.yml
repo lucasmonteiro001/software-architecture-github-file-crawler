@@ -1,0 +1,6 @@
+jekyll:
+  image: jekyll
+  ports:
+    - "80:80"
+  volumes:
+    - /home/nate/dockerfiles/blog:/home/blog

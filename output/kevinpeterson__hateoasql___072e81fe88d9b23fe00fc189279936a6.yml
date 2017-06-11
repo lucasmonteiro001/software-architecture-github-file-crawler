@@ -1,0 +1,18 @@
+mysql:
+  build: hateoasql-mysql
+  environment:
+    - MYSQL_ROOT_PASSWORD=root
+    - MYSQL_DATABASE=sakila
+  ports:
+     - 3306:3306
+
+hateoasql:
+  hostname: hateoasql
+  build: hateoasql
+  volumes:
+    - ../:/work/
+  ports:
+    - 3000:3000
+  links:
+    - mysql:mysql
+

@@ -1,0 +1,58 @@
+mysqldata_raw:
+  image: busybox
+  volumes:
+   - /var/lib/mysql
+  command: echo Data-only container for Mysql
+
+mysql_raw:
+  restart: always
+  image: mysql:5.7.11
+  volumes_from:
+   - mysqldata_raw
+  volumes:
+   - ./config/mysql:/etc/mysql/conf.d
+  environment:
+   MYSQL_ROOT_PASSWORD: ${MYSQL_RAW_DATA_ROOT_PASSWORD}
+   MYSQL_USER: ${MYSQL_RAW_DATA_USER_NAME}
+   MYSQL_DATABASE: bicing_raw
+   MYSQL_PASSWORD: ${MYSQL_RAW_DATA_USER_PASSWORD}
+
+querybicing:
+  restart: always
+  image: golang:1.7.0
+  working_dir: /code/src/github.com/alexcarol/bicing-oracle
+  command: go run main.go
+  volumes:
+   - .:/code/src/github.com/alexcarol/bicing-oracle
+  environment:
+   OWM_API_KEY: ${OWM_API_KEY}
+   BICING_API_POLLING_TIME: ${BICING_API_POLLING_TIME}
+   MYSQL_RAW_DATA_NAME: bicing_raw
+   MYSQL_RAW_DATA_USER: ${MYSQL_RAW_DATA_USER_NAME}
+   MYSQL_RAW_DATA_PASSWORD: ${MYSQL_RAW_DATA_USER_PASSWORD}
+   MYSQL_RAW_DATA_ADDRESS: mysql_raw:3306
+   GOPATH: /code
+  links:
+   - mysql_raw
+
+api:
+  restart: always
+  image: alexcarol/golang-r
+  working_dir: /code/src/github.com/alexcarol/bicing-oracle
+  command: go run api/api.go
+  volumes:
+   - .:/code/src/github.com/alexcarol/bicing-oracle
+   - /tmp/
+  environment:
+   OWM_API_KEY: ${OWM_API_KEY}
+   MYSQL_RAW_DATA_NAME: bicing_raw
+   MYSQL_RAW_DATA_USER: ${MYSQL_RAW_DATA_USER_NAME}
+   MYSQL_RAW_DATA_PASSWORD: ${MYSQL_RAW_DATA_USER_PASSWORD}
+   MYSQL_RAW_DATA_ADDRESS: mysql_raw:3306
+   MYSQL_RAW_DATA_HOST: mysql_raw
+   MYSQL_RAW_DATA_PORT: 3306
+   GOPATH: /code
+  ports:
+    - "80:80"
+  links:
+   - mysql_raw

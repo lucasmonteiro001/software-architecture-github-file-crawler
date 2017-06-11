@@ -1,0 +1,37 @@
+jira:
+  image: dnhsoft/jira:6.4.1
+  links:
+   - db
+  ports:
+   - "8080:8080"
+  volumes:
+   - ".jira:/var/atlassian/application-data/jira"
+
+
+confluence: 
+  image: dnhsoft/confluence:5.7.1
+  links:
+   - db
+   - jira
+  ports:
+   - "8090:8090"
+  volumes:
+   - ".confluence:/var/atlassian/application-data/confluence"
+
+
+db:
+  image: tutum/mysql:5.6
+  volumes:
+   - ".db:/var/lib/mysql"
+  environment:
+   MYSQL_PASS: 123456
+
+
+pma:
+  image: dnhsoft/phpmyadmin:4.4.3
+  links:
+   - db
+  ports:
+   - "8100:80"
+
+

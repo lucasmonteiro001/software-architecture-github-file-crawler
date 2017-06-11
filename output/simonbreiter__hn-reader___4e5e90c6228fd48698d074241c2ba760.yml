@@ -1,0 +1,3 @@
+hn-reader:
+  container_name: hn-reader
+  build: .

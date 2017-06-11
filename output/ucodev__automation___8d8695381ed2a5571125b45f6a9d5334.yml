@@ -1,0 +1,63 @@
+version: '2'
+
+services:
+  ispconfig3:
+    build:
+      context: ./build/ispconfig3
+      args:
+        ROOT_PASSWORD: password
+        HOST_FQDN: someserver1.somedomain.tld
+        HOST_NAME: someserver1
+        HOST_IP: 192.168.100.2
+        MYSQL_ROOT_PASSWORD: password
+        MAILMAN_ADMIN_EMAIL: someone@somedomain.tld
+        MAILMAN_ADMIN_PASSWORD: password
+        ROUNDCUBE_VERSION: 1.1.3
+        ROUNDCUBE_SQL_DATABASE: roundcubemail
+        ROUNDCUBE_SQL_USERNAME: roundcube
+        ROUNDCUBE_SQL_PASSWORD: password
+        ROUNDCUBE_ISP_USERNAME: roundcube
+        ROUNDCUBE_ISP_PASSWORD: password
+        PURE_FTPD_VERSION: 1.0.36
+        PURE_FTPD_PATCH: 3.2
+        CERT_COUNTRY: PT
+        CERT_STATE: State
+        CERT_CITY: City
+        CERT_ORG: Organization
+        CERT_UNIT: IT
+        CERT_EMAIL: someone@somedomain.tld
+    image: ucodev/ispconfig:latest
+    hostname: someserver1
+    domainname: somedomain.tld
+    volumes:
+      - ispconfig_etc:/etc
+      - ispconfig_home:/home
+      - ispconfig_root:/root
+      - ispconfig_var:/var
+    stdin_open: true
+    tty: true
+    command: /etc/rc.local
+    restart: always
+    networks:
+      ispnet:
+        ipv4_address: 192.168.110.2
+
+volumes:
+  ispconfig_etc:
+    driver: local
+  ispconfig_home:
+    driver: local
+  ispconfig_root:
+    driver: local
+  ispconfig_var:
+    driver: local
+
+networks:
+  ispnet:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+      - subnet: 192.168.110.0/24
+        gateway: 192.168.110.1
+

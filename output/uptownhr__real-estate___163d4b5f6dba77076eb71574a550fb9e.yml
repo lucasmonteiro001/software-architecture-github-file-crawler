@@ -1,0 +1,11 @@
+app:
+ images: uptownhr/annalee
+ extra_hosts:
+ - "mongo:10.132.220.165"
+ ports:
+ - 3000
+ environment:
+  - MONGODB=mongodb://mongo:27017/annalee
+  - VIRTUAL_HOST=annalee.reatlor,www.annalee.realtor
+ command: node app.js
+ restart: always

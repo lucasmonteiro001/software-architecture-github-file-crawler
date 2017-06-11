@@ -1,0 +1,37 @@
+application:
+  image: zendframework2/code
+  volumes:
+    - .:/var/www/zf2
+  tty: true
+
+db:
+  image: mysql
+  ports:
+    - 3306:3306
+  environment:
+    MYSQL_ROOT_PASSWORD: mysqlroot
+    MYSQL_DATABASE: zf2
+    MYSQL_USER: admin
+    MYSQL_PASSWORD: root
+  volumes:
+    - /home/mysql2:/var/lib/mysql
+
+php:
+  image: zendframework2/php-fpm
+  expose:
+    - 9000:9000
+  volumes_from:
+    - application
+  links:
+    - db
+  
+nginx:
+  image: zendframework2/nginx
+  ports:
+    - 80:80
+  links:
+    - php
+  volumes_from:
+    - application
+  volumes:
+    - logs/nginx/:/var/log/nginx

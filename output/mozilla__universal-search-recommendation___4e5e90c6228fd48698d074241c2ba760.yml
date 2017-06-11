@@ -1,0 +1,27 @@
+memcached:
+  expose:
+    - "11211"
+  image: memcached
+  restart: always
+  ports:
+    - "11211"
+    - "11211:11211"
+
+redis:
+  expose:
+    - "6379"
+  image: redis
+  ports:
+    - "6379"
+    - "6379:6379"
+
+worker:
+  build: ./
+  entrypoint: /app/conf/worker.sh
+  env_file: .env
+  environment:
+    - RECOMMENDATION_ENV="worker"
+  links:
+    - memcached
+    - redis
+  restart: always

@@ -1,0 +1,11 @@
+git-website:
+  image: vger/git-website:latest
+  stdin_open: true
+  restart: always
+  labels:
+    io.rancher.container.pull_image: always
+    lb: true
+  environment:
+    GITADDR: ${GITADDR}
+    BASIC_AUTH: ${BASIC_AUTH}
+    BASIC_AUTH_FILE: ${BASIC_AUTH_FILE}

@@ -1,0 +1,7 @@
+kiwiirc:
+  image: vger/kiwiirc:latest
+  stdin_open: true
+  restart: always
+  labels:
+    io.rancher.container.pull_image: always
+    lb: true

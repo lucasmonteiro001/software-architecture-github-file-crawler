@@ -1,0 +1,17 @@
+# Finally did port numbers from 
+# http://docs.hortonworks.com/HDPDocuments/Ambari-2.0.0.0/Ambari_Doc_Suite/ADS_v200.html#ref-43663c9c-250d-419c-b19e-19bd8f207c61
+target:
+        build: hdp
+        expose:
+                - 22
+                - 8670
+
+ambari:
+        build: hdp
+        dockerfile: Dockerfile-ambari
+        ports:
+                - "8080:8080"
+        expose:
+                - 8440
+                - 8441
+                - 8670

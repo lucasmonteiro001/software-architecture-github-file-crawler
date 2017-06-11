@@ -1,0 +1,18 @@
+mysql:
+  build: mysql/etc
+  hostname: mysql-sample.weave.local
+  volumes:
+    - ./mysql/etc/init.sh:/var/www/etc/init.sh
+    - ./mysql/app:/var/lib/mysql
+php:
+  build: php/etc
+  hostname: php-sample.weave.local
+  volumes:
+    - ./php/app:/var/www/app
+node:
+  build: node/etc
+  hostname: node-sample.weave.local
+  volumes:
+    - ./node/etc:/var/www/etc
+    - ./node/app:/var/www/app
+

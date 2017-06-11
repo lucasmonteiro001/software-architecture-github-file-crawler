@@ -1,0 +1,16 @@
+version: '2'
+services:
+  mockresponse-api:
+    container_name: mockresponse_api
+    build: ./api  
+    
+  mockresponse-site:
+    container_name: mockresponse_site
+    build: ./site
+
+  reverse-proxy:
+    build: ./nginx
+    container_name: mockresponse_hosting
+    ports:
+      - "1111:1111"
+  

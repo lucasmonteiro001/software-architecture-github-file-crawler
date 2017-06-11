@@ -1,0 +1,36 @@
+version: '2'
+
+services:
+  api:
+    image: node:6.7.0
+    container_name: jasbot-api
+    command: bash -c "cd /jasbot/server/ && node --harmony server.js"
+    ports:
+     - "3000:3000"
+    volumes:
+     - ./common:/jasbot/common
+     - ./server:/jasbot/server
+     - ~/.config/jasbot:/jasbot/config
+    depends_on:
+     - db
+  web:
+    image: nginx:1.11.4
+    container_name: jasbot-web
+    ports:
+     - "80:80"
+     - "443:443"
+    volumes:
+     - ./devops/config/nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf
+     - ./client/dist:/usr/share/nginx/html
+    depends_on:
+     - api
+  db:
+    image: postgres:9.6.0
+    container_name: jasbot-db
+    ports:
+     - "5432:5432"
+    volumes:
+     - /data/jasbot/etc/postgresql:/etc/postgresql
+     - /data/jasbot/var/log/postgresql:/var/log/postgresql
+     - /data/jasbot/var/lib/postgresql:/var/lib/postgresql
+     - /data/jasbot/var/lib/postgresql/data:/var/lib/postgresql/data

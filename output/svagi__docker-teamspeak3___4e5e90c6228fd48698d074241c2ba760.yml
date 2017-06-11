@@ -1,0 +1,11 @@
+
+default:
+  build: .
+  restart: always
+  ports:
+    # allow standard teamspeak port
+    - "9987/udp:9987/udp"
+    # allow standard server query port
+    - "10011/tcp:10011/tcp"
+    # allow standard file manager port
+    - "30033/tcp:30033/tcp"

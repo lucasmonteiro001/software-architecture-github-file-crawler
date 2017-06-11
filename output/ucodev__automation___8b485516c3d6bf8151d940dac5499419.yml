@@ -1,0 +1,8 @@
+version: '2'
+
+services:
+  swagger-core:
+    build: ./build/swagger-core
+    image: ucodev/swagger-core:latest
+    stdin_open: true
+    tty: true

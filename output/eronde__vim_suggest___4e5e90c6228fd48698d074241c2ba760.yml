@@ -1,0 +1,15 @@
+redis:
+  image: redis:3.0.0
+  command: redis-server --appendonly no 
+  volumes_from:
+    - redis-data
+  ports:
+      - "6379:6379"
+  container_name: py-word-suggest-redis
+
+redis-data:
+  image: "busybox"
+  volumes:
+    - ./redis/data:/data
+  container_name: py-word-suggest-redis-data
+

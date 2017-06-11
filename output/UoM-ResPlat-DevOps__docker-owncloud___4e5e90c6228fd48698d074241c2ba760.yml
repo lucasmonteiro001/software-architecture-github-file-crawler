@@ -1,0 +1,28 @@
+db:
+  image: mariadb
+  environment:
+    - MYSQL_ROOT_PASSWORD=mysql
+
+smtp:
+  image: catatnight/postfix
+  environment:
+    - maildomain=example.test
+    - smtp_user=noreply:noreplypasswd
+
+data:
+  image: busybox
+  volumes:
+    - /config
+    - /data
+
+owncloud:
+  image: uomresplatdevops/owncloud
+  ports:
+    - "9001:443"
+  volumes:
+    - /dev/log:/dev/log
+  volumes_from:
+    - data
+  links:
+    - db
+    - smtp

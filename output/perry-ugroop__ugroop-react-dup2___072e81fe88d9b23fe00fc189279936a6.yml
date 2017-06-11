@@ -1,0 +1,8 @@
+version: '2'
+services:
+    ugroopfrontend:
+         build: ../.
+         volumes:
+             - ../app:/home/ugroop_react/app
+         ports:
+             - 80:3000
