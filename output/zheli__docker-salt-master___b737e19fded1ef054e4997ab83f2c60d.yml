@@ -1,0 +1,12 @@
+master:
+  build: .
+  ports:
+    - "4505:4505"
+    - "4506:4506"
+  environment:
+    LOG_LEVEL: debug
+  volumes:
+      - ../data/master.d:/etc/salt/master.d
+      - ../data/pki:/etc/salt/pki
+      - ../data/srv/salt:/srv/salt
+      - ../data/srv/pillar:/srv/pillar

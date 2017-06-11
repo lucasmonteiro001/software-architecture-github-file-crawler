@@ -1,0 +1,20 @@
+# data source
+influxdb:
+  #image: yuokada/influxdb
+  build: influxdb
+  #volumes_from:
+  #  - data-influxdbs
+  ports:
+    - "18083:8083"
+    - "18086:8086"
+    - "18088:8088"
+  command: run
+# graph tool
+grafana:
+  build: grafana
+  volumes:
+    - ./cache:/var/cache/yum
+  links:
+    - influxdb:influxdb
+  ports:
+    - "13000:3000"

@@ -1,0 +1,10 @@
+version: '2'
+services:
+  web:
+    image: wkoszek/me
+    ports:
+     - "5000:5000"
+    volumes:
+     - ${HOME}/r/me:/me
+    environment:
+     TEST_CI: "yes"

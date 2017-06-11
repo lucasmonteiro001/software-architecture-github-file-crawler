@@ -1,0 +1,6 @@
+version: '2'
+
+services:
+  bot:
+    image: zoobestik/gamebot
+    env_file: .env

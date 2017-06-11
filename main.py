@@ -1,8 +1,10 @@
-from github import Github
+from github import Github, enable_console_debug_logging
 import base64
 import json
 import os
 import hashlib
+
+enable_console_debug_logging()
 
 GH = Github()
 
@@ -19,7 +21,7 @@ class RepositoryHelper(object):
 
     def get_file_content(self):
         file_content = self.repo.get_file_contents(self.path, "master")
-        return base64.b64decode(file_content.content).decode('UTF-8')
+        return str(base64.b64decode(file_content.content).decode('UTF-8'))
 
     def save_to_file(self):
 

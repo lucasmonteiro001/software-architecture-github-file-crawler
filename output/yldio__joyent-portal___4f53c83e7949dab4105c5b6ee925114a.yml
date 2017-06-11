@@ -1,0 +1,2 @@
+traefik:
+  image: traefik:latest

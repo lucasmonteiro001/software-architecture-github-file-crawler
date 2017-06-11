@@ -1,0 +1,6 @@
+Miner:
+  image: wesseloc/docker-cpuminer-xzc
+  environment:
+     - URL=[Pool URL]
+     - USERNAME=[Username]
+     - PASSWORD=[Password]

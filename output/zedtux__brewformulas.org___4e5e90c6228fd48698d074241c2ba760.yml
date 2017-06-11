@@ -1,0 +1,45 @@
+version: '2'
+
+services:
+  postgres:
+    image: postgres:9.6.2
+  redis:
+    image: redis:3.2.8
+
+  bundle:
+    image: zedtux/brewformulas.org
+    command: echo Bundler data container
+    volumes:
+      - /bundle
+  workers:
+    image: zedtux/brewformulas.org
+    command: bundle exec sidekiq
+    links:
+      - postgres:database
+      - redis:redis
+    environment:
+      - POSTGRESQL_USER=postgres
+      - RAILS_ENV=development
+    volumes:
+      - .:/application/
+      - /home/developer/Developments/punching_bag/:/punching_bag/
+    volumes_from:
+      - bundle
+  web:
+    image: zedtux/brewformulas.org
+    build: .
+    command: bin/rails server -b 0.0.0.0 -p 3000
+    links:
+     - postgres:database
+     - redis
+    ports:
+     - "3000:3000"
+    environment:
+      - POSTGRESQL_USER=postgres
+      - RAILS_ENV=development
+      - VIRTUAL_HOST=localhost:3000
+    volumes:
+      - .:/application/
+      - /home/developer/Developments/punching_bag/:/punching_bag/
+    volumes_from:
+      - bundle

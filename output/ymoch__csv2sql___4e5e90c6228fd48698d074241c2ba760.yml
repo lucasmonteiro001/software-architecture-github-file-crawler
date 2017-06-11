@@ -1,0 +1,26 @@
+version: '2'
+
+services:
+  dockerize:
+    image: "jwilder/dockerize"
+    entrypoint:
+      - dockerize
+
+  psql_server:
+    image: "postgres:9.5-alpine"
+    environment:
+      POSTGRES_USER: docker
+      POSTGRES_PASSWORD: docker
+
+  psql_client:
+    image: "postgres:9.5-alpine"
+    depends_on:
+      - psql_server
+    environment:
+      PGHOST: psql_server
+      PGUSER: docker
+      PGPASSWORD: docker
+    entrypoint:
+      - psql
+      - --set
+      - ON_ERROR_STOP=on

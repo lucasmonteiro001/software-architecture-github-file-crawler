@@ -1,0 +1,36 @@
+version: '2'
+services:
+    marmoset:
+        build:
+            context: ./data/docker/db
+            args:
+                HOST_UID: ${HOST_UID}
+        volumes:
+            - ./var/db_data:/var/lib/postgresql/data
+        environment:
+            POSTGRES_PASSWORD: docker
+            POSTGRES_USER: freader
+            POSTGRES_DB: freader
+            PGDATA: /var/lib/postgresql/data/pgdata
+
+    octopus:
+        build:
+            context: ./data/docker/web
+            args:
+                HOST_UID: ${HOST_UID}
+        volumes:
+            - .:/var/www/html
+        links:
+            - marmoset
+        depends_on:
+            - marmoset
+
+    kangaroo:
+        image: xelbot/phppgadmin
+        links:
+            - marmoset
+        depends_on:
+            - marmoset
+        environment:
+            POSTGRES_HOST: marmoset
+            POSTGRES_DEFAULTDB: freader
