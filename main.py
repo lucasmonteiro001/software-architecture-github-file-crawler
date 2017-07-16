@@ -11,10 +11,10 @@ from datetime import datetime
 # GH = Github("lmufmg", "senhagithub1!")
 # GH = Github("lmmms", "senhagithub1!")
 GH = Github("lucasmonteiro001", "chemical3!")
-# print GH.get_rate_limit().rate
+print GH.get_rate_limit().rate
 # utc_time = datetime.utcfromtimestamp(GH.rate_limiting_resettime)
 # print(utc_time.strftime("%Y-%m-%d %H:%M:%S.%f+00:00 (UTC)"))
-# exit()
+exit()
 
 
 class RepositoryHelper(object):
@@ -51,7 +51,7 @@ class RepositoryHelper(object):
             f.write(file_content)
             f.close()
 
-        print GH.get_rate_limit().rate
+        #print GH.get_rate_limit().rate
 
     def save_repo_metadata_to_file(self):
 
@@ -73,7 +73,7 @@ class RepositoryHelper(object):
             f.write("%s,%s,%s" % (self.repo.language, self.repo.size, self.repo.stargazers_count))
             f.close()
 
-        print GH.get_rate_limit().rate
+        #print GH.get_rate_limit().rate
 
     def __str__(self):
         return super(RepositoryHelper, self).__str__()
@@ -87,7 +87,7 @@ for repo in repositories:
     try:
         counter += 1
 
-        if counter > 1:
+        if counter > 2230:
             repoJson = data = json.loads(repo)
             repository = RepositoryHelper(repoJson['repo_name'], repoJson['path'])
             # repository.save_to_file()
