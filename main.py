@@ -87,7 +87,7 @@ for repo in repositories:
     try:
         counter += 1
 
-        if counter > 27127:
+        if counter > 28000:
             repoJson = data = json.loads(repo)
             repository = RepositoryHelper(repoJson['repo_name'], repoJson['path'])
             # repository.save_to_file()
