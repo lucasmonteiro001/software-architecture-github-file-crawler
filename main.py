@@ -8,12 +8,12 @@ from datetime import datetime
 
 # enable_console_debug_logging()
 
-#GH = Github("lmufmg", "senhagithub1!")
+GH = Github("lmufmg", "senhagithub1!")
 #GH = Github("lmmms", "senhagithub1!")
-GH = Github("lucasmonteiro001", "chemical3!")
+#GH = Github("lucasmonteiro001", "chemical3!")
 #print GH.get_rate_limit().rate
-# utc_time = datetime.utcfromtimestamp(GH.rate_limiting_resettime)
-# print(utc_time.strftime("%Y-%m-%d %H:%M:%S.%f+00:00 (UTC)"))
+#utc_time = datetime.utcfromtimestamp(GH.rate_limiting_resettime)
+#print(utc_time.strftime("%Y-%m-%d %H:%M:%S.%f+00:00 (UTC)"))
 #exit()
 
 
@@ -87,7 +87,7 @@ for repo in repositories:
     try:
         counter += 1
 
-        if counter > 6711:
+        if counter > 8932:
             repoJson = data = json.loads(repo)
             repository = RepositoryHelper(repoJson['repo_name'], repoJson['path'])
             # repository.save_to_file()
