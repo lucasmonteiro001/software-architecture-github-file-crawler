@@ -8,13 +8,13 @@ from datetime import datetime
 
 # enable_console_debug_logging()
 
-# GH = Github("lmufmg", "senhagithub1!")
+GH = Github("lmufmg", "senhagithub1!")
 # GH = Github("lmmms", "senhagithub1!")
-GH = Github("lucasmonteiro001", "chemical3!")
-print GH.get_rate_limit().rate
+#GH = Github("lucasmonteiro001", "chemical3!")
+#print GH.get_rate_limit().rate
 # utc_time = datetime.utcfromtimestamp(GH.rate_limiting_resettime)
 # print(utc_time.strftime("%Y-%m-%d %H:%M:%S.%f+00:00 (UTC)"))
-exit()
+#exit()
 
 
 class RepositoryHelper(object):
